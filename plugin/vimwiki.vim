@@ -4,6 +4,30 @@ let g:loaded_vimwiki = 1
 let s:old_cpo = &cpo
 set cpo&vim
 
+command! -count=1 VimwikiIndex              call vimwiki#base#goto_index(v:count1)
+command! -count=1 VimwikiDiaryIndex         call vimwiki#diary#goto_diary_index(v:count1)
+command! -count=1 VimwikiMakeDiaryNote      call vimwiki#diary#make_note(v:count1)
+command!          VimwikiDiaryGenerateLinks call vimwiki#diary#generate_diary_section()
+
+nnoremap <silent><unique> <leader>ww         :VimwikiIndex<CR>
+nnoremap <silent><unique> <leader>wi         :VimwikiDiaryIndex<CR>
+nnoremap <silent><unique> <leader>w<leader>i :VimwikiDiaryGenerateLinks<CR>
+nnoremap <silent><unique> <leader>w<leader>w :VimwikiMakeDiaryNote<CR>
+
+" Clear FlexWiki's stuff
+augroup filetypedetect
+  autocmd! * *.wiki
+augroup END
+
+augroup vimwiki
+  autocmd!
+  autocmd BufEnter           *.wiki call s:setup_buffer_reenter()
+  autocmd BufWinEnter        *.wiki call s:setup_buffer_enter()
+  autocmd BufLeave,BufHidden *.wiki call s:setup_buffer_leave()
+  autocmd BufNewFile,BufRead *.wiki call s:setup_filetype()
+  autocmd ColorScheme        *.wiki call s:setup_cleared_syntax()
+augroup END
+
 " HELPER functions {{{
 function! s:default(varname, value) "{{{
   if !exists('g:vimwiki_'.a:varname)
@@ -260,27 +284,27 @@ endfunction " }}}
 
 " }}}
 
-" CALLBACK functions "{{{
-" User can redefine it.
-if !exists("*VimwikiLinkHandler") "{{{
+" CALLBACK functions " {{{1
+
+if !exists("*VimwikiLinkHandler")
   function VimwikiLinkHandler(url)
     return 0
   endfunction
-endif "}}}
+endif
 
-if !exists("*VimwikiLinkConverter") "{{{
+if !exists("*VimwikiLinkConverter")
   function VimwikiLinkConverter(url, source, target)
-    " Return the empty string when unable to process link
     return ''
   endfunction
-endif "}}}
+endif
 
-if !exists("*VimwikiWikiIncludeHandler") "{{{
-  function! VimwikiWikiIncludeHandler(value) "{{{
+if !exists("*VimwikiWikiIncludeHandler")
+  function! VimwikiWikiIncludeHandler(value)
     return ''
-  endfunction "}}}
-endif "}}}
-" CALLBACK }}}
+  endfunction
+endif
+
+" }}}1
 
 " DEFAULT wiki {{{
 let s:vimwiki_defaults = {}
@@ -385,59 +409,6 @@ call s:default('rxSchemeUrlMatchUrl', s:rxSchemes.':\zs.*\ze')
 for s:idx in range(len(g:vimwiki_list))
   call Validate_wiki_options(s:idx)
 endfor
-"}}}
-
-" AUTOCOMMANDS for all known wiki extensions {{{
-
-augroup filetypedetect
-  " clear FlexWiki's stuff
-  au! * *.wiki
-augroup end
-
-augroup vimwiki
-  autocmd!
-  for s:ext in s:vimwiki_get_known_extensions()
-    exe 'autocmd BufEnter *'.s:ext.' call s:setup_buffer_reenter()'
-    exe 'autocmd BufWinEnter *'.s:ext.' call s:setup_buffer_enter()'
-    exe 'autocmd BufLeave,BufHidden *'.s:ext.' call s:setup_buffer_leave()'
-    exe 'autocmd BufNewFile,BufRead, *'.s:ext.' call s:setup_filetype()'
-    exe 'autocmd ColorScheme *'.s:ext.' call s:setup_cleared_syntax()'
-  endfor
-augroup END
-"}}}
-
-" COMMANDS {{{
-command! -count=1 VimwikiIndex
-      \ call vimwiki#base#goto_index(v:count1)
-command! -count=1 VimwikiDiaryIndex
-      \ call vimwiki#diary#goto_diary_index(v:count1)
-command! -count=1 VimwikiMakeDiaryNote
-      \ call vimwiki#diary#make_note(v:count1)
-command! VimwikiDiaryGenerateLinks
-      \ call vimwiki#diary#generate_diary_section()
-"}}}
-
-" MAPPINGS {{{
-if !hasmapto('<Plug>VimwikiIndex')
-  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'w <Plug>VimwikiIndex'
-endif
-nnoremap <unique><script> <Plug>VimwikiIndex :VimwikiIndex<CR>
-
-if !hasmapto('<Plug>VimwikiDiaryIndex')
-  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'i <Plug>VimwikiDiaryIndex'
-endif
-nnoremap <unique><script> <Plug>VimwikiDiaryIndex :VimwikiDiaryIndex<CR>
-
-if !hasmapto('<Plug>VimwikiDiaryGenerateLinks')
-  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'<Leader>i <Plug>VimwikiDiaryGenerateLinks'
-endif
-nnoremap <unique><script> <Plug>VimwikiDiaryGenerateLinks :VimwikiDiaryGenerateLinks<CR>
-
-if !hasmapto('<Plug>VimwikiMakeDiaryNote')
-  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'<Leader>w <Plug>VimwikiMakeDiaryNote'
-endif
-nnoremap <unique><script> <Plug>VimwikiMakeDiaryNote :VimwikiMakeDiaryNote<CR>
-
 "}}}
 
 let &cpo = s:old_cpo
