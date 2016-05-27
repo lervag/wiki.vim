@@ -1,15 +1,3 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
-" Vimwiki autoload plugin file
-" Desc: Handle diary notes
-" Home: https://github.com/vimwiki/vimwiki/
-
-" Load only once {{{
-if exists("g:loaded_vimwiki_diary_auto") || &cp
-  finish
-endif
-let g:loaded_vimwiki_diary_auto = 1
-"}}}
-
 let s:vimwiki_max_scan_for_caption = 5
 
 " Helpers {{{

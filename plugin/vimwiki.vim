@@ -55,11 +55,6 @@ function! s:setup_buffer_leave() "{{{
   endif
 
   let &autowriteall = s:vimwiki_autowriteall
-
-  " Set up menu
-  if g:vimwiki_menu != ""
-    exe 'nmenu disable '.g:vimwiki_menu.'.Table'
-  endif
 endfunction "}}}
 
 function! s:setup_filetype() "{{{
@@ -145,33 +140,9 @@ function! s:setup_buffer_enter() "{{{
     let b:vimwiki_fs_rescan = 1
   endif
 
-  " Settings foldmethod, foldexpr and foldtext are local to window. Thus in a
-  " new tab with the same buffer folding is reset to vim defaults. So we
-  " insist vimwiki folding here.
-  if g:vimwiki_folding ==? 'expr'
-    setlocal fdm=expr
-    setlocal foldexpr=VimwikiFoldLevel(v:lnum)
-    setlocal foldtext=VimwikiFoldText()
-  elseif g:vimwiki_folding ==? 'list' || g:vimwiki_folding ==? 'lists'
-    setlocal fdm=expr
-    setlocal foldexpr=VimwikiFoldListLevel(v:lnum)
-    setlocal foldtext=VimwikiFoldText()
-  elseif g:vimwiki_folding ==? 'syntax'
-    setlocal fdm=syntax
-    setlocal foldtext=VimwikiFoldText()
-  else
-    setlocal fdm=manual
-    normal! zE
-  endif
-
   " And conceal level too.
   if g:vimwiki_conceallevel && exists("+conceallevel")
     let &conceallevel = g:vimwiki_conceallevel
-  endif
-
-  " Set up menu
-  if g:vimwiki_menu != ""
-    exe 'nmenu enable '.g:vimwiki_menu.'.Table'
   endif
 endfunction "}}}
 
@@ -194,7 +165,7 @@ function! s:setup_cleared_syntax() "{{{ highlight groups that get cleared
   hi def VimwikiUnderline gui=underline
   if g:vimwiki_hl_headers == 1
     for i in range(1,6)
-      execute 'hi def VimwikiHeader'.i.' guibg=bg guifg='.g:vimwiki_hcolor_guifg_{&bg}[i-1].' gui=bold ctermfg='.g:vimwiki_hcolor_ctermfg_{&bg}[i-1].' term=bold cterm=bold' 
+      execute 'hi def VimwikiHeader'.i.' guibg=bg guifg='.g:vimwiki_hcolor_guifg_{&bg}[i-1].' gui=bold ctermfg='.g:vimwiki_hcolor_ctermfg_{&bg}[i-1].' term=bold cterm=bold'
     endfor
   endif
 endfunction "}}}
@@ -244,7 +215,7 @@ endfunction "}}}
 function! VimwikiSet(option, value, ...) "{{{
   let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
 
-  if has_key(s:vimwiki_defaults, a:option) || 
+  if has_key(s:vimwiki_defaults, a:option) ||
         \ has_key(g:vimwiki_list[idx], a:option)
     let g:vimwiki_list[idx][a:option] = a:value
   elseif exists('b:vimwiki_list')
@@ -355,7 +326,6 @@ let s:vimwiki_defaults.auto_tags = 0
 call s:default('list', [s:vimwiki_defaults])
 call s:default('use_mouse', 0)
 call s:default('folding', '')
-call s:default('menu', 'Vimwiki')
 call s:default('global_ext', 1)
 call s:default('ext2syntax', {}) " syntax map keyed on extension
 call s:default('hl_headers', 0)
@@ -378,9 +348,9 @@ call s:default('html_header_numbering_sym', '')
 call s:default('conceallevel', 2)
 call s:default('url_maxsave', 15)
 
-call s:default('diary_months', 
+call s:default('diary_months',
       \ {
-      \ 1: 'January', 2: 'February', 3: 'March', 
+      \ 1: 'January', 2: 'February', 3: 'March',
       \ 4: 'April', 5: 'May', 6: 'June',
       \ 7: 'July', 8: 'August', 9: 'September',
       \ 10: 'October', 11: 'November', 12: 'December'
@@ -402,8 +372,8 @@ call s:default('web_schemes1', 'http,https,file,ftp,gopher,telnet,nntp,ldap,'.
 call s:default('web_schemes2', 'mailto,news,xmpp,sip,sips,doi,urn,tel')
 
 let s:rxSchemes = '\%('.
-      \ join(split(g:vimwiki_schemes, '\s*,\s*'), '\|').'\|'. 
-      \ join(split(g:vimwiki_web_schemes1, '\s*,\s*'), '\|').'\|'. 
+      \ join(split(g:vimwiki_schemes, '\s*,\s*'), '\|').'\|'.
+      \ join(split(g:vimwiki_web_schemes1, '\s*,\s*'), '\|').'\|'.
       \ join(split(g:vimwiki_web_schemes2, '\s*,\s*'), '\|').
       \ '\)'
 
@@ -432,12 +402,6 @@ augroup vimwiki
     exe 'autocmd BufLeave,BufHidden *'.s:ext.' call s:setup_buffer_leave()'
     exe 'autocmd BufNewFile,BufRead, *'.s:ext.' call s:setup_filetype()'
     exe 'autocmd ColorScheme *'.s:ext.' call s:setup_cleared_syntax()'
-    " Format tables when exit from insert mode. Do not use textwidth to
-    " autowrap tables.
-    if g:vimwiki_table_auto_fmt
-      exe 'autocmd InsertLeave *'.s:ext.' call vimwiki#tbl#format(line("."))'
-      exe 'autocmd InsertEnter *'.s:ext.' call vimwiki#tbl#reset_tw(line("."))'
-    endif
   endfor
 augroup END
 "}}}
@@ -445,18 +409,10 @@ augroup END
 " COMMANDS {{{
 command! -count=1 VimwikiIndex
       \ call vimwiki#base#goto_index(v:count1)
-command! -count=1 VimwikiTabIndex
-      \ call vimwiki#base#goto_index(v:count1, 1)
-
 command! -count=1 VimwikiDiaryIndex
       \ call vimwiki#diary#goto_diary_index(v:count1)
 command! -count=1 VimwikiMakeDiaryNote
       \ call vimwiki#diary#make_note(v:count1)
-command! -count=1 VimwikiTabMakeDiaryNote
-      \ call vimwiki#diary#make_note(v:count1, 1)
-command! -count=1 VimwikiMakeYesterdayDiaryNote
-      \ call vimwiki#diary#make_note(v:count1, 0, strftime(VimwikiGet('diary_link_fmt', v:count1 - 1), localtime() - 60*60*24))
-
 command! VimwikiDiaryGenerateLinks
       \ call vimwiki#diary#generate_diary_section()
 "}}}
@@ -466,16 +422,6 @@ if !hasmapto('<Plug>VimwikiIndex')
   exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'w <Plug>VimwikiIndex'
 endif
 nnoremap <unique><script> <Plug>VimwikiIndex :VimwikiIndex<CR>
-
-if !hasmapto('<Plug>VimwikiTabIndex')
-  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'t <Plug>VimwikiTabIndex'
-endif
-nnoremap <unique><script> <Plug>VimwikiTabIndex :VimwikiTabIndex<CR>
-
-if !hasmapto('<Plug>VimwikiUISelect')
-  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'s <Plug>VimwikiUISelect'
-endif
-nnoremap <unique><script> <Plug>VimwikiUISelect :VimwikiUISelect<CR>
 
 if !hasmapto('<Plug>VimwikiDiaryIndex')
   exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'i <Plug>VimwikiDiaryIndex'
@@ -492,55 +438,6 @@ if !hasmapto('<Plug>VimwikiMakeDiaryNote')
 endif
 nnoremap <unique><script> <Plug>VimwikiMakeDiaryNote :VimwikiMakeDiaryNote<CR>
 
-if !hasmapto('<Plug>VimwikiTabMakeDiaryNote')
-  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'<Leader>t <Plug>VimwikiTabMakeDiaryNote'
-endif
-nnoremap <unique><script> <Plug>VimwikiTabMakeDiaryNote
-      \ :VimwikiTabMakeDiaryNote<CR>
-
-if !hasmapto('<Plug>VimwikiMakeYesterdayDiaryNote')
-  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'<Leader>y <Plug>VimwikiMakeYesterdayDiaryNote'
-endif
-nnoremap <unique><script> <Plug>VimwikiMakeYesterdayDiaryNote
-      \ :VimwikiMakeYesterdayDiaryNote<CR>
-
-"}}}
-
-" MENU {{{
-function! s:build_menu(topmenu)
-  let idx = 0
-  while idx < len(g:vimwiki_list)
-    let norm_path = fnamemodify(VimwikiGet('path', idx), ':h:t')
-    let norm_path = escape(norm_path, '\ \.')
-    execute 'menu '.a:topmenu.'.Open\ index.'.norm_path.
-          \ ' :call vimwiki#base#goto_index('.(idx + 1).')<CR>'
-    execute 'menu '.a:topmenu.'.Open/Create\ diary\ note.'.norm_path.
-          \ ' :call vimwiki#diary#make_note('.(idx + 1).')<CR>'
-    let idx += 1
-  endwhile
-endfunction
-
-function! s:build_table_menu(topmenu)
-  exe 'menu '.a:topmenu.'.-Sep- :'
-  exe 'menu '.a:topmenu.'.Table.Create\ (enter\ cols\ rows) :VimwikiTable '
-  exe 'nmenu '.a:topmenu.'.Table.Format<tab>gqq gqq'
-  exe 'nmenu '.a:topmenu.'.Table.Move\ column\ left<tab><A-Left> :VimwikiTableMoveColumnLeft<CR>'
-  exe 'nmenu '.a:topmenu.'.Table.Move\ column\ right<tab><A-Right> :VimwikiTableMoveColumnRight<CR>'
-  exe 'nmenu disable '.a:topmenu.'.Table'
-endfunction
-
-"XXX make sure anything below does not cause autoload/base to be loaded
-if !empty(g:vimwiki_menu)
-  call s:build_menu(g:vimwiki_menu)
-  call s:build_table_menu(g:vimwiki_menu)
-endif
-" }}}
-
-" CALENDAR Hook "{{{
-if g:vimwiki_use_calendar
-  let g:calendar_action = 'vimwiki#diary#calendar_action'
-  let g:calendar_sign = 'vimwiki#diary#calendar_sign'
-endif
 "}}}
 
 let &cpo = s:old_cpo
