@@ -1,5 +1,4 @@
 
-" s:vimwiki_get_known_syntaxes
 function! s:vimwiki_get_known_syntaxes() " {{{
   " Getting all syntaxes that different wikis could have
   let syntaxes = {}
@@ -16,7 +15,6 @@ function! s:vimwiki_get_known_syntaxes() " {{{
   return keys(syntaxes)
 endfunction " }}}
 
-" vimwiki#base#apply_wiki_options
 function! vimwiki#base#apply_wiki_options(options) " {{{ Update the current
   " wiki using the options dictionary
   for kk in keys(a:options)
@@ -25,8 +23,6 @@ function! vimwiki#base#apply_wiki_options(options) " {{{ Update the current
   call Validate_wiki_options(g:vimwiki_current_idx)
   call vimwiki#base#setup_buffer_state(g:vimwiki_current_idx)
 endfunction " }}}
-
-" vimwiki#base#read_wiki_options
 function! vimwiki#base#read_wiki_options(check) " {{{ Attempt to read wiki
   " options from the current page's directory, or its ancesters.  If a file
   "   named vimwiki.vimrc is found, which declares a wiki-options dictionary
@@ -107,8 +103,6 @@ function! vimwiki#base#read_wiki_options(check) " {{{ Attempt to read wiki
     endif
   endif
 endfunction " }}}
-
-" vimwiki#base#setup_buffer_state
 function! vimwiki#base#setup_buffer_state(idx) " {{{ Init page-specific variables
   " Only call this function *after* opening a wiki page.
   if a:idx < 0
@@ -129,13 +123,9 @@ function! vimwiki#base#setup_buffer_state(idx) " {{{ Init page-specific variable
   " update cache
   call vimwiki#base#cache_buffer_state()
 endfunction " }}}
-
-" vimwiki#base#cache_buffer_state
 function! vimwiki#base#cache_buffer_state() "{{{
   let b:vimwiki_idx = g:vimwiki_current_idx
 endfunction "}}}
-
-" vimwiki#base#recall_buffer_state
 function! vimwiki#base#recall_buffer_state() "{{{
   if !exists('b:vimwiki_idx')
     return 0
@@ -144,8 +134,6 @@ function! vimwiki#base#recall_buffer_state() "{{{
     return 1
   endif
 endfunction " }}}
-
-" vimwiki#base#print_wiki_state
 function! vimwiki#base#print_wiki_state() "{{{ print wiki options
   "   and buffer state variables
   let g_width = 18
@@ -162,8 +150,6 @@ function! vimwiki#base#print_wiki_state() "{{{ print wiki options
     echo "  '".kk."': ".repeat(' ', b_width-len(kk)).string(b:vimwiki_list[kk])
   endfor
 endfunction "}}}
-
-" vimwiki#base#file_pattern
 function! vimwiki#base#file_pattern(files) "{{{ Get search regex from glob()
   " string. Aim to support *all* special characters, forcing the user to choose
   "   names that are compatible with any external restrictions that they
@@ -173,7 +159,6 @@ function! vimwiki#base#file_pattern(files) "{{{ Get search regex from glob()
   return '\V\%('.join(a:files, '\|').'\)\m'
 endfunction "}}}
 
-" vimwiki#base#subdir
 "FIXME TODO slow and faulty
 function! vimwiki#base#subdir(path, filename) "{{{
   let path = a:path
@@ -198,19 +183,14 @@ function! vimwiki#base#subdir(path, filename) "{{{
   return res
 endfunction "}}}
 
-" vimwiki#base#current_subdir
 function! vimwiki#base#current_subdir(idx)"{{{
   return vimwiki#base#subdir(VimwikiGet('path', a:idx), expand('%:p'))
 endfunction"}}}
-
-" vimwiki#base#invsubdir
 function! vimwiki#base#invsubdir(subdir) " {{{
   return substitute(a:subdir, '[^/\.]\+/', '../', 'g')
 endfunction " }}}
-
-
-" Returns: the number of the wiki a file belongs to
 function! vimwiki#base#find_wiki(path) "{{{
+  " Returns: the number of the wiki a file belongs to
   let path = vimwiki#path#path_norm(vimwiki#path#chomp_slash(a:path))
   let idx = 0
   while idx < len(g:vimwiki_list)
@@ -227,12 +207,11 @@ function! vimwiki#base#find_wiki(path) "{{{
   return -1
 endfunction "}}}
 
-
-" THE central function of Vimwiki. Extract infos about the target from a link.
-" If the second parameter is present, which should be an absolute file path, it
-" is assumed that the link appears in that file. Without it, the current file
-" is used.
 function! vimwiki#base#resolve_link(link_text, ...) "{{{
+  " THE central function of Vimwiki. Extract infos about the target from a link.
+  " If the second parameter is present, which should be an absolute file path, it
+  " is assumed that the link appears in that file. Without it, the current file
+  " is used.
   if a:0
     let source_wiki = vimwiki#base#find_wiki(a:1)
     let source_file = a:1
@@ -344,8 +323,6 @@ function! vimwiki#base#resolve_link(link_text, ...) "{{{
   return link_infos
 endfunction "}}}
 
-
-" vimwiki#base#system_open_link
 function! vimwiki#base#system_open_link(url) "{{{
   " handlers
   function! s:win32_handler(url)
@@ -383,8 +360,6 @@ function! vimwiki#base#system_open_link(url) "{{{
   endtry
   echomsg 'Vimwiki Error: Default Vimwiki link handler was unable to open the HTML file!'
 endfunction "}}}
-
-" vimwiki#base#open_link
 function! vimwiki#base#open_link(cmd, link, ...) "{{{
   let link_infos = vimwiki#base#resolve_link(a:link)
 
@@ -421,8 +396,6 @@ function! vimwiki#base#open_link(cmd, link, ...) "{{{
     call vimwiki#base#system_open_link(link_infos.filename)
   endif
 endfunction " }}}
-
-" vimwiki#base#get_globlinks_escaped
 function! vimwiki#base#get_globlinks_escaped() abort "{{{only get links from the current dir
   " change to the directory of the current file
   let orig_pwd = getcwd()
@@ -442,8 +415,6 @@ function! vimwiki#base#get_globlinks_escaped() abort "{{{only get links from the
   " return all escaped links as a single newline-separated string
   return globlinks
 endfunction " }}}
-
-" vimwiki#base#generate_links
 function! vimwiki#base#generate_links() "{{{
   let lines = []
 
@@ -465,8 +436,6 @@ function! vimwiki#base#generate_links() "{{{
   call vimwiki#base#update_listing_in_buffer(lines, 'Generated Links', links_rx,
         \ line('$')+1, 1)
 endfunction " }}}
-
-" vimwiki#base#goto
 function! vimwiki#base#goto(...) "{{{
   let key = a:1
   let anchor = a:0 > 1 ? a:2 : ''
@@ -475,8 +444,6 @@ function! vimwiki#base#goto(...) "{{{
         \ VimwikiGet('path') . key . VimwikiGet('ext'),
         \ anchor)
 endfunction "}}}
-
-" vimwiki#base#backlinks
 function! vimwiki#base#backlinks() "{{{
   let current_filename = expand("%:p")
   let locations = []
@@ -502,11 +469,10 @@ function! vimwiki#base#backlinks() "{{{
     lopen
   endif
 endfunction "}}}
-
-" Returns: a list containing all files of the given wiki as absolute file path.
-" If the given wiki number is negative, the diary of the current wiki is used
-" If the second argument is not zero, only directories are found
-function! vimwiki#base#find_files(wiki_nr, directories_only)
+function! vimwiki#base#find_files(wiki_nr, directories_only) " {{{1
+  " Returns: a list containing all files of the given wiki as absolute file path.
+  " If the given wiki number is negative, the diary of the current wiki is used
+  " If the second argument is not zero, only directories are found
   let wiki_nr = a:wiki_nr
   if wiki_nr >= 0
     let root_directory = VimwikiGet('path', wiki_nr)
@@ -530,11 +496,12 @@ function! vimwiki#base#find_files(wiki_nr, directories_only)
   return split(globpath(root_directory, pattern), '\n')
 endfunction
 
-" Returns: a list containing the links to get from the current file to all wiki
-" files in the given wiki.
-" If the given wiki number is negative, the diary of the current wiki is used.
-" If also_absolute_links is nonzero, also return links of the form /file
+" }}}1
 function! vimwiki#base#get_wikilinks(wiki_nr, also_absolute_links)
+  " Returns: a list containing the links to get from the current file to all wiki
+  " files in the given wiki.
+  " If the given wiki number is negative, the diary of the current wiki is used.
+  " If also_absolute_links is nonzero, also return links of the form /file
   let files = vimwiki#base#find_files(a:wiki_nr, 0)
   if a:wiki_nr == g:vimwiki_current_idx
     let cwd = vimwiki#path#wikify_path(expand('%:p:h'))
@@ -564,8 +531,9 @@ function! vimwiki#base#get_wikilinks(wiki_nr, also_absolute_links)
   return result
 endfunction
 
-" Returns: a list containing the links to all directories from the current file
+" }}}1
 function! vimwiki#base#get_wiki_directories(wiki_nr)
+  " Returns: a list containing the links to all directories from the current file
   let dirs = vimwiki#base#find_files(a:wiki_nr, 1)
   if a:wiki_nr == g:vimwiki_current_idx
     let cwd = vimwiki#path#wikify_path(expand('%:p:h'))
@@ -585,6 +553,7 @@ function! vimwiki#base#get_wiki_directories(wiki_nr)
   return result
 endfunction
 
+" }}}1
 function! vimwiki#base#get_anchors(filename, syntax) "{{{
   if !filereadable(a:filename)
     return []
@@ -658,7 +627,6 @@ function! vimwiki#base#get_anchors(filename, syntax) "{{{
   return anchors
 endfunction "}}}
 
-" s:jump_to_anchor
 function! s:jump_to_anchor(anchor) "{{{
   let oldpos = getpos('.')
   call cursor(1, 1)
