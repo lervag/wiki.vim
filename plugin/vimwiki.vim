@@ -39,7 +39,6 @@ endif
 " Functions for options
 "
 function! VimwikiGetOptionNames() "{{{
-  " return complete list of options
   return keys(s:vimwiki_defaults)
 endfunction
 
@@ -94,7 +93,6 @@ function! VimwikiSet(option, value, ...) "{{{
     let b:vimwiki_list = {}
     let b:vimwiki_list[a:option] = a:value
   endif
-
 endfunction
 
 "}}}
@@ -108,20 +106,9 @@ function! VimwikiClear(option, ...) "{{{
   if exists('b:vimwiki_list') && has_key(b:vimwiki_list, a:option)
     call remove(b:vimwiki_list, a:option)
   endif
-
 endfunction
 
 "}}}
-function! Validate_wiki_options(idx) " {{{
-  call VimwikiSet('path', s:normalize_path(VimwikiGet('path', a:idx)), a:idx)
-  call VimwikiSet('path_html', s:normalize_path(s:path_html(a:idx)), a:idx)
-  call VimwikiSet('template_path',
-        \ s:normalize_path(VimwikiGet('template_path', a:idx)), a:idx)
-  call VimwikiSet('diary_rel_path',
-        \ s:normalize_path(VimwikiGet('diary_rel_path', a:idx)), a:idx)
-endfunction
-
-" }}}
 
 "
 " Helper functions
@@ -221,48 +208,10 @@ endfunction
 
 "}}}
 
-" DEFAULT wiki {{{
-let s:vimwiki_defaults = {}
-let s:vimwiki_defaults.path = '~/vimwiki/'
-let s:vimwiki_defaults.path_html = ''   " '' is replaced by derived path.'_html/'
-let s:vimwiki_defaults.css_name = 'style.css'
-let s:vimwiki_defaults.index = 'index'
-let s:vimwiki_defaults.ext = '.wiki'
-let s:vimwiki_defaults.maxhi = 0
-let s:vimwiki_defaults.syntax = 'default'
-
-let s:vimwiki_defaults.template_path = '~/vimwiki/templates/'
-let s:vimwiki_defaults.template_default = 'default'
-let s:vimwiki_defaults.template_ext = '.tpl'
-
-let s:vimwiki_defaults.nested_syntaxes = {}
-let s:vimwiki_defaults.automatic_nested_syntaxes = 1
-let s:vimwiki_defaults.auto_export = 0
-let s:vimwiki_defaults.auto_toc = 0
-" is wiki temporary -- was added to g:vimwiki_list by opening arbitrary wiki
-" file.
-let s:vimwiki_defaults.temp = 0
-
-" diary
-let s:vimwiki_defaults.diary_rel_path = 'diary/'
-let s:vimwiki_defaults.diary_index = 'diary'
-let s:vimwiki_defaults.diary_header = 'Diary'
-let s:vimwiki_defaults.diary_sort = 'desc'
-
-" Do not change this! Will wait till vim become more datetime awareable.
-let s:vimwiki_defaults.diary_link_fmt = '%Y-%m-%d'
-
-" NEW! in v2.0
-" custom_wiki2html
-let s:vimwiki_defaults.custom_wiki2html = ''
 "
-let s:vimwiki_defaults.list_margin = -1
-
-let s:vimwiki_defaults.auto_tags = 0
-"}}}
-
-" DEFAULT options {{{
-call s:default('list', [s:vimwiki_defaults])
+" Default options
+"
+call s:default('list', [])
 call s:default('use_mouse', 0)
 call s:default('folding', '')
 call s:default('global_ext', 1)
@@ -281,12 +230,10 @@ call s:default('valid_html_tags', 'b,i,s,u,sub,sup,kbd,br,hr,div,center,strong,e
 call s:default('user_htmls', '')
 call s:default('autowriteall', 1)
 call s:default('toc_header', 'Contents')
-
 call s:default('html_header_numbering', 0)
 call s:default('html_header_numbering_sym', '')
 call s:default('conceallevel', 2)
 call s:default('url_maxsave', 15)
-
 call s:default('diary_months',
       \ {
       \ 1: 'January', 2: 'February', 3: 'March',
@@ -296,9 +243,7 @@ call s:default('diary_months',
       \ })
 
 call s:default('map_prefix', '<Leader>w')
-
 call s:default('current_idx', 0)
-
 call s:default('auto_chdir', 0)
 
 " Scheme regexes should be defined even if syntax file is not loaded yet
@@ -321,9 +266,6 @@ call s:default('rxSchemeUrlMatchScheme', '\zs'.s:rxSchemes.'\ze:.*')
 call s:default('rxSchemeUrlMatchUrl', s:rxSchemes.':\zs.*\ze')
 " scheme regexes }}}
 
-for s:idx in range(len(g:vimwiki_list))
-  call Validate_wiki_options(s:idx)
-endfor
 "}}}
 
 let &cpo = s:old_cpo
