@@ -304,4 +304,8 @@ let s:vimwiki_defaults.custom_wiki2html = ''
 let s:vimwiki_defaults.list_margin = -1
 let s:vimwiki_defaults.auto_tags = 0
 
+for s:idx in range(len(g:vimwiki_list))
+  call Validate_wiki_options(s:idx)
+endfor
+
 let &cpo = s:old_cpo
