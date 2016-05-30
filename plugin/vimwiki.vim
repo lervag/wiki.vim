@@ -109,6 +109,16 @@ function! VimwikiClear(option, ...) "{{{
 endfunction
 
 "}}}
+function! Validate_wiki_options(idx) " {{{1
+  call VimwikiSet('path', s:normalize_path(VimwikiGet('path', a:idx)), a:idx)
+  call VimwikiSet('path_html', s:normalize_path(s:path_html(a:idx)), a:idx)
+  call VimwikiSet('template_path',
+        \ s:normalize_path(VimwikiGet('template_path', a:idx)), a:idx)
+  call VimwikiSet('diary_rel_path',
+        \ s:normalize_path(VimwikiGet('diary_rel_path', a:idx)), a:idx)
+endfunction
+
+" }}}1
 
 "
 " Helper functions
@@ -266,6 +276,32 @@ call s:default('rxSchemeUrlMatchScheme', '\zs'.s:rxSchemes.'\ze:.*')
 call s:default('rxSchemeUrlMatchUrl', s:rxSchemes.':\zs.*\ze')
 " scheme regexes }}}
 
-"}}}
+"
+" Wiki defaults
+"
+let s:vimwiki_defaults = {}
+let s:vimwiki_defaults.path = '~/vimwiki/'
+let s:vimwiki_defaults.path_html = ''   " '' is replaced by derived path.'_html/'
+let s:vimwiki_defaults.css_name = 'style.css'
+let s:vimwiki_defaults.index = 'index'
+let s:vimwiki_defaults.ext = '.wiki'
+let s:vimwiki_defaults.maxhi = 0
+let s:vimwiki_defaults.syntax = 'default'
+let s:vimwiki_defaults.template_path = '~/vimwiki/templates/'
+let s:vimwiki_defaults.template_default = 'default'
+let s:vimwiki_defaults.template_ext = '.tpl'
+let s:vimwiki_defaults.nested_syntaxes = {}
+let s:vimwiki_defaults.automatic_nested_syntaxes = 1
+let s:vimwiki_defaults.auto_export = 0
+let s:vimwiki_defaults.auto_toc = 0
+let s:vimwiki_defaults.temp = 0
+let s:vimwiki_defaults.diary_rel_path = 'diary/'
+let s:vimwiki_defaults.diary_index = 'diary'
+let s:vimwiki_defaults.diary_header = 'Diary'
+let s:vimwiki_defaults.diary_sort = 'desc'
+let s:vimwiki_defaults.diary_link_fmt = '%Y-%m-%d'
+let s:vimwiki_defaults.custom_wiki2html = ''
+let s:vimwiki_defaults.list_margin = -1
+let s:vimwiki_defaults.auto_tags = 0
 
 let &cpo = s:old_cpo
