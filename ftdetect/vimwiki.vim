@@ -1,5 +1,4 @@
-augroup vimwiki
-  autocmd!
+augroup filetypedetect
   autocmd BufRead,BufNewFile *.wiki call s:set_filetype()
 augroup END
 

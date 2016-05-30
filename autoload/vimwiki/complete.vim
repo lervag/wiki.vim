@@ -1,4 +1,4 @@
-function! vimtex#complete#omnicomplete(findstart, base) " {{{1
+function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
   if a:findstart == 1
     let column = col('.')-2
     let line = getline('.')[:column]
