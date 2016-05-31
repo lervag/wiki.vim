@@ -48,7 +48,7 @@ function! vimwiki#new_entry() " {{{
     execute 'write' l:next
   endif
 
-  VimwikiDiaryNextDay
+  call vimwiki#diary#goto_next_day()
 endfunction
 
 " }}}1

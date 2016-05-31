@@ -4,8 +4,8 @@ let g:loaded_vimwiki = 1
 let s:old_cpo = &cpo
 set cpo&vim
 
-command! -count=1 VimwikiIndex              call vimwiki#base#goto_index(v:count1)
-command! -count=1 VimwikiMakeDiaryNote      call vimwiki#diary#make_note(v:count1)
+command! -count=1 VimwikiIndex         call vimwiki#base#goto_index(v:count1)
+command! -count=1 VimwikiMakeDiaryNote call vimwiki#diary#make_note(v:count1)
 
 nnoremap <silent><unique> <leader>ww         :VimwikiIndex<CR>
 nnoremap <silent><unique> <leader>w<leader>w :VimwikiMakeDiaryNote<CR>

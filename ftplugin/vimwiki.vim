@@ -40,8 +40,6 @@ command! -buffer -range   VimwikiToggleListItem call vimwiki#lst#toggle_cb(<line
 " Keybindings
 "
 nnoremap <silent><buffer> <cr>       :call vimwiki#base#follow_link('nosplit')<cr>
-nnoremap <silent><buffer> <c-j>      :call vimwiki#diary#goto_prev_day()<cr>
-nnoremap <silent><buffer> <c-k>      :call vimwiki#diary#goto_next_day()<cr>
 nnoremap <silent><buffer> <tab>      :call vimwiki#base#find_next_link()<cr>
 nnoremap <silent><buffer> <s-tab>    :call vimwiki#base#find_prev_link()<cr>
 nnoremap <silent><buffer> <bs>       :call vimwiki#base#go_back_link()<cr>
@@ -68,11 +66,15 @@ vnoremap <silent><buffer> al :<c-u>call vimwiki#lst#TO_list_item(0, 1)<cr>
 onoremap <silent><buffer> il :<c-u>call vimwiki#lst#TO_list_item(1, 0)<cr>
 vnoremap <silent><buffer> il :<c-u>call vimwiki#lst#TO_list_item(1, 1)<cr>
 
-
 " Journal settings
 if expand('%:p') =~# 'wiki\/journal'
   setlocal foldlevel=0
   nnoremap <silent><buffer> <leader>wk :call vimwiki#new_entry()<cr>
+  nnoremap <silent><buffer> <c-j>      :call vimwiki#diary#goto_prev_day()<cr>
+  nnoremap <silent><buffer> <c-k>      :call vimwiki#diary#goto_next_day()<cr>
+else
+  nnoremap <silent><buffer> <c-j>      :VimwikiMakeDiaryNote<cr>
+  nnoremap <silent><buffer> <c-k>      :VimwikiMakeDiaryNote<cr>
 endif
 
 " {{{1 Link handler
