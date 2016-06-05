@@ -4,7 +4,7 @@
 " Email:      karl.yngve@gmail.com
 "
 
-if exists("b:current_syntax") | finish | endif
+if exists('b:current_syntax') | finish | endif
 let b:current_syntax = "vimwiki"
 
 syntax spell toplevel
@@ -640,5 +640,30 @@ for [s:hl_syntax, s:vim_syntax] in items(vimwiki#base#detect_nested_syntax())
         \ s:hl_syntax.'\%([[:blank:][:punct:]].*\)\?',
         \ g:vimwiki_rxPreEnd, 'VimwikiPre')
 endfor
+
+"
+" Minor additional diary syntax
+"
+if !expand('%:p') =~ 'wiki\/journal' | finish | endif
+
+" Set spell option
+syntax spell default
+
+" Standard syntax elements
+syn match TODO    /TODO/
+syn match line    /-\{10,}/
+syn match number  /\d\+\.\d\+/
+syn match version /\d\+\.\d\+\(\.\d\)\+/
+syn match time    /\d\d:\d\d/
+syn match date    /\d\d\d\d-\d\d-\d\d/
+
+" Set colors
+hi def  date    guifg=blue
+hi def  line    guifg=black
+hi link line    line
+hi link time    number
+hi link number  Constant
+hi link version Statement
+hi link TODO    TODO
 
 " vim: fdm=marker sw=2
