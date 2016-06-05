@@ -1,3 +1,9 @@
+" vimwiki
+"
+" Maintainer: Karl Yngve Lervåg
+" Email:      karl.yngve@gmail.com
+"
+
 if exists("b:current_syntax") | finish | endif
 
 " LINKS: assume this is common to all syntaxes "{{{
@@ -590,3 +596,5 @@ call vimwiki#base#nested_syntax('tex',
 "}}}
 
 syntax spell toplevel
+
+" vim: fdm=marker sw=2

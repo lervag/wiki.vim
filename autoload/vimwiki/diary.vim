@@ -1,3 +1,9 @@
+" vimwiki
+"
+" Maintainer: Karl Yngve Lervåg
+" Email:      karl.yngve@gmail.com
+"
+
 "
 " Main functions
 "
@@ -266,3 +272,4 @@ function! s:format_diary() "{{{
   return result
 endfunction "}}}
 
+" vim: fdm=marker sw=2

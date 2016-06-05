@@ -1,3 +1,9 @@
+" vimwiki
+"
+" Maintainer: Karl Yngve Lervåg
+" Email:      karl.yngve@gmail.com
+"
+
 if exists("g:vimwiki_loaded") | finish | endif
 let g:vimwiki_loaded = 1
 
@@ -310,3 +316,5 @@ for s:idx in range(len(g:vimwiki_list))
 endfor
 
 let &cpo = s:old_cpo
+
+" vim: fdm=marker sw=2

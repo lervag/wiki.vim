@@ -1,7 +1,8 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
-" Vimwiki syntax file
-" Desc: Syntax definitions which are always available
-" Home: https://github.com/vimwiki/vimwiki/
+" vimwiki
+"
+" Maintainer: Karl Yngve Lervåg
+" Email:      karl.yngve@gmail.com
+"
 
 
 " Define Regexes of anchors for every syntax.
@@ -33,3 +34,5 @@ let g:vimwiki_media_bold_match = '''''''__Text__'''''''
 let g:vimwiki_media_wikilink = g:vimwiki_default_wikilink
 let g:vimwiki_media_tag_search = g:vimwiki_default_tag_search " XXX rework to mediawiki categories format?
 let g:vimwiki_media_tag_match = g:vimwiki_default_tag_match " XXX rework to mediawiki categories format?
+
+" vim: fdm=marker sw=2

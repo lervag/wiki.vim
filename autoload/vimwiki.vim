@@ -1,3 +1,8 @@
+" vimwiki
+"
+" Maintainer: Karl Yngve Lervåg
+" Email:      karl.yngve@gmail.com
+"
 
 function! vimwiki#fix_syntax() " {{{1
   " Fix titles
@@ -76,3 +81,5 @@ if !exists('s:reloading_script')
 endif
 
 " }}}1
+
+" vim: fdm=marker sw=2

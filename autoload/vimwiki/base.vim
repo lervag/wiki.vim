@@ -1,3 +1,8 @@
+" vimwiki
+"
+" Maintainer: Karl Yngve Lervåg
+" Email:      karl.yngve@gmail.com
+"
 
 function! s:vimwiki_get_known_syntaxes() " {{{
   " Getting all syntaxes that different wikis could have
@@ -1981,3 +1986,7 @@ for s:syn in s:vimwiki_get_known_syntaxes()
   execute 'runtime! autoload/vimwiki/'.s:syn.'_base.vim'
 endfor
 " -------------------------------------------------------------------------
+
+" }}}
+
+" vim: fdm=marker sw=2
