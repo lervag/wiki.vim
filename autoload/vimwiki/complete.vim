@@ -20,11 +20,6 @@ function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
         return startofinlinelink
       endif
     endif
-    let startoftag = match(line, ':\zs[^:[:space:]]*$')
-    if startoftag != -1
-      let s:line_context = ':'
-      return startoftag
-    endif
     let s:line_context = ''
     return -1
   else
@@ -33,14 +28,6 @@ function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
     " solution, because calling col('.') here returns garbage.
     if s:line_context == ''
       return []
-    elseif s:line_context == ':'
-      " Tags completion
-      let tags = vimwiki#tags#get_tags()
-      if a:base != ''
-        call filter(tags,
-              \ "v:val[:" . (len(a:base)-1) . "] == '" . substitute(a:base, "'", "''", '') . "'" )
-      endif
-      return tags
     elseif a:base !~# '#'
       " we look for wiki files
 
