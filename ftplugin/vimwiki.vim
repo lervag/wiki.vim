@@ -7,8 +7,7 @@
 if exists("b:did_ftplugin") | finish | endif
 let b:did_ftplugin = 1
 
-call vimwiki#u#reload_regexes()
-call vimwiki#u#reload_omni_regexes()
+call vimwiki#define_regexes()
 
 setlocal nolisp
 setlocal nomodeline
@@ -56,8 +55,6 @@ nnoremap <silent><buffer> <leader>wr :call vimwiki#base#rename_link()<cr>
 nnoremap <silent><buffer> <leader>wd :call vimwiki#base#delete_link()<cr>
 nnoremap <silent><buffer> <leader>wl :call vimwiki#backlinks()<cr>
 nnoremap <silent><buffer> <leader>wf :call vimwiki#fix_syntax()<cr>
-nnoremap <silent><buffer> O          :call vimwiki#lst#kbd_O()<cr>
-nnoremap <silent><buffer> o          :call vimwiki#lst#kbd_o()<cr>
 
 vnoremap <silent><buffer> <cr>      :<c-u>:call vimwiki#base#normalize_link(1)<cr>
 vnoremap <silent><buffer> <c-space> :VimwikiToggleListItem<cr>

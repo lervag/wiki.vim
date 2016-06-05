@@ -230,15 +230,12 @@ endfunction
 "
 call s:default('list', [])
 call s:default('use_mouse', 0)
-call s:default('folding', '')
 call s:default('global_ext', 1)
 call s:default('ext2syntax', {}) " syntax map keyed on extension
-call s:default('hl_headers', 0)
 call s:default('hl_cb_checked', 0)
 call s:default('list_ignore_newline', 1)
 call s:default('listsyms', ' .oOX')
 call s:default('use_calendar', 1)
-call s:default('table_mappings', 1)
 call s:default('table_auto_fmt', 1)
 call s:default('w32_dir_enc', '')
 call s:default('CJK_length', 0)
@@ -297,8 +294,6 @@ let s:vimwiki_defaults.syntax = 'default'
 let s:vimwiki_defaults.template_path = '~/vimwiki/templates/'
 let s:vimwiki_defaults.template_default = 'default'
 let s:vimwiki_defaults.template_ext = '.tpl'
-let s:vimwiki_defaults.nested_syntaxes = {}
-let s:vimwiki_defaults.automatic_nested_syntaxes = 1
 let s:vimwiki_defaults.auto_export = 0
 let s:vimwiki_defaults.auto_toc = 0
 let s:vimwiki_defaults.temp = 0

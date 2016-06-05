@@ -26,16 +26,6 @@ function! vimwiki#u#escape(string) "{{{1
 endfunction
 
 "}}}1
-function! vimwiki#u#reload_regexes() "{{{1
-  execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'.vim'
-endfunction
-
-"}}}1
-function! vimwiki#u#reload_omni_regexes() "{{{1
-  execute 'runtime! syntax/omnipresent_syntax.vim'
-endfunction
-
-"}}}1
 function! vimwiki#u#reload_regexes_custom() "{{{1
   execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'_custom.vim'
 endfunction

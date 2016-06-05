@@ -277,6 +277,57 @@ endfunction "}}}
 function! s:empty_item() "{{{
   return {'type': 0}
 endfunction "}}}
+function! s:get_next_line(lnum, ...) "{{{
+  if getline(a:lnum) =~# g:vimwiki_rxPreStart
+    let cur_ln = a:lnum + 1
+    while cur_ln <= line('$') &&
+          \ getline(cur_ln) !~# g:vimwiki_rxPreEnd
+      let cur_ln += 1
+    endwhile
+    let next_line = cur_ln
+  else
+    let next_line = nextnonblank(a:lnum+1)
+  endif
+
+  if a:0 > 0 && getline(next_line) =~# g:vimwiki_rxHeader
+    let next_line = s:get_next_line(next_line, 1)
+  endif
+
+  if next_line < 0 || next_line > line('$') ||
+        \ (getline(next_line) =~# g:vimwiki_rxHeader && a:0 == 0)
+    return 0
+  endif
+
+  return next_line
+endfunction "}}}
+function! s:get_next_child_item(parent, child) "{{{
+  if a:parent.type == 0 | return s:empty_item() | endif
+  let parent_lvl = s:get_level(a:parent.lnum)
+  let cur_ln = s:get_last_line_of_item_incl_children(a:child)
+  while 1
+    let next_line = s:get_next_line(cur_ln)
+    if next_line == 0 || s:get_level(next_line) <= parent_lvl
+      break
+    endif
+    let cur_ln = next_line
+    let cur_item = s:get_item(cur_ln)
+    if cur_item.type > 0
+      return cur_item
+    endif
+  endwhile
+  return s:empty_item()
+endfunction "}}}
+function! s:get_last_line_of_item_incl_children(item) "{{{
+  let cur_ln = a:item.lnum
+  let org_lvl = s:get_level(a:item.lnum)
+  while 1
+    let next_line = s:get_next_line(cur_ln)
+    if next_line == 0 || s:get_level(next_line) <= org_lvl
+      return cur_ln
+    endif
+    let cur_ln = next_line
+  endwhile
+endfunction "}}}
 
 " {{{ Probably dead stuff
 

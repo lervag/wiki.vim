@@ -947,7 +947,7 @@ function! vimwiki#base#normalize_link(is_visual_mode) "{{{
 endfunction "}}}
 function! vimwiki#base#detect_nested_syntax() "{{{
   let last_word = '\v.*<(\w+)\s*$'
-  let lines = map(filter(getline(1, "$"), 'v:val =~ "{{{" && v:val =~ last_word'),
+  let lines = map(filter(getline(1, "$"), 'v:val =~ "```" && v:val =~ last_word'),
         \ 'substitute(v:val, last_word, "\\=submatch(1)", "")')
   let dict = {}
   for elem in lines
@@ -1131,11 +1131,6 @@ function! vimwiki#base#follow_link(split, ...) "{{{ Parse link at cursor and pas
     " try WikiLink
     let lnk = matchstr(vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiLink),
           \ g:vimwiki_rxWikiLinkMatchUrl)
-    " try WikiIncl
-    if lnk == ""
-      let lnk = matchstr(vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiIncl),
-            \ g:vimwiki_rxWikiInclMatchUrl)
-    endif
     " try Weblink
     if lnk == ""
       let lnk = matchstr(vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWeblink),
@@ -1542,13 +1537,6 @@ function! s:normalize_link_syntax_n() " {{{
           \ g:vimwiki_rxWikiLinkMatchUrl, g:vimwiki_rxWikiLinkMatchDescr,
           \ g:vimwiki_WikiLinkTemplate2)
     call vimwiki#base#replacestr_at_cursor(g:vimwiki_rxWikiLink, sub)
-    return
-  endif
-
-  " try WikiIncl
-  let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiIncl)
-  if !empty(lnk)
-    " NO-OP !!
     return
   endif
 
