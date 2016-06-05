@@ -4,18 +4,17 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimwiki#path#chomp_slash(str) "{{{
+function! vimwiki#path#chomp_slash(str) "{{{1
   return substitute(a:str, '[/\\]\+$', '', '')
-endfunction "}}}
+endfunction
 
+"}}}1
 function! vimwiki#path#is_equal(p1, p2) " {{{1
   return a:p1 ==# a:p2
 endfunction
 
 "}}}1
-
-" collapse sections like /a/b/../c to /a/c
-function! vimwiki#path#normalize(path) "{{{
+function! vimwiki#path#normalize(path) "{{{1
   let path = a:path
   while 1
     let result = substitute(path, '/[^/]\+/\.\.', '', '')
@@ -25,9 +24,10 @@ function! vimwiki#path#normalize(path) "{{{
     let path = result
   endwhile
   return result
-endfunction "}}}
+endfunction
 
-function! vimwiki#path#path_norm(path) "{{{
+"}}}1
+function! vimwiki#path#path_norm(path) "{{{1
   " /-slashes
   if a:path !~# '^scp:'
     let path = substitute(a:path, '\', '/', 'g')
@@ -38,21 +38,22 @@ function! vimwiki#path#path_norm(path) "{{{
   else
     return a:path
   endif
-endfunction "}}}
+endfunction
 
-function! vimwiki#path#is_link_to_dir(link) "{{{
+"}}}1
+function! vimwiki#path#is_link_to_dir(link) "{{{1
   " Check if link is to a directory.
   " It should be ended with \ or /.
   return a:link =~# '\m[/\\]$'
-endfunction "}}}
+endfunction
 
-function! vimwiki#path#abs_path_of_link(link) "{{{
+"}}}1
+function! vimwiki#path#abs_path_of_link(link) "{{{1
   return vimwiki#path#normalize(expand("%:p:h").'/'.a:link)
-endfunction "}}}
+endfunction
 
-" return longest common path prefix of 2 given paths.
-" '~/home/usrname/wiki', '~/home/usrname/wiki/shmiki' => '~/home/usrname/wiki'
-function! vimwiki#path#path_common_pfx(path1, path2) "{{{
+"}}}1
+function! vimwiki#path#path_common_pfx(path1, path2) "{{{1
   let p1 = split(a:path1, '[/\\]', 1)
   let p2 = split(a:path2, '[/\\]', 1)
 
@@ -66,16 +67,17 @@ function! vimwiki#path#path_common_pfx(path1, path2) "{{{
   else
     return join(p1[: idx-1], '/')
   endif
-endfunction "}}}
+endfunction
 
-function! vimwiki#path#wikify_path(path) "{{{
+"}}}1
+function! vimwiki#path#wikify_path(path) "{{{1
   let result = resolve(expand(a:path, ':p'))
   let result = vimwiki#path#chomp_slash(result)
   return result
-endfunction "}}}
+endfunction
 
-" Returns: the relative path from a:dir to a:file
-function! vimwiki#path#relpath(dir, file) "{{{
+"}}}1
+function! vimwiki#path#relpath(dir, file) "{{{1
   let result = []
   let dir = split(a:dir, '/')
   let file = split(a:file, '/')
@@ -97,12 +99,10 @@ function! vimwiki#path#relpath(dir, file) "{{{
     let result_path .= '/'
   endif
   return result_path
-endfunction "}}}
+endfunction
 
-" If the optional argument provided and nonzero,
-" it will ask before creating a directory 
-" Returns: 1 iff directory exists or successfully created
-function! vimwiki#path#mkdir(path, ...) "{{{
+"}}}1
+function! vimwiki#path#mkdir(path, ...) "{{{1
   let path = expand(a:path)
 
   if path =~# '^scp:'
@@ -128,20 +128,17 @@ function! vimwiki#path#mkdir(path, ...) "{{{
     return 1
   endif
 endfunction " }}}
-
-function! vimwiki#path#is_absolute(path) "{{{
+function! vimwiki#path#is_absolute(path) "{{{1
   return a:path =~# '\m^/\|\~/'
-endfunction "}}}
+endfunction
 
-
-" Combine a directory and a file into one path, doesn't generate duplicate
-" path separator in case the directory is also having an ending / or \. This
-" is because on windows ~\vimwiki//.tags is invalid but ~\vimwiki/.tags is a
-" valid path.
-function! vimwiki#path#join_path(directory, file)
+"}}}1
+function! vimwiki#path#join_path(directory, file) " {{{1
   let directory = substitute(a:directory, '\m/\+$', '', '')
   let file = substitute(a:file, '\m^/\+', '', '')
   return directory . '/' . file
 endfunction
+
+" }}}1
 
 " vim: fdm=marker sw=2
