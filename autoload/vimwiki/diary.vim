@@ -271,7 +271,7 @@ function! vimwiki#diary#calendar_action(day, month, year, week, dir) "{{{
 endfunction "}}}
 
 " Sign function.
-function vimwiki#diary#calendar_sign(day, month, year) "{{{
+function! vimwiki#diary#calendar_sign(day, month, year) "{{{
   let day = s:prefix_zero(a:day)
   let month = s:prefix_zero(a:month)
   let sfile = VimwikiGet('path').VimwikiGet('diary_rel_path').

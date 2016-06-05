@@ -1,14 +1,3 @@
-" {{{1 Reload personal script
-let s:file = expand('<sfile>')
-if !exists('s:reloading_script')
-  function! vimwiki#reload_personal_script()
-    let s:reloading_script = 1
-    execute 'source' s:file
-    unlet s:reloading_script
-  endfunction
-endif
-
-" }}}1
 
 function! vimwiki#fix_syntax() " {{{1
   " Fix titles
@@ -50,5 +39,40 @@ function! vimwiki#new_entry() " {{{
 
   call vimwiki#diary#goto_next_day()
 endfunction
+
+" }}}1
+
+" {{{1 function! vimwiki#reload()
+let s:file = expand('<sfile>')
+if !exists('s:reloading_script')
+  function! vimwiki#reload()
+    let s:reloading_script = 1
+
+    " Reload autoload scripts
+    for l:file in [s:file]
+          \ + split(globpath(fnamemodify(s:file, ':r'), '*.vim'), '\n')
+      execute 'source' l:file
+    endfor
+
+    " Reload plugin
+    if exists('g:vimwiki_loaded')
+      unlet g:vimwiki_loaded
+      runtime plugin/vimwiki.vim
+    endif
+
+    " Reload ftplugin and syntax
+    if &filetype == 'vimwiki'
+      unlet b:did_ftplugin
+      runtime ftplugin/vimwiki.vim
+
+      if get(b:, 'current_syntax', '') ==# 'vimwiki'
+        unlet b:current_syntax
+        runtime syntax/vimwiki.vim
+      endif
+    endif
+
+    unlet s:reloading_script
+  endfunction
+endif
 
 " }}}1

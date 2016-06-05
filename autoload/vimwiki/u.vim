@@ -1,7 +1,8 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
-" Vimwiki autoload plugin file
-" Desc: Utility functions
-" Home: https://github.com/vimwiki/vimwiki/
+" vimwiki
+"
+" Maintainer: Karl Yngve Lervåg
+" Email:      karl.yngve@gmail.com
+"
 
 function! vimwiki#u#trim(string, ...) "{{{
   let chars = ''
@@ -42,27 +43,29 @@ function! vimwiki#u#escape(string) "{{{
 endfunction "}}}
 
 " Load concrete Wiki syntax: sets regexes and templates for headers and links
-function vimwiki#u#reload_regexes() "{{{
+function! vimwiki#u#reload_regexes() "{{{
   execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'.vim'
 endfunction "}}}
 
 " Load omnipresent Wiki syntax
-function vimwiki#u#reload_omni_regexes() "{{{
+function! vimwiki#u#reload_omni_regexes() "{{{
   execute 'runtime! syntax/omnipresent_syntax.vim'
 endfunction "}}}
 
 " Load syntax-specific functionality
-function vimwiki#u#reload_regexes_custom() "{{{
+function! vimwiki#u#reload_regexes_custom() "{{{
   execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'_custom.vim'
 endfunction "}}}
 
 " Backward compatible version of the built-in function shiftwidth()
 if exists('*shiftwidth') "{{{
-  func vimwiki#u#sw()
+  func! vimwiki#u#sw()
     return shiftwidth()
   endfunc
 else
-  func vimwiki#u#sw()
+  func! vimwiki#u#sw()
     return &sw
   endfunc
 endif "}}}
+
+" vim: fdm=marker sw=2

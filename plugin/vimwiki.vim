@@ -1,5 +1,5 @@
-if exists("g:loaded_vimwiki") | finish | endif
-let g:loaded_vimwiki = 1
+if exists("g:vimwiki_loaded") | finish | endif
+let g:vimwiki_loaded = 1
 
 let s:old_cpo = &cpo
 set cpo&vim
@@ -7,8 +7,9 @@ set cpo&vim
 command! -count=1 VimwikiIndex         call vimwiki#base#goto_index(v:count1)
 command! -count=1 VimwikiMakeDiaryNote call vimwiki#diary#make_note(v:count1)
 
-nnoremap <silent><unique> <leader>ww         :VimwikiIndex<CR>
-nnoremap <silent><unique> <leader>w<leader>w :VimwikiMakeDiaryNote<CR>
+nnoremap <silent> <leader>ww         :VimwikiIndex<cr>
+nnoremap <silent> <leader>w<leader>w :VimwikiMakeDiaryNote<cr>
+nnoremap <silent> <leader>wx         :call vimwiki#reload()<cr>
 
 augroup vimwiki
   autocmd!

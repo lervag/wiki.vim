@@ -1,13 +1,4 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
-" Vimwiki syntax file
-" Home: https://github.com/vimwiki/vimwiki/
-
-" Quit if syntax file is already loaded
-if version < 600
-  syntax clear
-elseif exists("b:current_syntax")
-  finish
-endif
+if exists("b:current_syntax") | finish | endif
 
 "TODO do nothing if ...? (?)
 if VimwikiGet('maxhi')
