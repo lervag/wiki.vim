@@ -46,7 +46,6 @@ function! vimwiki#new_entry() " {{{
 endfunction
 
 " }}}1
-
 " {{{1 function! vimwiki#reload()
 let s:file = expand('<sfile>')
 if !exists('s:reloading_script')

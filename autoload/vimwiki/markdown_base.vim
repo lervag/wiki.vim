@@ -1,17 +1,12 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
-" Vimwiki autoload plugin file
-" Desc: Link functions for markdown syntax
-" Home: https://github.com/vimwiki/vimwiki/
+" vimwiki
+"
+" Maintainer: Karl Yngve Lervåg
+" Email:      karl.yngve@gmail.com
+"
 
-
-" MISC helper functions {{{
-
-" vimwiki#markdown_base#reset_mkd_refs
 function! vimwiki#markdown_base#reset_mkd_refs() "{{{
   call VimwikiClear('markdown_refs')
 endfunction "}}}
-
-" vimwiki#markdown_base#scan_reflinks
 function! vimwiki#markdown_base#scan_reflinks() " {{{
   let mkd_refs = {}
   " construct list of references using vimgrep
@@ -33,9 +28,6 @@ function! vimwiki#markdown_base#scan_reflinks() " {{{
   call VimwikiSet('markdown_refs', mkd_refs)
   return mkd_refs
 endfunction "}}}
-
-
-" vimwiki#markdown_base#get_reflinks
 function! vimwiki#markdown_base#get_reflinks() " {{{
   let done = 1
   try
@@ -51,9 +43,6 @@ function! vimwiki#markdown_base#get_reflinks() " {{{
   endif
   return mkd_refs
 endfunction "}}}
-
-" vimwiki#markdown_base#open_reflink
-" try markdown reference links
 function! vimwiki#markdown_base#open_reflink(link) " {{{
   " echom "vimwiki#markdown_base#open_reflink"
   let link = a:link
@@ -66,12 +55,11 @@ function! vimwiki#markdown_base#open_reflink(link) " {{{
     return 0
   endif
 endfunction " }}}
-" }}}
 
-" WIKI link following functions {{{
-
-" vimwiki#markdown_base#follow_link
-function! vimwiki#markdown_base#follow_link(split, ...) "{{{ Parse link at cursor and pass 
+"
+" WIKI link following functions
+"
+function! vimwiki#markdown_base#follow_link(split, ...) "{{{1
   " to VimwikiLinkHandler, or failing that, the default open_link handler
   " echom "markdown_base#follow_link"
 
@@ -123,11 +111,13 @@ function! vimwiki#markdown_base#follow_link(split, ...) "{{{ Parse link at curso
     endif
   endif
 
-endfunction " }}}
+endfunction
 
-" LINK functions {{{
+" }}}
 
-" s:normalize_link_syntax_n
+"
+" LINK functions
+"
 function! s:normalize_link_syntax_n() " {{{
   let lnum = line('.')
 
@@ -181,8 +171,6 @@ function! s:normalize_link_syntax_n() " {{{
   endif
 
 endfunction " }}}
-
-" s:normalize_link_syntax_v
 function! s:normalize_link_syntax_v() " {{{
   let lnum = line('.')
   let sel_save = &selection
@@ -208,8 +196,6 @@ function! s:normalize_link_syntax_v() " {{{
   endtry
 
 endfunction " }}}
-
-" vimwiki#base#normalize_link
 function! vimwiki#markdown_base#normalize_link(is_visual_mode) "{{{
   if 0
     " Syntax-specific links
@@ -223,9 +209,4 @@ function! vimwiki#markdown_base#normalize_link(is_visual_mode) "{{{
   endif
 endfunction "}}}
 
-" }}}
-
-" -------------------------------------------------------------------------
-" Load syntax-specific Wiki functionality
-" -------------------------------------------------------------------------
-
+" vim: fdm=marker sw=2

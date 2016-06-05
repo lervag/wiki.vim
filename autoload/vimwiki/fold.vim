@@ -1,9 +1,8 @@
-
-" use \u2026 and \u21b2 (or \u2424) if enc=utf-8 to save screen space
-let s:ellipsis = (&enc ==? 'utf-8') ? "\u2026" : "..."
-let s:ell_len = strlen(s:ellipsis)
-let s:newline = (&enc ==? 'utf-8') ? "\u21b2 " : "  "
-let s:tolerance = 5
+" vimwiki
+"
+" Maintainer: Karl Yngve Lervåg
+" Email:      karl.yngve@gmail.com
+"
 
 function! vimwiki#fold#level(lnum) " {{{1
   let l:line = getline(a:lnum)
@@ -30,8 +29,8 @@ function! vimwiki#fold#text() "{{{
     let [main_text, spare_len] = s:shorten_text(main_text, 24)
     let line1 = substitute(getline(v:foldstart+1), '^\s*', ' ', '')
     let [content_text, spare_len] = s:shorten_text(line1, spare_len+20)
-    if spare_len > s:tolerance && fold_len > 3
-      let line2 = substitute(getline(v:foldstart+2), '^\s*', s:newline, '')
+    if spare_len > 5 && fold_len > 3
+      let line2 = substitute(getline(v:foldstart+2), '^\s*', '  ', '')
       let [more_text, spare_len] = s:shorten_text(line2, spare_len+12)
       let content_text .= more_text
     endif
@@ -47,15 +46,17 @@ function! s:shorten_text(text, len) "{{{
   " indexes on it, then use original string to break at selected index.
   let text_pattern = substitute(a:text, '\m\S', '.', 'g')
   let spare_len = a:len - strlen(text_pattern)
-  if (spare_len + s:tolerance >= 0)
+  if (spare_len + 5 >= 0)
     return [a:text, spare_len]
   endif
-  " try to break on a space; assumes a:len-s:ell_len >= s:tolerance
-  let newlen = a:len - s:ell_len
-  let idx = strridx(text_pattern, ' ', newlen + s:tolerance)
-  let break_idx = (idx + s:tolerance >= newlen) ? idx : newlen
-  return [matchstr(a:text, '\m^.\{'.break_idx.'\}').s:ellipsis,
+
+  let newlen = a:len - 3
+  let idx = strridx(text_pattern, ' ', newlen + 5)
+  let break_idx = (idx + 5 >= newlen) ? idx : newlen
+  return [matchstr(a:text, '\m^.\{'.break_idx.'\}') . '...',
         \ newlen - break_idx]
 endfunction
 
 "}}}
+
+" vim: fdm=marker sw=2

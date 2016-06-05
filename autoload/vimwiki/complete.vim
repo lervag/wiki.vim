@@ -1,3 +1,9 @@
+" vimwiki
+"
+" Maintainer: Karl Yngve Lervåg
+" Email:      karl.yngve@gmail.com
+"
+
 function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
   if a:findstart == 1
     let column = col('.')-2
@@ -88,3 +94,5 @@ function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
 endfunction
 
 " }}}1
+
+" vim: fdm=marker sw=2

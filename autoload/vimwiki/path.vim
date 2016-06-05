@@ -1,24 +1,18 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
-" Vimwiki autoload plugin file
-" Desc: Path manipulation functions
-" Home: https://github.com/vimwiki/vimwiki/
-
+" vimwiki
+"
+" Maintainer: Karl Yngve Lervåg
+" Email:      karl.yngve@gmail.com
+"
 
 function! vimwiki#path#chomp_slash(str) "{{{
   return substitute(a:str, '[/\\]\+$', '', '')
 endfunction "}}}
 
-" Define path-compare function, either case-sensitive or not, depending on OS.
-"{{{ " function! vimwiki#path#is_equal(p1, p2)
-if vimwiki#u#is_windows()
-  function! vimwiki#path#is_equal(p1, p2)
-    return a:p1 ==? a:p2
-  endfunction
-else
-  function! vimwiki#path#is_equal(p1, p2)
-    return a:p1 ==# a:p2
-  endfunction
-endif "}}}
+function! vimwiki#path#is_equal(p1, p2) " {{{1
+  return a:p1 ==# a:p2
+endfunction
+
+"}}}1
 
 " collapse sections like /a/b/../c to /a/c
 function! vimwiki#path#normalize(path) "{{{
@@ -76,9 +70,6 @@ endfunction "}}}
 
 function! vimwiki#path#wikify_path(path) "{{{
   let result = resolve(expand(a:path, ':p'))
-  if vimwiki#u#is_windows()
-    let result = substitute(result, '\\', '/', 'g')
-  endif
   let result = vimwiki#path#chomp_slash(result)
   return result
 endfunction "}}}
@@ -127,9 +118,6 @@ function! vimwiki#path#mkdir(path, ...) "{{{
     endif
 
     let path = vimwiki#path#chomp_slash(path)
-    if vimwiki#u#is_windows() && !empty(g:vimwiki_w32_dir_enc)
-      let path = iconv(path, &enc, g:vimwiki_w32_dir_enc)
-    endif
 
     if a:0 && a:1 && input("Vimwiki: Make new directory: "
           \ .path."\n [y]es/[N]o? ") !~? '^y'
@@ -142,11 +130,7 @@ function! vimwiki#path#mkdir(path, ...) "{{{
 endfunction " }}}
 
 function! vimwiki#path#is_absolute(path) "{{{
-  if vimwiki#u#is_windows()
-    return a:path =~? '\m^\a:'
-  else
-    return a:path =~# '\m^/\|\~/'
-  endif
+  return a:path =~# '\m^/\|\~/'
 endfunction "}}}
 
 
@@ -154,16 +138,10 @@ endfunction "}}}
 " path separator in case the directory is also having an ending / or \. This
 " is because on windows ~\vimwiki//.tags is invalid but ~\vimwiki/.tags is a
 " valid path.
-if vimwiki#u#is_windows()
-  function! vimwiki#path#join_path(directory, file)
-    let directory = vimwiki#path#chomp_slash(a:directory)
-    let file = substitute(a:file, '\m^[\\/]\+', '', '')
-    return directory . '/' . file
-  endfunction
-else
-  function! vimwiki#path#join_path(directory, file)
-    let directory = substitute(a:directory, '\m/\+$', '', '')
-    let file = substitute(a:file, '\m^/\+', '', '')
-    return directory . '/' . file
-  endfunction
-endif
+function! vimwiki#path#join_path(directory, file)
+  let directory = substitute(a:directory, '\m/\+$', '', '')
+  let file = substitute(a:file, '\m^/\+', '', '')
+  return directory . '/' . file
+endfunction
+
+" vim: fdm=marker sw=2

@@ -51,7 +51,7 @@ nnoremap <silent><buffer> <s-tab>    :call vimwiki#base#find_prev_link()<cr>
 nnoremap <silent><buffer> <bs>       :call vimwiki#base#go_back_link()<cr>
 nnoremap <silent><buffer> +          :call vimwiki#base#normalize_link(0)<cr>
 nnoremap <silent><buffer> <c-cr>     :call vimwiki#base#follow_link('vsplit')<cr>
-nnoremap <silent><buffer> <c-space>  :call vimwiki#lst#toggle_cb(<line1>, <line2>)<cr>
+nnoremap <silent><buffer> <c-space>  :VimwikiToggleListItem<cr>
 nnoremap <silent><buffer> <leader>wr :call vimwiki#base#rename_link()<cr>
 nnoremap <silent><buffer> <leader>wd :call vimwiki#base#delete_link()<cr>
 nnoremap <silent><buffer> <leader>wl :call vimwiki#backlinks()<cr>
@@ -62,14 +62,6 @@ nnoremap <silent><buffer> o          :call vimwiki#lst#kbd_o()<cr>
 vnoremap <silent><buffer> <cr>      :<c-u>:call vimwiki#base#normalize_link(1)<cr>
 vnoremap <silent><buffer> <c-space> :VimwikiToggleListItem<cr>
 
-onoremap <silent><buffer> ah :<c-u>call vimwiki#base#TO_header(0, 0)<cr>
-vnoremap <silent><buffer> ah :<c-u>call vimwiki#base#TO_header(0, 1)<cr>
-onoremap <silent><buffer> ih :<c-u>call vimwiki#base#TO_header(1, 0)<cr>
-vnoremap <silent><buffer> ih :<c-u>call vimwiki#base#TO_header(1, 1)<cr>
-onoremap <silent><buffer> al :<c-u>call vimwiki#lst#TO_list_item(0, 0)<cr>
-vnoremap <silent><buffer> al :<c-u>call vimwiki#lst#TO_list_item(0, 1)<cr>
-onoremap <silent><buffer> il :<c-u>call vimwiki#lst#TO_list_item(1, 0)<cr>
-vnoremap <silent><buffer> il :<c-u>call vimwiki#lst#TO_list_item(1, 1)<cr>
 
 " Journal settings
 if expand('%:p') =~# 'wiki\/journal'

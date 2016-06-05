@@ -1,6 +1,8 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
-" Vimwiki autoload plugin file
-
+" vimwiki
+"
+" Maintainer: Karl Yngve Lervåg
+" Email:      karl.yngve@gmail.com
+"
 
 let s:TAGS_METADATA_FILE_NAME = '.tags'
 
@@ -340,3 +342,4 @@ function! vimwiki#tags#complete_tags(ArgLead, CmdLine, CursorPos) abort " {{{
   return join(taglist, "\n")
 endfunction " }}}
 
+" vim: fdm=marker sw=2
