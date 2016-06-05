@@ -1,18 +1,5 @@
 if exists("b:current_syntax") | finish | endif
 
-"TODO do nothing if ...? (?)
-if VimwikiGet('maxhi')
-  let b:existing_wikifiles =
-        \ vimwiki#base#get_wikilinks(g:vimwiki_current_idx, 1)
-  let b:existing_wikidirs  =
-        \ vimwiki#base#get_wiki_directories(g:vimwiki_current_idx)
-endif
-  "let b:xxx = 1
-  "TODO ? update wikilink syntax group here if really needed (?) for :e and such
-  "if VimwikiGet('maxhi')
-  " ...
-  "endif
-
 " LINKS: assume this is common to all syntaxes "{{{
 
 " LINKS: WebLinks {{{
@@ -580,8 +567,7 @@ hi def link VimwikiNoExistsLinkCharT VimwikiNoExistsLinkT
 " Load syntax-specific functionality
 call vimwiki#u#reload_regexes_custom()
 
-" FIXME it now does not make sense to pretend there is a single syntax "vimwiki"
-let b:current_syntax="vimwiki"
+let b:current_syntax = "vimwiki"
 
 " EMBEDDED syntax setup "{{{
 let s:nested = VimwikiGet('nested_syntaxes')
@@ -602,6 +588,5 @@ call vimwiki#base#nested_syntax('tex',
       \ '\%([[:blank:][:punct:]].*\)\?',
       \ g:vimwiki_rxMathEnd, 'VimwikiMath')
 "}}}
-
 
 syntax spell toplevel
