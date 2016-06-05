@@ -11,8 +11,6 @@ syntax spell toplevel
 let s:conceal = exists("+conceallevel") ? ' conceal' : ''
 let s:options = ' contained transparent contains=NONE' . s:conceal
 
-" {{{ Utility functions
-
 function! s:add_target_syntax(target, type) " {{{
   let prefix0 = 'syntax match '.a:type.' `'
   let suffix0 = '` display contains=@NoSpell,VimwikiLinkRest,'.a:type.'Char'
@@ -34,8 +32,6 @@ function! s:existing_mkd_refs() " {{{
   call vimwiki#markdown_base#reset_mkd_refs()
   return keys(vimwiki#markdown_base#get_reflinks())
 endfunction
-
-" }}}
 
 " }}}
 
@@ -336,11 +332,11 @@ let g:vimwiki_rxMkdRefMatchUrl = '\['.g:vimwiki_rxWikiLinkDescr.']:\%(\s\+\|\n\)
 
 " }}} end of Links
 
-" LINKS: highlighting is complicated due to "nonexistent" links feature {{{
+" {{{ Link targets
 
 call s:add_target_syntax(g:vimwiki_rxWikiLink, 'VimwikiLink')
-call s:add_target_syntax(g:vimwiki_rxWeblink, 'VimwikiLink')
 call s:add_target_syntax(g:vimwiki_rxWikiLink1, 'VimwikiWikiLink1')
+call s:add_target_syntax(g:vimwiki_rxWeblink, 'VimwikiLink')
 call s:add_target_syntax(g:vimwiki_rxWeblink1, 'VimwikiWeblink1')
 
 " WikiLink
