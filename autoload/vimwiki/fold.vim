@@ -6,13 +6,16 @@
 
 function! vimwiki#fold#level(lnum) " {{{1
   let l:line = getline(a:lnum)
-  let l:synstack = map(synstack(a:lnum, 1), "synIDattr(v:val, 'name')")
 
-  if l:line =~# '^#\{1,6} [^#]' && match(l:synstack, '^shComment') == -1
+  if l:line =~# '^#\{1,6} [^#]' && !s:is_code(a:lnum)
     return '>' . vimwiki#u#count_first_sym(l:line)
-  else
-    return '='
   endif
+
+  if l:line =~# '^```'
+    return (s:is_code(a:lnum+1) ? 'a1' : 's1')
+  endif
+
+  return '='
 endfunction
 
 " }}}1
@@ -58,5 +61,12 @@ function! s:shorten_text(text, len) "{{{
 endfunction
 
 "}}}
+function! s:is_code(lnum) " {{{1
+  return match(map(synstack(a:lnum, 1),
+          \        "synIDattr(v:val, 'name')"),
+          \    '^\%(textSnip\|VimwikiPre\)') > -1
+endfunction
+
+" }}}1
 
 " vim: fdm=marker sw=2
