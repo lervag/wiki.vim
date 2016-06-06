@@ -82,11 +82,6 @@ function! vimwiki#markdown_base#follow_link(split, ...) "{{{1
     " try WikiLink
     let lnk = matchstr(vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiLink),
           \ g:vimwiki_rxWikiLinkMatchUrl)
-    " try WikiIncl
-    if lnk == ""
-      let lnk = matchstr(vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiIncl),
-          \ g:vimwiki_rxWikiInclMatchUrl)
-    endif
     " try Weblink
     if lnk == ""
       let lnk = matchstr(vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWeblink),
@@ -120,13 +115,6 @@ endfunction
 "
 function! s:normalize_link_syntax_n() " {{{
   let lnum = line('.')
-
-  " try WikiIncl
-  let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiIncl)
-  if !empty(lnk)
-    " NO-OP !!
-    return
-  endif
 
   " try WikiLink0: replace with WikiLink1
   let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiLink0)
