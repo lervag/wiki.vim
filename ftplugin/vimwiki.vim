@@ -22,12 +22,13 @@ setlocal isfname-=[,]
 setlocal autoindent
 setlocal nosmartindent
 setlocal nocindent
-setlocal comments=""
-setlocal formatoptions-=c
-setlocal formatoptions-=r
-setlocal formatoptions-=o
-setlocal formatoptions-=2
-setlocal formatoptions+=n
+setlocal comments =:*\ TODO:,b:*\ [\ ],b:*\ [X],b:*
+setlocal comments+=:-\ TODO:,b:-\ [\ ],b:-\ [X],b:-
+" setlocal formatoptions-=c
+" setlocal formatoptions-=r
+" setlocal formatoptions-=o
+" setlocal formatoptions-=2
+" setlocal formatoptions+=n
 
 if g:vimwiki_conceallevel && exists("+conceallevel")
   let &l:conceallevel = g:vimwiki_conceallevel
