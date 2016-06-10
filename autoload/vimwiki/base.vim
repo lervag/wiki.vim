@@ -4,94 +4,6 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimwiki#base#apply_wiki_options(options) " {{{1
-  " Update the current wiki using the options dictionary
-  for kk in keys(a:options)
-    let g:vimwiki_list[g:vimwiki_current_idx][kk] = a:options[kk]
-  endfor
-  call vimwiki#opts#normalize()
-  call vimwiki#base#setup_buffer_state(g:vimwiki_current_idx)
-endfunction " }}}1
-function! vimwiki#base#read_wiki_options(check) " {{{ Attempt to read wiki
-  " options from the current page's directory, or its ancesters.  If a file
-  "   named vimwiki.vimrc is found, which declares a wiki-options dictionary
-  "   named g:local_wiki, a message alerts the user that an update has been
-  "   found and may be applied.  If the argument check=1, the user is queried
-  "   before applying the update to the current wiki's option.
-
-  " Save global vimwiki options ... after all, the global list is often
-  "   initialized for the first time in vimrc files, and we don't want to
-  "   overwrite !!  (not to mention all the other globals ...)
-  let l:vimwiki_list = deepcopy(g:vimwiki_list, 1)
-  "
-  if a:check > 1
-    call vimwiki#base#print_wiki_state()
-    echo " \n"
-  endif
-  "
-  let g:local_wiki = {}
-  let done = 0
-  " ... start the wild-goose chase!
-  for invsubdir in ['.', '..', '../..', '../../..']
-    " other names are possible, but most vimrc files will cause grief!
-    for nm in ['vimwiki.vimrc']
-      " TODO: use an alternate strategy, instead of source, to read options
-      if done
-        continue
-      endif
-      "
-      let local_wiki_options_filename = expand('%:p:h').'/'.invsubdir.'/'.nm
-      if !filereadable(local_wiki_options_filename)
-        continue
-      endif
-      "
-      echo "\nFound file : ".local_wiki_options_filename
-      let query = "Vimwiki: Check for options in this file [Y]es/[n]o? "
-      if a:check > 0 && input(query) =~? '^n')
-        continue
-      endif
-      "
-      try
-        execute 'source '.local_wiki_options_filename
-      catch
-      endtry
-      if empty(g:local_wiki)
-        continue
-      endif
-      "
-      if a:check > 0
-        echo "\n\nFound wiki options\n  g:local_wiki = ".string(g:local_wiki)
-        let query = "Vimwiki: Apply these options [Y]es/[n]o? "
-        if input(query) =~? '^n'
-          let g:local_wiki = {}
-          continue
-        endif
-      endif
-      "
-      " restore global list
-      " - this prevents corruption by g:vimwiki_list in options_file
-      let g:vimwiki_list = deepcopy(l:vimwiki_list, 1)
-      "
-      call vimwiki#base#apply_wiki_options(g:local_wiki)
-      let done = 1
-    endfor
-  endfor
-  if !done
-    "
-    " restore global list, if no local options were found
-    " - this prevents corruption by g:vimwiki_list in options_file
-    let g:vimwiki_list = deepcopy(l:vimwiki_list, 1)
-    "
-  endif
-  if a:check > 1
-    echo " \n "
-    if done
-      call vimwiki#base#print_wiki_state()
-    else
-      echo "Vimwiki: No options were applied."
-    endif
-  endif
-endfunction " }}}
 function! vimwiki#base#setup_buffer_state(idx) " {{{ Init page-specific variables
   " Only call this function *after* opening a wiki page.
   if a:idx < 0
@@ -1140,32 +1052,13 @@ function! vimwiki#base#follow_link(split, ...) "{{{ Parse link at cursor and pas
   endif
 
 endfunction " }}}
-function! vimwiki#base#goto_index(wnum, ...) "{{{
-  if a:wnum > len(g:vimwiki_list)
-    echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in g:vimwiki_list!'
-    return
-  endif
-
-  if a:0
-    let cmd = 'tabedit'
-  else
-    let cmd = 'edit'
-  endif
-
-  call vimwiki#opts#normalize()
-  call vimwiki#base#edit_file(cmd,
-        \ vimwiki#opts#get('path').vimwiki#opts#get('index').
-        \ vimwiki#opts#get('ext'),
-        \ '')
-  call vimwiki#base#setup_buffer_state(0)
-endfunction "}}}
 function! vimwiki#base#ui_select() "{{{
   call s:print_wiki_list()
   let idx = input("Select Wiki (specify number): ")
   if idx == ""
     return
   endif
-  call vimwiki#base#goto_index(idx)
+  call vimwiki#page#goto_index()
 endfunction "}}}
 
 

@@ -125,5 +125,15 @@ endfunction
 
 " }}}1
 
+function! vimwiki#page#goto_index() "{{{
+  let cmd = 'edit'
+
+  call vimwiki#base#edit_file(cmd,
+        \ vimwiki#opts#get('path').vimwiki#opts#get('index').
+        \ vimwiki#opts#get('ext'),
+        \ '')
+  call vimwiki#base#setup_buffer_state(0)
+endfunction "}}}
+
 " vim: fdm=marker sw=2
 

@@ -35,12 +35,6 @@ function! vimwiki#opts#set(option, value, ...) "{{{1
 endfunction
 
 "}}}1
-function! vimwiki#opts#normalize() " {{{1
-  call vimwiki#opts#set('path', fnamemodify(vimwiki#opts#get('path'), ':p'))
-  call vimwiki#opts#set('diary_rel_path', vimwiki#opts#get('diary_rel_path') . '/')
-endfunction
-
-" }}}1
 
 " {{{1 Defaul wiki
 let s:vimwiki_defaults = {}

@@ -10,7 +10,7 @@ let g:vimwiki_loaded = 1
 let s:old_cpo = &cpo
 set cpo&vim
 
-command! -count=1 VimwikiIndex         call vimwiki#base#goto_index(v:count1)
+command! -count=1 VimwikiIndex         call vimwiki#page#goto_index()
 command! -count=1 VimwikiMakeDiaryNote call vimwiki#diary#make_note(v:count1)
 
 nnoremap <silent> <leader>ww         :VimwikiIndex<cr>
@@ -158,7 +158,10 @@ call s:default('rxSchemeUrl', s:rxSchemes.':.*')
 call s:default('rxSchemeUrlMatchScheme', '\zs'.s:rxSchemes.'\ze:.*')
 call s:default('rxSchemeUrlMatchUrl', s:rxSchemes.':\zs.*\ze')
 
-call vimwiki#opts#normalize()
+call vimwiki#opts#set('path', fnamemodify(vimwiki#opts#get('path'), ':p'))
+call vimwiki#opts#set('diary_rel_path', vimwiki#opts#get('diary_rel_path') . '/')
+
+" }}}1
 
 let &cpo = s:old_cpo
 
