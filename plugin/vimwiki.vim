@@ -14,36 +14,6 @@ nnoremap <silent> <leader>ww         :call vimwiki#page#goto_index()<cr>
 nnoremap <silent> <leader>wx         :call vimwiki#reload()<cr>
 nnoremap <silent> <leader>w<leader>w :call vimwiki#diary#make_note()<cr>
 
-augroup vimwiki
-  autocmd!
-  autocmd BufWinEnter        *.wiki call s:setup_buffer_enter()
-  autocmd BufLeave,BufHidden *.wiki call s:setup_buffer_leave()
-augroup END
-
-"
-" Helper functions
-"
-function! s:setup_buffer_leave() "{{{
-  if &filetype ==? 'vimwiki'
-    call vimwiki#base#cache_buffer_state()
-  endif
-endfunction
-
-"}}}
-function! s:setup_buffer_enter() "{{{
-  if !vimwiki#base#recall_buffer_state()
-    if vimwiki#base#find_wiki(expand('%:p:h')) != -1
-      call vimwiki#todo#setup_buffer_state()
-    endif
-  endif
-
-  if g:vimwiki_conceallevel && exists("+conceallevel")
-    let &conceallevel = g:vimwiki_conceallevel
-  endif
-endfunction
-
-"}}}
-
 "
 " Default options
 "
@@ -63,7 +33,6 @@ call s:default('dir_link', '')
 call s:default('toc_header', 'Contents')
 call s:default('html_header_numbering', 0)
 call s:default('html_header_numbering_sym', '')
-call s:default('conceallevel', 2)
 call s:default('url_maxsave', 15)
 call s:default('diary_months',
       \ {

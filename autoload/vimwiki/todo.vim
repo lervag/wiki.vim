@@ -42,28 +42,6 @@ function! vimwiki#todo#edit_file(command, filename, anchor, ...) "{{{1
 endfunction
 
 " }}}1
-function! vimwiki#todo#setup_buffer_state(idx) " {{{1
-  " Only call this function *after* opening a wiki page.
-  if a:idx < 0
-    return
-  endif
-
-  let g:vimwiki_current_idx = a:idx
-
-  " The following state depends on the current active wiki page
-  let subdir = vimwiki#todo#subdir(vimwiki#opts#get('path'), expand('%:p'))
-  call vimwiki#opts#set('subdir', subdir, a:idx)
-  call vimwiki#opts#set('invsubdir', vimwiki#base#invsubdir(subdir), a:idx)
-
-  if g:vimwiki_auto_chdir == 1
-    exe 'lcd' vimwiki#opts#get('path')
-  endif
-
-  " update cache
-  call vimwiki#base#cache_buffer_state()
-endfunction
-
-" }}}1
 function! vimwiki#todo#subdir(path, filename) "{{{1
   let path = a:path
   " ensure that we are not fooled by a symbolic link

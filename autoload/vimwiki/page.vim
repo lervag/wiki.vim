@@ -30,7 +30,6 @@ function! vimwiki#page#goto_index() "{{{
         \ . vimwiki#opts#get('index')
         \ . vimwiki#opts#get('ext'),
         \ '')
-  call vimwiki#todo#setup_buffer_state(0)
 endfunction "}}}
 function! vimwiki#page#backlinks() "{{{1
   let l:origin = expand("%:p")

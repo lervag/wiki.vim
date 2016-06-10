@@ -15,7 +15,6 @@ function! vimwiki#diary#make_note(...) "{{{
   let link = 'diary:' . (a:0 > 0 ? a:1 : s:diary_date_link())
 
   call vimwiki#todo#open_link(cmd, link, s:diary_index())
-  call vimwiki#todo#setup_buffer_state(0)
 endfunction "}}}
 function! vimwiki#diary#copy_note() " {{{
   let l:current = expand('%:t:r')
@@ -35,22 +34,6 @@ function! vimwiki#diary#copy_note() " {{{
 endfunction
 
 " }}}1
-function! vimwiki#diary#goto_diary_index(wnum) "{{{
-  if a:wnum > len(g:vimwiki_list)
-    echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in g:vimwiki_list!'
-    return
-  endif
-
-  " TODO: refactor it. base#goto_index uses the same
-  if a:wnum > 0
-    let idx = a:wnum - 1
-  else
-    let idx = 0
-  endif
-
-  call vimwiki#todo#edit_file('e', s:diary_index(), '')
-  call vimwiki#todo#setup_buffer_state(idx)
-endfunction "}}}
 function! vimwiki#diary#goto_next_day() "{{{
   let link = ''
   let [idx, links] = s:get_position_links(expand('%:t:r'))

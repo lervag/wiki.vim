@@ -30,8 +30,8 @@ setlocal comments+=:-\ TODO:,b:-\ [\ ],b:-\ [X],b:-
 " setlocal formatoptions-=2
 " setlocal formatoptions+=n
 
-if g:vimwiki_conceallevel && exists("+conceallevel")
-  let &l:conceallevel = g:vimwiki_conceallevel
+if exists("+conceallevel")
+  let &l:conceallevel = 2
 endif
 
 "Create 'formatlistpat'
