@@ -32,15 +32,9 @@ endfunction
 "}}}
 function! s:setup_buffer_enter() "{{{
   if !vimwiki#base#recall_buffer_state()
-    let path = expand('%:p:h')
-    let idx = vimwiki#base#find_wiki(path)
-
-    if idx == -1 && g:vimwiki_global_ext == 0
-      return
+    if vimwiki#base#find_wiki(expand('%:p:h')) != -1
+      call vimwiki#todo#setup_buffer_state()
     endif
-
-    " initialize and cache global vars of current state
-    call vimwiki#todo#setup_buffer_state(idx)
   endif
 
   if g:vimwiki_conceallevel && exists("+conceallevel")
@@ -59,7 +53,6 @@ function! s:default(varname, value)
   endif
 endfunction
 call s:default('list', [])
-call s:default('global_ext', 1)
 call s:default('hl_cb_checked', 0)
 call s:default('list_ignore_newline', 1)
 call s:default('listsyms', ' .oOX')
