@@ -22,7 +22,6 @@ function! s:default(varname, value)
     let g:vimwiki_{a:varname} = a:value
   endif
 endfunction
-call s:default('list', [])
 call s:default('hl_cb_checked', 0)
 call s:default('list_ignore_newline', 1)
 call s:default('listsyms', ' .oOX')

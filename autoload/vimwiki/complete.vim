@@ -34,7 +34,7 @@ function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
 
       if a:base =~# '^wiki\d:'
         let wikinumber = eval(matchstr(a:base, '^wiki\zs\d'))
-        if wikinumber >= len(g:vimwiki_list)
+        if wikinumber >= 1
           return []
         endif
         let prefix = matchstr(a:base, '^wiki\d:\zs.*')
@@ -44,7 +44,7 @@ function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
         let prefix = matchstr(a:base, '^diary:\zs.*')
         let scheme = matchstr(a:base, '^diary:\ze')
       else " current wiki
-        let wikinumber = g:vimwiki_current_idx
+        let wikinumber = 0
         let prefix = a:base
         let scheme = ''
       endif

@@ -94,7 +94,7 @@ function! vimwiki#todo#open_link(cmd, link, ...) "{{{
   if is_wiki_link
     call vimwiki#todo#edit_file(a:cmd, link_infos.filename, link_infos.anchor,
           \ vimwiki_prev_link, update_prev_link)
-    if link_infos.index != g:vimwiki_current_idx
+    if link_infos.index != 0
       " this call to setup_buffer_state may not be necessary
       call vimwiki#todo#setup_buffer_state(link_infos.index)
     endif

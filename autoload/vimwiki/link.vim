@@ -30,45 +30,6 @@ endfunction
 
 " }}}1
 
-function! vimwiki#link#follow(split, ...) "{{{1
-  if a:split ==# "split"
-    let cmd = ":split "
-  elseif a:split ==# "vsplit"
-    let cmd = ":vsplit "
-  elseif a:split ==# "tabnew"
-    let cmd = ":tabnew "
-  else
-    let cmd = ":e "
-  endif
-
-  " try WikiLink
-  let lnk = matchstr(vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiLink),
-        \ g:vimwiki_rxWikiLinkMatchUrl)
-  " try Weblink
-  if lnk == ""
-    let lnk = matchstr(vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWeblink),
-          \ g:vimwiki_rxWeblinkMatchUrl)
-  endif
-
-  if lnk != ""
-    if !VimwikiLinkHandler(lnk)
-      if !vimwiki#markdown_base#open_reflink(lnk)
-        " remove the extension from the filename if exists
-        let lnk = substitute(lnk, vimwiki#opts#get('ext').'$', '', '')
-        call vimwiki#todo#open_link(cmd, lnk)
-      endif
-    endif
-    return
-  endif
-
-  if a:0 > 0
-    execute "normal! ".a:1
-  else
-    call vimwiki#link#normalize(0)
-  endif
-endfunction
-
-" }}}
 function! vimwiki#link#normalize(is_visual_mode) "{{{
   if !a:is_visual_mode
     call s:normalize_link_syntax_n()
@@ -76,7 +37,6 @@ function! vimwiki#link#normalize(is_visual_mode) "{{{
     call s:normalize_link_syntax_v()
   endif
 endfunction "}}}
-
 function! s:normalize_link_syntax_n() " {{{
   let lnum = line('.')
 
@@ -148,5 +108,113 @@ function! s:normalize_link_syntax_v() " {{{
   endtry
 
 endfunction " }}}
+
+function! vimwiki#link#follow(split, ...) "{{{1
+  if a:split ==# "split"
+    let cmd = ":split "
+  elseif a:split ==# "vsplit"
+    let cmd = ":vsplit "
+  elseif a:split ==# "tabnew"
+    let cmd = ":tabnew "
+  else
+    let cmd = ":e "
+  endif
+
+  " try WikiLink
+  let lnk = matchstr(vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiLink),
+        \ g:vimwiki_rxWikiLinkMatchUrl)
+  " try Weblink
+  if lnk == ""
+    let lnk = matchstr(vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWeblink),
+          \ g:vimwiki_rxWeblinkMatchUrl)
+  endif
+
+  if !empty(lnk)
+    if s:link_handler(lnk) | return | endif
+    if s:reflink_follow(lnk) | return | endif
+
+    " remove the extension from the filename if exists
+    let lnk = substitute(lnk, vimwiki#opts#get('ext').'$', '', '')
+    call vimwiki#todo#open_link(cmd, lnk)
+    return
+  endif
+
+  if a:0 > 0
+    execute "normal! ".a:1
+  else
+    call vimwiki#link#normalize(0)
+  endif
+endfunction
+
+" }}}
+function! s:link_handler(link) " {{{1
+  let link_info = vimwiki#base#resolve_link(a:link)
+
+  let lnk = expand(link_info.filename)
+  if filereadable(lnk) && fnamemodify(lnk, ':e') ==? 'pdf'
+    silent execute '!zathura ' lnk '&'
+    return 1
+  endif
+
+  if link_info.scheme ==# 'file'
+    let fname = link_info.filename
+    if isdirectory(fname)
+      execute 'Unite file:' . fname
+      return 1
+    elseif filereadable(fname)
+      execute 'edit' fname
+      return 1
+    endif
+  endif
+
+  if link_info.scheme ==# 'doi'
+    let url = substitute(link_info.filename, 'doi:', '', '')
+    silent execute '!xdg-open http://dx.doi.org/' . url .'&'
+    return 1
+  endif
+
+  return 0
+endfunction
+
+"}}}1
+"
+" TODO - doesn't work
+"
+function! s:reflink_follow(link) " {{{1
+  if !exists('b:vimwiki_reflinks')
+    let b:vimwiki_reflinks = s:reflink_scan()
+  endif
+
+  if has_key(b:vimwiki_reflinks, a:link)
+    call vimwiki#base#system_open_link(mkd_refs[a:link])
+    return 1
+  endif
+
+  return 0
+endfunction
+
+" }}}1
+function! s:reflink_scan() " {{{1
+  let mkd_refs = {}
+
+  try
+    " Why noautocmd? Because https://github.com/vimwiki/vimwiki/issues/121
+    noautocmd execute 'vimgrep #'.g:vimwiki_rxMkdRef.'#j %'
+  catch /^Vim\%((\a\+)\)\=:E480/
+  endtry
+
+  for d in getqflist()
+    let matchline = join(getline(d.lnum, min([d.lnum+1, line('$')])), ' ')
+    let descr = matchstr(matchline, g:vimwiki_rxMkdRefMatchDescr)
+    let url = matchstr(matchline, g:vimwiki_rxMkdRefMatchUrl)
+    if descr != '' && url != ''
+      let mkd_refs[descr] = url
+    endif
+  endfor
+
+  return mkd_refs
+endfunction
+
+" }}}1
 
 " vim: fdm=marker sw=2
