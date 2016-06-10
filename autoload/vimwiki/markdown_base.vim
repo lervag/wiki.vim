@@ -4,9 +4,13 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimwiki#markdown_base#reset_mkd_refs() "{{{
-  call VimwikiClear('markdown_refs')
-endfunction "}}}
+function! vimwiki#markdown_base#reset_mkd_refs() "{{{1
+  if has_key(get(b:, 'vimwiki_list', {}), 'markdown_refs')
+    call remove(b:vimwiki_list, 'markdown_refs')
+  endif
+endfunction
+
+"}}}1
 function! vimwiki#markdown_base#scan_reflinks() " {{{
   let mkd_refs = {}
   " construct list of references using vimgrep
@@ -25,13 +29,13 @@ function! vimwiki#markdown_base#scan_reflinks() " {{{
       let mkd_refs[descr] = url
     endif
   endfor
-  call VimwikiSet('markdown_refs', mkd_refs)
+  call vimwiki#opts#set('markdown_refs', mkd_refs)
   return mkd_refs
 endfunction "}}}
 function! vimwiki#markdown_base#get_reflinks() " {{{
   let done = 1
   try
-    let mkd_refs = VimwikiGet('markdown_refs')
+    let mkd_refs = vimwiki#opts#get('markdown_refs')
   catch
     " work-around hack
     let done = 0
@@ -92,7 +96,7 @@ function! vimwiki#markdown_base#follow_link(split, ...) "{{{1
       if !VimwikiLinkHandler(lnk)
         if !vimwiki#markdown_base#open_reflink(lnk)
           " remove the extension from the filename if exists
-          let lnk = substitute(lnk, VimwikiGet('ext').'$', '', '')
+          let lnk = substitute(lnk, vimwiki#opts#get('ext').'$', '', '')
           call vimwiki#base#open_link(cmd, lnk)
         endif
       endif

@@ -21,7 +21,7 @@ endfunction
 
 " }}}1
 function! vimwiki#backlinks() " {{{1
-  let l:path = VimwikiGet('path')
+  let l:path = vimwiki#opts#get('path')
   let l:file = fnamemodify(expand('%'),':r')
   let l:search = '"(\[[^]]*\]\(|\[\[)(.*\/)?' . l:file . '"'
   execute 'Ack ' . l:search l:path

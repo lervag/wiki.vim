@@ -43,122 +43,8 @@ endif
 " }}}1
 
 "
-" Functions for options
-"
-function! VimwikiGetOptionNames() "{{{
-  return keys(s:vimwiki_defaults)
-endfunction
-
-"}}}
-function! VimwikiGetOptions(...) "{{{
-  let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
-  let option_dict = {}
-  for kk in keys(s:vimwiki_defaults)
-    let option_dict[kk] = VimwikiGet(kk, idx)
-  endfor
-  return option_dict
-endfunction
-
-"}}}
-function! VimwikiGet(option, ...) "{{{
-  " Return value of option for current wiki or if second parameter exists for
-  "   wiki with a given index.
-  " If the option is not found, it is assumed to have been previously cached in a
-  "   buffer local dictionary, that acts as a cache.
-  " If the option is not found in the buffer local dictionary, an error is thrown
-  let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
-
-  if has_key(g:vimwiki_list[idx], a:option)
-    let val = g:vimwiki_list[idx][a:option]
-  elseif has_key(s:vimwiki_defaults, a:option)
-    let val = s:vimwiki_defaults[a:option]
-    let g:vimwiki_list[idx][a:option] = val
-  else
-    let val = b:vimwiki_list[a:option]
-  endif
-
-  " XXX no call to vimwiki#base here or else the whole autoload/base gets loaded!
-  return val
-endfunction
-
-"}}}
-function! VimwikiSet(option, value, ...) "{{{
-  " Set option for current wiki or if third parameter exists for
-  "   wiki with a given index.
-  " If the option is not found or recognized (i.e. does not exist in
-  "   s:vimwiki_defaults), it is saved in a buffer local dictionary, that acts
-  "   as a cache.
-  " If the option is not found in the buffer local dictionary, an error is thrown
-  let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
-
-  if has_key(s:vimwiki_defaults, a:option) ||
-        \ has_key(g:vimwiki_list[idx], a:option)
-    let g:vimwiki_list[idx][a:option] = a:value
-  elseif exists('b:vimwiki_list')
-    let b:vimwiki_list[a:option] = a:value
-  else
-    let b:vimwiki_list = {}
-    let b:vimwiki_list[a:option] = a:value
-  endif
-endfunction
-
-"}}}
-function! VimwikiClear(option, ...) "{{{
-  " Clear option for current wiki or if second parameter exists for
-  "   wiki with a given index.
-  " Currently, only works if option was previously saved in the buffer local
-  "   dictionary, that acts as a cache.
-  let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
-
-  if exists('b:vimwiki_list') && has_key(b:vimwiki_list, a:option)
-    call remove(b:vimwiki_list, a:option)
-  endif
-endfunction
-
-"}}}
-function! Validate_wiki_options(idx) " {{{1
-  call VimwikiSet('path', s:normalize_path(VimwikiGet('path', a:idx)), a:idx)
-  call VimwikiSet('path_html', s:normalize_path(s:path_html(a:idx)), a:idx)
-  call VimwikiSet('template_path',
-        \ s:normalize_path(VimwikiGet('template_path', a:idx)), a:idx)
-  call VimwikiSet('diary_rel_path',
-        \ s:normalize_path(VimwikiGet('diary_rel_path', a:idx)), a:idx)
-endfunction
-
-" }}}1
-
-"
 " Helper functions
 "
-function! s:default(varname, value) "{{{
-  if !exists('g:vimwiki_'.a:varname)
-    let g:vimwiki_{a:varname} = a:value
-  endif
-endfunction
-
-"}}}
-function! s:path_html(idx) "{{{
-  let path_html = VimwikiGet('path_html', a:idx)
-  if !empty(path_html)
-    return path_html
-  else
-    let path = VimwikiGet('path', a:idx)
-    return substitute(path, '[/\\]\+$', '', '').'_html/'
-  endif
-endfunction
-
-"}}}
-function! s:normalize_path(path) "{{{
-  " resolve doesn't work quite right with symlinks ended with / or \
-  let path = substitute(a:path, '[/\\]\+$', '', '')
-  if path !~# '^scp:'
-    return resolve(expand(path)).'/'
-  else
-    return path.'/'
-  endif
-endfunction
-
-"}}}
 function! s:setup_buffer_leave() "{{{
   if &filetype ==? 'vimwiki'
     " cache global vars of current state XXX: SLOW!?
@@ -199,7 +85,7 @@ function! s:setup_buffer_enter() "{{{
     " to force a rescan of the filesystem which may have changed
     " and update VimwikiLinks syntax group that depends on it;
     " b:vimwiki_fs_rescan indicates that setup_filetype() has not been run
-    if exists("b:vimwiki_fs_rescan") && VimwikiGet('maxhi')
+    if exists("b:vimwiki_fs_rescan") && vimwiki#opts#get('maxhi')
       set syntax=vimwiki
     endif
     let b:vimwiki_fs_rescan = 1
@@ -228,8 +114,12 @@ endfunction
 "
 " Default options
 "
+function! s:default(varname, value)
+  if !exists('g:vimwiki_'.a:varname)
+    let g:vimwiki_{a:varname} = a:value
+  endif
+endfunction
 call s:default('list', [])
-call s:default('use_mouse', 0)
 call s:default('global_ext', 1)
 call s:default('ext2syntax', {}) " syntax map keyed on extension
 call s:default('hl_cb_checked', 0)
@@ -238,10 +128,7 @@ call s:default('listsyms', ' .oOX')
 call s:default('use_calendar', 1)
 call s:default('table_auto_fmt', 1)
 call s:default('w32_dir_enc', '')
-call s:default('CJK_length', 0)
 call s:default('dir_link', '')
-call s:default('valid_html_tags', 'b,i,s,u,sub,sup,kbd,br,hr,div,center,strong,em')
-call s:default('user_htmls', '')
 call s:default('autowriteall', 1)
 call s:default('toc_header', 'Contents')
 call s:default('html_header_numbering', 0)
@@ -255,60 +142,23 @@ call s:default('diary_months',
       \ 7: 'July', 8: 'August', 9: 'September',
       \ 10: 'October', 11: 'November', 12: 'December'
       \ })
-
 call s:default('map_prefix', '<Leader>w')
 call s:default('current_idx', 0)
 call s:default('auto_chdir', 0)
-
-" Scheme regexes should be defined even if syntax file is not loaded yet
-" cause users should be able to <leader>w<leader>w without opening any
-" vimwiki file first
-" Scheme regexes {{{
 call s:default('schemes', 'wiki\d\+,diary,local')
 call s:default('web_schemes1', 'http,https,file,ftp,gopher,telnet,nntp,ldap,'.
         \ 'rsync,imap,pop,irc,ircs,cvs,svn,svn+ssh,git,ssh,fish,sftp')
 call s:default('web_schemes2', 'mailto,news,xmpp,sip,sips,doi,urn,tel')
-
 let s:rxSchemes = '\%('.
       \ join(split(g:vimwiki_schemes, '\s*,\s*'), '\|').'\|'.
       \ join(split(g:vimwiki_web_schemes1, '\s*,\s*'), '\|').'\|'.
       \ join(split(g:vimwiki_web_schemes2, '\s*,\s*'), '\|').
       \ '\)'
-
 call s:default('rxSchemeUrl', s:rxSchemes.':.*')
 call s:default('rxSchemeUrlMatchScheme', '\zs'.s:rxSchemes.'\ze:.*')
 call s:default('rxSchemeUrlMatchUrl', s:rxSchemes.':\zs.*\ze')
-" scheme regexes }}}
 
-"
-" Wiki defaults
-"
-let s:vimwiki_defaults = {}
-let s:vimwiki_defaults.path = '~/vimwiki/'
-let s:vimwiki_defaults.path_html = ''   " '' is replaced by derived path.'_html/'
-let s:vimwiki_defaults.css_name = 'style.css'
-let s:vimwiki_defaults.index = 'index'
-let s:vimwiki_defaults.ext = '.wiki'
-let s:vimwiki_defaults.maxhi = 0
-let s:vimwiki_defaults.syntax = 'default'
-let s:vimwiki_defaults.template_path = '~/vimwiki/templates/'
-let s:vimwiki_defaults.template_default = 'default'
-let s:vimwiki_defaults.template_ext = '.tpl'
-let s:vimwiki_defaults.auto_export = 0
-let s:vimwiki_defaults.auto_toc = 0
-let s:vimwiki_defaults.temp = 0
-let s:vimwiki_defaults.diary_rel_path = 'diary/'
-let s:vimwiki_defaults.diary_index = 'diary'
-let s:vimwiki_defaults.diary_header = 'Diary'
-let s:vimwiki_defaults.diary_sort = 'desc'
-let s:vimwiki_defaults.diary_link_fmt = '%Y-%m-%d'
-let s:vimwiki_defaults.custom_wiki2html = ''
-let s:vimwiki_defaults.list_margin = -1
-let s:vimwiki_defaults.auto_tags = 0
-
-for s:idx in range(len(g:vimwiki_list))
-  call Validate_wiki_options(s:idx)
-endfor
+call vimwiki#opts#normalize()
 
 let &cpo = s:old_cpo
 

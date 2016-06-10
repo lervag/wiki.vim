@@ -101,7 +101,7 @@ function! s:get_level(lnum) "{{{
   if getline(a:lnum) =~# '^\s*$'
     return 0
   endif
-  if VimwikiGet('syntax') !=? 'media'
+  if vimwiki#opts#get('syntax') !=? 'media'
     let level = indent(a:lnum)
   else
     let level = strdisplaywidth(matchstr(getline(a:lnum), s:rx_bullet_chars))-1
@@ -335,10 +335,10 @@ function! vimwiki#lst#default_symbol() "{{{
   return g:vimwiki_list_markers[0]
 endfunction "}}}
 function! vimwiki#lst#get_list_margin() "{{{
-  if VimwikiGet('list_margin') < 0
+  if vimwiki#opts#get('list_margin') < 0
     return &sw
   else
-    return VimwikiGet('list_margin')
+    return vimwiki#opts#get('list_margin')
   endif
 endfunction "}}}
 function! vimwiki#lst#adjust_numbered_list() "{{{

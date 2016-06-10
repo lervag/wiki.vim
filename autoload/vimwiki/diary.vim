@@ -20,7 +20,7 @@ function! vimwiki#diary#make_note(wnum, ...) "{{{
     let idx = 0
   endif
 
-  call vimwiki#path#mkdir(VimwikiGet('path', idx).VimwikiGet('diary_rel_path', idx))
+  call vimwiki#path#mkdir(vimwiki#opts#get('path', idx).vimwiki#opts#get('diary_rel_path', idx))
 
   if a:0 && a:1 == 1
     let cmd = 'tabedit'
@@ -96,7 +96,7 @@ function! vimwiki#diary#generate_diary_section() "{{{
   if vimwiki#path#is_equal(current_file, diary_file)
     let content_rx = '^\%(\s*\* \)\|\%(^\s*$\)\|\%('.g:vimwiki_rxHeader.'\)'
     call vimwiki#base#update_listing_in_buffer(s:format_diary(),
-          \ VimwikiGet('diary_header'), content_rx, line('$')+1, 1)
+          \ vimwiki#opts#get('diary_header'), content_rx, line('$')+1, 1)
   else
     echomsg 'Vimwiki Error: You can generate diary links only in a diary index page!'
   endif
@@ -129,8 +129,8 @@ endfunction "}}}
 function! vimwiki#diary#calendar_sign(day, month, year) "{{{
   let day = s:prefix_zero(a:day)
   let month = s:prefix_zero(a:month)
-  let sfile = VimwikiGet('path').VimwikiGet('diary_rel_path').
-        \ a:year.'-'.month.'-'.day.VimwikiGet('ext')
+  let sfile = vimwiki#opts#get('path').vimwiki#opts#get('diary_rel_path').
+        \ a:year.'-'.month.'-'.day.vimwiki#opts#get('ext')
   return filereadable(expand(sfile))
 endfunction "}}}
 
@@ -148,15 +148,15 @@ function! s:get_date_link(fmt) "{{{
 endfunction "}}}
 function! s:diary_path(...) "{{{
   let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
-  return VimwikiGet('path', idx).VimwikiGet('diary_rel_path', idx)
+  return vimwiki#opts#get('path', idx).vimwiki#opts#get('diary_rel_path', idx)
 endfunction "}}}
 function! s:diary_index(...) "{{{
   let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
-  return s:diary_path(idx).VimwikiGet('diary_index', idx).VimwikiGet('ext', idx)
+  return s:diary_path(idx).vimwiki#opts#get('diary_index', idx).vimwiki#opts#get('ext', idx)
 endfunction "}}}
 function! s:diary_date_link(...) "{{{
   let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
-  return s:get_date_link(VimwikiGet('diary_link_fmt', idx))
+  return s:get_date_link(vimwiki#opts#get('diary_link_fmt', idx))
 endfunction "}}}
 function! s:get_position_links(link) "{{{
   let idx = -1
@@ -203,7 +203,7 @@ function! s:read_captions(files) "{{{
 endfunction "}}}
 function! s:get_diary_links() "{{{
   let rx = '^\d\{4}-\d\d-\d\d'
-  let s_files = glob(VimwikiGet('path').VimwikiGet('diary_rel_path').'*'.VimwikiGet('ext'))
+  let s_files = glob(vimwiki#opts#get('path').vimwiki#opts#get('diary_rel_path').'*'.vimwiki#opts#get('ext'))
   let files = split(s_files, '\n')
   call filter(files, 'fnamemodify(v:val, ":t") =~# "'.escape(rx, '\').'"')
 
@@ -235,7 +235,7 @@ function! s:group_links(links) "{{{
   return result
 endfunction "}}}
 function! s:sort(lst) "{{{
-  if VimwikiGet("diary_sort") ==? 'desc'
+  if vimwiki#opts#get("diary_sort") ==? 'desc'
     return reverse(sort(a:lst))
   else
     return sort(a:lst)

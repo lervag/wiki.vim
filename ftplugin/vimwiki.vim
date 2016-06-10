@@ -45,15 +45,17 @@ command! -buffer -range   VimwikiToggleListItem call vimwiki#lst#toggle_cb(<line
 "
 " Keybindings
 "
+nnoremap <silent><buffer> <tab>      :call vimwiki#link#find_next()<cr>
+nnoremap <silent><buffer> <s-tab>    :call vimwiki#link#find_prev()<cr>
+nnoremap <silent><buffer> <bs>       :call vimwiki#link#go_back()<cr>
+
+nnoremap <silent><buffer> <leader>wd :call vimwiki#page#delete()<cr>
+nnoremap <silent><buffer> <leader>wr :call vimwiki#page#rename()<cr>
+
 nnoremap <silent><buffer> <cr>       :call vimwiki#base#follow_link('nosplit')<cr>
-nnoremap <silent><buffer> <tab>      :call vimwiki#base#find_next_link()<cr>
-nnoremap <silent><buffer> <s-tab>    :call vimwiki#base#find_prev_link()<cr>
-nnoremap <silent><buffer> <bs>       :call vimwiki#base#go_back_link()<cr>
 nnoremap <silent><buffer> +          :call vimwiki#base#normalize_link(0)<cr>
 nnoremap <silent><buffer> <c-cr>     :call vimwiki#base#follow_link('vsplit')<cr>
 nnoremap <silent><buffer> <c-space>  :VimwikiToggleListItem<cr>
-nnoremap <silent><buffer> <leader>wr :call vimwiki#base#rename_link()<cr>
-nnoremap <silent><buffer> <leader>wd :call vimwiki#base#delete_link()<cr>
 nnoremap <silent><buffer> <leader>wl :call vimwiki#backlinks()<cr>
 nnoremap <silent><buffer> <leader>wf :call vimwiki#fix_syntax()<cr>
 

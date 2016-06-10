@@ -13,7 +13,7 @@ function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
       let s:line_context = '['
       return startoflink
     endif
-    if VimwikiGet('syntax') ==? 'markdown'
+    if vimwiki#opts#get('syntax') ==? 'markdown'
       let startofinlinelink = match(line, '\[.*\](\zs[^)]*$')
       if startofinlinelink != -1
         let s:line_context = '['
@@ -64,7 +64,7 @@ function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
       let given_wikifile = segments[0] == '' ? expand('%:t:r') : segments[0]
       let link_infos = vimwiki#base#resolve_link(given_wikifile.'#')
       let wikifile = link_infos.filename
-      let syntax = VimwikiGet('syntax', link_infos.index)
+      let syntax = vimwiki#opts#get('syntax', link_infos.index)
       let anchors = vimwiki#base#get_anchors(wikifile, syntax)
 
       let filtered_anchors = []
