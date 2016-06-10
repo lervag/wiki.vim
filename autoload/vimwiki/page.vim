@@ -252,7 +252,7 @@ function! s:get_links(wikifile) "{{{1
         break
       endif
       let link_count += 1
-      let target = vimwiki#base#resolve_link(link_text, a:wikifile)
+      let target = vimwiki#link#resolve(link_text, a:wikifile)
       if target.filename != '' &&
             \ target.scheme =~# '\mwiki\d\+\|diary\|file\|local'
         call add(links, [target.filename, target.anchor, lnum, col])

@@ -67,7 +67,7 @@ endfunction
 
 "}}}1
 function! vimwiki#todo#open_link(cmd, link, ...) "{{{
-  let link_infos = vimwiki#base#resolve_link(a:link)
+  let link_infos = vimwiki#link#resolve(a:link)
 
   if link_infos.filename == ''
     echomsg 'Vimwiki Error: Unable to resolve link!'

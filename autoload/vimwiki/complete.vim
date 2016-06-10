@@ -63,7 +63,7 @@ function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
 
       let segments = split(a:base, '#', 1)
       let given_wikifile = segments[0] == '' ? expand('%:t:r') : segments[0]
-      let link_infos = vimwiki#base#resolve_link(given_wikifile.'#')
+      let link_infos = vimwiki#link#resolve(given_wikifile.'#')
       let wikifile = link_infos.filename
       let syntax = 'markdown'
       let anchors = vimwiki#base#get_anchors(wikifile, syntax)
