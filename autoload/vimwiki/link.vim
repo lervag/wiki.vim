@@ -42,11 +42,11 @@ function! vimwiki#link#follow(split, ...) "{{{1
   endif
 
   " try WikiLink
-  let lnk = matchstr(vimwiki#todo#matchstr_at_cursor(g:vimwiki_rxWikiLink),
+  let lnk = matchstr(vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiLink),
         \ g:vimwiki_rxWikiLinkMatchUrl)
   " try Weblink
   if lnk == ""
-    let lnk = matchstr(vimwiki#todo#matchstr_at_cursor(g:vimwiki_rxWeblink),
+    let lnk = matchstr(vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWeblink),
           \ g:vimwiki_rxWeblinkMatchUrl)
   endif
 
@@ -81,7 +81,7 @@ function! s:normalize_link_syntax_n() " {{{
   let lnum = line('.')
 
   " try WikiLink0: replace with WikiLink1
-  let lnk = vimwiki#todo#matchstr_at_cursor(g:vimwiki_rxWikiLink0)
+  let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiLink0)
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
           \ g:vimwiki_rxWikiLinkMatchUrl, g:vimwiki_rxWikiLinkMatchDescr,
@@ -91,7 +91,7 @@ function! s:normalize_link_syntax_n() " {{{
   endif
   
   " try WikiLink1: replace with WikiLink0
-  let lnk = vimwiki#todo#matchstr_at_cursor(g:vimwiki_rxWikiLink1)
+  let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiLink1)
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
           \ g:vimwiki_rxWikiLinkMatchUrl, g:vimwiki_rxWikiLinkMatchDescr,
@@ -101,7 +101,7 @@ function! s:normalize_link_syntax_n() " {{{
   endif
   
   " try Weblink
-  let lnk = vimwiki#todo#matchstr_at_cursor(g:vimwiki_rxWeblink)
+  let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWeblink)
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
           \ g:vimwiki_rxWeblinkMatchUrl, g:vimwiki_rxWeblinkMatchDescr,
@@ -113,7 +113,7 @@ function! s:normalize_link_syntax_n() " {{{
   " try Word (any characters except separators)
   " rxWord is less permissive than rxWikiLinkUrl which is used in
   " normalize_link_syntax_v
-  let lnk = vimwiki#todo#matchstr_at_cursor(g:vimwiki_rxWord)
+  let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWord)
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
           \ g:vimwiki_rxWord, '',

@@ -124,6 +124,28 @@ function! vimwiki#todo#open_link(cmd, link, ...) "{{{
     call vimwiki#base#system_open_link(link_infos.filename)
   endif
 endfunction " }}}
+function! vimwiki#todo#subdir(path, filename) "{{{
+  let path = a:path
+  " ensure that we are not fooled by a symbolic link
+  "FIXME if we are not "fooled", we end up in a completely different wiki?
+  if a:filename !~# '^scp:'
+    let filename = resolve(a:filename)
+  else
+    let filename = a:filename
+  endif
+  let idx = 0
+  "FIXME this can terminate in the middle of a path component!
+  while path[idx] ==? filename[idx]
+    let idx = idx + 1
+  endwhile
+
+  let p = split(strpart(filename, idx), '[/\\]')
+  let res = join(p[:-2], '/')
+  if len(res) > 0
+    let res = res.'/'
+  endif
+  return res
+endfunction "}}}
 
 function! s:jump_to_anchor(anchor) "{{{
   let oldpos = getpos('.')
