@@ -10,12 +10,9 @@ let g:vimwiki_loaded = 1
 let s:old_cpo = &cpo
 set cpo&vim
 
-command! -count=1 VimwikiIndex         call vimwiki#page#goto_index()
-command! -count=1 VimwikiMakeDiaryNote call vimwiki#diary#make_note(v:count1)
-
-nnoremap <silent> <leader>ww         :VimwikiIndex<cr>
-nnoremap <silent> <leader>w<leader>w :VimwikiMakeDiaryNote<cr>
+nnoremap <silent> <leader>ww         :call vimwiki#page#goto_index()<cr>
 nnoremap <silent> <leader>wx         :call vimwiki#reload()<cr>
+nnoremap <silent> <leader>w<leader>w :call vimwiki#diary#make_note()<cr>
 
 augroup vimwiki
   autocmd!
@@ -23,24 +20,6 @@ augroup vimwiki
   autocmd BufWinEnter        *.wiki call s:setup_buffer_enter()
   autocmd BufLeave,BufHidden *.wiki call s:setup_buffer_leave()
 augroup END
-
-"
-" Callback functions
-"
-if !exists("*VimwikiLinkConverter") "{{{1
-  function VimwikiLinkConverter(url, source, target)
-    return ''
-  endfunction
-endif
-
-" }}}1
-if !exists("*VimwikiWikiIncludeHandler") "{{{1
-  function! VimwikiWikiIncludeHandler(value)
-    return ''
-  endfunction
-endif
-
-" }}}1
 
 "
 " Helper functions
@@ -71,7 +50,7 @@ function! s:setup_buffer_enter() "{{{
     endif
 
     " initialize and cache global vars of current state
-    call vimwiki#base#setup_buffer_state(idx)
+    call vimwiki#todo#setup_buffer_state(idx)
 
   endif
 
@@ -121,7 +100,6 @@ function! s:default(varname, value)
 endfunction
 call s:default('list', [])
 call s:default('global_ext', 1)
-call s:default('ext2syntax', {}) " syntax map keyed on extension
 call s:default('hl_cb_checked', 0)
 call s:default('list_ignore_newline', 1)
 call s:default('listsyms', ' .oOX')
@@ -160,8 +138,6 @@ call s:default('rxSchemeUrlMatchUrl', s:rxSchemes.':\zs.*\ze')
 
 call vimwiki#opts#set('path', fnamemodify(vimwiki#opts#get('path'), ':p'))
 call vimwiki#opts#set('diary_rel_path', vimwiki#opts#get('diary_rel_path') . '/')
-
-" }}}1
 
 let &cpo = s:old_cpo
 

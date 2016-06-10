@@ -101,13 +101,9 @@ function! s:get_level(lnum) "{{{
   if getline(a:lnum) =~# '^\s*$'
     return 0
   endif
-  if vimwiki#opts#get('syntax') !=? 'media'
-    let level = indent(a:lnum)
-  else
-    let level = strdisplaywidth(matchstr(getline(a:lnum), s:rx_bullet_chars))-1
-    if level < 0
-      let level = (indent(a:lnum) == 0) ? 0 : 9999
-    endif
+  let level = strdisplaywidth(matchstr(getline(a:lnum), s:rx_bullet_chars))-1
+  if level < 0
+    let level = (indent(a:lnum) == 0) ? 0 : 9999
   endif
   return level
 endfunction "}}}

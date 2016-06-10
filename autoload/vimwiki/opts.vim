@@ -42,7 +42,6 @@ let s:vimwiki_defaults.path = '~/vimwiki/'
 let s:vimwiki_defaults.index = 'index'
 let s:vimwiki_defaults.ext = '.wiki'
 let s:vimwiki_defaults.maxhi = 0
-let s:vimwiki_defaults.syntax = 'default'
 let s:vimwiki_defaults.auto_export = 0
 let s:vimwiki_defaults.auto_toc = 0
 let s:vimwiki_defaults.temp = 0

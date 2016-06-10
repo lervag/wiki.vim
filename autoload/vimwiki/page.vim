@@ -24,6 +24,40 @@ function! vimwiki#page#delete() "{{{1
 endfunction
 
 "}}}1
+function! vimwiki#page#goto_index() "{{{
+  call vimwiki#todo#edit_file('edit',
+        \ vimwiki#opts#get('path')
+        \ . vimwiki#opts#get('index')
+        \ . vimwiki#opts#get('ext'),
+        \ '')
+  call vimwiki#todo#setup_buffer_state(0)
+endfunction "}}}
+function! vimwiki#page#backlinks() "{{{1
+  let l:origin = expand("%:p")
+  let l:locs = []
+
+  for l:file in vimwiki#base#find_files(0, 0)
+    for [l:target, l:dummy, l:lnum, l:col] in s:get_links(l:file)
+      if vimwiki#path#is_equal(l:target, l:origin)
+            \ && !vimwiki#path#is_equal(l:target, l:file)
+        call add(l:locs, {'filename':l:file, 'lnum':l:lnum, 'col':l:col})
+      endif
+    endfor
+  endfor
+
+  if empty(l:locs)
+    echomsg 'Vimwiki: No other file links to this file'
+  else
+    call setloclist(0, l:locs, 'r')
+    lopen
+  endif
+endfunction
+
+"}}}1
+
+"
+" TODO
+"
 function! vimwiki#page#rename() "{{{1
   let subdir = vimwiki#opts#get('subdir')
   let old_fname = subdir . expand('%:t')
@@ -124,16 +158,113 @@ function! vimwiki#page#rename() "{{{1
 endfunction
 
 " }}}1
+function! vimwiki#page#create_toc() " {{{1
+  " collect new headers
+  let is_inside_pre_or_math = 0  " 1: inside pre, 2: inside math, 0: outside
+  let headers = []
+  let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
+  for lnum in range(1, line('$'))
+    let line_content = getline(lnum)
+    if (is_inside_pre_or_math == 1 && line_content =~# g:vimwiki_rxPreEnd) ||
+          \ (is_inside_pre_or_math == 2 && line_content =~# g:vimwiki_rxMathEnd)
+      let is_inside_pre_or_math = 0
+      continue
+    endif
+    if is_inside_pre_or_math > 0
+      continue
+    endif
+    if line_content =~# g:vimwiki_rxPreStart
+      let is_inside_pre_or_math = 1
+      continue
+    endif
+    if line_content =~# g:vimwiki_rxMathStart
+      let is_inside_pre_or_math = 2
+      continue
+    endif
+    if line_content !~# g:vimwiki_rxHeader
+      continue
+    endif
+    let h_level = vimwiki#u#count_first_sym(line_content)
+    let h_text = vimwiki#u#trim(matchstr(line_content, g:vimwiki_rxHeader))
+    if h_text ==# g:vimwiki_toc_header  " don't include the TOC's header itself
+      continue
+    endif
+    let headers_levels[h_level-1] = [h_text, headers_levels[h_level-1][1]+1]
+    for idx in range(h_level, 5) | let headers_levels[idx] = ['', 0] | endfor
 
-function! vimwiki#page#goto_index() "{{{
-  let cmd = 'edit'
+    let h_complete_id = ''
+    for l in range(h_level-1)
+      if headers_levels[l][0] != ''
+        let h_complete_id .= headers_levels[l][0].'#'
+      endif
+    endfor
+    let h_complete_id .= headers_levels[h_level-1][0]
 
-  call vimwiki#base#edit_file(cmd,
-        \ vimwiki#opts#get('path').vimwiki#opts#get('index').
-        \ vimwiki#opts#get('ext'),
-        \ '')
-  call vimwiki#base#setup_buffer_state(0)
-endfunction "}}}
+    if g:vimwiki_html_header_numbering > 0
+          \ && g:vimwiki_html_header_numbering <= h_level
+      let h_number = join(map(copy(headers_levels[
+            \ g:vimwiki_html_header_numbering-1 : h_level-1]), 'v:val[1]'), '.')
+      let h_number .= g:vimwiki_html_header_numbering_sym
+      let h_text = h_number.' '.h_text
+    endif
+
+    call add(headers, [h_level, h_complete_id, h_text])
+  endfor
+
+  let lines = []
+  let startindent = repeat(' ', vimwiki#lst#get_list_margin())
+  let indentstring = repeat(' ', shiftwidth())
+  let bullet = vimwiki#lst#default_symbol().' '
+  for [lvl, link, desc] in headers
+    let esc_link = substitute(link, "'", "''", 'g')
+    let esc_desc = substitute(desc, "'", "''", 'g')
+    let link = substitute(g:vimwiki_WikiLinkTemplate2, '__LinkUrl__',
+          \ '\='."'".'#'.esc_link."'", '')
+    let link = substitute(link, '__LinkDescription__', '\='."'".esc_desc."'", '')
+    call add(lines, startindent.repeat(indentstring, lvl-1).bullet.link)
+  endfor
+
+  let links_rx = '\m^\s*'.vimwiki#u#escape(vimwiki#lst#default_symbol()).' '
+
+  call vimwiki#base#update_listing_in_buffer(lines, g:vimwiki_toc_header, links_rx,
+        \ 1, 1)
+endfunction
+
+" }}}1
+
+"
+" TODO
+"
+function! s:get_links(wikifile) "{{{1
+  if !filereadable(a:wikifile) | return [] | endif
+
+  let rx_link = g:vimwiki_markdown_wikilink
+  let links = []
+  let lnum = 0
+
+  for line in readfile(a:wikifile)
+    let lnum += 1
+
+    let link_count = 1
+    while 1
+      let col = match(line, rx_link, 0, link_count)+1
+      let link_text = matchstr(line, rx_link, 0, link_count)
+      if link_text == ''
+        break
+      endif
+      let link_count += 1
+      let target = vimwiki#base#resolve_link(link_text, a:wikifile)
+      if target.filename != '' &&
+            \ target.scheme =~# '\mwiki\d\+\|diary\|file\|local'
+        call add(links, [target.filename, target.anchor, lnum, col])
+      endif
+    endwhile
+  endfor
+
+  return links
+endfunction
+
+"}}}1
 
 " vim: fdm=marker sw=2
 

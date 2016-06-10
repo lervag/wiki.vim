@@ -28,24 +28,6 @@ function! vimwiki#backlinks() " {{{1
 endfunction
 
 " }}}1
-function! vimwiki#new_entry() " {{{
-  let l:current = expand('%:t:r')
-
-  " Get next weekday
-  let l:candidate = systemlist('date -d "' . l:current . ' +1 day" +%F')[0]
-  while systemlist('date -d "' . l:candidate . '" +%u')[0] > 5
-    let l:candidate = systemlist('date -d "' . l:candidate . ' +1 day" +%F')[0]
-  endwhile
-
-  let l:next = expand('%:p:h') . '/' . l:candidate . '.wiki'
-  if !filereadable(l:next)
-    execute 'write' l:next
-  endif
-
-  call vimwiki#diary#goto_next_day()
-endfunction
-
-" }}}1
 " {{{1 function! vimwiki#reload()
 let s:file = expand('<sfile>')
 if !exists('s:reloading_script')

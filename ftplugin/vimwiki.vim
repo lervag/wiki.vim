@@ -37,9 +37,8 @@ endif
 "Create 'formatlistpat'
 let &formatlistpat = g:vimwiki_rxListItem
 
-command! -buffer          VimwikiTOC            call vimwiki#base#table_of_contents(1)
-command! -buffer -nargs=0 VimwikiBacklinks      call vimwiki#base#backlinks()
-command! -buffer          VimwikiCheckLinks     call vimwiki#base#check_links()
+command! -buffer          VimwikiTOC            call vimwiki#page#create_toc()
+command! -buffer -nargs=0 VimwikiBacklinks      call vimwiki#page#backlinks()
 command! -buffer -range   VimwikiToggleListItem call vimwiki#lst#toggle_cb(<line1>, <line2>)
 
 "
@@ -52,26 +51,28 @@ nnoremap <silent><buffer> <bs>       :call vimwiki#link#go_back()<cr>
 nnoremap <silent><buffer> <leader>wd :call vimwiki#page#delete()<cr>
 nnoremap <silent><buffer> <leader>wr :call vimwiki#page#rename()<cr>
 
-nnoremap <silent><buffer> <cr>       :call vimwiki#base#follow_link('nosplit')<cr>
-nnoremap <silent><buffer> +          :call vimwiki#base#normalize_link(0)<cr>
-nnoremap <silent><buffer> <c-cr>     :call vimwiki#base#follow_link('vsplit')<cr>
+nnoremap <silent><buffer> <cr>       :call vimwiki#link#follow('nosplit')<cr>
+nnoremap <silent><buffer> <c-cr>     :call vimwiki#link#follow('vsplit')<cr>
+
 nnoremap <silent><buffer> <c-space>  :VimwikiToggleListItem<cr>
+
 nnoremap <silent><buffer> <leader>wl :call vimwiki#backlinks()<cr>
 nnoremap <silent><buffer> <leader>wf :call vimwiki#fix_syntax()<cr>
 
-vnoremap <silent><buffer> <cr>      :<c-u>:call vimwiki#base#normalize_link(1)<cr>
+vnoremap <silent><buffer> <cr>      :<c-u>:call vimwiki#link#normalize(1)<cr>
 vnoremap <silent><buffer> <c-space> :VimwikiToggleListItem<cr>
 
 
 " Journal settings
 if expand('%:p') =~# 'wiki\/journal'
   setlocal foldlevel=0
-  nnoremap <silent><buffer> <leader>wk :call vimwiki#new_entry()<cr>
+  nnoremap <silent><buffer> <leader>wk :call vimwiki#diary#copy_note()<cr>
   nnoremap <silent><buffer> <c-j>      :call vimwiki#diary#goto_prev_day()<cr>
   nnoremap <silent><buffer> <c-k>      :call vimwiki#diary#goto_next_day()<cr>
 else
-  nnoremap <silent><buffer> <c-j>      :VimwikiMakeDiaryNote<cr>
-  nnoremap <silent><buffer> <c-k>      :VimwikiMakeDiaryNote<cr>
+  nnoremap <silent><buffer> <c-j>      :call vimwiki#diary#make_note()<cr>
+  nnoremap <silent><buffer> <c-k>      :call vimwiki#diary#make_note()<cr>
+
 endif
 
 " {{{1 Link handler

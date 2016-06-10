@@ -7,35 +7,34 @@
 "
 " Main functions
 "
-function! vimwiki#diary#make_note(wnum, ...) "{{{
-  if a:wnum > len(g:vimwiki_list)
-    echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in g:vimwiki_list!'
-    return
-  endif
+function! vimwiki#diary#make_note(...) "{{{
+  call vimwiki#path#mkdir(vimwiki#opts#get('path')
+        \ . vimwiki#opts#get('diary_rel_path'))
 
-  " TODO: refactor it. base#goto_index uses the same
-  if a:wnum > 0
-    let idx = a:wnum - 1
-  else
-    let idx = 0
-  endif
+  let cmd = 'edit'
+  let link = 'diary:' . (a:0 > 0 ? a:1 : s:diary_date_link())
 
-  call vimwiki#path#mkdir(vimwiki#opts#get('path', idx).vimwiki#opts#get('diary_rel_path', idx))
-
-  if a:0 && a:1 == 1
-    let cmd = 'tabedit'
-  else
-    let cmd = 'edit'
-  endif
-  if a:0>1
-    let link = 'diary:'.a:2
-  else
-    let link = 'diary:'.s:diary_date_link(idx)
-  endif
-
-  call vimwiki#base#open_link(cmd, link, s:diary_index(idx))
-  call vimwiki#base#setup_buffer_state(idx)
+  call vimwiki#todo#open_link(cmd, link, s:diary_index())
+  call vimwiki#todo#setup_buffer_state(0)
 endfunction "}}}
+function! vimwiki#diary#copy_note() " {{{
+  let l:current = expand('%:t:r')
+
+  " Get next weekday
+  let l:candidate = systemlist('date -d "' . l:current . ' +1 day" +%F')[0]
+  while systemlist('date -d "' . l:candidate . '" +%u')[0] > 5
+    let l:candidate = systemlist('date -d "' . l:candidate . ' +1 day" +%F')[0]
+  endwhile
+
+  let l:next = expand('%:p:h') . '/' . l:candidate . '.wiki'
+  if !filereadable(l:next)
+    execute 'write' l:next
+  endif
+
+  call vimwiki#diary#goto_next_day()
+endfunction
+
+" }}}1
 function! vimwiki#diary#goto_diary_index(wnum) "{{{
   if a:wnum > len(g:vimwiki_list)
     echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in g:vimwiki_list!'
@@ -49,8 +48,8 @@ function! vimwiki#diary#goto_diary_index(wnum) "{{{
     let idx = 0
   endif
 
-  call vimwiki#base#edit_file('e', s:diary_index(idx), '')
-  call vimwiki#base#setup_buffer_state(idx)
+  call vimwiki#todo#edit_file('e', s:diary_index(), '')
+  call vimwiki#todo#setup_buffer_state(idx)
 endfunction "}}}
 function! vimwiki#diary#goto_next_day() "{{{
   let link = ''
@@ -68,7 +67,7 @@ function! vimwiki#diary#goto_next_day() "{{{
   endif
 
   if len(link)
-    call vimwiki#base#open_link(':e ', link)
+    call vimwiki#todo#open_link(':e ', link)
   endif
 endfunction "}}}
 function! vimwiki#diary#goto_prev_day() "{{{
@@ -87,7 +86,7 @@ function! vimwiki#diary#goto_prev_day() "{{{
   endif
 
   if len(link)
-    call vimwiki#base#open_link(':e ', link)
+    call vimwiki#todo#open_link(':e ', link)
   endif
 endfunction "}}}
 function! vimwiki#diary#generate_diary_section() "{{{
@@ -123,8 +122,7 @@ function! vimwiki#diary#calendar_action(day, month, year, week, dir) "{{{
     endif
   endif
 
-  " XXX: Well, +1 is for inconsistent index basing...
-  call vimwiki#diary#make_note(g:vimwiki_current_idx+1, 0, link)
+  call vimwiki#diary#make_note(link)
 endfunction "}}}
 function! vimwiki#diary#calendar_sign(day, month, year) "{{{
   let day = s:prefix_zero(a:day)
@@ -146,17 +144,14 @@ endfunction "}}}
 function! s:get_date_link(fmt) "{{{
   return strftime(a:fmt)
 endfunction "}}}
-function! s:diary_path(...) "{{{
-  let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
-  return vimwiki#opts#get('path', idx).vimwiki#opts#get('diary_rel_path', idx)
+function! s:diary_index() "{{{
+  return vimwiki#opts#get('path')
+        \ . vimwiki#opts#get('diary_rel_path')
+        \ . vimwiki#opts#get('diary_index')
+        \ . vimwiki#opts#get('ext')
 endfunction "}}}
-function! s:diary_index(...) "{{{
-  let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
-  return s:diary_path(idx).vimwiki#opts#get('diary_index', idx).vimwiki#opts#get('ext', idx)
-endfunction "}}}
-function! s:diary_date_link(...) "{{{
-  let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
-  return s:get_date_link(vimwiki#opts#get('diary_link_fmt', idx))
+function! s:diary_date_link() "{{{
+  return s:get_date_link(vimwiki#opts#get('diary_link_fmt'))
 endfunction "}}}
 function! s:get_position_links(link) "{{{
   let idx = -1

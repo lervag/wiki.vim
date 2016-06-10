@@ -10,7 +10,7 @@ endfunction
 
 "}}}1
 function! vimwiki#path#is_equal(p1, p2) " {{{1
-  return a:p1 ==# a:p2
+  return resolve(a:p1) ==# resolve(a:p2)
 endfunction
 
 "}}}1

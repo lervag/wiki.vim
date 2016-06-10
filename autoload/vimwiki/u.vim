@@ -26,11 +26,6 @@ function! vimwiki#u#escape(string) "{{{1
 endfunction
 
 "}}}1
-function! vimwiki#u#reload_regexes_custom() "{{{1
-  execute 'runtime! syntax/vimwiki_'.vimwiki#opts#get('syntax').'_custom.vim'
-endfunction
-
-"}}}1
 function! vimwiki#u#in_syntax(name, ...) " {{{1
   let l:pos = [0, 0]
   let l:pos[0] = a:0 > 0 ? a:1 : line('.')
