@@ -75,7 +75,7 @@ let g:vimwiki_rxMathEnd = '^\s*'.g:vimwiki_rxMathEnd.'\s*$'
 let s:wikilink_prefix = '[['
 let s:wikilink_suffix = ']]'
 let s:wikilink_separator = '|'
-let s:rx_wikilink_prefix = vimwiki#u#escape(s:wikilink_prefix)
+let s:rx_wikilink_prefix = vimwiki#u#escape(s:wikilink_prefix) . '\/\?'
 let s:rx_wikilink_suffix = vimwiki#u#escape(s:wikilink_suffix)
 let s:rx_wikilink_separator = vimwiki#u#escape(s:wikilink_separator)
 
