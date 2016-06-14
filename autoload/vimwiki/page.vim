@@ -57,106 +57,6 @@ endfunction
 "
 " TODO
 "
-function! vimwiki#page#rename() "{{{1
-  let subdir = vimwiki#opts#get('subdir')
-  let old_fname = subdir . expand('%:t')
-
-  " there is no file (new one maybe)
-  if glob(expand('%:p')) == ''
-    echomsg 'Vimwiki Error: Cannot rename "'.expand('%:p').
-          \'". It does not exist! (New file? Save it before renaming.)'
-    return
-  endif
-
-  let val = input('Rename "'.expand('%:t:r').'" [y]es/[N]o? ')
-  if val !~? '^y'
-    return
-  endif
-
-  let new_link = input('Enter new name: ')
-
-  if new_link =~# '[/\\]'
-    " It is actually doable but I do not have free time to do it.
-    echomsg 'Vimwiki Error: Cannot rename to a filename with path!'
-    return
-  endif
-
-  " check new_fname - it should be 'good', not empty
-  if substitute(new_link, '\s', '', 'g') == ''
-    echomsg 'Vimwiki Error: Cannot rename to an empty filename!'
-    return
-  endif
-
-  let url = matchstr(new_link, g:vimwiki_rxWikiLinkMatchUrl)
-  if url != ''
-    let new_link = url
-  endif
-
-  let new_link = subdir.new_link
-  let new_fname = vimwiki#opts#get('path').new_link.vimwiki#opts#get('ext')
-
-  " do not rename if file with such name exists
-  let fname = glob(new_fname)
-  if fname != ''
-    echomsg 'Vimwiki Error: Cannot rename to "'.new_fname.
-          \ '". File with that name exist!'
-    return
-  endif
-  " rename wiki link file
-  try
-    echomsg 'Vimwiki: Renaming '.vimwiki#opts#get('path').old_fname.' to '.new_fname
-    let res = rename(expand('%:p'), expand(new_fname))
-    if res != 0
-      throw "Cannot rename!"
-    end
-  catch /.*/
-    echomsg 'Vimwiki Error: Cannot rename "'.expand('%:t:r').'" to "'.new_fname.'"'
-    return
-  endtry
-
-  let &buftype="nofile"
-
-  let cur_buffer = [expand('%:p'),
-        \getbufvar(expand('%:p'), "vimwiki_prev_link")]
-
-  let blist = s:get_wiki_buffers()
-
-  " save wiki buffers
-  for bitem in blist
-    execute ':b '.escape(bitem[0], ' ')
-    execute ':update'
-  endfor
-
-  execute ':b '.escape(cur_buffer[0], ' ')
-
-  " remove wiki buffers
-  for bitem in blist
-    execute 'bwipeout '.escape(bitem[0], ' ')
-  endfor
-
-  let setting_more = &more
-  setlocal nomore
-
-  " update links
-  call s:update_wiki_links(s:tail_name(old_fname), new_link)
-
-  " restore wiki buffers
-  for bitem in blist
-    if !vimwiki#path#is_equal(bitem[0], cur_buffer[0])
-      call s:open_wiki_buffer(bitem)
-    endif
-  endfor
-
-  call s:open_wiki_buffer([new_fname,
-        \ cur_buffer[1]])
-  " execute 'bwipeout '.escape(cur_buffer[0], ' ')
-
-  echomsg 'Vimwiki: '.old_fname.' is renamed to '.new_fname
-
-  let &more = setting_more
-endfunction
-
-" }}}1
 function! vimwiki#page#create_toc() " {{{1
   " collect new headers
   let is_inside_pre_or_math = 0  " 1: inside pre, 2: inside math, 0: outside
@@ -264,6 +164,167 @@ function! s:get_links(wikifile) "{{{1
 endfunction
 
 "}}}1
+
+"
+" TODO
+"
+function! vimwiki#page#rename() "{{{1
+  " Check if current file exists
+  if !filereadable(expand('%:p'))
+    echom 'Vimwiki Error: Cannot rename "' . expand('%:p')
+          \ . '". It does not exist! (New file? Save it before renaming.)'
+    return
+  endif
+
+  " Ask if user wants to rename
+  if input('Rename "' . expand('%:t:r') . '" [y]es/[N]o? ') !~? '^y'
+    return
+  endif
+
+  " Get new page name
+  let l:new = input('Enter new name: ')
+  echon "\r"
+  if empty(substitute(l:new, '\s', '', 'g'))
+    echom 'Vimwiki Error: Cannot rename to an empty filename!'
+    return
+  endif
+
+  " Expand to full path name, check if already exists
+  let l:new_path = expand('%:p:h') . '/' . l:new . '.wiki'
+  if filereadable(l:new_path)
+    echom 'Vimwiki Error: Cannot rename to "' . l:new_path
+          \ . '". File with that name exist!'
+    return
+  endif
+
+  " Rename current file to l:new_path
+  try
+    echom 'Vimwiki: Renaming ' . expand('%:t') . ' to '
+          \ . fnamemodify(l:new_path, ':t')
+    let l:result = rename(expand('%:p'), l:new_path)
+    if l:result != 0
+      throw 'Cannot rename!'
+    end
+    setlocal buftype=nofile
+  catch
+    echom 'Vimwiki Error: Cannot rename "'
+          \ . expand('%:t:r') . '" to "' . l:new_path . '"!'
+    return
+  endtry
+
+
+  let l:old = [
+        \ expand('%:p'),
+        \ expand('%:t'),
+        \ get(b:, 'vimwiki_prev_link', ''),
+        \ ]
+
+
+  " Save wiki buffers
+  let l:bufs = s:get_wiki_buffers()
+  for l:buf in l:bufs
+    execute ':b ' . escape(l:buf[0], ' ')
+    update
+    execute 'bwipeout ' . escape(l:buf[0], ' ')
+  endfor
+
+  " Update links
+  call s:update_wiki_links(l:old[1], l:new)
+
+  " Restore wiki buffers
+  for l:buf in l:bufs
+    if !vimwiki#path#is_equal(l:buf[0], l:old[0])
+      call s:open_wiki_buffer(l:buf)
+    endif
+  endfor
+
+  call s:open_wiki_buffer([l:new_path, l:old[2]])
+
+  echon "\r" . repeat(' ', &columns-1)
+  echon "\rVimwiki: Done!"
+endfunction
+
+" }}}1
+function! s:get_wiki_buffers() " {{{1
+  return map(filter(map(filter(range(1, bufnr('$')),
+        \       'bufexists(v:val)'),
+        \     'fnamemodify(bufname(v:val), '':p'')'),
+        \   'v:val =~# ''.wiki$'''),
+        \ '[v:val, getbufvar(v:val, ''vimwiki_prev_link'')]')
+endfunction
+
+" }}}1
+function! s:update_wiki_links(old_fname, new_fname) " {{{1
+  let old_fname = a:old_fname
+  let new_fname = a:new_fname
+
+  let subdirs = split(a:old_fname, '[/\\]')[: -2]
+
+  " TODO: Use Dictionary here...
+  let dirs_keys = ['']
+  let dirs_vals = ['']
+  if len(subdirs) > 0
+    let dirs_keys = ['']
+    let dirs_vals = [join(subdirs, '/').'/']
+    let idx = 0
+    while idx < len(subdirs) - 1
+      call add(dirs_keys, join(subdirs[: idx], '/').'/')
+      call add(dirs_vals, join(subdirs[idx+1 :], '/').'/')
+      let idx = idx + 1
+    endwhile
+    call add(dirs_keys,join(subdirs, '/').'/')
+    call add(dirs_vals, '')
+  endif
+
+  let idx = 0
+  while idx < len(dirs_keys)
+    let dir = dirs_keys[idx]
+    let new_dir = dirs_vals[idx]
+    call s:update_wiki_links_dir(dir,
+          \ new_dir.old_fname, new_dir.new_fname)
+    let idx = idx + 1
+  endwhile
+endfunction
+
+" }}}1
+function! s:open_wiki_buffer(item) " {{{1
+  silent! call vimwiki#todo#edit_file(':e', a:item[0], '')
+  if !empty(a:item[1])
+    call setbufvar(a:item[0], "vimwiki_prev_link", a:item[1])
+  endif
+endfunction
+
+" }}}1
+function! s:update_wiki_links_dir(dir, old_fname, new_fname) " {{{1
+  let old_fname = substitute(a:old_fname, '[/\\]', '[/\\\\]', 'g')
+  let new_fname = a:new_fname
+
+  let old_fname_r = vimwiki#base#apply_template(
+        \ g:vimwiki_WikiLinkMatchUrlTemplate, old_fname, '', '')
+
+  echo ''
+  for fname in split(glob(vimwiki#opts#get('path').a:dir.'*.wiki'), '\n')
+    echon "\r" . repeat(' ', &columns-1)
+    echon "\rUpdating links in: " . fnamemodify(fname, ':t')
+    let has_updates = 0
+    let dest = []
+    for line in readfile(fname)
+      if !has_updates && match(line, old_fname_r) != -1
+        let has_updates = 1
+      endif
+      " XXX: any other characters to escape!?
+      call add(dest, substitute(line, old_fname_r, escape(new_fname, "&"), "g"))
+    endfor
+    " add exception handling...
+    if has_updates
+      call rename(fname, fname.'#vimwiki_upd#')
+      call writefile(dest, fname)
+      call delete(fname.'#vimwiki_upd#')
+    endif
+  endfor
+endfunction
+
+" }}}1
 
 " vim: fdm=marker sw=2
 
