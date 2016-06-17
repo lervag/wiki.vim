@@ -36,10 +36,16 @@ function! vimwiki#page#backlinks() "{{{1
   let l:locs = []
 
   for l:file in vimwiki#base#find_files(0, 0)
-    for [l:target, l:dummy, l:lnum, l:col] in s:get_links(l:file)
-      if vimwiki#path#is_equal(l:target, l:origin)
-            \ && !vimwiki#path#is_equal(l:target, l:file)
-        call add(l:locs, {'filename':l:file, 'lnum':l:lnum, 'col':l:col})
+    if vimwiki#path#is_equal(l:file, l:origin) | break | endif
+
+    for l:link in vimwiki#link#get_from_file(l:file)
+      if vimwiki#path#is_equal(l:link.filename, l:origin)
+        call add(l:locs, {
+              \ 'filename' : l:file,
+              \ 'text' : empty(l:link.anchor) ? '' : 'Anchor: ' . l:anchor,
+              \ 'lnum' : l:link.lnum,
+              \ 'col' : l:link.col
+              \})
       endif
     endfor
   endfor
@@ -134,36 +140,6 @@ endfunction
 "
 " TODO
 "
-function! s:get_links(wikifile) "{{{1
-  if !filereadable(a:wikifile) | return [] | endif
-
-  let rx_link = g:vimwiki_markdown_wikilink
-  let links = []
-  let lnum = 0
-
-  for line in readfile(a:wikifile)
-    let lnum += 1
-
-    let link_count = 1
-    while 1
-      let col = match(line, rx_link, 0, link_count)+1
-      let link_text = matchstr(line, rx_link, 0, link_count)
-      if link_text == ''
-        break
-      endif
-      let link_count += 1
-      let target = vimwiki#link#resolve(link_text, a:wikifile)
-      if target.filename != '' &&
-            \ target.scheme =~# '\mwiki\d\+\|diary\|file\|local'
-        call add(links, [target.filename, target.anchor, lnum, col])
-      endif
-    endwhile
-  endfor
-
-  return links
-endfunction
-
-"}}}1
 
 "
 " TODO

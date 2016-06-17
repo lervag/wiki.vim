@@ -30,6 +30,39 @@ endfunction
 
 " }}}1
 
+function! vimwiki#link#get_from_file(file) "{{{1
+  if !filereadable(a:file) | return [] | endif
+
+  " TODO: Should match more types of links
+  let l:rx_link = g:vimwiki_markdown_wikilink
+
+  let l:links = []
+  let l:lnum = 0
+  for l:line in readfile(a:file)
+    let l:lnum += 1
+    let l:count = 0
+    while 1
+      let l:count += 1
+      let l:col = match(l:line, l:rx_link, 0, l:count)+1
+      if l:col <= 0 | break | endif
+
+      let l:link = extend(
+            \ { 'lnum' : l:lnum, 'col' : l:col },
+            \ vimwiki#link#resolve(
+            \   matchstr(l:line, l:rx_link, 0, l:count),
+            \   a:file))
+
+      if !empty(l:link.filename)
+        call add(l:links, l:link)
+      endif
+    endwhile
+  endfor
+
+  return l:links
+endfunction
+
+"}}}1
+
 " TODO
 function! vimwiki#link#resolve(link_text, ...) " {{{1
   " If the second parameter is present, which should be an absolute file path,
