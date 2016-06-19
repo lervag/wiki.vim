@@ -55,7 +55,9 @@ function! vimwiki#base#generate_links() " {{{1
         \ vimwiki#lst#default_symbol().' '
   for link in links
     let abs_filepath = vimwiki#path#abs_path_of_link(link)
-    if !s:is_diary_file(abs_filepath)
+    let file_path = vimwiki#path#path_norm(abs_filepath)
+    let diary_path = vimwiki#path#path_norm(vimwiki#opts#get('path') . 'journal/')
+    if file_path !~# '^'.vimwiki#u#escape(diary_path)
       call add(lines, bullet.
             \ substitute(g:vimwiki_WikiLinkTemplate1, '__LinkUrl__', '\='."'".link."'", ''))
     endif
@@ -342,84 +344,6 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header, content_r
     let winview_save.lnum += lines_diff
   endif
   call winrestview(winview_save)
-endfunction
-
-" }}}1
-function! vimwiki#base#normalize_imagelink_helper(str, rxUrl, rxDesc, rxStyle, template) " {{{1
-  let lnk = vimwiki#link#normalize_helper(a:str, a:rxUrl, a:rxDesc, a:template)
-  let style = matchstr(a:str, a:rxStyle)
-  let lnk = substitute(lnk, '__LinkStyle__', '\="'.style.'"', '')
-  return lnk
-endfunction
-
-" }}}1
-
-function! s:jump_to_anchor(anchor) " {{{1
-  let oldpos = getpos('.')
-  call cursor(1, 1)
-
-  let anchor = vimwiki#u#escape(a:anchor)
-
-  let segments = split(anchor, '#', 0)
-  for segment in segments
-
-    let anchor_header = substitute(
-          \ g:vimwiki_markdown_header_match,
-          \ '__Header__', "\\='".segment."'", '')
-    let anchor_bold = substitute(g:vimwiki_markdown_bold_match,
-          \ '__Text__', "\\='".segment."'", '')
-    let anchor_tag = substitute(g:vimwiki_markdown_tag_match,
-          \ '__Tag__', "\\='".segment."'", '')
-
-    if         !search(anchor_tag, 'Wc')
-          \ && !search(anchor_header, 'Wc')
-          \ && !search(anchor_bold, 'Wc')
-      call setpos('.', oldpos)
-      break
-    endif
-    let oldpos = getpos('.')
-  endfor
-endfunction
-
-" }}}1
-function! s:print_wiki_list() " {{{1
-  let idx = 0
-  while idx < 1
-    if idx == 0
-      let sep = ' * '
-      echohl PmenuSel
-    else
-      let sep = '   '
-      echohl None
-    endif
-    echo (idx + 1).sep.vimwiki#opts#get('path', idx)
-    let idx += 1
-  endwhile
-  echohl None
-endfunction
-
-" }}}1
-
-function! s:clean_url(url) " {{{1
-  let url = split(a:url, '/\|=\|-\|&\|?\|\.')
-  let url = filter(url, 'v:val !=# ""')
-  let url = filter(url, 'v:val !=# "www"')
-  let url = filter(url, 'v:val !=# "com"')
-  let url = filter(url, 'v:val !=# "org"')
-  let url = filter(url, 'v:val !=# "net"')
-  let url = filter(url, 'v:val !=# "edu"')
-  let url = filter(url, 'v:val !=# "http\:"')
-  let url = filter(url, 'v:val !=# "https\:"')
-  let url = filter(url, 'v:val !=# "file\:"')
-  let url = filter(url, 'v:val !=# "xml\:"')
-  return join(url, " ")
-endfunction
-
-" }}}1
-function! s:is_diary_file(filename) " {{{1
-  let file_path = vimwiki#path#path_norm(a:filename)
-  let diary_path = vimwiki#path#path_norm(vimwiki#opts#get('path') . 'journal/')
-  return file_path =~# '^'.vimwiki#u#escape(diary_path)
 endfunction
 
 " }}}1

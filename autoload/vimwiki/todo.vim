@@ -143,7 +143,7 @@ endfunction
 
 " }}}1
 
-function! s:jump_to_anchor(anchor) "{{{
+function! s:jump_to_anchor(anchor) " {{{1
   let oldpos = getpos('.')
   call cursor(1, 1)
 
@@ -168,6 +168,8 @@ function! s:jump_to_anchor(anchor) "{{{
     endif
     let oldpos = getpos('.')
   endfor
-endfunction "}}}
+endfunction
+
+" }}}1
 
 " vim: fdm=marker sw=2
