@@ -24,6 +24,11 @@ function! vimwiki#page#delete() "{{{1
 endfunction
 
 "}}}1
+function! vimwiki#page#goto_index() " {{{1
+  call vimwiki#todo#edit_file('edit', g:vimwiki_path . '/index.wiki', '')
+endfunction
+
+" }}}1
 function! vimwiki#page#backlinks() "{{{1
   let l:origin = expand("%:p")
   let l:locs = []
@@ -84,7 +89,7 @@ function! vimwiki#page#create_toc() " {{{1
     endif
     let h_level = vimwiki#u#count_first_sym(line_content)
     let h_text = vimwiki#u#trim(matchstr(line_content, g:vimwiki_rxHeader))
-    if h_text ==# g:vimwiki_toc_header  " don't include the TOC's header itself
+    if h_text ==# 'Innhald'  " don't include the TOC's header itself
       continue
     endif
     let headers_levels[h_level-1] = [h_text, headers_levels[h_level-1][1]+1]
@@ -97,14 +102,6 @@ function! vimwiki#page#create_toc() " {{{1
       endif
     endfor
     let h_complete_id .= headers_levels[h_level-1][0]
-
-    if g:vimwiki_html_header_numbering > 0
-          \ && g:vimwiki_html_header_numbering <= h_level
-      let h_number = join(map(copy(headers_levels[
-            \ g:vimwiki_html_header_numbering-1 : h_level-1]), 'v:val[1]'), '.')
-      let h_number .= g:vimwiki_html_header_numbering_sym
-      let h_text = h_number.' '.h_text
-    endif
 
     call add(headers, [h_level, h_complete_id, h_text])
   endfor
@@ -124,8 +121,7 @@ function! vimwiki#page#create_toc() " {{{1
 
   let links_rx = '\m^\s*'.vimwiki#u#escape(vimwiki#lst#default_symbol()).' '
 
-  call vimwiki#base#update_listing_in_buffer(lines, g:vimwiki_toc_header, links_rx,
-        \ 1, 1)
+  call vimwiki#base#update_listing_in_buffer(lines, 'Innhald', links_rx, 1, 1)
 endfunction
 
 " }}}1

@@ -42,9 +42,9 @@ function! vimwiki#base#get_globlinks_escaped() abort " {{{1
   let orig_pwd = getcwd()
   lcd! %:h
   " all path are relative to the current file's location
-  let globlinks = glob('*'.vimwiki#opts#get('ext'),1)."\n"
+  let globlinks = glob('*.wiki', 1) . '\n'
   " remove extensions
-  let globlinks = substitute(globlinks, '\'.vimwiki#opts#get('ext').'\ze\n', '', 'g')
+  let globlinks = substitute(globlinks, '\.wiki\ze\n', '', 'g')
   " restore the original working directory
   exe 'lcd! '.orig_pwd
   " convert to a List
@@ -86,22 +86,16 @@ function! vimwiki#base#goto(...) " {{{1
   let anchor = a:0 > 1 ? a:2 : ''
 
   call vimwiki#todo#edit_file(':e',
-        \ vimwiki#opts#get('path') . key . vimwiki#opts#get('ext'),
+        \ vimwiki#opts#get('path') . key . '.wiki',
         \ anchor)
 endfunction
 
 " }}}1
 function! vimwiki#base#find_files(is_not_diary, directories_only) " {{{1
-  if a:is_not_diary >= 0
-    let root_directory = vimwiki#opts#get('path')
-  else
-    let root_directory = vimwiki#opts#get('path').vimwiki#opts#get('diary_rel_path')
-  endif
-  if a:directories_only
-    let ext = '/'
-  else
-    let ext = vimwiki#opts#get('ext')
-  endif
+  let root_directory = vimwiki#opts#get('path')
+        \ . (a:is_not_diary >= 0 ? '' : 'journal/')
+
+  let ext = a:directories_only ? '/' : '.wiki'
 
   return split(globpath(root_directory, '**/*'.ext), '\n')
 endfunction
@@ -608,18 +602,15 @@ endfunction
 " }}}1
 function! s:is_diary_file(filename) " {{{1
   let file_path = vimwiki#path#path_norm(a:filename)
-  let rel_path = vimwiki#opts#get('diary_rel_path')
-  let diary_path = vimwiki#path#path_norm(vimwiki#opts#get('path') . rel_path)
-  return rel_path != ''
-        \ && file_path =~# '^'.vimwiki#u#escape(diary_path)
+  let diary_path = vimwiki#path#path_norm(vimwiki#opts#get('path') . 'journal/')
+  return file_path =~# '^'.vimwiki#u#escape(diary_path)
 endfunction
 
 " }}}1
 function! s:normalize_link_in_diary(lnk) " {{{1
-  let link = a:lnk . vimwiki#opts#get('ext')
+  let link = a:lnk . '.wiki'
   let link_wiki = vimwiki#opts#get('path') . '/' . link
-  let link_diary = vimwiki#opts#get('path') . '/'
-        \ . vimwiki#opts#get('diary_rel_path') . '/' . link
+  let link_diary = vimwiki#opts#get('path') . 'journal/' . link
   let link_exists_in_diary = filereadable(link_diary)
   let link_exists_in_wiki = filereadable(link_wiki)
   let link_is_date = a:lnk =~# '\d\d\d\d-\d\d-\d\d'
@@ -630,7 +621,7 @@ function! s:normalize_link_in_diary(lnk) " {{{1
     let rxDesc = ''
     let template = g:vimwiki_WikiLinkTemplate1
   else
-    let depth = len(split(vimwiki#opts#get('diary_rel_path'), '/'))
+    let depth = len(split(link_diary, '/'))
     let str = repeat('../', depth) . a:lnk . '|' . a:lnk
     let rxUrl = '^.*\ze|'
     let rxDesc = '|\zs.*$'

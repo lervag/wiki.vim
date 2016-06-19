@@ -412,10 +412,8 @@ execute 'syn match VimwikiSubScript contained /,,/'.s:conceal
 
 " A shortener for long URLs: LinkRest (a middle part of the URL) is concealed
 " VimwikiLinkRest group is left undefined if link shortening is not desired
-if g:vimwiki_url_maxsave > 0
-  execute 'syn match VimwikiLinkRest `\%(///\=[^/ \t]\+/\)\zs\S\+\ze'
-        \.'\%([/#?]\w\|\S\{'.g:vimwiki_url_maxsave.'}\)`'.' cchar=~'.s:options
-endif
+execute 'syn match VimwikiLinkRest `\%(///\=[^/ \t]\+/\)\zs\S\+\ze'
+      \.'\%([/#?]\w\|\S\{15}\)`'.' cchar=~'.s:options
 
 " conceal wikilinks
 execute 'syn match VimwikiLinkChar /'.s:rx_wikilink_prefix.'/'.s:options

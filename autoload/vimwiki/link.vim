@@ -138,23 +138,14 @@ function! vimwiki#link#resolve(link_text, ...) " {{{1
 
     let l:link.filename = root_dir . link_text
 
-    if vimwiki#path#is_link_to_dir(link_text)
-      if g:vimwiki_dir_link != ''
-        let l:link.filename .= g:vimwiki_dir_link .
-              \ vimwiki#opts#get('ext')
-      endif
-    else
-      let l:link.filename .= vimwiki#opts#get('ext')
+    if !vimwiki#path#is_link_to_dir(link_text)
+      let l:link.filename .= '.wiki'
     endif
 
   elseif l:link.scheme ==# 'diary'
     let l:link.index = 0
-
-    let l:link.filename =
-          \ vimwiki#opts#get('path') .
-          \ vimwiki#opts#get('diary_rel_path') .
-          \ link_text .
-          \ vimwiki#opts#get('ext')
+    let l:link.filename = vimwiki#opts#get('path')
+          \ . 'journal/' . link_text . '.wiki'
   elseif (l:link.scheme ==# 'file' || l:link.scheme ==# 'local')
         \ && is_relative
     let l:link.filename = simplify(root_dir . link_text)
@@ -276,7 +267,7 @@ function! vimwiki#link#follow(split, ...) "{{{1
     if s:reflink_follow(lnk) | return | endif
 
     " remove the extension from the filename if exists
-    let lnk = substitute(lnk, vimwiki#opts#get('ext').'$', '', '')
+    let lnk = substitute(lnk, '\.wiki$', '', '')
     call vimwiki#todo#open_link(cmd, lnk)
     return
   endif
