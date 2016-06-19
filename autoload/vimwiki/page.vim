@@ -133,10 +133,6 @@ endfunction
 "
 " TODO
 "
-
-"
-" TODO
-"
 function! vimwiki#page#rename() "{{{1
   " Check if current file exists
   if !filereadable(expand('%:p'))

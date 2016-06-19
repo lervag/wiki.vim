@@ -31,42 +31,34 @@ endfunction
 
 " }}}1
 function! vimwiki#diary#goto_next_day() "{{{
-  let link = ''
-  let [idx, links] = s:get_position_links(expand('%:t:r'))
+  let [l:index, l:entries] = s:get_position_links(expand('%:t:r'))
 
-  if idx == (len(links) - 1)
+  if l:index == (len(l:entries) - 1)
     return
   endif
 
-  if idx != -1 && idx < len(links) - 1
-    let link = 'diary:'.links[idx+1]
+  if l:index != -1 && l:index < len(l:entries) - 1
+    let l:link = 'diary:' . l:entries[l:index+1]
   else
-    " goto today
-    let link = 'diary:'.s:diary_date_link()
+    let l:link = 'diary:' . s:diary_date_link()
   endif
 
-  if len(link)
-    call vimwiki#todo#open_link(':e ', link)
-  endif
+  call vimwiki#todo#open_link('edit ', l:link)
 endfunction "}}}
 function! vimwiki#diary#goto_prev_day() "{{{
-  let link = ''
-  let [idx, links] = s:get_position_links(expand('%:t:r'))
+  let [l:index, l:entries] = s:get_position_links(expand('%:t:r'))
 
-  if idx == 0
+  if l:index == 0
     return
   endif
 
-  if idx > 0
-    let link = 'diary:'.links[idx-1]
+  if l:index > 0
+    let l:link = 'diary:' . l:entries[l:index-1]
   else
-    " goto today
-    let link = 'diary:'.s:diary_date_link()
+    let l:link = 'diary:' . s:diary_date_link()
   endif
 
-  if len(link)
-    call vimwiki#todo#open_link(':e ', link)
-  endif
+  call vimwiki#todo#open_link('edit ', l:link)
 endfunction "}}}
 function! vimwiki#diary#generate_diary_section() "{{{
   let current_file = vimwiki#path#path_norm(expand("%:p"))
