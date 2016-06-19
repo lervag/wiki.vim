@@ -20,7 +20,7 @@ function! vimwiki#todo#edit_file(command, filename, anchor, ...) "{{{1
   " which happens if we jump to an achor in the current file.
   " This hack is necessary because apparently Vim messes up the result of
   " getpos() directly after this command. Strange.
-  if !(a:command ==# ':e ' && vimwiki#path#is_equal(a:filename, expand('%:p')))
+  if !(a:command ==# ':e ' && resolve(a:filename) ==# resolve(expand('%:p')))
     execute a:command.' '.fname
     " Make sure no other plugin takes ownership over the new file. Vimwiki
     " rules them all! Well, except for directories, which may be opened with
@@ -37,7 +37,10 @@ function! vimwiki#todo#edit_file(command, filename, anchor, ...) "{{{1
   " a:1 -- previous vimwiki link to save
   " a:2 -- should we update previous link
   if a:0 && a:2 && len(a:1) > 0
-    let b:vimwiki_prev_link = a:1
+    if !exists('b:vimwiki')
+      let b:vimwiki = {}
+    endif
+    let b:vimwiki.prev_link = a:1
   endif
 endfunction
 
@@ -78,7 +81,7 @@ function! vimwiki#todo#open_link(cmd, link, ...) "{{{
         \ || link_infos.scheme =~# 'diary'
 
   let update_prev_link = is_wiki_link &&
-        \ !vimwiki#path#is_equal(link_infos.filename, expand('%:p'))
+        \ !resolve(link_infos.filename) ==# resolve(expand('%:p'))
 
   let vimwiki_prev_link = []
   " update previous link for wiki pages

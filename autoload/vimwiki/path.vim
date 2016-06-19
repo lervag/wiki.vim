@@ -9,11 +9,6 @@ function! vimwiki#path#chomp_slash(str) "{{{1
 endfunction
 
 "}}}1
-function! vimwiki#path#is_equal(p1, p2) " {{{1
-  return resolve(a:p1) ==# resolve(a:p2)
-endfunction
-
-"}}}1
 function! vimwiki#path#normalize(path) "{{{1
   let path = a:path
   while 1
@@ -59,7 +54,7 @@ function! vimwiki#path#path_common_pfx(path1, path2) "{{{1
 
   let idx = 0
   let minlen = min([len(p1), len(p2)])
-  while (idx < minlen) && vimwiki#path#is_equal(p1[idx], p2[idx])
+  while (idx < minlen) && resolve(p1[idx]) ==# resolve(p2[idx])
     let idx = idx + 1
   endwhile
   if idx == 0
@@ -81,7 +76,7 @@ function! vimwiki#path#relpath(dir, file) "{{{1
   let result = []
   let dir = split(a:dir, '/')
   let file = split(a:file, '/')
-  while (len(dir) > 0 && len(file) > 0) && vimwiki#path#is_equal(dir[0], file[0])
+  while (len(dir) > 0 && len(file) > 0) && resolve(dir[0]) ==# resolve(file[0])
     call remove(dir, 0)
     call remove(file, 0)
   endwhile

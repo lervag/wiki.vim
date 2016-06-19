@@ -10,7 +10,7 @@ let g:vimwiki_loaded = 1
 let s:old_cpo = &cpo
 set cpo&vim
 
-nnoremap <silent> <leader>ww         :call vimwiki#page#goto_index()<cr>
+nnoremap <silent> <leader>ww         :e ~/documents/wiki/index.wiki<cr>
 nnoremap <silent> <leader>wx         :call vimwiki#reload()<cr>
 nnoremap <silent> <leader>w<leader>w :call vimwiki#diary#make_note()<cr>
 

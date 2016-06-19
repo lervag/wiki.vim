@@ -8,13 +8,9 @@
 " Main functions
 "
 function! vimwiki#diary#make_note(...) "{{{
-  call vimwiki#path#mkdir(vimwiki#opts#get('path')
-        \ . vimwiki#opts#get('diary_rel_path'))
-
-  let cmd = 'edit'
-  let link = 'diary:' . (a:0 > 0 ? a:1 : s:diary_date_link())
-
-  call vimwiki#todo#open_link(cmd, link, s:diary_index())
+  call vimwiki#todo#open_link('edit',
+        \ 'diary:' . (a:0 > 0 ? a:1 : s:diary_date_link()),
+        \ s:diary_index())
 endfunction "}}}
 function! vimwiki#diary#copy_note() " {{{
   let l:current = expand('%:t:r')
@@ -75,7 +71,7 @@ endfunction "}}}
 function! vimwiki#diary#generate_diary_section() "{{{
   let current_file = vimwiki#path#path_norm(expand("%:p"))
   let diary_file = vimwiki#path#path_norm(s:diary_index())
-  if vimwiki#path#is_equal(current_file, diary_file)
+  if resolve(current_file) = resolve(diary_file)
     let content_rx = '^\%(\s*\* \)\|\%(^\s*$\)\|\%('.g:vimwiki_rxHeader.'\)'
     call vimwiki#base#update_listing_in_buffer(s:format_diary(),
           \ vimwiki#opts#get('diary_header'), content_rx, line('$')+1, 1)

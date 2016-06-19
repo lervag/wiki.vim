@@ -24,22 +24,15 @@ function! vimwiki#page#delete() "{{{1
 endfunction
 
 "}}}1
-function! vimwiki#page#goto_index() "{{{
-  call vimwiki#todo#edit_file('edit',
-        \ vimwiki#opts#get('path')
-        \ . vimwiki#opts#get('index')
-        \ . vimwiki#opts#get('ext'),
-        \ '')
-endfunction "}}}
 function! vimwiki#page#backlinks() "{{{1
   let l:origin = expand("%:p")
   let l:locs = []
 
   for l:file in vimwiki#base#find_files(0, 0)
-    if vimwiki#path#is_equal(l:file, l:origin) | break | endif
+    if resolve(l:file) ==# resolve(l:origin) | break | endif
 
     for l:link in vimwiki#link#get_from_file(l:file)
-      if vimwiki#path#is_equal(l:link.filename, l:origin)
+      if resolve(l:link.filename) ==# resolve(l:origin)
         call add(l:locs, {
               \ 'filename' : l:file,
               \ 'text' : empty(l:link.anchor) ? '' : 'Anchor: ' . l:anchor,
@@ -209,7 +202,7 @@ function! vimwiki#page#rename() "{{{1
 
   " Restore wiki buffers
   for l:buf in l:bufs
-    if !vimwiki#path#is_equal(l:buf[0], l:old[0])
+    if !resolve(l:buf[0]) ==# resolve(l:old[0])
       call s:open_wiki_buffer(l:buf)
     endif
   endfor

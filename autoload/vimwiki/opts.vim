@@ -27,7 +27,6 @@ endfunction
 " {{{1 Defaul wiki
 let s:vimwiki = {}
 let s:vimwiki.path = '~/vimwiki/'
-let s:vimwiki.index = 'index'
 let s:vimwiki.ext = '.wiki'
 let s:vimwiki.maxhi = 0
 let s:vimwiki.auto_export = 0

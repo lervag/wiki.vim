@@ -24,8 +24,7 @@ function! vimwiki#base#find_wiki(path) " {{{1
 
   let idx_path = expand(vimwiki#opts#get('path'))
   let idx_path = vimwiki#path#path_norm(vimwiki#path#chomp_slash(idx_path))
-  if vimwiki#path#is_equal(
-        \ vimwiki#path#path_common_pfx(idx_path, path), idx_path)
+  if resolve(vimwiki#path#path_common_pfx(idx_path, path)) ==# resolve(idx_path)
     return 0
   endif
 
@@ -108,34 +107,20 @@ function! vimwiki#base#find_files(is_not_diary, directories_only) " {{{1
 endfunction
 
 " }}}1
-function! vimwiki#base#get_wikilinks(wiki_nr, also_absolute_links) " {{{1
-  " Returns: a list containing the links to get from the current file to all wiki
-  " files in the given wiki.
-  " If the given wiki number is negative, the diary of the current wiki is used.
-  " If also_absolute_links is nonzero, also return links of the form /file
-  let files = vimwiki#base#find_files(a:wiki_nr, 0)
-  if a:wiki_nr == 0
-    let cwd = vimwiki#path#wikify_path(expand('%:p:h'))
-  elseif a:wiki_nr < 0
-    let cwd = vimwiki#opts#get('path').vimwiki#opts#get('diary_rel_path')
-  else
-    let cwd = vimwiki#opts#get('path', a:wiki_nr)
-  endif
+function! vimwiki#base#get_wikilinks(also_absolute_links) " {{{1
+  let files = vimwiki#base#find_files(0, 0)
+  let cwd = vimwiki#path#wikify_path(expand('%:p:h'))
   let result = []
   for wikifile in files
-    let wikifile = fnamemodify(wikifile, ':r') " strip extension
+    let wikifile = fnamemodify(wikifile, ':r')
     let wikifile = vimwiki#path#relpath(cwd, wikifile)
     call add(result, wikifile)
   endfor
   if a:also_absolute_links
+    let cwd = vimwiki#opts#get('path')
     for wikifile in files
-      if a:wiki_nr == 0
-        let cwd = vimwiki#opts#get('path')
-      elseif a:wiki_nr < 0
-        let cwd = vimwiki#opts#get('path').vimwiki#opts#get('diary_rel_path')
-      endif
-      let wikifile = fnamemodify(wikifile, ':r') " strip extension
-      let wikifile = '/'.vimwiki#path#relpath(cwd, wikifile)
+      let wikifile = fnamemodify(wikifile, ':r')
+      let wikifile = '/' . vimwiki#path#relpath(cwd, wikifile)
       call add(result, wikifile)
     endfor
   endif

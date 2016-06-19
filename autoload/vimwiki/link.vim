@@ -19,8 +19,8 @@ endfunction
 
 " }}}1
 function! vimwiki#link#go_back() "{{{1
-  if exists('b:vimwiki_prev_link')
-    let [l:file, l:pos] = b:vimwiki_prev_link
+  if exists('b:vimwiki.prev_link')
+    let [l:file, l:pos] = b:vimwiki.prev_link
     execute ':e ' . substitute(l:file, '\s', '\\\0', 'g')
     call setpos('.', l:pos)
   else
@@ -323,11 +323,11 @@ endfunction
 " TODO - doesn't work
 "
 function! s:reflink_follow(link) " {{{1
-  if !exists('b:vimwiki_reflinks')
-    let b:vimwiki_reflinks = s:reflink_scan()
+  if !exists('b:vimwiki.reflinks')
+    let b:vimwiki.reflinks = s:reflink_scan()
   endif
 
-  if has_key(b:vimwiki_reflinks, a:link)
+  if has_key(b:vimwiki.reflinks, a:link)
     call vimwiki#base#system_open_link(mkd_refs[a:link])
     return 1
   endif

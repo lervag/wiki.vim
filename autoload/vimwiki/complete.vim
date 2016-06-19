@@ -24,7 +24,7 @@ function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
             \     'v:val =~# ''^'' . vimwiki#u#escape(l:base)'),
             \   'l:segments[0] . ''#'' . v:val')
     else
-      return filter(vimwiki#base#get_wikilinks(0, 1),
+      return filter(vimwiki#base#get_wikilinks(1),
             \ 'v:val =~# ''^'' . vimwiki#u#escape(a:base)')
     endif
   endif
