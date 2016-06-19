@@ -260,7 +260,7 @@ function! s:update_wiki_links_dir(dir, old_fname, new_fname) " {{{1
   let old_fname = substitute(a:old_fname, '[/\\]', '[/\\\\]', 'g')
   let new_fname = a:new_fname
 
-  let old_fname_r = vimwiki#base#apply_template(
+  let old_fname_r = vimwiki#todo#apply_template(
         \ g:vimwiki_WikiLinkMatchUrlTemplate, old_fname, '', '')
 
   echo ''

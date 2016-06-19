@@ -19,19 +19,6 @@ function! vimwiki#base#invsubdir(subdir) " {{{1
 endfunction
 
 " }}}1
-function! vimwiki#base#find_wiki(path) " {{{1
-  let path = vimwiki#path#path_norm(vimwiki#path#chomp_slash(a:path))
-
-  let idx_path = expand(vimwiki#opts#get('path'))
-  let idx_path = vimwiki#path#path_norm(vimwiki#path#chomp_slash(idx_path))
-  if resolve(vimwiki#path#path_common_pfx(idx_path, path)) ==# resolve(idx_path)
-    return 0
-  endif
-
-  return -1
-endfunction
-
-" }}}1
 function! vimwiki#base#system_open_link(url) " {{{1
   call system('xdg-open ' . shellescape(a:url).' &')
 endfunction
@@ -268,55 +255,6 @@ function! vimwiki#base#replacestr_at_cursor(wikiRX, sub) " {{{1
     call setline(line('.'), newline)
   endif
 endf "}}}
-function! vimwiki#base#nested_syntax(filetype, start, end, textSnipHl) abort "{{{
-  " From http://vim.wikia.com/wiki/VimTip857
-  let ft=toupper(a:filetype)
-  let group='textGroup'.ft
-  if exists('b:current_syntax')
-    let s:current_syntax=b:current_syntax
-    " Remove current syntax definition, as some syntax files (e.g. cpp.vim)
-    " do nothing if b:current_syntax is defined.
-    unlet b:current_syntax
-  endif
-
-  " Some syntax files set up iskeyword which might scratch vimwiki a bit.
-  " Let us save and restore it later.
-  " let b:skip_set_iskeyword = 1
-  let is_keyword = &iskeyword
-
-  try
-    " keep going even if syntax file is not found
-    execute 'syntax include @'.group.' syntax/'.a:filetype.'.vim'
-    execute 'syntax include @'.group.' after/syntax/'.a:filetype.'.vim'
-  catch
-  endtry
-
-  let &iskeyword = is_keyword
-
-  if exists('s:current_syntax')
-    let b:current_syntax=s:current_syntax
-  else
-    unlet b:current_syntax
-  endif
-  execute 'syntax region textSnip'.ft.
-        \ ' matchgroup='.a:textSnipHl.
-        \ ' start="'.a:start.'" end="'.a:end.'"'.
-        \ ' contains=@'.group.' keepend'
-
-  " A workaround to Issue 115: Nested Perl syntax highlighting differs from
-  " regular one.
-  " Perl syntax file has perlFunctionName which is usually has no effect due to
-  " 'contained' flag. Now we have 'syntax include' that makes all the groups
-  " included as 'contained' into specific group.
-  " Here perlFunctionName (with quite an angry regexp "\h\w*[^:]") clashes with
-  " the rest syntax rules as now it has effect being really 'contained'.
-  " Clear it!
-  if ft =~? 'perl'
-    syntax clear perlFunctionName
-  endif
-endfunction
-
-" }}}1
 function! vimwiki#base#update_listing_in_buffer(strings, start_header, content_regex, default_lnum, create) " {{{1
   " apparently, Vim behaves strange when files change while in diff mode
   if &diff || &readonly
@@ -407,135 +345,14 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header, content_r
 endfunction
 
 " }}}1
-function! vimwiki#base#apply_template(template, rxUrl, rxDesc, rxStyle) " {{{1
-  let lnk = a:template
-  if a:rxUrl != ""
-    let lnk = substitute(lnk, '__LinkUrl__', '\='."'".a:rxUrl."'", 'g')
-  endif
-  if a:rxDesc != ""
-    let lnk = substitute(lnk, '__LinkDescription__', '\='."'".a:rxDesc."'", 'g')
-  endif
-  if a:rxStyle != ""
-    let lnk = substitute(lnk, '__LinkStyle__', '\='."'".a:rxStyle."'", 'g')
-  endif
-  return lnk
-endfunction
-
-" }}}1
-function! vimwiki#base#normalize_link_helper(str, rxUrl, rxDesc, template) " {{{1
-  let str = a:str
-  let url = matchstr(str, a:rxUrl)
-  let descr = matchstr(str, a:rxDesc)
-  let template = a:template
-  if descr == ""
-    let descr = s:clean_url(url)
-  endif
-  let lnk = substitute(template, '__LinkDescription__', '\="'.descr.'"', '')
-  let lnk = substitute(lnk, '__LinkUrl__', '\="'.url.'"', '')
-  return lnk
-endfunction
-
-" }}}1
 function! vimwiki#base#normalize_imagelink_helper(str, rxUrl, rxDesc, rxStyle, template) " {{{1
-  let lnk = vimwiki#base#normalize_link_helper(a:str, a:rxUrl, a:rxDesc, a:template)
+  let lnk = vimwiki#link#normalize_helper(a:str, a:rxUrl, a:rxDesc, a:template)
   let style = matchstr(a:str, a:rxStyle)
   let lnk = substitute(lnk, '__LinkStyle__', '\="'.style.'"', '')
   return lnk
 endfunction
 
 " }}}1
-function! vimwiki#base#detect_nested_syntax() " {{{1
-  let last_word = '\v.*<(\w+)\s*$'
-  let lines = map(filter(getline(1, "$"), 'v:val =~ "```" && v:val =~ last_word'),
-        \ 'substitute(v:val, last_word, "\\=submatch(1)", "")')
-  let dict = {}
-  for elem in lines
-    let dict[elem] = elem
-  endfor
-  return dict
-endfunction
-
-" }}}1
-
-function! vimwiki#base#complete_links_escaped(ArgLead, CmdLine, CursorPos) abort " {{{1
-  " We can safely ignore args if we use -custom=complete option, Vim engine
-  " will do the job of filtering.
-  return vimwiki#base#get_globlinks_escaped()
-endfunction
-
-" }}}1
-function! vimwiki#base#AddHeaderLevel() " {{{1
-  let lnum = line('.')
-  let line = getline(lnum)
-  let rxHdr = g:vimwiki_rxH
-  if line =~# '^\s*$'
-    return
-  endif
-
-  if line =~# g:vimwiki_rxHeader
-    let level = vimwiki#u#count_first_sym(line)
-    if level < 6
-      if g:vimwiki_symH
-        let line = substitute(line, '\('.rxHdr.'\+\).\+\1', rxHdr.'&'.rxHdr, '')
-      else
-        let line = substitute(line, '\('.rxHdr.'\+\).\+', rxHdr.'&', '')
-      endif
-      call setline(lnum, line)
-    endif
-  else
-    let line = substitute(line, '^\s*', '&'.rxHdr.' ', '')
-    if g:vimwiki_symH
-      let line = substitute(line, '\s*$', ' '.rxHdr.'&', '')
-    endif
-    call setline(lnum, line)
-  endif
-endfunction
-
-" }}}1
-function! vimwiki#base#RemoveHeaderLevel() " {{{1
-  let lnum = line('.')
-  let line = getline(lnum)
-  let rxHdr = g:vimwiki_rxH
-  if line =~# '^\s*$'
-    return
-  endif
-
-  if line =~# g:vimwiki_rxHeader
-    let level = vimwiki#u#count_first_sym(line)
-    let old = repeat(rxHdr, level)
-    let new = repeat(rxHdr, level - 1)
-
-    let chomp = line =~# rxHdr.'\s'
-
-    if g:vimwiki_symH
-      let line = substitute(line, old, new, 'g')
-    else
-      let line = substitute(line, old, new, '')
-    endif
-
-    if level == 1 && chomp
-      let line = substitute(line, '^\s', '', 'g')
-      let line = substitute(line, '\s$', '', 'g')
-    endif
-
-    let line = substitute(line, '\s*$', '', '')
-
-    call setline(lnum, line)
-  endif
-endfunction
-
-" }}}1
-function! vimwiki#base#ui_select() " {{{1
-  call s:print_wiki_list()
-  let idx = input("Select Wiki (specify number): ")
-  if idx == ""
-    return
-  endif
-  call vimwiki#page#goto_index()
-endfunction
-
-" }}}1
-
 
 function! s:jump_to_anchor(anchor) " {{{1
   let oldpos = getpos('.')
@@ -583,7 +400,6 @@ endfunction
 
 " }}}1
 
-
 function! s:clean_url(url) " {{{1
   let url = split(a:url, '/\|=\|-\|&\|?\|\.')
   let url = filter(url, 'v:val !=# ""')
@@ -604,31 +420,6 @@ function! s:is_diary_file(filename) " {{{1
   let file_path = vimwiki#path#path_norm(a:filename)
   let diary_path = vimwiki#path#path_norm(vimwiki#opts#get('path') . 'journal/')
   return file_path =~# '^'.vimwiki#u#escape(diary_path)
-endfunction
-
-" }}}1
-function! s:normalize_link_in_diary(lnk) " {{{1
-  let link = a:lnk . '.wiki'
-  let link_wiki = vimwiki#opts#get('path') . '/' . link
-  let link_diary = vimwiki#opts#get('path') . 'journal/' . link
-  let link_exists_in_diary = filereadable(link_diary)
-  let link_exists_in_wiki = filereadable(link_wiki)
-  let link_is_date = a:lnk =~# '\d\d\d\d-\d\d-\d\d'
-
-  if ! link_exists_in_wiki || link_exists_in_diary || link_is_date
-    let str = a:lnk
-    let rxUrl = g:vimwiki_rxWord
-    let rxDesc = ''
-    let template = g:vimwiki_WikiLinkTemplate1
-  else
-    let depth = len(split(link_diary, '/'))
-    let str = repeat('../', depth) . a:lnk . '|' . a:lnk
-    let rxUrl = '^.*\ze|'
-    let rxDesc = '|\zs.*$'
-    let template = g:vimwiki_WikiLinkTemplate2
-  endif
-
-  return vimwiki#base#normalize_link_helper(str, rxUrl, rxDesc, template)
 endfunction
 
 " }}}1

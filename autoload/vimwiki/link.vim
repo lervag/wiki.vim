@@ -170,13 +170,27 @@ function! vimwiki#link#normalize(is_visual_mode) "{{{
     call s:normalize_link_syntax_v()
   endif
 endfunction "}}}
+function! vimwiki#link#normalize_helper(str, rxUrl, rxDesc, template) " {{{1
+  let str = a:str
+  let url = matchstr(str, a:rxUrl)
+  let descr = matchstr(str, a:rxDesc)
+  let template = a:template
+  if descr == ""
+    let descr = s:clean_url(url)
+  endif
+  let lnk = substitute(template, '__LinkDescription__', '\="'.descr.'"', '')
+  let lnk = substitute(lnk, '__LinkUrl__', '\="'.url.'"', '')
+  return lnk
+endfunction
+
+" }}}1
 function! s:normalize_link_syntax_n() " {{{
   let lnum = line('.')
 
   " try WikiLink0: replace with WikiLink1
   let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiLink0)
   if !empty(lnk)
-    let sub = vimwiki#base#normalize_link_helper(lnk,
+    let sub = vimwiki#link#normalize_helper(lnk,
           \ g:vimwiki_rxWikiLinkMatchUrl, g:vimwiki_rxWikiLinkMatchDescr,
           \ g:vimwiki_WikiLink1Template2)
     call vimwiki#base#replacestr_at_cursor(g:vimwiki_rxWikiLink0, sub)
@@ -186,7 +200,7 @@ function! s:normalize_link_syntax_n() " {{{
   " try WikiLink1: replace with WikiLink0
   let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiLink1)
   if !empty(lnk)
-    let sub = vimwiki#base#normalize_link_helper(lnk,
+    let sub = vimwiki#link#normalize_helper(lnk,
           \ g:vimwiki_rxWikiLinkMatchUrl, g:vimwiki_rxWikiLinkMatchDescr,
           \ g:vimwiki_WikiLinkTemplate2)
     call vimwiki#base#replacestr_at_cursor(g:vimwiki_rxWikiLink1, sub)
@@ -196,7 +210,7 @@ function! s:normalize_link_syntax_n() " {{{
   " try Weblink
   let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWeblink)
   if !empty(lnk)
-    let sub = vimwiki#base#normalize_link_helper(lnk,
+    let sub = vimwiki#link#normalize_helper(lnk,
           \ g:vimwiki_rxWeblinkMatchUrl, g:vimwiki_rxWeblinkMatchDescr,
           \ g:vimwiki_Weblink1Template)
     call vimwiki#base#replacestr_at_cursor(g:vimwiki_rxWeblink, sub)
@@ -208,7 +222,7 @@ function! s:normalize_link_syntax_n() " {{{
   " normalize_link_syntax_v
   let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWord)
   if !empty(lnk)
-    let sub = vimwiki#base#normalize_link_helper(lnk,
+    let sub = vimwiki#link#normalize_helper(lnk,
           \ g:vimwiki_rxWord, '',
           \ g:vimwiki_Weblink1Template)
     call vimwiki#base#replacestr_at_cursor('\V'.lnk, sub)
@@ -241,6 +255,49 @@ function! s:normalize_link_syntax_v() " {{{
   endtry
 
 endfunction " }}}
+function! s:clean_url(url) " {{{1
+  let url = split(a:url, '/\|=\|-\|&\|?\|\.')
+  let url = filter(url, 'v:val !=# ""')
+  let url = filter(url, 'v:val !=# "www"')
+  let url = filter(url, 'v:val !=# "com"')
+  let url = filter(url, 'v:val !=# "org"')
+  let url = filter(url, 'v:val !=# "net"')
+  let url = filter(url, 'v:val !=# "edu"')
+  let url = filter(url, 'v:val !=# "http\:"')
+  let url = filter(url, 'v:val !=# "https\:"')
+  let url = filter(url, 'v:val !=# "file\:"')
+  let url = filter(url, 'v:val !=# "xml\:"')
+  return join(url, " ")
+endfunction
+
+" }}}1
+
+" TODO: Add this?
+function! s:normalize_link_in_diary(lnk) " {{{1
+  let link = a:lnk . '.wiki'
+  let link_wiki = vimwiki#opts#get('path') . '/' . link
+  let link_diary = vimwiki#opts#get('path') . 'journal/' . link
+  let link_exists_in_diary = filereadable(link_diary)
+  let link_exists_in_wiki = filereadable(link_wiki)
+  let link_is_date = a:lnk =~# '\d\d\d\d-\d\d-\d\d'
+
+  if ! link_exists_in_wiki || link_exists_in_diary || link_is_date
+    let str = a:lnk
+    let rxUrl = g:vimwiki_rxWord
+    let rxDesc = ''
+    let template = g:vimwiki_WikiLinkTemplate1
+  else
+    let depth = len(split(link_diary, '/'))
+    let str = repeat('../', depth) . a:lnk . '|' . a:lnk
+    let rxUrl = '^.*\ze|'
+    let rxDesc = '|\zs.*$'
+    let template = g:vimwiki_WikiLinkTemplate2
+  endif
+
+  return vimwiki#link#normalize_helper(str, rxUrl, rxDesc, template)
+endfunction
+
+" }}}1
 
 function! vimwiki#link#follow(split, ...) "{{{1
   if a:split ==# "split"

@@ -8,8 +8,7 @@ if exists('b:current_syntax') | finish | endif
 let b:current_syntax = "vimwiki"
 
 syntax spell toplevel
-let s:conceal = exists("+conceallevel") ? ' conceal' : ''
-let s:options = ' contained transparent contains=NONE' . s:conceal
+let s:options = ' contained transparent contains=NONE conceal'
 
 function! s:add_target_syntax(target, type) " {{{
   let prefix0 = 'syntax match '.a:type.' `'
@@ -349,7 +348,7 @@ let s:rxSchemes = '\%('.
 "
 " [[nonwiki-scheme-URL]]
 "
-let s:target = vimwiki#base#apply_template(
+let s:target = vimwiki#todo#apply_template(
       \ vimwiki#u#escape(g:vimwiki_WikiLinkTemplate1),
       \ s:rxSchemes.g:vimwiki_rxWikiLinkUrl, g:vimwiki_rxWikiLinkDescr, '')
 call s:add_target_syntax(s:target, 'VimwikiLink')
@@ -357,7 +356,7 @@ call s:add_target_syntax(s:target, 'VimwikiLink')
 "
 " [[nonwiki-scheme-URL|DESCRIPTION]]
 "
-let s:target = vimwiki#base#apply_template(
+let s:target = vimwiki#todo#apply_template(
       \ vimwiki#u#escape(g:vimwiki_WikiLinkTemplate2),
       \ s:rxSchemes.g:vimwiki_rxWikiLinkUrl, g:vimwiki_rxWikiLinkDescr, '')
 call s:add_target_syntax(s:target, 'VimwikiLink')
@@ -365,7 +364,7 @@ call s:add_target_syntax(s:target, 'VimwikiLink')
 "
 " [nonwiki-scheme-URL]
 "
-let s:target = vimwiki#base#apply_template(
+let s:target = vimwiki#todo#apply_template(
       \ vimwiki#u#escape(g:vimwiki_WikiLink1Template1),
       \ s:rxSchemes.g:vimwiki_rxWikiLink1Url, g:vimwiki_rxWikiLink1Descr, '')
 call s:add_target_syntax(s:wrap_wikilink1_rx(s:target), 'VimwikiWikiLink1')
@@ -373,7 +372,7 @@ call s:add_target_syntax(s:wrap_wikilink1_rx(s:target), 'VimwikiWikiLink1')
 "
 " [DESCRIPTION][nonwiki-scheme-URL]
 "
-let s:target = vimwiki#base#apply_template(
+let s:target = vimwiki#todo#apply_template(
       \ vimwiki#u#escape(g:vimwiki_WikiLink1Template2),
       \ s:rxSchemes.g:vimwiki_rxWikiLink1Url, g:vimwiki_rxWikiLink1Descr, '')
 call s:add_target_syntax(s:wrap_wikilink1_rx(s:target), 'VimwikiWikiLink1')
@@ -397,15 +396,15 @@ endfor
 " }}}1
 
 " possibly concealed chars " {{{
-execute 'syn match VimwikiEqInChar contained /\$/'.s:conceal
-execute 'syn match VimwikiBoldChar contained /*/'.s:conceal
-execute 'syn match VimwikiItalicChar contained /_/'.s:conceal
-execute 'syn match VimwikiBoldItalicChar contained /\*_/'.s:conceal
-execute 'syn match VimwikiItalicBoldChar contained /_\*/'.s:conceal
-execute 'syn match VimwikiCodeChar contained /`/'.s:conceal
-execute 'syn match VimwikiDelTextChar contained /\~\~/'.s:conceal
-execute 'syn match VimwikiSuperScript contained /^/'.s:conceal
-execute 'syn match VimwikiSubScript contained /,,/'.s:conceal
+syn match VimwikiEqInChar       contained /\$/   conceal
+syn match VimwikiBoldChar       contained /*/    conceal
+syn match VimwikiItalicChar     contained /_/    conceal
+syn match VimwikiBoldItalicChar contained /\*_/  conceal
+syn match VimwikiItalicBoldChar contained /_\*/  conceal
+syn match VimwikiCodeChar       contained /`/    conceal
+syn match VimwikiDelTextChar    contained /\~\~/ conceal
+syn match VimwikiSuperScript    contained /^/    conceal
+syn match VimwikiSubScript      contained /,,/   conceal
 " }}}
 
 " concealed link parts " {{{
@@ -630,8 +629,8 @@ endfor
 "
 " Nested syntax
 "
-for [s:hl_syntax, s:vim_syntax] in items(vimwiki#base#detect_nested_syntax())
-  call vimwiki#base#nested_syntax(s:vim_syntax,
+for [s:hl_syntax, s:vim_syntax] in items(vimwiki#syntax#detect_nested())
+  call vimwiki#syntax#add_nested(s:vim_syntax,
         \ g:vimwiki_rxPreStart.'\%(.*[[:blank:][:punct:]]\)\?'.
         \ s:hl_syntax.'\%([[:blank:][:punct:]].*\)\?',
         \ g:vimwiki_rxPreEnd, 'VimwikiPre')

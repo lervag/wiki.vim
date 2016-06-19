@@ -127,6 +127,21 @@ function! vimwiki#todo#subdir(path, filename) "{{{
   endif
   return res
 endfunction "}}}
+function! vimwiki#todo#apply_template(template, rxUrl, rxDesc, rxStyle) " {{{1
+  let lnk = a:template
+  if a:rxUrl != ""
+    let lnk = substitute(lnk, '__LinkUrl__', '\='."'".a:rxUrl."'", 'g')
+  endif
+  if a:rxDesc != ""
+    let lnk = substitute(lnk, '__LinkDescription__', '\='."'".a:rxDesc."'", 'g')
+  endif
+  if a:rxStyle != ""
+    let lnk = substitute(lnk, '__LinkStyle__', '\='."'".a:rxStyle."'", 'g')
+  endif
+  return lnk
+endfunction
+
+" }}}1
 
 function! s:jump_to_anchor(anchor) "{{{
   let oldpos = getpos('.')

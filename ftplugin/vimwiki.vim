@@ -24,18 +24,15 @@ setlocal nosmartindent
 setlocal nocindent
 setlocal comments =:*\ TODO:,b:*\ [\ ],b:*\ [X],b:*
 setlocal comments+=:-\ TODO:,b:-\ [\ ],b:-\ [X],b:-
-" setlocal formatoptions-=c
-" setlocal formatoptions-=r
-" setlocal formatoptions-=o
-" setlocal formatoptions-=2
+" setlocal formatoptions-=cr02
 " setlocal formatoptions+=n
-
-if exists("+conceallevel")
-  let &l:conceallevel = 2
-endif
 
 "Create 'formatlistpat'
 let &formatlistpat = g:vimwiki_rxListItem
+
+if exists('+conceallevel')
+  setlocal conceallevel=2
+endif
 
 command! -buffer          VimwikiTOC            call vimwiki#page#create_toc()
 command! -buffer -nargs=0 VimwikiBacklinks      call vimwiki#page#backlinks()
@@ -72,7 +69,6 @@ if expand('%:p') =~# 'wiki\/journal'
 else
   nnoremap <silent><buffer> <c-j>      :call vimwiki#diary#make_note()<cr>
   nnoremap <silent><buffer> <c-k>      :call vimwiki#diary#make_note()<cr>
-
 endif
 
 " vim: fdm=marker sw=2
