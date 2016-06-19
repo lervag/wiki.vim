@@ -5,78 +5,27 @@
 "
 
 function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
-  if a:findstart == 1
-    let column = col('.')-2
-    let line = getline('.')[:column]
-    let startoflink = match(line, '\[\[\zs[^\\[\]]*$')
-    if startoflink != -1
-      let s:line_context = '['
-      return startoflink
-    endif
+  if a:findstart
+    let l:line = getline('.')[:col('.')-2]
 
-    " markdown
-    let startofinlinelink = match(line, '\[.*\](\zs[^)]*$')
-    if startofinlinelink != -1
-      let s:line_context = '['
-      return startofinlinelink
-    endif
-
-    let s:line_context = ''
-    return -1
+    return match(l:line,
+          \     '\[\[\zs[^\\[\]]*$'
+          \ . '\|\[.*\](\zs[^)]*$')
   else
-    " Completion works for wikilinks/anchors, and for tags. s:line_content
-    " tells us, which string came before a:base. There seems to be no easier
-    " solution, because calling col('.') here returns garbage.
-    if s:line_context == ''
-      return []
-    elseif a:base !~# '#'
-      " we look for wiki files
+    if a:base =~# '#'
+      let l:segments = split(a:base, '#', 1)
+      let l:base = join(l:segments[1:], '#')
+      let l:link_info = vimwiki#link#resolve(
+            \ (l:segments[0] == '' ? expand('%:t:r') : l:segments[0]) . '#')
 
-      if a:base =~# '^wiki\d:'
-        let wikinumber = eval(matchstr(a:base, '^wiki\zs\d'))
-        if wikinumber >= 1
-          return []
-        endif
-        let prefix = matchstr(a:base, '^wiki\d:\zs.*')
-        let scheme = matchstr(a:base, '^wiki\d:\ze')
-      elseif a:base =~# '^diary:'
-        let wikinumber = -1
-        let prefix = matchstr(a:base, '^diary:\zs.*')
-        let scheme = matchstr(a:base, '^diary:\ze')
-      else " current wiki
-        let wikinumber = 0
-        let prefix = a:base
-        let scheme = ''
-      endif
-
-      let links = vimwiki#base#get_wikilinks(wikinumber, 1)
-      let result = []
-      for wikifile in links
-        if wikifile =~ '^'.vimwiki#u#escape(prefix)
-          call add(result, scheme . wikifile)
-        endif
-      endfor
-      return result
-
+      return map(
+            \   filter(
+            \     vimwiki#base#get_anchors(l:link_info.filename, 'markdown'),
+            \     'v:val =~# ''^'' . vimwiki#u#escape(l:base)'),
+            \   'l:segments[0] . ''#'' . v:val')
     else
-      " we look for anchors in the given wikifile
-
-      let segments = split(a:base, '#', 1)
-      let given_wikifile = segments[0] == '' ? expand('%:t:r') : segments[0]
-      let link_infos = vimwiki#link#resolve(given_wikifile.'#')
-      let wikifile = link_infos.filename
-      let syntax = 'markdown'
-      let anchors = vimwiki#base#get_anchors(wikifile, syntax)
-
-      let filtered_anchors = []
-      let given_anchor = join(segments[1:], '#')
-      for anchor in anchors
-        if anchor =~# '^'.vimwiki#u#escape(given_anchor)
-          call add(filtered_anchors, segments[0].'#'.anchor)
-        endif
-      endfor
-      return filtered_anchors
-
+      return filter(vimwiki#base#get_wikilinks(0, 1),
+            \ 'v:val =~# ''^'' . vimwiki#u#escape(a:base)')
     endif
   endif
 endfunction
