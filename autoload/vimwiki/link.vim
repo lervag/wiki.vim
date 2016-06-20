@@ -372,6 +372,9 @@ endfunction
 "
 function! s:reflink_follow(link) " {{{1
   if !exists('b:vimwiki.reflinks')
+    if !exists('b:vimwiki')
+      let b:vimwiki = {}
+    endif
     let b:vimwiki.reflinks = s:reflink_scan()
   endif
 
