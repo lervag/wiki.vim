@@ -4,11 +4,6 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimwiki#path#chomp_slash(str) "{{{1
-  return substitute(a:str, '[/\\]\+$', '', '')
-endfunction
-
-"}}}1
 function! vimwiki#path#normalize(path) "{{{1
   let path = a:path
   while 1
@@ -23,28 +18,7 @@ endfunction
 
 "}}}1
 function! vimwiki#path#path_norm(path) "{{{1
-  " /-slashes
-  if a:path !~# '^scp:'
-    let path = substitute(a:path, '\', '/', 'g')
-    " treat multiple consecutive slashes as one path separator
-    let path = substitute(path, '/\+', '/', 'g')
-    " ensure that we are not fooled by a symbolic link
-    return resolve(path)
-  else
-    return a:path
-  endif
-endfunction
-
-"}}}1
-function! vimwiki#path#is_link_to_dir(link) "{{{1
-  " Check if link is to a directory.
-  " It should be ended with \ or /.
-  return a:link =~# '\m[/\\]$'
-endfunction
-
-"}}}1
-function! vimwiki#path#abs_path_of_link(link) "{{{1
-  return vimwiki#path#normalize(expand("%:p:h").'/'.a:link)
+  return resolve(substitute(a:path, '/\+', '/', 'g'))
 endfunction
 
 "}}}1
@@ -66,9 +40,7 @@ endfunction
 
 "}}}1
 function! vimwiki#path#wikify_path(path) "{{{1
-  let result = resolve(expand(a:path, ':p'))
-  let result = vimwiki#path#chomp_slash(result)
-  return result
+  return substitute(resolve(expand(a:path, ':p')), '[/\\]\+$', '', '')
 endfunction
 
 "}}}1
@@ -97,43 +69,5 @@ function! vimwiki#path#relpath(dir, file) "{{{1
 endfunction
 
 "}}}1
-function! vimwiki#path#mkdir(path, ...) "{{{1
-  let path = expand(a:path)
-
-  if path =~# '^scp:'
-    " we can not do much, so let's pretend everything is ok
-    return 1
-  endif
-
-  if isdirectory(path)
-    return 1
-  else
-    if !exists("*mkdir")
-      return 0
-    endif
-
-    let path = vimwiki#path#chomp_slash(path)
-
-    if a:0 && a:1 && input("Vimwiki: Make new directory: "
-          \ .path."\n [y]es/[N]o? ") !~? '^y'
-      return 0
-    endif
-
-    call mkdir(path, "p")
-    return 1
-  endif
-endfunction " }}}
-function! vimwiki#path#is_absolute(path) "{{{1
-  return a:path =~# '\m^/\|\~/'
-endfunction
-
-"}}}1
-function! vimwiki#path#join_path(directory, file) " {{{1
-  let directory = substitute(a:directory, '\m/\+$', '', '')
-  let file = substitute(a:file, '\m^/\+', '', '')
-  return directory . '/' . file
-endfunction
-
-" }}}1
 
 " vim: fdm=marker sw=2

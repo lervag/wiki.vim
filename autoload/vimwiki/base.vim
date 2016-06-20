@@ -54,7 +54,7 @@ function! vimwiki#base#generate_links() " {{{1
   let bullet = repeat(' ', vimwiki#lst#get_list_margin()).
         \ vimwiki#lst#default_symbol().' '
   for link in links
-    let abs_filepath = vimwiki#path#abs_path_of_link(link)
+    let abs_filepath = vimwiki#path#normalize(expand("%:p:h").'/'.link)
     let file_path = vimwiki#path#path_norm(abs_filepath)
     let diary_path = vimwiki#path#path_norm(vimwiki#opts#get('path') . 'journal/')
     if file_path !~# '^'.vimwiki#u#escape(diary_path)

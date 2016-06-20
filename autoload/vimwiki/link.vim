@@ -117,7 +117,7 @@ function! vimwiki#link#resolve(link_text, ...) " {{{1
       let link_text = link_text[1:]
     endif
     let is_relative = 0
-  elseif !is_wiki_link && vimwiki#path#is_absolute(link_text)
+  elseif !is_wiki_link && link_text =~# '\m^/\|\~/'
     let is_relative = 0
   else
     let is_relative = 1
@@ -138,7 +138,7 @@ function! vimwiki#link#resolve(link_text, ...) " {{{1
 
     let l:link.filename = root_dir . link_text
 
-    if !vimwiki#path#is_link_to_dir(link_text)
+    if link_text !~# '\m[/\\]$'
       let l:link.filename .= '.wiki'
     endif
 

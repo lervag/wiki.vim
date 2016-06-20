@@ -8,11 +8,8 @@ function! vimwiki#todo#edit_file(command, filename, anchor, ...) "{{{1
   let fname = escape(a:filename, '% *|#')
   let dir = fnamemodify(a:filename, ":p:h")
 
-  let ok = vimwiki#path#mkdir(dir, 1)
-
-  if !ok
-    echomsg ' '
-    echomsg 'Vimwiki Error: Unable to edit file in non-existent directory: '.dir
+  if !isdirectory(dir)
+    echom 'Vimwiki Error: Unable to edit file in non-existent directory: '.dir
     return
   endif
 
