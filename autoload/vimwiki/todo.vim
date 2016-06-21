@@ -66,64 +66,6 @@ function! vimwiki#todo#subdir(path, filename) "{{{1
 endfunction
 
 "}}}1
-function! vimwiki#todo#open_link(cmd, link, ...) "{{{
-  let link_infos = vimwiki#link#resolve(a:link)
-
-  if link_infos.filename == ''
-    echomsg 'Vimwiki Error: Unable to resolve link!'
-    return
-  endif
-
-  let is_wiki_link = link_infos.scheme =~# '\mwiki\d\+'
-        \ || link_infos.scheme =~# 'diary'
-
-  let update_prev_link = is_wiki_link &&
-        \ !resolve(link_infos.filename) ==# resolve(expand('%:p'))
-
-  let vimwiki_prev_link = []
-  " update previous link for wiki pages
-  if update_prev_link
-    if a:0
-      let vimwiki_prev_link = [a:1, []]
-    elseif &ft ==# 'vimwiki'
-      let vimwiki_prev_link = [expand('%:p'), getpos('.')]
-    endif
-  endif
-
-  " open/edit
-  if is_wiki_link
-    call vimwiki#todo#edit_file(a:cmd, link_infos.filename, link_infos.anchor,
-          \ vimwiki_prev_link, update_prev_link)
-    if link_infos.index != 0
-      " this call to setup_buffer_state may not be necessary
-      call vimwiki#todo#setup_buffer_state(link_infos.index)
-    endif
-  else
-    call vimwiki#base#system_open_link(link_infos.filename)
-  endif
-endfunction " }}}
-function! vimwiki#todo#subdir(path, filename) "{{{
-  let path = a:path
-  " ensure that we are not fooled by a symbolic link
-  "FIXME if we are not "fooled", we end up in a completely different wiki?
-  if a:filename !~# '^scp:'
-    let filename = resolve(a:filename)
-  else
-    let filename = a:filename
-  endif
-  let idx = 0
-  "FIXME this can terminate in the middle of a path component!
-  while path[idx] ==? filename[idx]
-    let idx = idx + 1
-  endwhile
-
-  let p = split(strpart(filename, idx), '[/\\]')
-  let res = join(p[:-2], '/')
-  if len(res) > 0
-    let res = res.'/'
-  endif
-  return res
-endfunction "}}}
 function! vimwiki#todo#apply_template(template, rxUrl, rxDesc, rxStyle) " {{{1
   let lnk = a:template
   if a:rxUrl != ""

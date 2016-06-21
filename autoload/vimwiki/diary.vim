@@ -5,7 +5,7 @@
 "
 
 function! vimwiki#diary#make_note(...) "{{{
-  call vimwiki#todo#open_link('edit',
+  call vimwiki#link#open('edit',
         \ 'diary:' . (a:0 > 0 ? a:1 : strftime('%Y-%m-%d')))
 endfunction "}}}
 function! vimwiki#diary#copy_note() " {{{
@@ -39,7 +39,7 @@ function! vimwiki#diary#goto_next_day() "{{{
     let l:link = 'diary:' . strftime('%Y-%m-%d')
   endif
 
-  call vimwiki#todo#open_link('edit ', l:link)
+  call vimwiki#link#open('edit ', l:link)
 endfunction "}}}
 function! vimwiki#diary#goto_prev_day() "{{{
   let [l:index, l:entries] = s:get_position_links(expand('%:t:r'))
@@ -54,7 +54,7 @@ function! vimwiki#diary#goto_prev_day() "{{{
     let l:link = 'diary:' . strftime('%Y-%m-%d')
   endif
 
-  call vimwiki#todo#open_link('edit ', l:link)
+  call vimwiki#link#open('edit ', l:link)
 endfunction "}}}
 
 function! s:get_position_links(link) " {{{1
