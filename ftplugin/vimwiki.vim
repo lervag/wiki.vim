@@ -35,7 +35,6 @@ if exists('+conceallevel')
 endif
 
 command! -buffer          VimwikiTOC            call vimwiki#page#create_toc()
-command! -buffer -nargs=0 VimwikiBacklinks      call vimwiki#page#backlinks()
 command! -buffer -range   VimwikiToggleListItem call vimwiki#lst#toggle_cb(<line1>, <line2>)
 
 "
@@ -53,8 +52,7 @@ nnoremap <silent><buffer> <c-cr>     :call vimwiki#link#follow('vsplit')<cr>
 
 nnoremap <silent><buffer> <c-space>  :VimwikiToggleListItem<cr>
 
-nnoremap <silent><buffer> <leader>wl :call vimwiki#backlinks()<cr>
-nnoremap <silent><buffer> <leader>wf :call vimwiki#fix_syntax()<cr>
+nnoremap <silent><buffer> <leader>wl :call vimwiki#page#backlinks()<cr>
 
 vnoremap <silent><buffer> <cr>      :<c-u>:call vimwiki#link#normalize(1)<cr>
 vnoremap <silent><buffer> <c-space> :VimwikiToggleListItem<cr>
