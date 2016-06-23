@@ -77,7 +77,7 @@ function! s:get_item(lnum) "{{{
     return item
   endif
 
-  let matches = matchlist(getline(a:lnum), g:vimwiki_rxListItem)
+  let matches = matchlist(getline(a:lnum), g:vimwiki.rx.listItem)
   if matches == [] ||
         \ (matches[1] == '' && matches[2] == '') ||
         \ (matches[1] != '' && matches[2] != '')
@@ -110,10 +110,10 @@ endfunction "}}}
 function! s:get_prev_line(lnum) "{{{
   let prev_line = prevnonblank(a:lnum-1)
 
-  if getline(prev_line) =~# g:vimwiki_rxPreEnd
+  if getline(prev_line) =~# g:vimwiki.rx.preEnd
     let cur_ln = a:lnum - 1
     while 1
-      if cur_ln == 0 || getline(cur_ln) =~# g:vimwiki_rxPreStart
+      if cur_ln == 0 || getline(cur_ln) =~# g:vimwiki.rx.preStart
         break
       endif
       let cur_ln -= 1
@@ -122,7 +122,7 @@ function! s:get_prev_line(lnum) "{{{
   endif
 
   if prev_line < 0 || prev_line > line('$') ||
-        \ getline(prev_line) =~# g:vimwiki_rxHeader
+        \ getline(prev_line) =~# g:vimwiki.rx.header
     return 0
   endif
 
@@ -274,10 +274,10 @@ function! s:empty_item() "{{{
   return {'type': 0}
 endfunction "}}}
 function! s:get_next_line(lnum, ...) "{{{
-  if getline(a:lnum) =~# g:vimwiki_rxPreStart
+  if getline(a:lnum) =~# g:vimwiki.rx.preStart
     let cur_ln = a:lnum + 1
     while cur_ln <= line('$') &&
-          \ getline(cur_ln) !~# g:vimwiki_rxPreEnd
+          \ getline(cur_ln) !~# g:vimwiki.rx.preEnd
       let cur_ln += 1
     endwhile
     let next_line = cur_ln
@@ -285,12 +285,12 @@ function! s:get_next_line(lnum, ...) "{{{
     let next_line = nextnonblank(a:lnum+1)
   endif
 
-  if a:0 > 0 && getline(next_line) =~# g:vimwiki_rxHeader
+  if a:0 > 0 && getline(next_line) =~# g:vimwiki.rx.header
     let next_line = s:get_next_line(next_line, 1)
   endif
 
   if next_line < 0 || next_line > line('$') ||
-        \ (getline(next_line) =~# g:vimwiki_rxHeader && a:0 == 0)
+        \ (getline(next_line) =~# g:vimwiki.rx.header && a:0 == 0)
     return 0
   endif
 
@@ -370,22 +370,22 @@ function! vimwiki#lst#setup_marker_infos() "{{{
         \ 'a': '\l\{1,2}', 'A': '\u\{1,2}'}
 
   "create regexp for bulleted list items
-  let g:vimwiki_rxListBullet = join( map(keys(g:vimwiki_bullet_types),
+  let g:vimwiki.rx.lst_bullet = join( map(keys(g:vimwiki_bullet_types),
         \'vimwiki#u#escape(v:val).repeat("\\+", g:vimwiki_bullet_types[v:val])'
         \ ) , '\|')
 
   "create regex for numbered list items
   if !empty(g:vimwiki_number_types)
-    let g:vimwiki_rxListNumber = '\C\%('
+    let g:vimwiki.rx.lst_number = '\C\%('
     for type in g:vimwiki_number_types[:-2]
-      let g:vimwiki_rxListNumber .= s:char_to_rx[type[0]] .
+      let g:vimwiki.rx.lst_number .= s:char_to_rx[type[0]] .
             \ vimwiki#u#escape(type[1]) . '\|'
     endfor
-    let g:vimwiki_rxListNumber .= s:char_to_rx[g:vimwiki_number_types[-1][0]].
+    let g:vimwiki.rx.lst_number .= s:char_to_rx[g:vimwiki_number_types[-1][0]].
           \ vimwiki#u#escape(g:vimwiki_number_types[-1][1]) . '\)'
   else
     "regex that matches nothing
-    let g:vimwiki_rxListNumber = '$^'
+    let g:vimwiki.rx.lst_number = '$^'
   endif
 
   "the user can set the listsyms as string, but vimwiki needs a list

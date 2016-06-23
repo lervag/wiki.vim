@@ -25,7 +25,7 @@ endfunction
 
 "}}}1
 function! vimwiki#page#goto_index() " {{{1
-  call vimwiki#todo#edit_file('edit', g:vimwiki_path . '/index.wiki', '')
+  call vimwiki#todo#edit_file('edit', g:vimwiki.root . 'index.wiki', '')
 endfunction
 
 " }}}1
@@ -33,7 +33,7 @@ function! vimwiki#page#backlinks() "{{{1
   let l:origin = expand("%:p")
   let l:locs = []
 
-  for l:file in globpath(g:vimwiki_path, '**/*.wiki', 0, 1)
+  for l:file in globpath(g:vimwiki.root, '**/*.wiki', 0, 1)
     if resolve(l:file) ==# resolve(l:origin) | break | endif
 
     for l:link in vimwiki#link#get_from_file(l:file)
@@ -84,11 +84,11 @@ function! vimwiki#page#create_toc() " {{{1
       let is_inside_pre_or_math = 2
       continue
     endif
-    if line_content !~# g:vimwiki_rxHeader
+    if line_content !~# g:vimwiki.rx.header
       continue
     endif
     let h_level = vimwiki#u#count_first_sym(line_content)
-    let h_text = vimwiki#u#trim(matchstr(line_content, g:vimwiki_rxHeader))
+    let h_text = vimwiki#u#trim(matchstr(line_content, g:vimwiki.rx.header))
     if h_text ==# 'Innhald'  " don't include the TOC's header itself
       continue
     endif
@@ -130,7 +130,7 @@ function! s:update_listing_in_buffer(strings, start_header, content_regex, defau
   let already_there = 0
 
   let header_rx = '\m^\s*'.
-        \ substitute(g:vimwiki_rxH1_Template, '__Header__', a:start_header, '')
+        \ substitute(g:vimwiki.rx.H1_Template, '__Header__', a:start_header, '')
         \ .'\s*$'
 
   let start_lnum = 1
@@ -182,7 +182,7 @@ function! s:update_listing_in_buffer(strings, start_header, content_regex, defau
 
   " write new listing
   let new_header = whitespaces_in_first_line
-        \ . substitute(g:vimwiki_rxH1_Template,
+        \ . substitute(g:vimwiki.rx.H1_Template,
         \ '__Header__', '\='."'".a:start_header."'", '')
   call append(start_lnum - 1, new_header)
   let start_lnum += 1
@@ -349,7 +349,7 @@ function! s:update_wiki_links_dir(dir, old_fname, new_fname) " {{{1
         \ g:vimwiki_WikiLinkMatchUrlTemplate, old_fname, '', '')
 
   echo ''
-  for fname in split(glob(g:vimwiki_path . a:dir . '*.wiki'), '\n')
+  for fname in split(glob(g:vimwiki.root . a:dir . '*.wiki'), '\n')
     echon "\r" . repeat(' ', &columns-1)
     echon "\rUpdating links in: " . fnamemodify(fname, ':t')
     let has_updates = 0

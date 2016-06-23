@@ -74,7 +74,7 @@ endfunction
 " }}}1
 function! s:get_diary_links() " {{{1
   let rx = '^\d\{4}-\d\d-\d\d'
-  let s_files = glob(g:vimwiki_path . 'journal/*.wiki')
+  let s_files = glob(g:vimwiki.diary . '*.wiki')
   let files = split(s_files, '\n')
   call filter(files, 'fnamemodify(v:val, ":t") =~# "'.escape(rx, '\').'"')
 
@@ -95,8 +95,8 @@ function! s:read_captions(files) " {{{1
 
     if filereadable(fl)
       for line in readfile(fl, '', 5)
-        if line =~# g:vimwiki_rxHeader && !has_key(result, fl_key)
-          let result[fl_key] = vimwiki#u#trim(matchstr(line, g:vimwiki_rxHeader))
+        if line =~# g:vimwiki.rx.header && !has_key(result, fl_key)
+          let result[fl_key] = vimwiki#u#trim(matchstr(line, g:vimwiki.rx.header))
         endif
       endfor
     endif

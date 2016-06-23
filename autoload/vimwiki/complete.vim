@@ -25,7 +25,7 @@ function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
             \   'l:segments[0] . ''#'' . v:val')
     else
       if len(a:base) > 0 && a:base[0] ==# '/'
-        let l:cwd = resolve(g:vimwiki_path)
+        let l:cwd = resolve(g:vimwiki.root)
         let l:cands = map(globpath(l:cwd, '**/*.wiki', 0, 1),
               \ '''/'' . s:relpath(l:cwd, fnamemodify(v:val, '':r''))')
       else
