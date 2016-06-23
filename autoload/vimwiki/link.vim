@@ -175,7 +175,7 @@ function! vimwiki#link#resolve(link_text, ...) " {{{1
     endif
 
     if !is_relative || l:link.index != 0
-      let root_dir = vimwiki#opts#get('path')
+      let root_dir = g:vimwiki_path
     endif
 
     let l:link.filename = root_dir . link_text
@@ -186,8 +186,7 @@ function! vimwiki#link#resolve(link_text, ...) " {{{1
 
   elseif l:link.scheme ==# 'diary'
     let l:link.index = 0
-    let l:link.filename = vimwiki#opts#get('path')
-          \ . 'journal/' . link_text . '.wiki'
+    let l:link.filename = g:vimwiki_path . 'journal/' . link_text . '.wiki'
   elseif (l:link.scheme ==# 'file' || l:link.scheme ==# 'local')
         \ && is_relative
     let l:link.filename = simplify(root_dir . link_text)
@@ -316,8 +315,8 @@ endfunction
 " TODO: Add this?
 function! s:normalize_link_in_diary(lnk) " {{{1
   let link = a:lnk . '.wiki'
-  let link_wiki = vimwiki#opts#get('path') . '/' . link
-  let link_diary = vimwiki#opts#get('path') . 'journal/' . link
+  let link_wiki = g:vimwiki_path . '/' . link
+  let link_diary = g:vimwiki_path . 'journal/' . link
   let link_exists_in_diary = filereadable(link_diary)
   let link_exists_in_wiki = filereadable(link_wiki)
   let link_is_date = a:lnk =~# '\d\d\d\d-\d\d-\d\d'

@@ -330,13 +330,6 @@ endfunction "}}}
 function! vimwiki#lst#default_symbol() "{{{
   return g:vimwiki_list_markers[0]
 endfunction "}}}
-function! vimwiki#lst#get_list_margin() "{{{
-  if vimwiki#opts#get('list_margin') < 0
-    return &sw
-  else
-    return vimwiki#opts#get('list_margin')
-  endif
-endfunction "}}}
 function! vimwiki#lst#adjust_numbered_list() "{{{
   let cur_item = s:get_corresponding_item(line('.'))
   if cur_item.type == 0 | return | endif

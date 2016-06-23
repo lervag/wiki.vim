@@ -33,7 +33,7 @@ function! vimwiki#page#backlinks() "{{{1
   let l:origin = expand("%:p")
   let l:locs = []
 
-  for l:file in globpath(vimwiki#opts#get('path'), '**/*.wiki', 0, 1)
+  for l:file in globpath(g:vimwiki_path, '**/*.wiki', 0, 1)
     if resolve(l:file) ==# resolve(l:origin) | break | endif
 
     for l:link in vimwiki#link#get_from_file(l:file)
@@ -107,7 +107,7 @@ function! vimwiki#page#create_toc() " {{{1
   endfor
 
   let lines = []
-  let startindent = repeat(' ', vimwiki#lst#get_list_margin())
+  let startindent = repeat(' ', shiftwidth())
   let indentstring = repeat(' ', shiftwidth())
   let bullet = vimwiki#lst#default_symbol().' '
   for [lvl, link, desc] in headers
@@ -349,7 +349,7 @@ function! s:update_wiki_links_dir(dir, old_fname, new_fname) " {{{1
         \ g:vimwiki_WikiLinkMatchUrlTemplate, old_fname, '', '')
 
   echo ''
-  for fname in split(glob(vimwiki#opts#get('path').a:dir.'*.wiki'), '\n')
+  for fname in split(glob(g:vimwiki_path . a:dir . '*.wiki'), '\n')
     echon "\r" . repeat(' ', &columns-1)
     echon "\rUpdating links in: " . fnamemodify(fname, ':t')
     let has_updates = 0

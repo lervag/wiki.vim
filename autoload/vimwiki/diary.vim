@@ -74,7 +74,7 @@ endfunction
 " }}}1
 function! s:get_diary_links() " {{{1
   let rx = '^\d\{4}-\d\d-\d\d'
-  let s_files = glob(vimwiki#opts#get('path') . 'journal/*.wiki')
+  let s_files = glob(g:vimwiki_path . 'journal/*.wiki')
   let files = split(s_files, '\n')
   call filter(files, 'fnamemodify(v:val, ":t") =~# "'.escape(rx, '\').'"')
 
