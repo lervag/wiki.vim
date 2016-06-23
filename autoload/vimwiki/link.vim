@@ -5,16 +5,16 @@
 "
 
 function! vimwiki#link#find_next() "{{{1
-  call search(g:vimwiki_rxAnyLink, 's')
+  call search(g:vimwiki.rx.link_any, 's')
 endfunction
 
 " }}}1
 function! vimwiki#link#find_prev() "{{{1
   if vimwiki#u#in_syntax('VimwikiLink')
         \ && vimwiki#u#in_syntax('VimwikiLink', line('.'), col('.')-1)
-    call search(g:vimwiki_rxAnyLink, 'sb')
+    call search(g:vimwiki.rx.link_any, 'sb')
   endif
-  call search(g:vimwiki_rxAnyLink, 'sb')
+  call search(g:vimwiki.rx.link_any, 'sb')
 endfunction
 
 " }}}1
@@ -228,42 +228,42 @@ function! s:normalize_link_syntax_n() " {{{
   let lnum = line('.')
 
   " try WikiLink0: replace with WikiLink1
-  let lnk = s:matchstr_at_cursor(g:vimwiki_rxWikiLink0)
+  let lnk = s:matchstr_at_cursor(g:vimwiki.rx.link_wiki0)
   if !empty(lnk)
     let sub = vimwiki#link#normalize_helper(lnk,
-          \ g:vimwiki_rxWikiLinkMatchUrl, g:vimwiki_rxWikiLinkMatchDescr,
+          \ g:vimwiki.rx.link_wiki_url, g:vimwiki.rx.link_wiki_text,
           \ g:vimwiki_WikiLink1Template2)
-    call s:replacestr_at_cursor(g:vimwiki_rxWikiLink0, sub)
+    call s:replacestr_at_cursor(g:vimwiki.rx.link_wiki0, sub)
     return
   endif
   
   " try WikiLink1: replace with WikiLink0
-  let lnk = s:matchstr_at_cursor(g:vimwiki_rxWikiLink1)
+  let lnk = s:matchstr_at_cursor(g:vimwiki.rx.link_wiki1)
   if !empty(lnk)
     let sub = vimwiki#link#normalize_helper(lnk,
-          \ g:vimwiki_rxWikiLinkMatchUrl, g:vimwiki_rxWikiLinkMatchDescr,
+          \ g:vimwiki.rx.link_wiki_url, g:vimwiki.rx.link_wiki_text,
           \ g:vimwiki_WikiLinkTemplate2)
-    call s:replacestr_at_cursor(g:vimwiki_rxWikiLink1, sub)
+    call s:replacestr_at_cursor(g:vimwiki.rx.link_wiki1, sub)
     return
   endif
   
   " try Weblink
-  let lnk = s:matchstr_at_cursor(g:vimwiki_rxWeblink)
+  let lnk = s:matchstr_at_cursor(g:vimwiki.rx.link_web)
   if !empty(lnk)
     let sub = vimwiki#link#normalize_helper(lnk,
-          \ g:vimwiki_rxWeblinkMatchUrl, g:vimwiki_rxWeblinkMatchDescr,
+          \ g:vimwiki.rx.link_web_url, g:vimwiki.rx.link_web_text,
           \ g:vimwiki_Weblink1Template)
-    call s:replacestr_at_cursor(g:vimwiki_rxWeblink, sub)
+    call s:replacestr_at_cursor(g:vimwiki.rx.link_web, sub)
     return
   endif
 
   " try Word (any characters except separators)
   " rxWord is less permissive than rxWikiLinkUrl which is used in
   " normalize_link_syntax_v
-  let lnk = s:matchstr_at_cursor(g:vimwiki_rxWord)
+  let lnk = s:matchstr_at_cursor(g:vimwiki.rx.word)
   if !empty(lnk)
     let sub = vimwiki#link#normalize_helper(lnk,
-          \ g:vimwiki_rxWord, '',
+          \ g:vimwiki.rx.word, '',
           \ g:vimwiki_Weblink1Template)
     call s:replacestr_at_cursor('\V'.lnk, sub)
     return
@@ -323,7 +323,7 @@ function! s:normalize_link_in_diary(lnk) " {{{1
 
   if ! link_exists_in_wiki || link_exists_in_diary || link_is_date
     let str = a:lnk
-    let rxUrl = g:vimwiki_rxWord
+    let rxUrl = g:vimwiki.rx.word
     let rxDesc = ''
     let template = g:vimwiki_WikiLinkTemplate1
   else
@@ -351,12 +351,12 @@ function! vimwiki#link#follow(split, ...) "{{{1
   endif
 
   " try WikiLink
-  let lnk = matchstr(s:matchstr_at_cursor(g:vimwiki_rxWikiLink),
-        \ g:vimwiki_rxWikiLinkMatchUrl)
+  let lnk = matchstr(s:matchstr_at_cursor(g:vimwiki.rx.link_wiki),
+        \ g:vimwiki.rx.link_wiki_url)
   " try Weblink
   if lnk == ""
-    let lnk = matchstr(s:matchstr_at_cursor(g:vimwiki_rxWeblink),
-          \ g:vimwiki_rxWeblinkMatchUrl)
+    let lnk = matchstr(s:matchstr_at_cursor(g:vimwiki.rx.link_web),
+          \ g:vimwiki.rx.link_web_url)
   endif
 
   if !empty(lnk)
@@ -432,14 +432,14 @@ function! s:reflink_scan() " {{{1
 
   try
     " Why noautocmd? Because https://github.com/vimwiki/vimwiki/issues/121
-    noautocmd execute 'vimgrep #'.g:vimwiki_rxMkdRef.'#j %'
+    noautocmd execute 'vimgrep #'.g:vimwiki.rx.mkd_ref.'#j %'
   catch /^Vim\%((\a\+)\)\=:E480/
   endtry
 
   for d in getqflist()
     let matchline = join(getline(d.lnum, min([d.lnum+1, line('$')])), ' ')
-    let descr = matchstr(matchline, g:vimwiki_rxMkdRefMatchDescr)
-    let url = matchstr(matchline, g:vimwiki_rxMkdRefMatchUrl)
+    let descr = matchstr(matchline, g:vimwiki.rx.mkd_ref_textr)
+    let url = matchstr(matchline, g:vimwiki.rx.mkd_ref_url)
     if descr != '' && url != ''
       let mkd_refs[descr] = url
     endif

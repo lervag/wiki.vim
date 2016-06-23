@@ -24,7 +24,7 @@ function! vimwiki#fold#text() "{{{
   let main_text = substitute(line, '^\s*', repeat(' ',indent(v:foldstart)), '')
   let fold_len = v:foldend - v:foldstart + 1
   let len_text = ' ['.fold_len.'] '
-  if line !~# g:vimwiki_rxPreStart
+  if line !~# g:vimwiki.rx.preStart
     let [main_text, spare_len] = s:shorten_text(main_text, 50)
     return main_text.len_text
   else

@@ -145,8 +145,8 @@ function! vimwiki#define_regexes() " {{{
 
   let g:vimwiki.rx.url_web = '\w\+:\%(//\)\?' . '\S\{-1,}\%(([^ \t()]*)\)\='
   let g:vimwiki.rx.link_web = '\<'. g:vimwiki.rx.url_web . '\S*'
-  let g:vimwiki.rx.weblinkMatchUrl = g:vimwiki.rx.link_web
-  let g:vimwiki.rx.weblinkMatchDescr = ''
+  let g:vimwiki.rx.link_web_url = g:vimwiki.rx.link_web
+  let g:vimwiki.rx.link_web_text = ''
 
   let g:vimwiki.rx.H = '#'
 

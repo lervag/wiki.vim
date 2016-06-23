@@ -21,9 +21,9 @@ endfunction
 
 " }}}
 function! s:wrap_wikilink1_rx(target) " {{{
-  return g:vimwiki.rx.wikiLink1InvalidPrefix
+  return g:vimwiki.rx.link_wiki1_inv_pref
         \ . a:target
-        \ . g:vimwiki.rx.wikiLink1InvalidSuffix
+        \ . g:vimwiki.rx.link_wiki1_inv_suff
 endfunction
 
 " }}}
@@ -86,12 +86,12 @@ let g:vimwiki.rx.link_wiki = s:rx_wikilink_prefix.
       \ g:vimwiki.rx.link_wiki_text.'\)\?'.s:rx_wikilink_suffix
 
 " match URL
-let g:vimwiki.rx.wikiLinkMatchUrl = s:rx_wikilink_prefix.
+let g:vimwiki.rx.link_wiki_url = s:rx_wikilink_prefix.
       \ '\zs'. g:vimwiki.rx.link_wiki_url.'\ze\%('. s:rx_wikilink_separator.
       \ g:vimwiki.rx.link_wiki_text.'\)\?'.s:rx_wikilink_suffix
 
 " match DESCRIPTION
-let g:vimwiki.rx.wikiLinkMatchDescr = s:rx_wikilink_prefix.
+let g:vimwiki.rx.link_wiki_text = s:rx_wikilink_prefix.
       \ g:vimwiki.rx.link_wiki_url.s:rx_wikilink_separator.'\%('.
       \ '\zs'. g:vimwiki.rx.link_wiki_text. '\ze\)\?'. s:rx_wikilink_suffix
 
@@ -109,11 +109,11 @@ let s:rx_wikilink_suffix1 = s:rx_wikilink_suffix
 " 0. [[URL]], or [[URL|DESCRIPTION]]
 
 " 0a) match [[URL|DESCRIPTION]]
-let g:vimwiki.rx.wikiLink0 = g:vimwiki.rx.link_wiki
+let g:vimwiki.rx.link_wiki0 = g:vimwiki.rx.link_wiki
 " 0b) match URL within [[URL|DESCRIPTION]]
-let g:vimwiki.rx.wikiLink0MatchUrl = g:vimwiki.rx.wikiLinkMatchUrl
+let g:vimwiki.rx.link_wiki_url0 = g:vimwiki.rx.link_wiki_url
 " 0c) match DESCRIPTION within [[URL|DESCRIPTION]]
-let g:vimwiki.rx.wikiLink0MatchDescr = g:vimwiki.rx.wikiLinkMatchDescr
+let g:vimwiki.rx.link_wiki_text0 = g:vimwiki.rx.link_wiki_text
 " }}}
 
 " LINKS: setup wikilink1 regexps {{{
@@ -151,12 +151,12 @@ let s:valid_chars = '[^\\\[\]]'
 let g:vimwiki.rx.wikiLink1Url = s:valid_chars.'\{-}'
 let g:vimwiki.rx.wikiLink1Descr = s:valid_chars.'\{-}'
 
-let g:vimwiki.rx.wikiLink1InvalidPrefix = '[\]\[]\@<!'
-let g:vimwiki.rx.wikiLink1InvalidSuffix = '[\]\[]\@!'
-let s:rx_wikilink_md_prefix = g:vimwiki.rx.wikiLink1InvalidPrefix.
+let g:vimwiki.rx.link_wiki1_inv_pref = '[\]\[]\@<!'
+let g:vimwiki.rx.link_wiki1_inv_suff = '[\]\[]\@!'
+let s:rx_wikilink_md_prefix = g:vimwiki.rx.link_wiki1_inv_pref.
       \ s:rx_wikilink_md_prefix
 let s:rx_wikilink_md_suffix = s:rx_wikilink_md_suffix.
-      \ g:vimwiki.rx.wikiLink1InvalidSuffix
+      \ g:vimwiki.rx.link_wiki1_inv_suff
 
 "
 " 1. [URL][], [DESCRIPTION][URL]
@@ -168,47 +168,42 @@ let g:vimwiki.rx.link_wiki1 = s:rx_wikilink_md_prefix.
     \ g:vimwiki.rx.wikiLink1Descr.s:rx_wikilink_md_separator.
     \ g:vimwiki.rx.wikiLink1Url.s:rx_wikilink_md_suffix
 " 1b) match URL within [URL][], [DESCRIPTION][URL]
-let g:vimwiki.rx.wikiLink1MatchUrl = s:rx_wikilink_md_prefix.
+let g:vimwiki.rx.link_wiki_url1 = s:rx_wikilink_md_prefix.
     \ '\zs'. g:vimwiki.rx.wikiLink1Url. '\ze'. s:rx_wikilink_md_separator.
     \ s:rx_wikilink_md_suffix.
     \ '\|'. s:rx_wikilink_md_prefix.
     \ g:vimwiki.rx.wikiLink1Descr. s:rx_wikilink_md_separator.
     \ '\zs'. g:vimwiki.rx.wikiLink1Url. '\ze'. s:rx_wikilink_md_suffix
 " 1c) match DESCRIPTION within [DESCRIPTION][URL]
-let g:vimwiki.rx.wikiLink1MatchDescr = s:rx_wikilink_md_prefix.
+let g:vimwiki.rx.link_wiki_text1 = s:rx_wikilink_md_prefix.
     \ '\zs'. g:vimwiki.rx.wikiLink1Descr.'\ze'. s:rx_wikilink_md_separator.
     \ g:vimwiki.rx.wikiLink1Url.s:rx_wikilink_md_suffix
 " }}}
 
 " LINKS: Syntax helper {{{
-let g:vimwiki.rx.wikiLink1Prefix1 = s:rx_wikilink_md_prefix
-let g:vimwiki.rx.wikiLink1Suffix1 = s:rx_wikilink_md_separator.
+let g:vimwiki.rx.link_wiki_pre11 = s:rx_wikilink_md_prefix
+let g:vimwiki.rx.link_wiki_suff11 = s:rx_wikilink_md_separator.
       \ g:vimwiki.rx.wikiLink1Url.s:rx_wikilink_md_suffix
 " }}}
 
 " *. ANY wikilink {{{
 " *a) match ANY wikilink
 let g:vimwiki.rx.link_wiki = ''.
-    \ g:vimwiki.rx.wikiLink0.'\|'.
+    \ g:vimwiki.rx.link_wiki0.'\|'.
     \ g:vimwiki.rx.link_wiki1
 " *b) match URL within ANY wikilink
-let g:vimwiki.rx.wikiLinkMatchUrl = ''.
-    \ g:vimwiki.rx.wikiLink0MatchUrl.'\|'.
-    \ g:vimwiki.rx.wikiLink1MatchUrl
+let g:vimwiki.rx.link_wiki_url = ''.
+    \ g:vimwiki.rx.link_wiki_url0.'\|'.
+    \ g:vimwiki.rx.link_wiki_url1
 " *c) match DESCRIPTION within ANY wikilink
-let g:vimwiki.rx.wikiLinkMatchDescr = ''.
-    \ g:vimwiki.rx.wikiLink0MatchDescr.'\|'.
-    \ g:vimwiki.rx.wikiLink1MatchDescr
+let g:vimwiki.rx.link_wiki_text = ''.
+    \ g:vimwiki.rx.link_wiki_text0.'\|'.
+    \ g:vimwiki.rx.link_wiki_text1
 " }}}
 
-" LINKS: Setup weblink0 regexps {{{
-" 0. URL : free-standing links: keep URL UR(L) strip trailing punct: URL; URL) UR(L))
-let g:vimwiki.rx.weblink0 = g:vimwiki.rx.link_web
-" 0a) match URL within URL
-let g:vimwiki.rx.weblinkMatchUrl0 = g:vimwiki.rx.weblinkMatchUrl
-" 0b) match DESCRIPTION within URL
-let g:vimwiki.rx.weblinkMatchDescr0 = g:vimwiki.rx.weblinkMatchDescr
-" }}}
+let g:vimwiki.rx.link_web0 = g:vimwiki.rx.link_web
+let g:vimwiki.rx.link_web_url0 = g:vimwiki.rx.link_web_url
+let g:vimwiki.rx.link_web_text0 = g:vimwiki.rx.link_web_text
 
 " LINKS: Setup weblink1 regexps {{{
 let g:vimwiki.rx.weblink1Prefix = '['
@@ -236,21 +231,21 @@ let g:vimwiki.rx.link_web1 = g:vimwiki.rx.weblink1Prefix.
       \ g:vimwiki.rx.weblink1Descr.g:vimwiki.rx.weblink1Suffix
 
 " match URL
-let g:vimwiki.rx.weblink1MatchUrl = g:vimwiki.rx.weblink1Prefix.
+let g:vimwiki.rx.link_web_url1 = g:vimwiki.rx.weblink1Prefix.
       \ g:vimwiki.rx.weblink1Descr. g:vimwiki.rx.weblink1Separator.
       \ '\zs'.g:vimwiki.rx.weblink1Url.'\ze'. g:vimwiki.rx.weblink1Suffix
 
 " match DESCRIPTION
-let g:vimwiki.rx.weblink1MatchDescr = g:vimwiki.rx.weblink1Prefix.
+let g:vimwiki.rx.link_web_text1 = g:vimwiki.rx.weblink1Prefix.
       \ '\zs'.g:vimwiki.rx.weblink1Descr.'\ze'. g:vimwiki.rx.weblink1Separator.
       \ g:vimwiki.rx.weblink1Url. g:vimwiki.rx.weblink1Suffix
 " }}}
 
 " Syntax helper {{{
 " TODO: image links too !!
-" let g:vimwiki.rx.weblink1Prefix1 = '!\?'. g:vimwiki.rx.weblink1Prefix
-let g:vimwiki.rx.weblink1Prefix1 = g:vimwiki.rx.weblink1Prefix
-let g:vimwiki.rx.weblink1Suffix1 = g:vimwiki.rx.weblink1Separator.
+" let g:vimwiki.rx.link_web_pre11 = '!\?'. g:vimwiki.rx.weblink1Prefix
+let g:vimwiki.rx.link_web_pre11 = g:vimwiki.rx.weblink1Prefix
+let g:vimwiki.rx.link_web_suff11 = g:vimwiki.rx.weblink1Separator.
       \ g:vimwiki.rx.weblink1Url.g:vimwiki.rx.weblink1Suffix
 " }}}
 
@@ -258,27 +253,27 @@ let g:vimwiki.rx.weblink1Suffix1 = g:vimwiki.rx.weblink1Separator.
 " *a) match ANY weblink
 let g:vimwiki.rx.link_web = ''.
     \ g:vimwiki.rx.link_web1.'\|'.
-    \ g:vimwiki.rx.weblink0
+    \ g:vimwiki.rx.link_web0
 " *b) match URL within ANY weblink
-let g:vimwiki.rx.weblinkMatchUrl = ''.
-    \ g:vimwiki.rx.weblink1MatchUrl.'\|'.
-    \ g:vimwiki.rx.weblinkMatchUrl0
+let g:vimwiki.rx.link_web_url = ''.
+    \ g:vimwiki.rx.link_web_url1.'\|'.
+    \ g:vimwiki.rx.link_web_url0
 " *c) match DESCRIPTION within ANY weblink
-let g:vimwiki.rx.weblinkMatchDescr = ''.
-    \ g:vimwiki.rx.weblink1MatchDescr.'\|'.
-    \ g:vimwiki.rx.weblinkMatchDescr0
+let g:vimwiki.rx.link_web_text = ''.
+    \ g:vimwiki.rx.link_web_text1.'\|'.
+    \ g:vimwiki.rx.link_web_text0
 " }}}
 
 let g:vimwiki.rx.link_any = g:vimwiki.rx.link_wiki . '\|' . g:vimwiki.rx.link_web
 
-" LINKS: setup wikilink1 reference link definitions {{{
-let g:vimwiki.rx.mkdRef = '\['.g:vimwiki.rx.link_wiki_text.']:\%(\s\+\|\n\)'.
-      \ g:vimwiki.rx.weblink0
-let g:vimwiki.rx.mkdRefMatchDescr = '\[\zs'.g:vimwiki.rx.link_wiki_text.'\ze]:\%(\s\+\|\n\)'.
-      \ g:vimwiki.rx.weblink0
-let g:vimwiki.rx.mkdRefMatchUrl = '\['.g:vimwiki.rx.link_wiki_text.']:\%(\s\+\|\n\)\zs'.
-      \ g:vimwiki.rx.weblink0.'\ze'
-" }}}
+
+let g:vimwiki.rx.mkd_ref = '\['.g:vimwiki.rx.link_wiki_text.']:\%(\s\+\|\n\)'.
+      \ g:vimwiki.rx.link_web0
+let g:vimwiki.rx.mkd_ref_text = '\[\zs'.g:vimwiki.rx.link_wiki_text.'\ze]:\%(\s\+\|\n\)'.
+      \ g:vimwiki.rx.link_web0
+let g:vimwiki.rx.mkd_ref_url = '\['.g:vimwiki.rx.link_wiki_text.']:\%(\s\+\|\n\)\zs'.
+      \ g:vimwiki.rx.link_web0.'\ze'
+
 
 " }}} end of Links
 
@@ -463,10 +458,10 @@ execute 'syntax region VimwikiMath start=/'.g:vimwiki.rx.mathStart.
 
 execute 'syn match VimwikiWikiLink1Char /'.s:rx_wikilink_md_prefix.'/'.s:options
 execute 'syn match VimwikiWikiLink1Char /'.s:rx_wikilink_md_suffix.'/'.s:options
-execute 'syn match VimwikiWikiLink1Char /'.g:vimwiki.rx.wikiLink1Prefix1.'/'.s:options
-execute 'syn match VimwikiWikiLink1Char /'.g:vimwiki.rx.wikiLink1Suffix1.'/'.s:options
-execute 'syn match VimwikiWeblink1Char "'.g:vimwiki.rx.weblink1Prefix1.'"'.s:options
-execute 'syn match VimwikiWeblink1Char "'.g:vimwiki.rx.weblink1Suffix1.'"'.s:options
+execute 'syn match VimwikiWikiLink1Char /'.g:vimwiki.rx.link_wiki_pre11.'/'.s:options
+execute 'syn match VimwikiWikiLink1Char /'.g:vimwiki.rx.link_wiki_suff11.'/'.s:options
+execute 'syn match VimwikiWeblink1Char "'.g:vimwiki.rx.link_web_pre11.'"'.s:options
+execute 'syn match VimwikiWeblink1Char "'.g:vimwiki.rx.link_web_suff11.'"'.s:options
 " }}}
 
 " {{{1 Define highlighting

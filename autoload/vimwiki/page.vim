@@ -68,19 +68,19 @@ function! vimwiki#page#create_toc() " {{{1
   let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
   for lnum in range(1, line('$'))
     let line_content = getline(lnum)
-    if (is_inside_pre_or_math == 1 && line_content =~# g:vimwiki_rxPreEnd) ||
-          \ (is_inside_pre_or_math == 2 && line_content =~# g:vimwiki_rxMathEnd)
+    if (is_inside_pre_or_math == 1 && line_content =~# g:vimwiki.rx.preEnd) ||
+          \ (is_inside_pre_or_math == 2 && line_content =~# g:vimwiki.rx.mathEnd)
       let is_inside_pre_or_math = 0
       continue
     endif
     if is_inside_pre_or_math > 0
       continue
     endif
-    if line_content =~# g:vimwiki_rxPreStart
+    if line_content =~# g:vimwiki.rx.preStart
       let is_inside_pre_or_math = 1
       continue
     endif
-    if line_content =~# g:vimwiki_rxMathStart
+    if line_content =~# g:vimwiki.rx.mathStart
       let is_inside_pre_or_math = 2
       continue
     endif
