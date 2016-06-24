@@ -7,7 +7,7 @@
 function! vimwiki#init() " {{{1
   let g:vimwiki = {}
   let g:vimwiki.root = g:vimwiki_path
-  let g:vimwiki.diary = g:vimwiki_path . '/journal/'
+  let g:vimwiki.diary = g:vimwiki_path . 'journal/'
 
   let g:vimwiki.rx = {}
   let g:vimwiki.rx.url = '\w\+:\%(//\)\?.*'

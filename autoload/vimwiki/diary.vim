@@ -4,11 +4,13 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimwiki#diary#make_note(...) "{{{
+function! vimwiki#diary#make_note(...) " {{{1
   call vimwiki#link#open('edit',
         \ 'diary:' . (a:0 > 0 ? a:1 : strftime('%Y-%m-%d')))
-endfunction "}}}
-function! vimwiki#diary#copy_note() " {{{
+endfunction
+
+" }}}1
+function! vimwiki#diary#copy_note() " {{{1
   let l:current = expand('%:t:r')
 
   " Get next weekday
@@ -74,12 +76,8 @@ endfunction
 " }}}1
 function! s:get_diary_links() " {{{1
   let rx = '^\d\{4}-\d\d-\d\d'
-  let s_files = glob(g:vimwiki.diary . '*.wiki')
-  let files = split(s_files, '\n')
+  let files = split(glob(g:vimwiki.diary . '*.wiki'), '\n')
   call filter(files, 'fnamemodify(v:val, ":t") =~# "'.escape(rx, '\').'"')
-
-  " remove backup files (.wiki~)
-  call filter(files, 'v:val !~# ''.*\~$''')
 
   let links_with_captions = s:read_captions(files)
 
@@ -90,7 +88,6 @@ endfunction
 function! s:read_captions(files) " {{{1
   let result = {}
   for fl in a:files
-    " remove paths and extensions
     let fl_key = fnamemodify(fl, ':t:r')
 
     if filereadable(fl)

@@ -38,7 +38,7 @@ function! vimwiki#link#open(cmd, link, ...) " {{{1
     return
   endif
 
-  if l:link.scheme ==# 'wiki'
+  if l:link.scheme =~# 'wiki\|diary'
     let l:prev_link = []
     let l:update_prev_link = 0
     if !resolve(l:link.filename) ==# resolve(expand('%:p'))
