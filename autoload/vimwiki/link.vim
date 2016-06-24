@@ -30,42 +30,33 @@ endfunction
 
 " }}}1
 
-function! vimwiki#link#open(cmd, link, ...) "{{{
-  let link_infos = vimwiki#link#resolve(a:link)
+function! vimwiki#link#open(cmd, link, ...) " {{{1
+  let l:link = vimwiki#link#resolve(a:link)
 
-  if link_infos.filename == ''
+  if l:link.filename == ''
     echomsg 'Vimwiki Error: Unable to resolve link!'
     return
   endif
 
-  let is_wiki_link = link_infos.scheme =~# '\mwiki\d\+'
-        \ || link_infos.scheme =~# 'diary'
-
-  let update_prev_link = is_wiki_link &&
-        \ !resolve(link_infos.filename) ==# resolve(expand('%:p'))
-
-  let vimwiki_prev_link = []
-  " update previous link for wiki pages
-  if update_prev_link
-    if a:0
-      let vimwiki_prev_link = [a:1, []]
-    elseif &ft ==# 'vimwiki'
-      let vimwiki_prev_link = [expand('%:p'), getpos('.')]
+  if l:link.scheme ==# 'wiki'
+    let l:prev_link = []
+    let l:update_prev_link = 0
+    if !resolve(l:link.filename) ==# resolve(expand('%:p'))
+      let l:update_prev_link = 1
+      if a:0
+        let l:prev_link = [a:1, []]
+      elseif &ft ==# 'vimwiki'
+        let l:prev_link = [expand('%:p'), getpos('.')]
+      endif
     endif
-  endif
-
-  " open/edit
-  if is_wiki_link
-    call vimwiki#todo#edit_file(a:cmd, link_infos.filename, link_infos.anchor,
-          \ vimwiki_prev_link, update_prev_link)
-    if link_infos.index != 0
-      " this call to setup_buffer_state may not be necessary
-      call vimwiki#todo#setup_buffer_state(link_infos.index)
-    endif
+    call vimwiki#todo#edit_file(a:cmd, l:link.filename, l:link.anchor,
+          \ l:prev_link, l:update_prev_link)
   else
-    call vimwiki#link#system_open(link_infos.filename)
+    call vimwiki#link#system_open(l:link.filename)
   endif
-endfunction " }}}
+endfunction
+
+" }}}1
 function! vimwiki#link#system_open(url) " {{{1
   call system('xdg-open ' . shellescape(a:url) . '&')
 endfunction
@@ -107,59 +98,55 @@ endfunction
 
 " TODO
 function! vimwiki#link#resolve(link_text, ...) " {{{1
-  " If the second parameter is present, which should be an absolute file path,
-  " it is assumed that the link appears in that file. Without it, the current
-  " file is used.
   let l:origin = a:0 > 0 ? a:1 : expand('%:p')
 
-  let link_text = a:link_text
-
-  " if link is schemeless add wikiN: scheme
-  if link_text !~# g:vimwiki.rx.url
-    let link_text = 'wiki0:'.link_text
-  endif
-
   let l:link = {
-        \ 'index': -1,
+        \ 'text': a:link_text,
         \ 'scheme': '',
         \ 'filename': '',
         \ 'anchor': '',
         \ }
 
-  " extract scheme
-  let l:link.scheme = matchstr(link_text, g:vimwiki.rx.match_scheme)
-  if l:link.scheme == '' || link_text == ''
-    let l:link.filename = ''   " malformed link
+  let l:link.scheme =
+        \ a:link_text !~# g:vimwiki.rx.url
+        \ ? 'wiki'
+        \ : matchstr(a:link_text, g:vimwiki.rx.match_scheme)
+
+  "
+  " External link type (e.g. weblink)
+  "
+  if l:link.scheme !~# 'wiki\|diary\|local\|file'
+    let l:link.filename = a:link_text
     return l:link
   endif
-  if l:link.scheme !~# '\mwiki\d\+\|diary\|local\|file'
-    let l:link.filename = link_text  " unknown scheme, may be a weblink
-    return l:link
-  endif
-  let link_text = matchstr(link_text, g:vimwiki.rx.match_url)
 
-  let is_wiki_link = l:link.scheme =~# '\mwiki\d\+' ||
-        \ l:link.scheme ==# 'diary'
+  "
+  " Parse the link text
+  "
+  let link_text = matchstr(a:link_text, g:vimwiki.rx.match_url)
 
-  " extract anchor
-  if is_wiki_link
+  "
+  " Extract anchor
+  "
+  if l:link.scheme =~# 'wiki\|diary'
     let split_lnk = split(link_text, '#', 1)
     let link_text = split_lnk[0]
     if len(split_lnk) > 1 && split_lnk[-1] != ''
       let l:link.anchor = join(split_lnk[1:], '#')
     endif
-    if link_text == ''  " because the link was of the form '#anchor'
+    " because the link was of the form '#anchor'
+    if link_text == ''
       let link_text = fnamemodify(l:origin, ':p:t:r')
     endif
   endif
 
   " check if absolute or relative path
-  if is_wiki_link && link_text[0] == '/'
+  if l:link.scheme =~# 'wiki' && link_text[0] == '/'
     if link_text != '/'
       let link_text = link_text[1:]
     endif
     let is_relative = 0
-  elseif !is_wiki_link && link_text =~# '\m^/\|\~/'
+  elseif l:link.scheme !~# 'wiki' && link_text =~# '\m^/\|\~/'
     let is_relative = 0
   else
     let is_relative = 1
@@ -167,14 +154,8 @@ function! vimwiki#link#resolve(link_text, ...) " {{{1
   endif
 
   " extract the other items depending on the scheme
-  if l:link.scheme =~# '\mwiki\d\+'
-    let l:link.index = eval(matchstr(l:link.scheme, '\D\+\zs\d\+\ze'))
-    if l:link.index < 0 || l:link.index >= 1
-      let l:link.filename = ''
-      return l:link
-    endif
-
-    if !is_relative || l:link.index != 0
+  if l:link.scheme ==# 'wiki'
+    if !is_relative
       let root_dir = g:vimwiki.root
     endif
 
@@ -185,17 +166,12 @@ function! vimwiki#link#resolve(link_text, ...) " {{{1
     endif
 
   elseif l:link.scheme ==# 'diary'
-    let l:link.index = 0
     let l:link.filename = g:vimwiki.diary . link_text . '.wiki'
   elseif (l:link.scheme ==# 'file' || l:link.scheme ==# 'local')
         \ && is_relative
     let l:link.filename = simplify(root_dir . link_text)
-  else " absolute file link
-    " collapse repeated leading "/"'s within a link
-    let link_text = substitute(link_text, '\m^/\+', '/', '')
-    " expand ~/
-    let link_text = fnamemodify(link_text, ':p')
-    let l:link.filename = simplify(link_text)
+  else
+    let l:link.filename = simplify(fnamemodify(link_text, ':p'))
   endif
 
   return l:link
