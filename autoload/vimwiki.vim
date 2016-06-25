@@ -77,7 +77,7 @@ function! vimwiki#init_buffer() " {{{1
 
   nnoremap <silent><buffer> <leader>wl :call vimwiki#page#backlinks()<cr>
 
-  vnoremap <silent><buffer> <cr>      :<c-u>:call vimwiki#link#normalize(1)<cr>
+  vnoremap <silent><buffer> <cr>      :<c-u>call vimwiki#link#normalize(1)<cr>
   vnoremap <silent><buffer> <c-space> :VimwikiToggleListItem<cr>
 
 

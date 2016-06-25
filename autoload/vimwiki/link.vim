@@ -31,17 +31,15 @@ endfunction
 " }}}1
 
 function! vimwiki#link#open(cmd, link, ...) " {{{1
-  let l:link = vimwiki#link#resolve(a:link)
-
-  if l:link.filename == ''
+  if a:link.filename == ''
     echomsg 'Vimwiki Error: Unable to resolve link!'
     return
   endif
 
-  if l:link.scheme =~# 'wiki\|diary'
+  if a:link.scheme =~# 'wiki\|diary'
     let l:prev_link = []
     let l:update_prev_link = 0
-    if !resolve(l:link.filename) ==# resolve(expand('%:p'))
+    if !resolve(a:link.filename) ==# resolve(expand('%:p'))
       let l:update_prev_link = 1
       if a:0
         let l:prev_link = [a:1, []]
@@ -49,10 +47,10 @@ function! vimwiki#link#open(cmd, link, ...) " {{{1
         let l:prev_link = [expand('%:p'), getpos('.')]
       endif
     endif
-    call vimwiki#todo#edit_file(a:cmd, l:link.filename, l:link.anchor,
+    call vimwiki#todo#edit_file(a:cmd, a:link.filename, a:link.anchor,
           \ l:prev_link, l:update_prev_link)
   else
-    call vimwiki#link#system_open(l:link.filename)
+    call vimwiki#link#system_open(a:link.filename)
   endif
 endfunction
 
@@ -97,81 +95,51 @@ endfunction
 "}}}1
 
 " TODO
-function! vimwiki#link#resolve(link_text, ...) " {{{1
-  let l:origin = a:0 > 0 ? a:1 : expand('%:p')
+function! vimwiki#link#resolve(url, ...) " {{{1
+  let l:link = {}
+  let l:link.origin = a:0 > 0 ? a:1 : expand('%:p')
+  let l:link.url = (a:url !~# g:vimwiki.rx.url ? 'wiki:' : '') . a:url
+  let l:link.scheme = matchstr(l:link.url, g:vimwiki.rx.match_scheme)
+  let l:link.text = matchstr(l:link.url, g:vimwiki.rx.match_url)
 
-  let l:link = {
-        \ 'text': a:link_text,
-        \ 'scheme': '',
-        \ 'filename': '',
-        \ 'anchor': '',
-        \ }
-
-  let l:link.scheme =
-        \ a:link_text !~# g:vimwiki.rx.url
-        \ ? 'wiki'
-        \ : matchstr(a:link_text, g:vimwiki.rx.match_scheme)
-
-  "
   " External link type (e.g. weblink)
-  "
   if l:link.scheme !~# 'wiki\|diary\|local\|file'
-    let l:link.filename = a:link_text
     return l:link
   endif
 
-  "
-  " Parse the link text
-  "
-  let link_text = matchstr(a:link_text, g:vimwiki.rx.match_url)
-
-  "
   " Extract anchor
-  "
   if l:link.scheme =~# 'wiki\|diary'
-    let split_lnk = split(link_text, '#', 1)
-    let link_text = split_lnk[0]
-    if len(split_lnk) > 1 && split_lnk[-1] != ''
-      let l:link.anchor = join(split_lnk[1:], '#')
-    endif
-    " because the link was of the form '#anchor'
-    if link_text == ''
-      let link_text = fnamemodify(l:origin, ':p:t:r')
-    endif
+    let l:anchors = split(l:link.text, '#', 1)
+    let l:link.anchor = (len(l:anchors) > 1) && (l:anchors[-1] != '')
+          \ ? join(l:anchors[1:], '#') : ''
+    let l:link.text = empty(l:anchors[0])
+          \ ? fnamemodify(l:link.origin, ':p:t:r')
+          \ : l:anchors[0]
   endif
 
   " check if absolute or relative path
-  if l:link.scheme =~# 'wiki' && link_text[0] == '/'
-    if link_text != '/'
-      let link_text = link_text[1:]
+  if l:link.scheme ==# 'wiki' && l:link.text[0] == '/'
+    if l:link.text != '/'
+      let l:link.text = l:link.text[1:]
     endif
-    let is_relative = 0
-  elseif l:link.scheme !~# 'wiki' && link_text =~# '\m^/\|\~/'
-    let is_relative = 0
+    let l:relative = 0
+  elseif l:link.scheme !=# 'wiki' && l:link.text =~# '\m^/\|\~/'
+    let l:relative = 0
   else
-    let is_relative = 1
-    let root_dir = fnamemodify(l:origin, ':p:h') . '/'
+    let l:relative = 1
+    let l:root = fnamemodify(l:link.origin, ':p:h') . '/'
   endif
 
   " extract the other items depending on the scheme
   if l:link.scheme ==# 'wiki'
-    if !is_relative
-      let root_dir = g:vimwiki.root
-    endif
-
-    let l:link.filename = root_dir . link_text
-
-    if link_text !~# '\m[/\\]$'
-      let l:link.filename .= '.wiki'
-    endif
-
+    let l:link.filename = (!l:relative ? g:vimwiki.root : l:root)
+          \ . l:link.text . '.wiki'
   elseif l:link.scheme ==# 'diary'
-    let l:link.filename = g:vimwiki.diary . link_text . '.wiki'
-  elseif (l:link.scheme ==# 'file' || l:link.scheme ==# 'local')
-        \ && is_relative
-    let l:link.filename = simplify(root_dir . link_text)
-  else
-    let l:link.filename = simplify(fnamemodify(link_text, ':p'))
+    let l:link.filename = g:vimwiki.diary . l:link.text . '.wiki'
+  elseif l:link.scheme =~# 'file\|local'
+    let l:link.filename = simplify(l:relative
+          \ ? l:root . l:link_text
+          \ : fnamemodify(l:link.text, ':p'))
   endif
 
   return l:link
@@ -179,13 +147,15 @@ endfunction
 
 " }}}1
 
-function! vimwiki#link#normalize(is_visual_mode) "{{{
-  if !a:is_visual_mode
+function! vimwiki#link#normalize(...) " {{{1
+  if a:0 == 0
     call s:normalize_link_syntax_n()
   elseif visualmode() ==# 'v' && line("'<") == line("'>")
     call s:normalize_link_syntax_v()
   endif
-endfunction "}}}
+endfunction
+
+" }}}1
 function! vimwiki#link#normalize_helper(str, rxUrl, rxDesc, template) " {{{1
   let str = a:str
   let url = matchstr(str, a:rxUrl)
@@ -315,55 +285,49 @@ endfunction
 
 " }}}1
 
-function! vimwiki#link#follow(split, ...) "{{{1
-  if a:split ==# "split"
-    let cmd = ":split "
-  elseif a:split ==# "vsplit"
-    let cmd = ":vsplit "
-  elseif a:split ==# "tabnew"
-    let cmd = ":tabnew "
+function! vimwiki#link#follow(split) "{{{1
+  if a:split ==# 'split'
+    let cmd = ':split '
+  elseif a:split ==# 'vsplit'
+    let cmd = ':vsplit '
   else
-    let cmd = ":e "
+    let cmd = ':e '
   endif
 
-  " try WikiLink
-  let lnk = matchstr(s:matchstr_at_cursor(g:vimwiki.rx.link_wiki),
+  let lnk = matchstr(
+        \ s:matchstr_at_cursor(g:vimwiki.rx.link_wiki),
         \ g:vimwiki.rx.link_wiki_url)
-  " try Weblink
-  if lnk == ""
-    let lnk = matchstr(s:matchstr_at_cursor(g:vimwiki.rx.link_web),
+
+  if empty(lnk)
+    let lnk = matchstr(
+          \ s:matchstr_at_cursor(g:vimwiki.rx.link_web),
           \ g:vimwiki.rx.link_web_url)
   endif
 
   if !empty(lnk)
-    if s:link_handler(lnk) | return | endif
-    if s:reflink_follow(lnk) | return | endif
+    let l:link = vimwiki#link#resolve(lnk)
+    PP l:link
 
-    " remove the extension from the filename if exists
-    let lnk = substitute(lnk, '\.wiki$', '', '')
-    call vimwiki#link#open(cmd, lnk)
+    if s:link_handler(l:link) | return | endif
+    if s:reflink_follow(l:link) | return | endif
+
+    call vimwiki#link#open(cmd, l:link)
     return
   endif
 
-  if a:0 > 0
-    execute "normal! ".a:1
-  else
-    call vimwiki#link#normalize(0)
-  endif
+  call vimwiki#link#normalize()
 endfunction
 
 " }}}
 function! s:link_handler(link) " {{{1
-  let link_info = vimwiki#link#resolve(a:link)
-
-  let lnk = expand(link_info.filename)
+  let lnk = expand(a:link.url)
   if filereadable(lnk) && fnamemodify(lnk, ':e') ==? 'pdf'
     silent execute '!zathura ' lnk '&'
     return 1
   endif
 
-  if link_info.scheme ==# 'file'
-    let fname = link_info.filename
+  if a:link.scheme ==# 'file'
+    let fname = a:link.url
     if isdirectory(fname)
       execute 'Unite file:' . fname
       return 1
@@ -373,9 +337,8 @@ function! s:link_handler(link) " {{{1
     endif
   endif
 
-  if link_info.scheme ==# 'doi'
-    let url = substitute(link_info.filename, 'doi:', '', '')
-    silent execute '!xdg-open http://dx.doi.org/' . url .'&'
+  if a:link.scheme ==# 'doi'
+    silent execute '!xdg-open http://dx.doi.org/' . a:link.text .'&'
     return 1
   endif
 
@@ -387,15 +350,16 @@ endfunction
 " TODO - doesn't work
 "
 function! s:reflink_follow(link) " {{{1
-  if !exists('b:vimwiki.reflinks')
-    if !exists('b:vimwiki')
-      let b:vimwiki = {}
-    endif
+  if !exists('b:vimwiki')
+    let b:vimwiki = {}
+  endif
+
+  if !has_key(b:vimwiki, 'reflinks')
     let b:vimwiki.reflinks = s:reflink_scan()
   endif
 
-  if has_key(b:vimwiki.reflinks, a:link)
-    call vimwiki#link#system_open(mkd_refs[a:link])
+  if has_key(b:vimwiki.reflinks, a:link.url)
+    call vimwiki#link#system_open(b:vimwiki.reflinks[a:link])
     return 1
   endif
 
@@ -404,7 +368,7 @@ endfunction
 
 " }}}1
 function! s:reflink_scan() " {{{1
-  let mkd_refs = {}
+  let l:refs = {}
 
   try
     " Why noautocmd? Because https://github.com/vimwiki/vimwiki/issues/121
@@ -414,39 +378,28 @@ function! s:reflink_scan() " {{{1
 
   for d in getqflist()
     let matchline = join(getline(d.lnum, min([d.lnum+1, line('$')])), ' ')
-    let descr = matchstr(matchline, g:vimwiki.rx.mkd_ref_textr)
+    let descr = matchstr(matchline, g:vimwiki.rx.mkd_ref_text)
     let url = matchstr(matchline, g:vimwiki.rx.mkd_ref_url)
     if descr != '' && url != ''
-      let mkd_refs[descr] = url
+      let l:refs[descr] = url
     endif
   endfor
 
-  return mkd_refs
+  return l:refs
 endfunction
 
 " }}}1
 
-function! s:matchstr_at_cursor(wikiRX) " {{{1
-  let col = col('.') - 1
-  let line = getline('.')
-  let ebeg = -1
-  let cont = match(line, a:wikiRX, 0)
-  while (ebeg >= 0 || (0 <= cont) && (cont <= col))
-    let contn = matchend(line, a:wikiRX, cont)
-    if (cont <= col) && (col < contn)
-      let ebeg = match(line, a:wikiRX, cont)
-      let elen = contn - ebeg
-      break
-    else
-      let cont = match(line, a:wikiRX, contn)
-    endif
-  endwh
-  if ebeg >= 0
-    return strpart(line, ebeg, elen)
-  else
-    return ""
-  endif
-endf "}}}
+function! s:matchstr_at_cursor(regex) " {{{1
+  let l:c1 = searchpos(a:regex, 'ncb', line('.'))[1]
+  let l:c2 = searchpos(a:regex, 'nce', line('.'))[1]
+
+  return (l:c1 > 0) && (l:c2 > 0)
+        \ ? strpart(getline('.'), l:c1-1, l:c2)
+        \ : ''
+endfunction
+
+"}}}1
 function! s:replacestr_at_cursor(wikiRX, sub) " {{{1
   let col = col('.') - 1
   let line = getline('.')
