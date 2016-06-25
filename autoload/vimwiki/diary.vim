@@ -6,7 +6,7 @@
 
 function! vimwiki#diary#make_note(...) " {{{1
   call vimwiki#link#open('edit',
-        \ 'diary:' . (a:0 > 0 ? a:1 : strftime('%Y-%m-%d')))
+        \ vimwiki#link#resolve('diary:' . (a:0 > 0 ? a:1 : strftime('%Y-%m-%d'))))
 endfunction
 
 " }}}1
@@ -35,11 +35,9 @@ function! vimwiki#diary#goto_next_day() "{{{
     return
   endif
 
-  if l:index != -1 && l:index < len(l:entries) - 1
-    let l:link = 'diary:' . l:entries[l:index+1]
-  else
-    let l:link = 'diary:' . strftime('%Y-%m-%d')
-  endif
+  let l:link = vimwiki#link#resolve(l:index != -1 && l:index < len(l:entries) - 1
+        \ ? 'diary:' . l:entries[l:index+1]
+        \ : 'diary:' . strftime('%Y-%m-%d'))
 
   call vimwiki#link#open('edit ', l:link)
 endfunction "}}}
@@ -50,11 +48,9 @@ function! vimwiki#diary#goto_prev_day() "{{{
     return
   endif
 
-  if l:index > 0
-    let l:link = 'diary:' . l:entries[l:index-1]
-  else
-    let l:link = 'diary:' . strftime('%Y-%m-%d')
-  endif
+  let l:link = vimwiki#link#resolve(l:index > 0
+        \ ? 'diary:' . l:entries[l:index-1]
+        \ : 'diary:' . strftime('%Y-%m-%d'))
 
   call vimwiki#link#open('edit ', l:link)
 endfunction "}}}
