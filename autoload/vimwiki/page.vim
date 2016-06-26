@@ -29,6 +29,11 @@ function! vimwiki#page#rename() "{{{1
     return
   endif
 
+  if b:vimwiki.in_diary
+    echom 'Not supported yet.'
+    return
+  endif
+
   " Ask if user wants to rename
   if input('Rename "' . expand('%:t:r') . '" [y]es/[N]o? ') !~? '^y'
     return
@@ -267,7 +272,7 @@ function! s:update_wiki_links(old, new) " {{{1
   let l:pattern .= '|\[.*\]\(\zs' . a:old . '\ze%(#.*)?\)'
   let l:pattern .= '|\[\zs' . a:old . '\ze%(#.*)?\]\[\]'
 
-  for l:file in glob(g:vimwiki.root . '*.wiki', 0, 1)
+  for l:file in glob(g:vimwiki.root . '**/*.wiki', 0, 1)
     let l:updates = 0
     let l:lines = []
     for l:line in readfile(l:file)
