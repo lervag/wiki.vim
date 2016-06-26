@@ -8,11 +8,7 @@ function! vimwiki#init() " {{{1
   let g:vimwiki = {}
   let g:vimwiki.root = g:vimwiki_path
   let g:vimwiki.diary = g:vimwiki_path . 'journal/'
-
   let g:vimwiki.rx = {}
-  let g:vimwiki.rx.url = '\w\+:\%(//\)\?.*'
-  let g:vimwiki.rx.match_scheme = '\zs\w\+\ze:.*'
-  let g:vimwiki.rx.match_url = '\w\+:\%(//\)\?\zs.*\ze'
 
   "
   " Define mappings
@@ -28,6 +24,7 @@ function! vimwiki#init_buffer() " {{{1
   " Set default options
   "
 
+  let b:vimwiki = {}
   let g:vimwiki_listsyms = ' .oOX'
 
   call vimwiki#define_regexes()
@@ -70,7 +67,7 @@ function! vimwiki#init_buffer() " {{{1
   nnoremap <silent><buffer> <leader>wd :call vimwiki#page#delete()<cr>
   nnoremap <silent><buffer> <leader>wr :call vimwiki#page#rename()<cr>
 
-  nnoremap <silent><buffer> <cr>       :call vimwiki#link#follow('nosplit')<cr>
+  nnoremap <silent><buffer> <cr>       :call vimwiki#link#follow()<cr>
   nnoremap <silent><buffer> <c-cr>     :call vimwiki#link#follow('vsplit')<cr>
 
   nnoremap <silent><buffer> <c-space>  :VimwikiToggleListItem<cr>
