@@ -4,32 +4,24 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimwiki#todo#edit_file(command, filename, anchor, ...) "{{{1
-  let l:fname = fnamemodify(a:filename, ':p')
-  let l:dir = fnamemodify(l:fname, ':h')
-  let l:fname = fnameescape(l:fname)
-
+function! vimwiki#todo#edit_file(filename, ...) "{{{1
+  let l:dir = fnamemodify(a:filename, ':p:h')
   if !isdirectory(l:dir)
     echom 'Vimwiki Error: Unable to edit file in non-existent directory:' l:dir
     return
   endif
 
+  let l:opts = a:0 > 0 ? a:1 : {}
   if resolve(a:filename) !=# resolve(expand('%:p'))
-    execute a:command l:fname
+    execute get(l:opts, 'cmd', 'edit') fnameescape(a:filename)
   endif
 
-  if a:anchor != ''
-    call s:jump_to_anchor(a:anchor)
+  if !empty(get(l:opts, 'anchor', ''))
+    call s:jump_to_anchor(l:opts.anchor)
   endif
 
-  " save previous link
-  " a:1 -- previous vimwiki link to save
-  " a:2 -- should we update previous link
-  if a:0 && a:2 && len(a:1) > 0
-    if !exists('b:vimwiki')
-      let b:vimwiki = {}
-    endif
-    let b:vimwiki.prev_link = a:1
+  if has_key(l:opts, 'prev_pos')
+    let b:vimwiki.prev_link = l:opts.prev_pos
   endif
 endfunction
 

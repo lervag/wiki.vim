@@ -25,7 +25,7 @@ endfunction
 
 "}}}1
 function! vimwiki#page#goto_index() " {{{1
-  call vimwiki#todo#edit_file('edit', g:vimwiki.root . 'index.wiki', '')
+  call vimwiki#todo#edit_file(g:vimwiki.root . 'index.wiki')
 endfunction
 
 " }}}1
@@ -334,7 +334,7 @@ endfunction
 
 " }}}1
 function! s:open_wiki_buffer(item) " {{{1
-  silent! call vimwiki#todo#edit_file(':e', a:item[0], '')
+  silent! call vimwiki#todo#edit_file(a:item[0])
   if !empty(a:item[1])
     call setbufvar(a:item[0], "vimwiki_prev_link", a:item[1])
   endif

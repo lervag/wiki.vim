@@ -173,22 +173,19 @@ endfunction
 function! s:follow_link_wiki(link, cmd, ...) " {{{1
   if a:link.scheme !~# 'wiki\|diary' | return 0 | endif
 
-  let l:prev_link = []
-  let l:update_prev_link = 0
+  let l:opts = {}
+
   if resolve(a:link.filename) !=# resolve(expand('%:p'))
-    let l:update_prev_link = 1
     if a:0 > 0
-      let l:prev_link = [a:1, []]
+      let l:opts.prev_link = [a:1, []]
     elseif &ft ==# 'vimwiki'
-      let l:prev_link = [expand('%:p'), getpos('.')]
+      let l:opts.prev_link = [expand('%:p'), getpos('.')]
     endif
   endif
 
-  call vimwiki#todo#edit_file(a:cmd,
-        \ a:link.filename,
-        \ a:link.anchor,
-        \ l:prev_link,
-        \ l:update_prev_link)
+  let l:opts.anchor = a:link.anchor
+  let l:opts.cmd = a:cmd
+  call vimwiki#todo#edit_file(a:link.filename, l:opts)
   return 1
 endfunction
 
