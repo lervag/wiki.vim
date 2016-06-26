@@ -5,27 +5,19 @@
 "
 
 function! vimwiki#todo#edit_file(command, filename, anchor, ...) "{{{1
-  let fname = escape(a:filename, '% *|#')
-  let dir = fnamemodify(a:filename, ":p:h")
+  let l:fname = fnamemodify(a:filename, ':p')
+  let l:dir = fnamemodify(l:fname, ':h')
+  let l:fname = fnameescape(l:fname)
 
-  if !isdirectory(dir)
-    echom 'Vimwiki Error: Unable to edit file in non-existent directory: '.dir
+  if !isdirectory(l:dir)
+    echom 'Vimwiki Error: Unable to edit file in non-existent directory:' l:dir
     return
   endif
 
-  " check if the file we want to open is already the current file
-  " which happens if we jump to an achor in the current file.
-  " This hack is necessary because apparently Vim messes up the result of
-  " getpos() directly after this command. Strange.
-  if !(a:command ==# ':e ' && resolve(a:filename) ==# resolve(expand('%:p')))
-    execute a:command.' '.fname
-    " Make sure no other plugin takes ownership over the new file. Vimwiki
-    " rules them all! Well, except for directories, which may be opened with
-    " Netrw
-    if &filetype != 'vimwiki' && fname !~ '\m/$'
-      set filetype=vimwiki
-    endif
+  if resolve(a:filename) !=# resolve(expand('%:p'))
+    execute a:command l:fname
   endif
+
   if a:anchor != ''
     call s:jump_to_anchor(a:anchor)
   endif
