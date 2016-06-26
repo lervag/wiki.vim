@@ -84,9 +84,9 @@ function! vimwiki#init_buffer() " {{{1
   " Journal settings
   if expand('%:p') =~# 'wiki\/journal'
     setlocal foldlevel=0
+    nnoremap <silent><buffer> <c-j> :<c-u>call vimwiki#diary#go(-v:count1)<cr>
+    nnoremap <silent><buffer> <c-k> :<c-u>call vimwiki#diary#go(v:count1)<cr>
     nnoremap <silent><buffer> <leader>wk :call vimwiki#diary#copy_note()<cr>
-    nnoremap <silent><buffer> <c-j>      :call vimwiki#diary#goto_prev_day()<cr>
-    nnoremap <silent><buffer> <c-k>      :call vimwiki#diary#goto_next_day()<cr>
   else
     nnoremap <silent><buffer> <c-j>      :call vimwiki#diary#make_note()<cr>
     nnoremap <silent><buffer> <c-k>      :call vimwiki#diary#make_note()<cr>
