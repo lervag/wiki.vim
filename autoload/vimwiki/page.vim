@@ -5,8 +5,8 @@
 "
 
 function! vimwiki#page#delete() "{{{1
-  if input('Delete "' . expand('%') . '" [y]es/[N]o? ') !~? '^y'
-        \ | return | endif
+  let l:input_response = input('Delete "' . expand('%') . '" [y]es/[N]o? ')
+  if l:input_response !~? '^y' | return | endif
 
   let l:filename = expand('%:p')
   try
@@ -18,49 +18,89 @@ function! vimwiki#page#delete() "{{{1
 
   call vimwiki#link#go_back()
   execute 'bdelete! ' . escape(l:filename, " ")
-
-  " reread buffer => deleted wiki link should appear as non-existent
-  if !empty(expand('%:p')) | edit | endif
 endfunction
 
 "}}}1
-function! vimwiki#page#goto_index() " {{{1
-  call vimwiki#todo#edit_file(g:vimwiki.root . 'index.wiki')
+function! vimwiki#page#rename() "{{{1
+  " Check if current file exists
+  if !filereadable(expand('%:p'))
+    echom 'Vimwiki Error: Cannot rename "' . expand('%:p')
+          \ . '". It does not exist! (New file? Save it before renaming.)'
+    return
+  endif
+
+  " Ask if user wants to rename
+  if input('Rename "' . expand('%:t:r') . '" [y]es/[N]o? ') !~? '^y'
+    return
+  endif
+
+  " Get new page name
+  let l:new = {}
+  let l:new.name = substitute(input('Enter new name: '), '\.wiki$', '', '')
+  echon "\r"
+  if empty(substitute(l:new.name, '\s*', '', ''))
+    echom 'Vimwiki Error: Cannot rename to an empty filename!'
+    return
+  endif
+
+  " Expand to full path name, check if already exists
+  let l:new.path = expand('%:p:h') . '/' . l:new.name . '.wiki'
+  if filereadable(l:new.path)
+    echom 'Vimwiki Error: Cannot rename to "' . l:new.path
+          \ . '". File with that name exist!'
+    return
+  endif
+
+  " Rename current file to l:new.path
+  try
+    echom 'Vimwiki: Renaming ' . expand('%:t')
+          \ . ' to ' . fnamemodify(l:new.path, ':t')
+    if rename(expand('%:p'), l:new.path) != 0
+      throw 'Cannot rename!'
+    end
+    setlocal buftype=nofile
+  catch
+    echom 'Vimwiki Error: Cannot rename "'
+          \ . expand('%:t:r') . '" to "' . l:new.path . '"!'
+    return
+  endtry
+
+  " Store some info from old buffer
+  let l:old = {
+        \ 'path' : expand('%:p'),
+        \ 'name' : expand('%:t:r'),
+        \ 'prev_link' : get(b:, 'vimwiki_prev_link', ''),
+        \}
+
+  " Get list of open wiki buffers
+  let l:bufs = map(filter(map(filter(range(1, bufnr('$')),
+        \       'bufexists(v:val)'),
+        \     'fnamemodify(bufname(v:val), '':p'')'),
+        \   'v:val =~# ''.wiki$'''),
+        \ '[v:val, getbufvar(v:val, ''vimwiki.prev_link'')]')
+
+  " Save and close wiki buffers
+  for [l:bufname, l:dummy] in l:bufs
+    execute 'b' fnameescape(l:bufname)
+    update
+    execute 'bwipeout' fnameescape(l:bufname)
+  endfor
+
+  " Update links
+  call s:update_wiki_links(l:old.name, l:new.name)
+
+  " Restore wiki buffers
+  for [l:bufname, l:prev_link] in l:bufs
+    if resolve(l:bufname) ==# resolve(l:old.path)
+      call s:open_wiki_buffer(l:new.path, l:old.prev_link)
+    else
+      call s:open_wiki_buffer(l:bufname, l:prev_link)
+    endif
+  endfor
 endfunction
 
 " }}}1
-function! vimwiki#page#backlinks() "{{{1
-  let l:origin = expand("%:p")
-  let l:locs = []
 
-  for l:file in globpath(g:vimwiki.root, '**/*.wiki', 0, 1)
-    if resolve(l:file) ==# resolve(l:origin) | break | endif
-
-    for l:link in vimwiki#link#get_from_file(l:file)
-      if resolve(l:link.filename) ==# resolve(l:origin)
-        call add(l:locs, {
-              \ 'filename' : l:file,
-              \ 'text' : empty(l:link.anchor) ? '' : 'Anchor: ' . l:anchor,
-              \ 'lnum' : l:link.lnum,
-              \ 'col' : l:link.col
-              \})
-      endif
-    endfor
-  endfor
-
-  if empty(l:locs)
-    echomsg 'Vimwiki: No other file links to this file'
-  else
-    call setloclist(0, l:locs, 'r')
-    lopen
-  endif
-endfunction
-
-"}}}1
-
-"
-" TODO
-"
 function! vimwiki#page#create_toc() " {{{1
   " collect new headers
   let is_inside_pre_or_math = 0  " 1: inside pre, 2: inside math, 0: outside
@@ -211,161 +251,39 @@ endfunction
 
 " }}}1
 
-"
-" TODO
-"
-function! vimwiki#page#rename() "{{{1
-  " Check if current file exists
-  if !filereadable(expand('%:p'))
-    echom 'Vimwiki Error: Cannot rename "' . expand('%:p')
-          \ . '". It does not exist! (New file? Save it before renaming.)'
-    return
+function! s:open_wiki_buffer(fname, prev_link) " {{{1
+  let l:opts = {}
+  if !empty(a:prev_link)
+    let l:opts.prev_link = a:prev_link
   endif
 
-  " Ask if user wants to rename
-  if input('Rename "' . expand('%:t:r') . '" [y]es/[N]o? ') !~? '^y'
-    return
-  endif
-
-  " Get new page name
-  let l:new = input('Enter new name: ')
-  echon "\r"
-  if empty(substitute(l:new, '\s', '', 'g'))
-    echom 'Vimwiki Error: Cannot rename to an empty filename!'
-    return
-  endif
-
-  " Expand to full path name, check if already exists
-  let l:new_path = expand('%:p:h') . '/' . l:new . '.wiki'
-  if filereadable(l:new_path)
-    echom 'Vimwiki Error: Cannot rename to "' . l:new_path
-          \ . '". File with that name exist!'
-    return
-  endif
-
-  " Rename current file to l:new_path
-  try
-    echom 'Vimwiki: Renaming ' . expand('%:t') . ' to '
-          \ . fnamemodify(l:new_path, ':t')
-    let l:result = rename(expand('%:p'), l:new_path)
-    if l:result != 0
-      throw 'Cannot rename!'
-    end
-    setlocal buftype=nofile
-  catch
-    echom 'Vimwiki Error: Cannot rename "'
-          \ . expand('%:t:r') . '" to "' . l:new_path . '"!'
-    return
-  endtry
-
-
-  let l:old = [
-        \ expand('%:p'),
-        \ expand('%:t'),
-        \ get(b:, 'vimwiki_prev_link', ''),
-        \ ]
-
-
-  " Save wiki buffers
-  let l:bufs = s:get_wiki_buffers()
-  for l:buf in l:bufs
-    execute ':b ' . escape(l:buf[0], ' ')
-    update
-    execute 'bwipeout ' . escape(l:buf[0], ' ')
-  endfor
-
-  " Update links
-  call s:update_wiki_links(l:old[1], l:new)
-
-  " Restore wiki buffers
-  for l:buf in l:bufs
-    if !resolve(l:buf[0]) ==# resolve(l:old[0])
-      call s:open_wiki_buffer(l:buf)
-    endif
-  endfor
-
-  call s:open_wiki_buffer([l:new_path, l:old[2]])
-
-  echon "\r" . repeat(' ', &columns-1)
-  echon "\rVimwiki: Done!"
+  silent! call vimwiki#todo#edit_file(a:fname, l:opts)
 endfunction
 
 " }}}1
-function! s:get_wiki_buffers() " {{{1
-  return map(filter(map(filter(range(1, bufnr('$')),
-        \       'bufexists(v:val)'),
-        \     'fnamemodify(bufname(v:val), '':p'')'),
-        \   'v:val =~# ''.wiki$'''),
-        \ '[v:val, getbufvar(v:val, ''vimwiki_prev_link'')]')
-endfunction
+function! s:update_wiki_links(old, new) " {{{1
+  let l:pattern  = '\v\[\[\/?\zs' . a:old . '\ze%(#.*)?%(|.*)?\]\]'
+  let l:pattern .= '|\[.*\]\[\zs' . a:old . '\ze%(#.*)?\]'
+  let l:pattern .= '|\[.*\]\(\zs' . a:old . '\ze%(#.*)?\)'
+  let l:pattern .= '|\[\zs' . a:old . '\ze%(#.*)?\]\[\]'
 
-" }}}1
-function! s:update_wiki_links(old_fname, new_fname) " {{{1
-  let old_fname = a:old_fname
-  let new_fname = a:new_fname
-
-  let subdirs = split(a:old_fname, '[/\\]')[: -2]
-
-  " TODO: Use Dictionary here...
-  let dirs_keys = ['']
-  let dirs_vals = ['']
-  if len(subdirs) > 0
-    let dirs_keys = ['']
-    let dirs_vals = [join(subdirs, '/').'/']
-    let idx = 0
-    while idx < len(subdirs) - 1
-      call add(dirs_keys, join(subdirs[: idx], '/').'/')
-      call add(dirs_vals, join(subdirs[idx+1 :], '/').'/')
-      let idx = idx + 1
-    endwhile
-    call add(dirs_keys,join(subdirs, '/').'/')
-    call add(dirs_vals, '')
-  endif
-
-  let idx = 0
-  while idx < len(dirs_keys)
-    let dir = dirs_keys[idx]
-    let new_dir = dirs_vals[idx]
-    call s:update_wiki_links_dir(dir,
-          \ new_dir.old_fname, new_dir.new_fname)
-    let idx = idx + 1
-  endwhile
-endfunction
-
-" }}}1
-function! s:open_wiki_buffer(item) " {{{1
-  silent! call vimwiki#todo#edit_file(a:item[0])
-  if !empty(a:item[1])
-    call setbufvar(a:item[0], "vimwiki_prev_link", a:item[1])
-  endif
-endfunction
-
-" }}}1
-function! s:update_wiki_links_dir(dir, old_fname, new_fname) " {{{1
-  let old_fname = substitute(a:old_fname, '[/\\]', '[/\\\\]', 'g')
-  let new_fname = a:new_fname
-
-  let old_fname_r = vimwiki#todo#apply_template(
-        \ g:vimwiki_WikiLinkMatchUrlTemplate, old_fname, '', '')
-
-  echo ''
-  for fname in split(glob(g:vimwiki.root . a:dir . '*.wiki'), '\n')
-    echon "\r" . repeat(' ', &columns-1)
-    echon "\rUpdating links in: " . fnamemodify(fname, ':t')
-    let has_updates = 0
-    let dest = []
-    for line in readfile(fname)
-      if !has_updates && match(line, old_fname_r) != -1
-        let has_updates = 1
+  for l:file in glob(g:vimwiki.root . '*.wiki', 0, 1)
+    let l:updates = 0
+    let l:lines = []
+    for l:line in readfile(l:file)
+      if match(l:line, l:pattern) != -1
+        let l:updates = 1
+        call add(l:lines, substitute(l:line, l:pattern, a:new, 'g'))
+      else
+        call add(l:lines, l:line)
       endif
-      " XXX: any other characters to escape!?
-      call add(dest, substitute(line, old_fname_r, escape(new_fname, "&"), "g"))
     endfor
-    " add exception handling...
-    if has_updates
-      call rename(fname, fname.'#vimwiki_upd#')
-      call writefile(dest, fname)
-      call delete(fname.'#vimwiki_upd#')
+
+    if l:updates
+      echom 'Updating links in: ' . fnamemodify(l:file, ':t')
+      call rename(l:file, l:file . '#tmp')
+      call writefile(l:lines, l:file)
+      call delete(l:file . '#tmp')
     endif
   endfor
 endfunction

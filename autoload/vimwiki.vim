@@ -4,6 +4,9 @@
 " Email:      karl.yngve@gmail.com
 "
 
+"
+" Init functions
+"
 function! vimwiki#init() " {{{1
   let g:vimwiki = {}
   let g:vimwiki.root = g:vimwiki_path
@@ -13,7 +16,7 @@ function! vimwiki#init() " {{{1
   "
   " Define mappings
   "
-  nnoremap <silent> <leader>ww         :call vimwiki#page#goto_index()<cr>
+  nnoremap <silent> <leader>ww         :call vimwiki#goto_index()<cr>
   nnoremap <silent> <leader>wx         :call vimwiki#reload()<cr>
   nnoremap <silent> <leader>w<leader>w :call vimwiki#diary#make_note()<cr>
 endfunction
@@ -26,6 +29,9 @@ function! vimwiki#init_buffer() " {{{1
 
   let b:vimwiki = {}
   let g:vimwiki_listsyms = ' .oOX'
+  let b:vimwiki.in_diary = stridx(
+        \ resolve(expand('%:p')),
+        \ resolve(g:vimwiki.diary)) == 0
 
   call vimwiki#define_regexes()
 
@@ -60,26 +66,21 @@ function! vimwiki#init_buffer() " {{{1
   "
   " Keybindings
   "
+  nnoremap <silent><buffer> <leader>wl :call vimwiki#link#get_backlinks()<cr>
   nnoremap <silent><buffer> <tab>      :call vimwiki#link#find_next()<cr>
   nnoremap <silent><buffer> <s-tab>    :call vimwiki#link#find_prev()<cr>
   nnoremap <silent><buffer> <bs>       :call vimwiki#link#go_back()<cr>
+  nnoremap <silent><buffer> <cr>       :call vimwiki#link#follow()<cr>
+  nnoremap <silent><buffer> <c-cr>     :call vimwiki#link#follow('vsplit')<cr>
+  vnoremap <silent><buffer> <cr>      :<c-u>call vimwiki#link#normalize(1)<cr>
 
   nnoremap <silent><buffer> <leader>wd :call vimwiki#page#delete()<cr>
   nnoremap <silent><buffer> <leader>wr :call vimwiki#page#rename()<cr>
 
-  nnoremap <silent><buffer> <cr>       :call vimwiki#link#follow()<cr>
-  nnoremap <silent><buffer> <c-cr>     :call vimwiki#link#follow('vsplit')<cr>
-
   nnoremap <silent><buffer> <c-space>  :VimwikiToggleListItem<cr>
+  vnoremap <silent><buffer> <c-space>  :VimwikiToggleListItem<cr>
 
-  nnoremap <silent><buffer> <leader>wl :call vimwiki#page#backlinks()<cr>
-
-  vnoremap <silent><buffer> <cr>      :<c-u>call vimwiki#link#normalize(1)<cr>
-  vnoremap <silent><buffer> <c-space> :VimwikiToggleListItem<cr>
-
-
-  " Journal settings
-  if expand('%:p') =~# 'wiki\/journal'
+  if b:vimwiki.in_diary
     setlocal foldlevel=0
     nnoremap <silent><buffer> <c-j> :<c-u>call vimwiki#diary#go(-v:count1)<cr>
     nnoremap <silent><buffer> <c-k> :<c-u>call vimwiki#diary#go(v:count1)<cr>
@@ -92,40 +93,9 @@ endfunction
 
 " }}}1
 
-" {{{1 function! vimwiki#reload()
-let s:file = expand('<sfile>')
-if !exists('s:reloading_script')
-  function! vimwiki#reload()
-    let s:reloading_script = 1
-
-    " Reload autoload scripts
-    for l:file in [s:file]
-          \ + split(globpath(fnamemodify(s:file, ':r'), '*.vim'), '\n')
-      execute 'source' l:file
-    endfor
-
-    " Reload plugin
-    if exists('g:vimwiki_loaded')
-      unlet g:vimwiki_loaded
-      runtime plugin/vimwiki.vim
-    endif
-
-    " Reload ftplugin and syntax
-    if &filetype == 'vimwiki'
-      unlet b:did_ftplugin
-      runtime ftplugin/vimwiki.vim
-
-      if get(b:, 'current_syntax', '') ==# 'vimwiki'
-        unlet b:current_syntax
-        runtime syntax/vimwiki.vim
-      endif
-    endif
-
-    unlet s:reloading_script
-  endfunction
-endif
-
-" }}}1
+"
+" Miscellaneous
+"
 function! vimwiki#define_regexes() " {{{
   let g:vimwiki_markdown_header_search = '^\s*\(#\{1,6}\)\([^#].*\)$'
   let g:vimwiki_markdown_header_match = '^\s*\(#\{1,6}\)#\@!\s*__Header__\s*$'
@@ -179,6 +149,45 @@ function! vimwiki#define_regexes() " {{{
   let g:vimwiki.rx.listDefine = '::\%(\s\|$\)'
   let g:vimwiki.rx.comment = '^\s*%%.*$'
 endfunction
+
+" }}}1
+function! vimwiki#goto_index() " {{{1
+  call vimwiki#todo#edit_file(g:vimwiki.root . 'index.wiki')
+endfunction
+
+" }}}1
+" {{{1 function! vimwiki#reload()
+let s:file = expand('<sfile>')
+if !exists('s:reloading_script')
+  function! vimwiki#reload()
+    let s:reloading_script = 1
+
+    " Reload autoload scripts
+    for l:file in [s:file]
+          \ + split(globpath(fnamemodify(s:file, ':r'), '*.vim'), '\n')
+      execute 'source' l:file
+    endfor
+
+    " Reload plugin
+    if exists('g:vimwiki_loaded')
+      unlet g:vimwiki_loaded
+      runtime plugin/vimwiki.vim
+    endif
+
+    " Reload ftplugin and syntax
+    if &filetype == 'vimwiki'
+      unlet b:did_ftplugin
+      runtime ftplugin/vimwiki.vim
+
+      if get(b:, 'current_syntax', '') ==# 'vimwiki'
+        unlet b:current_syntax
+        runtime syntax/vimwiki.vim
+      endif
+    endif
+
+    unlet s:reloading_script
+  endfunction
+endif
 
 " }}}1
 

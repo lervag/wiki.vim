@@ -57,19 +57,6 @@ let g:vimwiki_WikiLinkTemplate1 = s:wikilink_prefix . '__LinkUrl__'.
 let g:vimwiki_WikiLinkTemplate2 = s:wikilink_prefix . '__LinkUrl__'.
       \ s:wikilink_separator . '__LinkDescription__' . s:wikilink_suffix
 
-"
-" template for matching all wiki links with a given target file
-"
-let g:vimwiki_WikiLinkMatchUrlTemplate =
-      \ s:rx_wikilink_prefix .
-      \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
-      \ s:rx_wikilink_suffix .
-      \ '\|' .
-      \ s:rx_wikilink_prefix .
-      \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
-      \ s:rx_wikilink_separator .
-      \ '.*' .
-      \ s:rx_wikilink_suffix
 
 let g:vimwiki.rx.link_wiki_url = '[^\\\]]\{-}'
 let g:vimwiki.rx.link_wiki_text = '[^\\\]]\{-}'
@@ -133,19 +120,6 @@ let g:vimwiki_WikiLink1Template1 = s:wikilink_md_prefix . '__LinkUrl__'.
 let g:vimwiki_WikiLink1Template2 = s:wikilink_md_prefix. '__LinkDescription__'.
     \ s:wikilink_md_separator. '__LinkUrl__'.
     \ s:wikilink_md_suffix
-"
-let g:vimwiki_WikiLinkMatchUrlTemplate .=
-      \ '\|' .
-      \ s:rx_wikilink_md_prefix .
-      \ '.*' .
-      \ s:rx_wikilink_md_separator .
-      \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
-      \ s:rx_wikilink_md_suffix .
-      \ '\|' .
-      \ s:rx_wikilink_md_prefix .
-      \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
-      \ s:rx_wikilink_md_separator .
-      \ s:rx_wikilink_md_suffix
 
 let s:valid_chars = '[^\\\[\]]'
 let g:vimwiki.rx.wikiLink1Url = s:valid_chars.'\{-}'

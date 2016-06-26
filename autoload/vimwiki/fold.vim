@@ -19,48 +19,22 @@ function! vimwiki#fold#level(lnum) " {{{1
 endfunction
 
 " }}}1
-function! vimwiki#fold#text() "{{{
-  let line = getline(v:foldstart)
-  let main_text = substitute(line, '^\s*', repeat(' ',indent(v:foldstart)), '')
-  let fold_len = v:foldend - v:foldstart + 1
-  let len_text = ' ['.fold_len.'] '
-  if line !~# g:vimwiki.rx.preStart
-    let [main_text, spare_len] = s:shorten_text(main_text, 50)
-    return main_text.len_text
-  else
-    " fold-text for code blocks: use one or two of the starting lines
-    let [main_text, spare_len] = s:shorten_text(main_text, 24)
-    let line1 = substitute(getline(v:foldstart+1), '^\s*', ' ', '')
-    let [content_text, spare_len] = s:shorten_text(line1, spare_len+20)
-    if spare_len > 5 && fold_len > 3
-      let line2 = substitute(getline(v:foldstart+2), '^\s*', '  ', '')
-      let [more_text, spare_len] = s:shorten_text(line2, spare_len+12)
-      let content_text .= more_text
-    endif
-    return main_text.len_text.content_text
-  endif
-endfunction
+function! vimwiki#fold#text() " {{{1
+  let l:line = getline(v:foldstart)
+  let l:text = substitute(l:line, '^\s*', repeat(' ',indent(v:foldstart)), '')
 
-"}}}
-
-function! s:shorten_text(text, len) "{{{
-  " strlen() returns lenght in bytes, not in characters, so we'll have to do a
-  " trick here -- replace all non-spaces with dot, calculate lengths and
-  " indexes on it, then use original string to break at selected index.
-  let text_pattern = substitute(a:text, '\m\S', '.', 'g')
-  let spare_len = a:len - strlen(text_pattern)
-  if (spare_len + 5 >= 0)
-    return [a:text, spare_len]
+  " Header fold text
+  if l:line !~# g:vimwiki.rx.preStart
+    let [l:text, spare_len] = s:shorten_text(l:text, 65)
+    return l:text
   endif
 
-  let newlen = a:len - 3
-  let idx = strridx(text_pattern, ' ', newlen + 5)
-  let break_idx = (idx + 5 >= newlen) ? idx : newlen
-  return [matchstr(a:text, '\m^.\{'.break_idx.'\}') . '...',
-        \ newlen - break_idx]
+  " Code block fold text
+  return l:text
 endfunction
 
-"}}}
+" }}}1
+
 function! s:is_code(lnum) " {{{1
   return match(map(synstack(a:lnum, 1),
           \        "synIDattr(v:val, 'name')"),

@@ -20,48 +20,31 @@ function! vimwiki#todo#edit_file(filename, ...) "{{{1
     call s:jump_to_anchor(l:opts.anchor)
   endif
 
-  if has_key(l:opts, 'prev_pos')
-    let b:vimwiki.prev_link = l:opts.prev_pos
+  if has_key(l:opts, 'prev_link')
+    let b:vimwiki.prev_link = l:opts.prev_link
   endif
 endfunction
 
 " }}}1
-function! vimwiki#todo#subdir(path, filename) "{{{1
-  let path = a:path
-  " ensure that we are not fooled by a symbolic link
-  "FIXME if we are not "fooled", we end up in a completely different wiki?
-  if a:filename !~# '^scp:'
-    let filename = resolve(a:filename)
-  else
-    let filename = a:filename
-  endif
-  let idx = 0
-  "FIXME this can terminate in the middle of a path component!
-  while path[idx] ==? filename[idx]
-    let idx = idx + 1
-  endwhile
-
-  let p = split(strpart(filename, idx), '[/\\]')
-  let res = join(p[:-2], '/')
-  if len(res) > 0
-    let res = res.'/'
-  endif
-  return res
-endfunction
-
-"}}}1
 function! vimwiki#todo#apply_template(template, rxUrl, rxDesc, rxStyle) " {{{1
-  let lnk = a:template
-  if a:rxUrl != ""
-    let lnk = substitute(lnk, '__LinkUrl__', '\='."'".a:rxUrl."'", 'g')
+  let l:lnk = a:template
+
+  if !empty(a:rxUrl)
+    let l:lnk = substitute(l:lnk, '__LinkUrl__',
+          \ '\=''' . a:rxUrl . '''', 'g')
   endif
-  if a:rxDesc != ""
-    let lnk = substitute(lnk, '__LinkDescription__', '\='."'".a:rxDesc."'", 'g')
+
+  if !empty(a:rxDesc)
+    let l:lnk = substitute(l:lnk, '__LinkDescription__',
+          \ '\=''' . a:rxDesc . '''', 'g')
   endif
-  if a:rxStyle != ""
-    let lnk = substitute(lnk, '__LinkStyle__', '\='."'".a:rxStyle."'", 'g')
+
+  if !empty(a:rxStyle)
+    let l:lnk = substitute(l:lnk, '__LinkStyle__',
+          \ '\=''' . a:rxStyle . '''', 'g')
   endif
-  return lnk
+
+  return l:lnk
 endfunction
 
 " }}}1
