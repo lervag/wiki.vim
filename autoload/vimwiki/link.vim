@@ -245,7 +245,7 @@ function! s:follow_link_external(link) " {{{1
     return 1
   endif
 
-  call system('xdg-open ' . shellescape(l:link.url) . '&')
+  call system('xdg-open ' . shellescape(a:link.url) . '&')
 endfunction
 
 "}}}1
