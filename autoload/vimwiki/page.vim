@@ -92,14 +92,53 @@ function! vimwiki#page#rename() "{{{1
   endfor
 
   " Update links
-  call s:update_wiki_links(l:old.name, l:new.name)
+  call s:rename_update_links(l:old.name, l:new.name)
 
   " Restore wiki buffers
   for [l:bufname, l:prev_link] in l:bufs
     if resolve(l:bufname) ==# resolve(l:old.path)
-      call s:open_wiki_buffer(l:new.path, l:old.prev_link)
+      call s:rename_open_buffer(l:new.path, l:old.prev_link)
     else
-      call s:open_wiki_buffer(l:bufname, l:prev_link)
+      call s:rename_open_buffer(l:bufname, l:prev_link)
+    endif
+  endfor
+endfunction
+
+" }}}1
+
+function! s:rename_open_buffer(fname, prev_link) " {{{1
+  let l:opts = {}
+  if !empty(a:prev_link)
+    let l:opts.prev_link = a:prev_link
+  endif
+
+  silent! call vimwiki#todo#edit_file(a:fname, l:opts)
+endfunction
+
+" }}}1
+function! s:rename_update_links(old, new) " {{{1
+  let l:pattern  = '\v\[\[\/?\zs' . a:old . '\ze%(#.*)?%(|.*)?\]\]'
+  let l:pattern .= '|\[.*\]\[\zs' . a:old . '\ze%(#.*)?\]'
+  let l:pattern .= '|\[.*\]\(\zs' . a:old . '\ze%(#.*)?\)'
+  let l:pattern .= '|\[\zs' . a:old . '\ze%(#.*)?\]\[\]'
+
+  for l:file in glob(g:vimwiki.root . '**/*.wiki', 0, 1)
+    let l:updates = 0
+    let l:lines = []
+    for l:line in readfile(l:file)
+      if match(l:line, l:pattern) != -1
+        let l:updates = 1
+        call add(l:lines, substitute(l:line, l:pattern, a:new, 'g'))
+      else
+        call add(l:lines, l:line)
+      endif
+    endfor
+
+    if l:updates
+      echom 'Updating links in: ' . fnamemodify(l:file, ':t')
+      call rename(l:file, l:file . '#tmp')
+      call writefile(l:lines, l:file)
+      call delete(l:file . '#tmp')
     endif
   endfor
 endfunction
@@ -252,45 +291,6 @@ function! s:update_listing_in_buffer(strings, start_header, content_regex, defau
     let winview_save.lnum += lines_diff
   endif
   call winrestview(winview_save)
-endfunction
-
-" }}}1
-
-function! s:open_wiki_buffer(fname, prev_link) " {{{1
-  let l:opts = {}
-  if !empty(a:prev_link)
-    let l:opts.prev_link = a:prev_link
-  endif
-
-  silent! call vimwiki#todo#edit_file(a:fname, l:opts)
-endfunction
-
-" }}}1
-function! s:update_wiki_links(old, new) " {{{1
-  let l:pattern  = '\v\[\[\/?\zs' . a:old . '\ze%(#.*)?%(|.*)?\]\]'
-  let l:pattern .= '|\[.*\]\[\zs' . a:old . '\ze%(#.*)?\]'
-  let l:pattern .= '|\[.*\]\(\zs' . a:old . '\ze%(#.*)?\)'
-  let l:pattern .= '|\[\zs' . a:old . '\ze%(#.*)?\]\[\]'
-
-  for l:file in glob(g:vimwiki.root . '**/*.wiki', 0, 1)
-    let l:updates = 0
-    let l:lines = []
-    for l:line in readfile(l:file)
-      if match(l:line, l:pattern) != -1
-        let l:updates = 1
-        call add(l:lines, substitute(l:line, l:pattern, a:new, 'g'))
-      else
-        call add(l:lines, l:line)
-      endif
-    endfor
-
-    if l:updates
-      echom 'Updating links in: ' . fnamemodify(l:file, ':t')
-      call rename(l:file, l:file . '#tmp')
-      call writefile(l:lines, l:file)
-      call delete(l:file . '#tmp')
-    endif
-  endfor
 endfunction
 
 " }}}1
