@@ -16,11 +16,12 @@ function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
       let l:segments = split(a:base, '#', 1)
       let l:base = join(l:segments[1:], '#')
       let l:link_info = vimwiki#link#resolve(
-            \ (l:segments[0] == '' ? expand('%:t:r') : l:segments[0]) . '#')
+            \ empty(l:segments[0])
+            \   ? expand('%:t:r')
+            \   : l:segments[0])
 
       return map(
-            \   filter(
-            \     s:get_anchors(l:link_info.filename, 'markdown'),
+            \   filter(s:get_anchors(l:link_info.filename),
             \     'v:val =~# ''^'' . vimwiki#u#escape(l:base)'),
             \   'l:segments[0] . ''#'' . v:val')
     else
@@ -40,7 +41,7 @@ endfunction
 
 " }}}1
 
-function! s:get_anchors(filename, syntax) " {{{1
+function! s:get_anchors(filename) " {{{1
   if !filereadable(a:filename)
     return []
   endif

@@ -8,7 +8,7 @@ function! vimwiki#fold#level(lnum) " {{{1
   let l:line = getline(a:lnum)
 
   if l:line =~# '^#\{1,6} [^#]' && !s:is_code(a:lnum)
-    return '>' . vimwiki#u#count_first_sym(l:line)
+    return '>' . len(matchstr(l:line, '#*'))
   endif
 
   if l:line =~# '^```'

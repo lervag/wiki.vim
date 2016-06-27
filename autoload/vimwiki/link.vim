@@ -347,16 +347,16 @@ function! s:normalize_link_syntax_v() " {{{
 
 endfunction " }}}
 function! s:normalize_helper(str, rxUrl, rxDesc, template) " {{{1
-  let str = a:str
-  let url = matchstr(str, a:rxUrl)
-  let descr = matchstr(str, a:rxDesc)
-  let template = a:template
-  if descr == ""
-    let descr = s:clean_url(url)
+  let l:url = matchstr(a:str, a:rxUrl)
+  let l:descr = matchstr(a:str, a:rxDesc)
+  if empty(l:descr)
+    let l:descr = s:clean_url(l:url)
   endif
-  let l:lnk = substitute(template, '__LinkDescription__', '\="'.descr.'"', '')
-  let l:lnk = substitute(l:lnk, '__LinkUrl__', '\="'.url.'"', '')
-  return l:lnk
+
+  return substitute(
+        \ substitute(a:template,
+        \   '__LinkDescription__', '\="' . l:descr . '"', ''),
+        \ '__LinkUrl__', '\="' . l:url . '"', '')
 endfunction
 
 " }}}1

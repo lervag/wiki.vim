@@ -146,34 +146,32 @@ endfunction
 " }}}1
 
 function! vimwiki#page#create_toc() " {{{1
-  " collect new headers
-  let is_inside_pre_or_math = 0  " 1: inside pre, 2: inside math, 0: outside
+  "
+  " Collect new headers
+  "
+  let l:inside_pre = 0
   let headers = []
   let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
-  for lnum in range(1, line('$'))
-    let line_content = getline(lnum)
-    if (is_inside_pre_or_math == 1 && line_content =~# g:vimwiki.rx.preEnd) ||
-          \ (is_inside_pre_or_math == 2 && line_content =~# g:vimwiki.rx.mathEnd)
-      let is_inside_pre_or_math = 0
+  for l:line in getline(1, '$')
+    if l:inside_pre
+      if l:line =~# g:vimwiki.rx.preEnd
+        let l:inside_pre = 0
+      endif
       continue
     endif
-    if is_inside_pre_or_math > 0
+    if l:line =~# g:vimwiki.rx.preStart
+      let l:inside_pre = 1
       continue
     endif
-    if line_content =~# g:vimwiki.rx.preStart
-      let is_inside_pre_or_math = 1
+    if l:line !~# g:vimwiki.rx.header
       continue
     endif
-    if line_content =~# g:vimwiki.rx.mathStart
-      let is_inside_pre_or_math = 2
-      continue
-    endif
-    if line_content !~# g:vimwiki.rx.header
-      continue
-    endif
-    let h_level = vimwiki#u#count_first_sym(line_content)
-    let h_text = vimwiki#u#trim(matchstr(line_content, g:vimwiki.rx.header))
-    if h_text ==# 'Innhald'  " don't include the TOC's header itself
+
+    let h_level = len(matchstr(l:line, '#*'))
+    let h_text = vimwiki#u#trim(matchstr(l:line, g:vimwiki.rx.header))
+
+    " Don't include the TOC's header itself
+    if h_text ==# 'Innhald'
       continue
     endif
     let headers_levels[h_level-1] = [h_text, headers_levels[h_level-1][1]+1]

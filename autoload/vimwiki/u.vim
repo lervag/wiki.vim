@@ -4,23 +4,14 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimwiki#u#trim(string, ...) "{{{1
-  let chars = ''
-  if a:0 > 0
-    let chars = a:1
-  endif
-  let res = substitute(a:string, '^[[:space:]'.chars.']\+', '', '')
-  let res = substitute(res, '[[:space:]'.chars.']\+$', '', '')
-  return res
+function! vimwiki#u#trim(string, ...) " {{{1
+  let l:pattern = '[[:space:]' . (a:0 > 0 ? a:1 : '') . ']\+'
+  return substitute(substitute(a:string,
+        \ '^' . l:pattern,       '', ''),
+        \       l:pattern . '$', '', '')
 endfunction
 
-"}}}1
-function! vimwiki#u#count_first_sym(line) "{{{1
-  let first_sym = matchstr(a:line, '\S')
-  return len(matchstr(a:line, first_sym.'\+'))
-endfunction
-
-"}}}1
+" }}}1
 function! vimwiki#u#escape(string) "{{{1
   return escape(a:string, '~.*[]\^$')
 endfunction
