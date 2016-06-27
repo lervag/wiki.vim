@@ -158,7 +158,7 @@ function! vimwiki#link#get_from_file(file) "{{{1
             \   matchstr(l:line, l:rx_link, 0, l:count),
             \   a:file))
 
-      if !empty(l:link.filename)
+      if has_key(l:link, 'filename')
         call add(l:links, l:link)
       endif
     endwhile
