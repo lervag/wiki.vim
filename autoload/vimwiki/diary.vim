@@ -24,7 +24,7 @@ function! vimwiki#diary#copy_note() " {{{1
     execute 'write' l:next
   endif
 
-  call vimwiki#diary#goto_next_day()
+  call vimwiki#diary#go(1)
 endfunction
 
 " }}}1

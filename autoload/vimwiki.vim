@@ -66,7 +66,7 @@ function! vimwiki#init_buffer() " {{{1
   "
   " Keybindings
   "
-  nnoremap <silent><buffer> <leader>wl :call vimwiki#link#get_backlinks()<cr>
+  nnoremap <silent><buffer> <leader>wb :call vimwiki#link#get_backlinks()<cr>
   nnoremap <silent><buffer> <tab>      :call vimwiki#link#find_next()<cr>
   nnoremap <silent><buffer> <s-tab>    :call vimwiki#link#find_prev()<cr>
   nnoremap <silent><buffer> <bs>       :call vimwiki#link#go_back()<cr>
@@ -110,7 +110,7 @@ function! vimwiki#define_regexes() " {{{
   let g:vimwiki_list_markers = ['-', '*', '+', '1.']
   call vimwiki#lst#setup_marker_infos()
 
-  let g:vimwiki.rx.url_web = '\w\+:\%(//\)\?' . '\S\{-1,}\%(([^ \t()]*)\)\='
+  let g:vimwiki.rx.url_web = '\l\+:\%(//\)\?' . '\S\{-1,}\%(([^ \t()]*)\)\='
   let g:vimwiki.rx.link_web = '\<'. g:vimwiki.rx.url_web . '\S*'
   let g:vimwiki.rx.link_web_url = g:vimwiki.rx.link_web
   let g:vimwiki.rx.link_web_text = ''
