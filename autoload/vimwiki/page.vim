@@ -112,7 +112,7 @@ function! s:rename_open_buffer(fname, prev_link) " {{{1
     let l:opts.prev_link = a:prev_link
   endif
 
-  silent! call vimwiki#todo#edit_file(a:fname, l:opts)
+  silent! call vimwiki#edit_file(a:fname, l:opts)
 endfunction
 
 " }}}1

@@ -33,6 +33,23 @@ function! s:existing_mkd_refs() " {{{
 endfunction
 
 " }}}
+function! s:apply_template(template, rxUrl, rxDesc) " {{{1
+  let l:lnk = a:template
+
+  if !empty(a:rxUrl)
+    let l:lnk = substitute(l:lnk, '__LinkUrl__',
+          \ '\=''' . a:rxUrl . '''', 'g')
+  endif
+
+  if !empty(a:rxDesc)
+    let l:lnk = substitute(l:lnk, '__LinkDescription__',
+          \ '\=''' . a:rxDesc . '''', 'g')
+  endif
+
+  return l:lnk
+endfunction
+
+" }}}1
 
 " LINKS: setup of larger regexes {{{
 
@@ -262,36 +279,28 @@ call s:add_target_syntax(g:vimwiki.rx.link_web1, 'VimwikiWeblink1')
 " All remaining schemes are highlighted automatically
 let s:rxSchemes = '\w\+:'
 
-"
 " [[nonwiki-scheme-URL]]
-"
-let s:target = vimwiki#todo#apply_template(
+let s:target = s:apply_template(
       \ vimwiki#u#escape(g:vimwiki_WikiLinkTemplate1),
-      \ s:rxSchemes.g:vimwiki.rx.link_wiki_url, g:vimwiki.rx.link_wiki_text, '')
+      \ s:rxSchemes.g:vimwiki.rx.link_wiki_url, g:vimwiki.rx.link_wiki_text)
 call s:add_target_syntax(s:target, 'VimwikiLink')
 
-"
 " [[nonwiki-scheme-URL|DESCRIPTION]]
-"
-let s:target = vimwiki#todo#apply_template(
+let s:target = s:apply_template(
       \ vimwiki#u#escape(g:vimwiki_WikiLinkTemplate2),
-      \ s:rxSchemes.g:vimwiki.rx.link_wiki_url, g:vimwiki.rx.link_wiki_text, '')
+      \ s:rxSchemes.g:vimwiki.rx.link_wiki_url, g:vimwiki.rx.link_wiki_text)
 call s:add_target_syntax(s:target, 'VimwikiLink')
 
-"
 " [nonwiki-scheme-URL]
-"
-let s:target = vimwiki#todo#apply_template(
+let s:target = s:apply_template(
       \ vimwiki#u#escape(g:vimwiki_WikiLink1Template1),
-      \ s:rxSchemes.g:vimwiki.rx.wikiLink1Url, g:vimwiki.rx.wikiLink1Descr, '')
+      \ s:rxSchemes.g:vimwiki.rx.wikiLink1Url, g:vimwiki.rx.wikiLink1Descr)
 call s:add_target_syntax(s:wrap_wikilink1_rx(s:target), 'VimwikiWikiLink1')
 
-"
 " [DESCRIPTION][nonwiki-scheme-URL]
-"
-let s:target = vimwiki#todo#apply_template(
+let s:target = s:apply_template(
       \ vimwiki#u#escape(g:vimwiki_WikiLink1Template2),
-      \ s:rxSchemes.g:vimwiki.rx.wikiLink1Url, g:vimwiki.rx.wikiLink1Descr, '')
+      \ s:rxSchemes.g:vimwiki.rx.wikiLink1Url, g:vimwiki.rx.wikiLink1Descr)
 call s:add_target_syntax(s:wrap_wikilink1_rx(s:target), 'VimwikiWikiLink1')
 
 " }}}

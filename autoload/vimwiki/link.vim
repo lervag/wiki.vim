@@ -213,7 +213,7 @@ function! s:follow_link_wiki(link, cmd, ...) " {{{1
 
   let l:opts.anchor = a:link.anchor
   let l:opts.cmd = a:cmd
-  call vimwiki#todo#edit_file(a:link.filename, l:opts)
+  call vimwiki#edit_file(a:link.filename, l:opts)
   return 1
 endfunction
 

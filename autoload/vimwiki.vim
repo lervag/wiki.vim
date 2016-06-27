@@ -152,7 +152,7 @@ endfunction
 
 " }}}1
 function! vimwiki#goto_index() " {{{1
-  call vimwiki#todo#edit_file(g:vimwiki.root . 'index.wiki')
+  call vimwiki#edit_file(g:vimwiki.root . 'index.wiki')
 endfunction
 
 " }}}1
@@ -188,6 +188,60 @@ if !exists('s:reloading_script')
     unlet s:reloading_script
   endfunction
 endif
+
+" }}}1
+function! vimwiki#edit_file(filename, ...) "{{{1
+  let l:dir = fnamemodify(a:filename, ':p:h')
+  if !isdirectory(l:dir)
+    echom 'Vimwiki Error: Unable to edit file in non-existent directory:' l:dir
+    return
+  endif
+
+  let l:opts = a:0 > 0 ? a:1 : {}
+  if resolve(a:filename) !=# resolve(expand('%:p'))
+    execute get(l:opts, 'cmd', 'edit') fnameescape(a:filename)
+  endif
+
+  if !empty(get(l:opts, 'anchor', ''))
+    call s:jump_to_anchor(l:opts.anchor)
+  endif
+
+  if has_key(l:opts, 'prev_link')
+    let b:vimwiki.prev_link = l:opts.prev_link
+  endif
+endfunction
+
+" }}}1
+
+"
+" Utility
+"
+function! s:jump_to_anchor(anchor) " {{{1
+  let oldpos = getpos('.')
+  call cursor(1, 1)
+
+  let anchor = vimwiki#u#escape(a:anchor)
+
+  let segments = split(anchor, '#', 0)
+  for segment in segments
+
+    let anchor_header = substitute(
+          \ g:vimwiki_markdown_header_match,
+          \ '__Header__', "\\='".segment."'", '')
+    let anchor_bold = substitute(g:vimwiki_markdown_bold_match,
+          \ '__Text__', "\\='".segment."'", '')
+    let anchor_tag = substitute(g:vimwiki_markdown_tag_match,
+          \ '__Tag__', "\\='".segment."'", '')
+
+    if         !search(anchor_tag, 'Wc')
+          \ && !search(anchor_header, 'Wc')
+          \ && !search(anchor_bold, 'Wc')
+      call setpos('.', oldpos)
+      break
+    endif
+    let oldpos = getpos('.')
+  endfor
+endfunction
 
 " }}}1
 
