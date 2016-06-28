@@ -10,6 +10,18 @@
 " - Add normlize_link_in_diary?
 "
 
+function! vimwiki#link#get_at_cursor() " {{{1
+  let l:lnk = matchstr(s:matchstr_at_cursor(g:vimwiki.rx.link_wiki),
+        \              g:vimwiki.rx.link_wiki_url)
+  if empty(l:lnk)
+    let l:lnk = matchstr(s:matchstr_at_cursor(g:vimwiki.rx.link_web),
+          \              g:vimwiki.rx.link_web_url)
+  endif
+
+  return empty(l:lnk) ? {} : vimwiki#link#parse(l:lnk)
+endfunction
+
+" }}}1
 function! vimwiki#link#parse(url, ...) " {{{1
   let l:link = {}
   let l:link.url = a:url
@@ -34,6 +46,26 @@ function! vimwiki#link#parse(url, ...) " {{{1
         \   }, l:link.scheme,
         \   s:parse_link_external(l:link)),
         \ 'force')
+endfunction
+
+" }}}1
+function! vimwiki#link#follow(...) "{{{1
+  let l:link = vimwiki#link#get_at_cursor()
+
+  if empty(l:link)
+    call vimwiki#link#normalize()
+  else
+    call call(l:link.follow, a:000)
+  endif
+endfunction
+
+" }}}1
+function! vimwiki#link#normalize(...) " {{{1
+  if a:0 == 0
+    call s:normalize_link_syntax_n()
+  elseif visualmode() ==# 'v' && line("'<") == line("'>")
+    call s:normalize_link_syntax_v()
+  endif
 endfunction
 
 " }}}1
@@ -160,41 +192,6 @@ function! s:follow_link_external(...) dict " {{{1
 endfunction
 
 "}}}1
-
-
-function! vimwiki#link#get_at_cursor() " {{{1
-  let l:lnk = matchstr(s:matchstr_at_cursor(g:vimwiki.rx.link_wiki),
-        \              g:vimwiki.rx.link_wiki_url)
-  if empty(l:lnk)
-    let l:lnk = matchstr(s:matchstr_at_cursor(g:vimwiki.rx.link_web),
-          \              g:vimwiki.rx.link_web_url)
-  endif
-
-  return empty(l:lnk) ? {} : vimwiki#link#parse(l:lnk)
-endfunction
-
-" }}}1
-function! vimwiki#link#follow(...) "{{{1
-  let l:link = vimwiki#link#get_at_cursor()
-
-  if empty(l:link)
-    call vimwiki#link#normalize()
-  else
-    call call(l:link.follow, a:000)
-  endif
-endfunction
-
-" }}}1
-function! vimwiki#link#normalize(...) " {{{1
-  if a:0 == 0
-    call s:normalize_link_syntax_n()
-  elseif visualmode() ==# 'v' && line("'<") == line("'>")
-    call s:normalize_link_syntax_v()
-  endif
-endfunction
-
-" }}}1
-
 
 function! s:normalize_link_syntax_n() " {{{1
   let lnum = line('.')
