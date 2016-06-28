@@ -162,19 +162,7 @@ endfunction
 "}}}1
 
 
-function! vimwiki#link#follow(...) "{{{1
-  let l:link = s:get_link_at_cursor()
-
-  if empty(l:link)
-    call vimwiki#link#normalize()
-  else
-    call call(l:link.follow, a:000)
-  endif
-endfunction
-
-" }}}1
-
-function! s:get_link_at_cursor() " {{{1
+function! vimwiki#link#get_at_cursor() " {{{1
   let l:lnk = matchstr(s:matchstr_at_cursor(g:vimwiki.rx.link_wiki),
         \              g:vimwiki.rx.link_wiki_url)
   if empty(l:lnk)
@@ -186,8 +174,17 @@ function! s:get_link_at_cursor() " {{{1
 endfunction
 
 " }}}1
+function! vimwiki#link#follow(...) "{{{1
+  let l:link = vimwiki#link#get_at_cursor()
 
+  if empty(l:link)
+    call vimwiki#link#normalize()
+  else
+    call call(l:link.follow, a:000)
+  endif
+endfunction
 
+" }}}1
 function! vimwiki#link#normalize(...) " {{{1
   if a:0 == 0
     call s:normalize_link_syntax_n()
