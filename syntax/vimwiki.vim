@@ -21,9 +21,7 @@ endfunction
 
 " }}}
 function! s:wrap_wikilink1_rx(target) " {{{
-  return g:vimwiki.rx.link_wiki1_inv_pref
-        \ . a:target
-        \ . g:vimwiki.rx.link_wiki1_inv_suff
+  return '[\]\[]\@<!' . a:target . '[\]\[]\@!'
 endfunction
 
 " }}}
@@ -50,225 +48,69 @@ function! s:apply_template(template, rxUrl, rxDesc) " {{{1
 endfunction
 
 " }}}1
+function! s:detect_nested() " {{{1
+  let last_word = '\v.*<(\w+)\s*$'
+  let lines = map(filter(getline(1, "$"), 'v:val =~ "```" && v:val =~ last_word'),
+        \ 'substitute(v:val, last_word, "\\=submatch(1)", "")')
+  let dict = {}
+  for elem in lines
+    let dict[elem] = elem
+  endfor
+  return dict
+endfunction
 
-" LINKS: setup of larger regexes {{{
+" }}}1
+function! s:add_nested(filetype, start, end, textSnipHl) abort " {{{1
+  " From http://vim.wikia.com/wiki/VimTip857
+  let ft=toupper(a:filetype)
+  let group='textGroup'.ft
+  if exists('b:current_syntax')
+    let s:current_syntax=b:current_syntax
+    " Remove current syntax definition, as some syntax files (e.g. cpp.vim)
+    " do nothing if b:current_syntax is defined.
+    unlet b:current_syntax
+  endif
 
-" [[URL]] and [[URL|DESCRIPTION]] {{{
+  " Some syntax files set up iskeyword which might scratch vimwiki a bit.
+  " Let us save and restore it later.
+  " let b:skip_set_iskeyword = 1
+  let is_keyword = &iskeyword
 
-let s:wikilink_prefix = '[['
-let s:wikilink_suffix = ']]'
-let s:wikilink_separator = '|'
-let s:rx_wikilink_prefix = vimwiki#u#escape(s:wikilink_prefix) . '\/\?'
-let s:rx_wikilink_suffix = vimwiki#u#escape(s:wikilink_suffix)
-let s:rx_wikilink_separator = vimwiki#u#escape(s:wikilink_separator)
+  try
+    " keep going even if syntax file is not found
+    execute 'syntax include @'.group.' syntax/'.a:filetype.'.vim'
+    execute 'syntax include @'.group.' after/syntax/'.a:filetype.'.vim'
+  catch
+  endtry
 
-"
-" [[URL]]
-"
-let g:vimwiki_WikiLinkTemplate1 = s:wikilink_prefix . '__LinkUrl__'.
-      \ s:wikilink_suffix
+  let &iskeyword = is_keyword
 
-"
-" [[URL|DESCRIPTION]]
-"
-let g:vimwiki_WikiLinkTemplate2 = s:wikilink_prefix . '__LinkUrl__'.
-      \ s:wikilink_separator . '__LinkDescription__' . s:wikilink_suffix
+  if exists('s:current_syntax')
+    let b:current_syntax=s:current_syntax
+  else
+    unlet b:current_syntax
+  endif
+  execute 'syntax region textSnip'.ft.
+        \ ' matchgroup='.a:textSnipHl.
+        \ ' start="'.a:start.'" end="'.a:end.'"'.
+        \ ' contains=@'.group.' keepend'
 
+  " A workaround to Issue 115: Nested Perl syntax highlighting differs from
+  " regular one.
+  " Perl syntax file has perlFunctionName which is usually has no effect due to
+  " 'contained' flag. Now we have 'syntax include' that makes all the groups
+  " included as 'contained' into specific group.
+  " Here perlFunctionName (with quite an angry regexp "\h\w*[^:]") clashes with
+  " the rest syntax rules as now it has effect being really 'contained'.
+  " Clear it!
+  if ft =~? 'perl'
+    syntax clear perlFunctionName
+  endif
+endfunction
 
-let g:vimwiki.rx.link_wiki_url = '[^\\\]]\{-}'
-let g:vimwiki.rx.link_wiki_text = '[^\\\]]\{-}'
+" }}}1
 
-" this regexp defines what can form a link when the user presses <CR> in the
-" buffer (and not on a link) to create a link
-" basically, it's Ascii alphanumeric characters plus #|./@-_~ plus all
-" non-Ascii characters
-let g:vimwiki.rx.word = '[^[:blank:]!"$%&''()*+,:;<=>?\[\]\\^`{}]\+'
-
-" match all
-let g:vimwiki.rx.link_wiki = s:rx_wikilink_prefix.
-      \ g:vimwiki.rx.link_wiki_url.'\%('.s:rx_wikilink_separator.
-      \ g:vimwiki.rx.link_wiki_text.'\)\?'.s:rx_wikilink_suffix
-
-" match URL
-let g:vimwiki.rx.link_wiki_url = s:rx_wikilink_prefix.
-      \ '\zs'. g:vimwiki.rx.link_wiki_url.'\ze\%('. s:rx_wikilink_separator.
-      \ g:vimwiki.rx.link_wiki_text.'\)\?'.s:rx_wikilink_suffix
-
-" match DESCRIPTION
-let g:vimwiki.rx.link_wiki_text = s:rx_wikilink_prefix.
-      \ g:vimwiki.rx.link_wiki_url.s:rx_wikilink_separator.'\%('.
-      \ '\zs'. g:vimwiki.rx.link_wiki_text. '\ze\)\?'. s:rx_wikilink_suffix
-
-" }}}
-
-"
-" Syntax helper
-"
-let s:rx_wikilink_prefix1 = s:rx_wikilink_prefix . g:vimwiki.rx.link_wiki_url .
-      \ s:rx_wikilink_separator
-let s:rx_wikilink_suffix1 = s:rx_wikilink_suffix
-
-
-" LINKS: setup wikilink0 regexps {{{
-" 0. [[URL]], or [[URL|DESCRIPTION]]
-
-" 0a) match [[URL|DESCRIPTION]]
-let g:vimwiki.rx.link_wiki0 = g:vimwiki.rx.link_wiki
-" 0b) match URL within [[URL|DESCRIPTION]]
-let g:vimwiki.rx.link_wiki_url0 = g:vimwiki.rx.link_wiki_url
-" 0c) match DESCRIPTION within [[URL|DESCRIPTION]]
-let g:vimwiki.rx.link_wiki_text0 = g:vimwiki.rx.link_wiki_text
-" }}}
-
-" LINKS: setup wikilink1 regexps {{{
-" 1. [URL][], or [DESCRIPTION][URL]
-
-let s:wikilink_md_prefix = '['
-let s:wikilink_md_suffix = ']'
-let s:wikilink_md_separator = ']['
-let s:rx_wikilink_md_prefix = vimwiki#u#escape(s:wikilink_md_prefix)
-let s:rx_wikilink_md_suffix = vimwiki#u#escape(s:wikilink_md_suffix)
-let s:rx_wikilink_md_separator = vimwiki#u#escape(s:wikilink_md_separator)
-
-" [URL][]
-let g:vimwiki_WikiLink1Template1 = s:wikilink_md_prefix . '__LinkUrl__'.
-      \ s:wikilink_md_separator. s:wikilink_md_suffix
-" [DESCRIPTION][URL]
-let g:vimwiki_WikiLink1Template2 = s:wikilink_md_prefix. '__LinkDescription__'.
-    \ s:wikilink_md_separator. '__LinkUrl__'.
-    \ s:wikilink_md_suffix
-
-let s:valid_chars = '[^\\\[\]]'
-let g:vimwiki.rx.wikiLink1Url = s:valid_chars.'\{-}'
-let g:vimwiki.rx.wikiLink1Descr = s:valid_chars.'\{-}'
-
-let g:vimwiki.rx.link_wiki1_inv_pref = '[\]\[]\@<!'
-let g:vimwiki.rx.link_wiki1_inv_suff = '[\]\[]\@!'
-let s:rx_wikilink_md_prefix = g:vimwiki.rx.link_wiki1_inv_pref.
-      \ s:rx_wikilink_md_prefix
-let s:rx_wikilink_md_suffix = s:rx_wikilink_md_suffix.
-      \ g:vimwiki.rx.link_wiki1_inv_suff
-
-"
-" 1. [URL][], [DESCRIPTION][URL]
-" 1a) match [URL][], [DESCRIPTION][URL]
-let g:vimwiki.rx.link_wiki1 = s:rx_wikilink_md_prefix.
-    \ g:vimwiki.rx.wikiLink1Url. s:rx_wikilink_md_separator.
-    \ s:rx_wikilink_md_suffix.
-    \ '\|'. s:rx_wikilink_md_prefix.
-    \ g:vimwiki.rx.wikiLink1Descr.s:rx_wikilink_md_separator.
-    \ g:vimwiki.rx.wikiLink1Url.s:rx_wikilink_md_suffix
-" 1b) match URL within [URL][], [DESCRIPTION][URL]
-let g:vimwiki.rx.link_wiki_url1 = s:rx_wikilink_md_prefix.
-    \ '\zs'. g:vimwiki.rx.wikiLink1Url. '\ze'. s:rx_wikilink_md_separator.
-    \ s:rx_wikilink_md_suffix.
-    \ '\|'. s:rx_wikilink_md_prefix.
-    \ g:vimwiki.rx.wikiLink1Descr. s:rx_wikilink_md_separator.
-    \ '\zs'. g:vimwiki.rx.wikiLink1Url. '\ze'. s:rx_wikilink_md_suffix
-" 1c) match DESCRIPTION within [DESCRIPTION][URL]
-let g:vimwiki.rx.link_wiki_text1 = s:rx_wikilink_md_prefix.
-    \ '\zs'. g:vimwiki.rx.wikiLink1Descr.'\ze'. s:rx_wikilink_md_separator.
-    \ g:vimwiki.rx.wikiLink1Url.s:rx_wikilink_md_suffix
-" }}}
-
-" LINKS: Syntax helper {{{
-let g:vimwiki.rx.link_wiki_pre11 = s:rx_wikilink_md_prefix
-let g:vimwiki.rx.link_wiki_suff11 = s:rx_wikilink_md_separator.
-      \ g:vimwiki.rx.wikiLink1Url.s:rx_wikilink_md_suffix
-" }}}
-
-" *. ANY wikilink {{{
-" *a) match ANY wikilink
-let g:vimwiki.rx.link_wiki = ''.
-    \ g:vimwiki.rx.link_wiki0.'\|'.
-    \ g:vimwiki.rx.link_wiki1
-" *b) match URL within ANY wikilink
-let g:vimwiki.rx.link_wiki_url = ''.
-    \ g:vimwiki.rx.link_wiki_url0.'\|'.
-    \ g:vimwiki.rx.link_wiki_url1
-" *c) match DESCRIPTION within ANY wikilink
-let g:vimwiki.rx.link_wiki_text = ''.
-    \ g:vimwiki.rx.link_wiki_text0.'\|'.
-    \ g:vimwiki.rx.link_wiki_text1
-" }}}
-
-let g:vimwiki.rx.link_web0 = g:vimwiki.rx.link_web
-let g:vimwiki.rx.link_web_url0 = g:vimwiki.rx.link_web_url
-let g:vimwiki.rx.link_web_text0 = g:vimwiki.rx.link_web_text
-
-" LINKS: Setup weblink1 regexps {{{
-let g:vimwiki.rx.weblink1Prefix = '['
-let g:vimwiki.rx.weblink1Suffix = ')'
-let g:vimwiki.rx.weblink1Separator = ']('
-
-"
-" [DESCRIPTION](URL)
-"
-let g:vimwiki_Weblink1Template = g:vimwiki.rx.weblink1Prefix . '__LinkDescription__'.
-      \ g:vimwiki.rx.weblink1Separator. '__LinkUrl__'.
-      \ g:vimwiki.rx.weblink1Suffix
-
-let s:valid_chars = '[^\\]'
-
-let g:vimwiki.rx.weblink1Prefix = vimwiki#u#escape(g:vimwiki.rx.weblink1Prefix)
-let g:vimwiki.rx.weblink1Suffix = vimwiki#u#escape(g:vimwiki.rx.weblink1Suffix)
-let g:vimwiki.rx.weblink1Separator = vimwiki#u#escape(g:vimwiki.rx.weblink1Separator)
-let g:vimwiki.rx.weblink1Url = s:valid_chars.'\{-}'
-let g:vimwiki.rx.weblink1Descr = s:valid_chars.'\{-}'
-
-" match all
-let g:vimwiki.rx.link_web1 = g:vimwiki.rx.weblink1Prefix.
-      \ g:vimwiki.rx.weblink1Url.g:vimwiki.rx.weblink1Separator.
-      \ g:vimwiki.rx.weblink1Descr.g:vimwiki.rx.weblink1Suffix
-
-" match URL
-let g:vimwiki.rx.link_web_url1 = g:vimwiki.rx.weblink1Prefix.
-      \ g:vimwiki.rx.weblink1Descr. g:vimwiki.rx.weblink1Separator.
-      \ '\zs'.g:vimwiki.rx.weblink1Url.'\ze'. g:vimwiki.rx.weblink1Suffix
-
-" match DESCRIPTION
-let g:vimwiki.rx.link_web_text1 = g:vimwiki.rx.weblink1Prefix.
-      \ '\zs'.g:vimwiki.rx.weblink1Descr.'\ze'. g:vimwiki.rx.weblink1Separator.
-      \ g:vimwiki.rx.weblink1Url. g:vimwiki.rx.weblink1Suffix
-" }}}
-
-" Syntax helper {{{
-" TODO: image links too !!
-" let g:vimwiki.rx.link_web_pre11 = '!\?'. g:vimwiki.rx.weblink1Prefix
-let g:vimwiki.rx.link_web_pre11 = g:vimwiki.rx.weblink1Prefix
-let g:vimwiki.rx.link_web_suff11 = g:vimwiki.rx.weblink1Separator.
-      \ g:vimwiki.rx.weblink1Url.g:vimwiki.rx.weblink1Suffix
-" }}}
-
-" *. ANY weblink {{{
-" *a) match ANY weblink
-let g:vimwiki.rx.link_web = ''.
-    \ g:vimwiki.rx.link_web1.'\|'.
-    \ g:vimwiki.rx.link_web0
-" *b) match URL within ANY weblink
-let g:vimwiki.rx.link_web_url = ''.
-    \ g:vimwiki.rx.link_web_url1.'\|'.
-    \ g:vimwiki.rx.link_web_url0
-" *c) match DESCRIPTION within ANY weblink
-let g:vimwiki.rx.link_web_text = ''.
-    \ g:vimwiki.rx.link_web_text1.'\|'.
-    \ g:vimwiki.rx.link_web_text0
-" }}}
-
-let g:vimwiki.rx.link_any = g:vimwiki.rx.link_wiki . '\|' . g:vimwiki.rx.link_web
-
-
-let g:vimwiki.rx.mkd_ref = '\['.g:vimwiki.rx.link_wiki_text.']:\%(\s\+\|\n\)'.
-      \ g:vimwiki.rx.link_web0
-let g:vimwiki.rx.mkd_ref_text = '\[\zs'.g:vimwiki.rx.link_wiki_text.'\ze]:\%(\s\+\|\n\)'.
-      \ g:vimwiki.rx.link_web0
-let g:vimwiki.rx.mkd_ref_url = '\['.g:vimwiki.rx.link_wiki_text.']:\%(\s\+\|\n\)\zs'.
-      \ g:vimwiki.rx.link_web0.'\ze'
-
-
-" }}} end of Links
-
-" {{{ Link targets
+" {{{1 Match links
 
 call s:add_target_syntax(g:vimwiki.rx.link_wiki, 'VimwikiLink')
 call s:add_target_syntax(g:vimwiki.rx.link_wiki1, 'VimwikiWikiLink1')
@@ -281,90 +123,83 @@ let s:rxSchemes = '\w\+:'
 
 " [[nonwiki-scheme-URL]]
 let s:target = s:apply_template(
-      \ vimwiki#u#escape(g:vimwiki_WikiLinkTemplate1),
+      \ vimwiki#u#escape(g:vimwiki.templ.link_wiki0_1),
       \ s:rxSchemes.g:vimwiki.rx.link_wiki_url, g:vimwiki.rx.link_wiki_text)
 call s:add_target_syntax(s:target, 'VimwikiLink')
 
 " [[nonwiki-scheme-URL|DESCRIPTION]]
 let s:target = s:apply_template(
-      \ vimwiki#u#escape(g:vimwiki_WikiLinkTemplate2),
+      \ vimwiki#u#escape(g:vimwiki.templ.link_wiki0_2),
       \ s:rxSchemes.g:vimwiki.rx.link_wiki_url, g:vimwiki.rx.link_wiki_text)
 call s:add_target_syntax(s:target, 'VimwikiLink')
 
 " [nonwiki-scheme-URL]
 let s:target = s:apply_template(
-      \ vimwiki#u#escape(g:vimwiki_WikiLink1Template1),
-      \ s:rxSchemes.g:vimwiki.rx.wikiLink1Url, g:vimwiki.rx.wikiLink1Descr)
+      \ vimwiki#u#escape(g:vimwiki.templ.link_wiki1_1),
+      \ s:rxSchemes.'[^\\\[\]]\{-}', '[^\\\[\]]\{-}')
 call s:add_target_syntax(s:wrap_wikilink1_rx(s:target), 'VimwikiWikiLink1')
 
 " [DESCRIPTION][nonwiki-scheme-URL]
 let s:target = s:apply_template(
-      \ vimwiki#u#escape(g:vimwiki_WikiLink1Template2),
-      \ s:rxSchemes.g:vimwiki.rx.wikiLink1Url, g:vimwiki.rx.wikiLink1Descr)
+      \ vimwiki#u#escape(g:vimwiki.templ.link_wiki1_2),
+      \ s:rxSchemes.'[^\\\[\]]\{-}', '[^\\\[\]]\{-}')
 call s:add_target_syntax(s:wrap_wikilink1_rx(s:target), 'VimwikiWikiLink1')
-
-" }}}
-
-" {{{ Headers
-
-for s:i in range(1,6)
-  let g:vimwiki_rxH{s:i}_Template = repeat(g:vimwiki.rx.H, s:i).' __Header__'
-  let g:vimwiki_rxH{s:i} = '^\s*'.g:vimwiki.rx.H.'\{'.s:i.'}[^'.g:vimwiki.rx.H.'].*$'
-  let g:vimwiki_rxH{s:i}_Start = '^\s*'.g:vimwiki.rx.H.'\{'.s:i.'}[^'.g:vimwiki.rx.H.'].*$'
-  let g:vimwiki_rxH{s:i}_End = '^\s*'.g:vimwiki.rx.H.'\{1,'.s:i.'}[^'.g:vimwiki.rx.H.'].*$'
-endfor
-let g:vimwiki.rx.header = '^\s*\('.g:vimwiki.rx.H.'\{1,6}\)\zs[^'.g:vimwiki.rx.H.'].*\ze$'
-
-for s:i in range(1,6)
-  execute 'syntax match VimwikiHeader'.s:i.' /'.g:vimwiki_rxH{s:i}.'/ contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,VimwikiCode,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
-endfor
 
 " }}}1
 
-" possibly concealed chars " {{{
-syn match VimwikiEqInChar       contained /\$/   conceal
-syn match VimwikiBoldChar       contained /*/    conceal
-syn match VimwikiItalicChar     contained /_/    conceal
-syn match VimwikiBoldItalicChar contained /\*_/  conceal
-syn match VimwikiItalicBoldChar contained /_\*/  conceal
-syn match VimwikiCodeChar       contained /`/    conceal
-syn match VimwikiDelTextChar    contained /\~\~/ conceal
-syn match VimwikiSuperScript    contained /^/    conceal
-syn match VimwikiSubScript      contained /,,/   conceal
-" }}}
+" {{{1 Concealed
 
-" concealed link parts " {{{
+" Conceal some contained characters
+syntax match VimwikiEqInChar       contained /\$/   conceal
+syntax match VimwikiBoldChar       contained /*/    conceal
+syntax match VimwikiItalicChar     contained /_/    conceal
+syntax match VimwikiBoldItalicChar contained /\*_/  conceal
+syntax match VimwikiItalicBoldChar contained /_\*/  conceal
+syntax match VimwikiCodeChar       contained /`/    conceal
+syntax match VimwikiDelTextChar    contained /\~\~/ conceal
+syntax match VimwikiSuperScript    contained /^/    conceal
+syntax match VimwikiSubScript      contained /,,/   conceal
 
-" A shortener for long URLs: LinkRest (a middle part of the URL) is concealed
-" VimwikiLinkRest group is left undefined if link shortening is not desired
-execute 'syn match VimwikiLinkRest `\%(///\=[^/ \t]\+/\)\zs\S\+\ze'
-      \.'\%([/#?]\w\|\S\{15}\)`'.' cchar=~'.s:options
+" Match groups to force visible
+syntax match VimwikiEqInCharT       contained /\$/
+syntax match VimwikiBoldCharT       contained /*/
+syntax match VimwikiItalicCharT     contained /_/
+syntax match VimwikiBoldItalicCharT contained /\*_/
+syntax match VimwikiItalicBoldCharT contained /_\*/
+syntax match VimwikiCodeCharT       contained /`/
+syntax match VimwikiDelTextCharT    contained /\~\~/
+syntax match VimwikiSuperScriptT    contained /^/
+syntax match VimwikiSubScriptT      contained /,,/
 
-" conceal wikilinks
-execute 'syn match VimwikiLinkChar /'.s:rx_wikilink_prefix.'/'.s:options
-execute 'syn match VimwikiLinkChar /'.s:rx_wikilink_suffix.'/'.s:options
-execute 'syn match VimwikiLinkChar /'.s:rx_wikilink_prefix1.'/'.s:options
-execute 'syn match VimwikiLinkChar /'.s:rx_wikilink_suffix1.'/'.s:options
+" Shorten long URLS (conceal middle part)
+execute 'syntax match VimwikiLinkRest `\%(///\=[^/ \t]\+/\)\zs\S\+\ze'
+      \ . '\%([/#?]\w\|\S\{15}\)` cchar=~' . s:options
 
-" }}}
+execute 'syntax match VimwikiLinkChar /\[\[\/\?/' . s:options
+execute 'syntax match VimwikiLinkChar /\%(|[^\\\]]\{-}\)\?\]\]/' . s:options
 
-" non concealed chars " {{{
-execute 'syn match VimwikiHeaderChar contained /\%(^\s*'.g:vimwiki.rx.H.'\+\)\|\%('.g:vimwiki.rx.H.'\+\s*$\)/'
-syn match VimwikiEqInCharT contained /\$/
-syn match VimwikiBoldCharT contained /*/
-syn match VimwikiItalicCharT contained /_/
-syn match VimwikiBoldItalicCharT contained /\*_/
-syn match VimwikiItalicBoldCharT contained /_\*/
-syn match VimwikiCodeCharT contained /`/
-syn match VimwikiDelTextCharT contained /\~\~/
-syn match VimwikiSuperScriptT contained /^/
-syn match VimwikiSubScriptT contained /,,/
+execute 'syntax match VimwikiWikiLink1Char /[\]\[]\@<!\[/' . s:options
+execute 'syntax match VimwikiWikiLink1Char /\][\]\[]\@!/' . s:options
+"execute 'syntax match VimwikiWikiLink1Char /...\][\]\[]\@!/' . s:options
+execute 'syntax match VimwikiWeblink1Char /\[/' . s:options
+execute 'syntax match VimwikiWeblink1Char /\]([^\\]\{-})/' . s:options
 
-let g:vimwiki.rx.todo = '\C\%(TODO:\|DONE:\|STARTED:\|FIXME:\|FIXED:\|XXX:\)'
-execute 'syntax match VimwikiTodo /'. g:vimwiki.rx.todo .'/'
-" }}}
+" }}}1
 
-" main syntax groups {{{
+" {{{1 Define main syntax groups
+
+" Header
+for s:i in range(1,6)
+  execute 'syntax match VimwikiHeader' . s:i
+        \ . ' /^#\{' . s:i . '}[^#]/'
+        \ . ' contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,'
+        \ .           'VimwikiCode,VimwikiLink,VimwikiWeblink1,'
+        \ .           'VimwikiWikiLink1,@Spell'
+endfor
+syntax match VimwikiHeaderChar contained /^#\+/
+
+" TODO like items
+execute 'syntax match VimwikiTodo /' . g:vimwiki.rx.todo . '/'
 
 " Tables
 syntax match VimwikiTableRow /^\s*|.\+|\s*$/
@@ -397,11 +232,6 @@ execute 'syntax match VimwikiCheckBoxDone /'.g:vimwiki.rx.lst_item_no_checkbox.'
 syntax match VimwikiEqIn  /\$[^$`]\+\$/ contains=VimwikiEqInChar
 syntax match VimwikiEqInT /\$[^$`]\+\$/ contained contains=VimwikiEqInCharT
 
-let g:vimwiki.rx.bold = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'\*'.
-      \'\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)'.
-      \'\*'.
-      \'\%([[:punct:]]\|\s\|$\)\@='
 execute 'syntax match VimwikiBold /'.g:vimwiki.rx.bold.'/ contains=VimwikiBoldChar,@Spell'
 execute 'syntax match VimwikiBoldT /'.g:vimwiki.rx.bold.'/ contained contains=VimwikiBoldCharT,@Spell'
 
@@ -435,16 +265,6 @@ execute 'syntax region VimwikiPre start=/'.g:vimwiki.rx.preStart.
 execute 'syntax region VimwikiMath start=/'.g:vimwiki.rx.mathStart.
       \ '/ end=/'.g:vimwiki.rx.mathEnd.'/ contains=@Spell'
 
-" }}}
-
-" concealed chars " {{{
-
-execute 'syn match VimwikiWikiLink1Char /'.s:rx_wikilink_md_prefix.'/'.s:options
-execute 'syn match VimwikiWikiLink1Char /'.s:rx_wikilink_md_suffix.'/'.s:options
-execute 'syn match VimwikiWikiLink1Char /'.g:vimwiki.rx.link_wiki_pre11.'/'.s:options
-execute 'syn match VimwikiWikiLink1Char /'.g:vimwiki.rx.link_wiki_suff11.'/'.s:options
-execute 'syn match VimwikiWeblink1Char "'.g:vimwiki.rx.link_web_pre11.'"'.s:options
-execute 'syn match VimwikiWeblink1Char "'.g:vimwiki.rx.link_web_suff11.'"'.s:options
 " }}}
 
 " {{{1 Define highlighting
@@ -548,70 +368,7 @@ endfor
 
 " }}}1
 
-"
-" Nested syntax
-"
-function! s:detect_nested() " {{{1
-  let last_word = '\v.*<(\w+)\s*$'
-  let lines = map(filter(getline(1, "$"), 'v:val =~ "```" && v:val =~ last_word'),
-        \ 'substitute(v:val, last_word, "\\=submatch(1)", "")')
-  let dict = {}
-  for elem in lines
-    let dict[elem] = elem
-  endfor
-  return dict
-endfunction
-
-" }}}1
-function! s:add_nested(filetype, start, end, textSnipHl) abort " {{{1
-  " From http://vim.wikia.com/wiki/VimTip857
-  let ft=toupper(a:filetype)
-  let group='textGroup'.ft
-  if exists('b:current_syntax')
-    let s:current_syntax=b:current_syntax
-    " Remove current syntax definition, as some syntax files (e.g. cpp.vim)
-    " do nothing if b:current_syntax is defined.
-    unlet b:current_syntax
-  endif
-
-  " Some syntax files set up iskeyword which might scratch vimwiki a bit.
-  " Let us save and restore it later.
-  " let b:skip_set_iskeyword = 1
-  let is_keyword = &iskeyword
-
-  try
-    " keep going even if syntax file is not found
-    execute 'syntax include @'.group.' syntax/'.a:filetype.'.vim'
-    execute 'syntax include @'.group.' after/syntax/'.a:filetype.'.vim'
-  catch
-  endtry
-
-  let &iskeyword = is_keyword
-
-  if exists('s:current_syntax')
-    let b:current_syntax=s:current_syntax
-  else
-    unlet b:current_syntax
-  endif
-  execute 'syntax region textSnip'.ft.
-        \ ' matchgroup='.a:textSnipHl.
-        \ ' start="'.a:start.'" end="'.a:end.'"'.
-        \ ' contains=@'.group.' keepend'
-
-  " A workaround to Issue 115: Nested Perl syntax highlighting differs from
-  " regular one.
-  " Perl syntax file has perlFunctionName which is usually has no effect due to
-  " 'contained' flag. Now we have 'syntax include' that makes all the groups
-  " included as 'contained' into specific group.
-  " Here perlFunctionName (with quite an angry regexp "\h\w*[^:]") clashes with
-  " the rest syntax rules as now it has effect being really 'contained'.
-  " Clear it!
-  if ft =~? 'perl'
-    syntax clear perlFunctionName
-  endif
-endfunction
-
-" }}}1
+" {{{1 Nested syntax
 for [s:hl_syntax, s:vim_syntax] in items(s:detect_nested())
   call s:add_nested(s:vim_syntax,
         \ g:vimwiki.rx.preStart.'\%(.*[[:blank:][:punct:]]\)\?'.
@@ -619,16 +376,13 @@ for [s:hl_syntax, s:vim_syntax] in items(s:detect_nested())
         \ g:vimwiki.rx.preEnd, 'VimwikiPre')
 endfor
 
-"
-" Minor additional diary syntax
-"
-if !expand('%:p') =~ 'wiki\/journal' | finish | endif
+" }}}1
 
-" Set spell option
-syntax spell default
+" {{{1 Diary specific additions
+
+if !b:vimwiki.in_diary | finish | endif
 
 " Standard syntax elements
-syn match TODO    /TODO/
 syn match line    /-\{10,}/
 syn match number  /\d\+\.\d\+/
 syn match version /\d\+\.\d\+\(\.\d\)\+/
@@ -642,6 +396,7 @@ hi link line    line
 hi link time    number
 hi link number  Constant
 hi link version Statement
-hi link TODO    TODO
+
+" }}}1
 
 " vim: fdm=marker sw=2

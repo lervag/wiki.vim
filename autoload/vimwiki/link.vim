@@ -201,7 +201,7 @@ function! s:normalize_link_syntax_n() " {{{1
   if !empty(lnk)
     let sub = s:normalize_helper(lnk,
           \ g:vimwiki.rx.link_wiki_url, g:vimwiki.rx.link_wiki_text,
-          \ g:vimwiki_WikiLink1Template2)
+          \ g:vimwiki.templ.link_wiki1_2)
     call s:replacestr_at_cursor(g:vimwiki.rx.link_wiki0, sub)
     return
   endif
@@ -211,7 +211,7 @@ function! s:normalize_link_syntax_n() " {{{1
   if !empty(lnk)
     let sub = s:normalize_helper(lnk,
           \ g:vimwiki.rx.link_wiki_url, g:vimwiki.rx.link_wiki_text,
-          \ g:vimwiki_WikiLinkTemplate2)
+          \ g:vimwiki.templ.link_wiki0_2)
     call s:replacestr_at_cursor(g:vimwiki.rx.link_wiki1, sub)
     return
   endif
@@ -221,7 +221,7 @@ function! s:normalize_link_syntax_n() " {{{1
   if !empty(lnk)
     let sub = s:normalize_helper(lnk,
           \ g:vimwiki.rx.link_web_url, g:vimwiki.rx.link_web_text,
-          \ g:vimwiki_Weblink1Template)
+          \ g:vimwiki.templ.link_web1)
     call s:replacestr_at_cursor(g:vimwiki.rx.link_web, sub)
     return
   endif
@@ -233,7 +233,7 @@ function! s:normalize_link_syntax_n() " {{{1
   if !empty(lnk)
     let sub = s:normalize_helper(lnk,
           \ g:vimwiki.rx.word, '',
-          \ g:vimwiki_Weblink1Template)
+          \ g:vimwiki.templ.link_web1)
     call s:replacestr_at_cursor('\V'.lnk, sub)
     return
   endif
@@ -252,7 +252,7 @@ function! s:normalize_link_syntax_v() " {{{
   try
     norm! gvy
     let visual_selection = @"
-    let link = substitute(g:vimwiki_Weblink1Template, '__LinkUrl__', '\='."'".visual_selection."'", '')
+    let link = substitute(g:vimwiki.templ.link_web1, '__LinkUrl__', '\='."'".visual_selection."'", '')
     let link = substitute(link, '__LinkDescription__', '\='."'".visual_selection."'", '')
 
     call setreg('"', link, 'v')
@@ -308,13 +308,13 @@ function! s:normalize_link_in_diary(lnk) " {{{1
     let str = a:lnk
     let rxUrl = g:vimwiki.rx.word
     let rxDesc = ''
-    let template = g:vimwiki_WikiLinkTemplate1
+    let template = g:vimwiki.templ.link_wiki0_1
   else
     let depth = len(split(link_diary, '/'))
     let str = repeat('../', depth) . a:lnk . '|' . a:lnk
     let rxUrl = '^.*\ze|'
     let rxDesc = '|\zs.*$'
-    let template = g:vimwiki_WikiLinkTemplate2
+    let template = g:vimwiki.templ.link_wiki0_2
   endif
 
   return s:normalize_helper(str, rxUrl, rxDesc, template)

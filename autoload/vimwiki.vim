@@ -12,6 +12,7 @@ function! vimwiki#init() " {{{1
   let g:vimwiki.root = g:vimwiki_path
   let g:vimwiki.diary = g:vimwiki_path . 'journal/'
   let g:vimwiki.rx = {}
+  let g:vimwiki.templ = {}
 
   "
   " Define mappings
@@ -110,10 +111,74 @@ function! vimwiki#define_regexes() " {{{
   let g:vimwiki_list_markers = ['-', '*', '+', '1.']
   call vimwiki#lst#setup_marker_infos()
 
-  let g:vimwiki.rx.url_web = '\l\+:\%(//\)\?' . '\S\{-1,}\%(([^ \t()]*)\)\='
-  let g:vimwiki.rx.link_web = '\<'. g:vimwiki.rx.url_web . '\S*'
-  let g:vimwiki.rx.link_web_url = g:vimwiki.rx.link_web
-  let g:vimwiki.rx.link_web_text = ''
+  let g:vimwiki.templ.link_wiki0_1 = '[[__LinkUrl__]]'
+  let g:vimwiki.templ.link_wiki0_2 = '[[__LinkUrl__|__LinkDescription__]]'
+  let g:vimwiki.templ.link_wiki1_1 = '[__LinkUrl__][]'
+  let g:vimwiki.templ.link_wiki1_2 = '[__LinkDescription__][__LinkUrl__]'
+  let g:vimwiki.templ.link_web1 = '[__LinkDescription__](__LinkUrl__)'
+
+  let g:vimwiki.rx.link_wiki0      = '\[\[\/\?[^\\\]]\{-}\%(|[^\\\]]\{-}\)\?\]\]'
+  let g:vimwiki.rx.link_wiki0_url  = '\[\[\/\?\zs[^\\\]]\{-}\ze\%(|[^\\\]]\{-}\)\?\]\]'
+  let g:vimwiki.rx.link_wiki0_text = '\[\[\/\?[^\\\]]\{-}\%(|\zs[^\\\]]\{-}\ze\)\?\]\]'
+
+  let g:vimwiki.rx.link_wiki1 = '[\]\[]\@<!\['
+        \ . '[^\\\[\]]\{-}\]\[\%([^\\\[\]]\{-}\)\?'
+        \ . '\][\]\[]\@!'
+  let g:vimwiki.rx.link_wiki1_url = '[\]\[]\@<!\['
+        \ . '\%(\zs[^\\\[\]]\{-}\ze\]\[\|[^\\\[\]]\{-}\]\[\zs[^\\\[\]]\{-1,}\ze\)'
+        \ . '\][\]\[]\@!'
+  let g:vimwiki.rx.link_wiki1_text = '[\]\[]\@<!\['
+        \ . '\zs[^\\\[\]]\{-}\ze\]\[[^\\\[\]]\{-1,}'
+        \ . '\][\]\[]\@!'
+
+  let g:vimwiki.rx.link_wiki =
+      \   g:vimwiki.rx.link_wiki0 . '\|'
+      \ . g:vimwiki.rx.link_wiki1
+
+  let g:vimwiki.rx.link_wiki_url =
+      \   g:vimwiki.rx.link_wiki0_url . '\|'
+      \ . g:vimwiki.rx.link_wiki1_url
+
+  let g:vimwiki.rx.link_wiki_text =
+      \   g:vimwiki.rx.link_wiki0_text . '\|'
+      \ . g:vimwiki.rx.link_wiki1_text
+
+  let g:vimwiki.rx.url_web = '\l\+:\%(//\)\?\S\{-1,}\%(([^ \t()]*)\)\='
+  let g:vimwiki.rx.link_web0 = '\<'. g:vimwiki.rx.url_web . '\S*'
+  let g:vimwiki.rx.link_web0_url = g:vimwiki.rx.link_web0
+  let g:vimwiki.rx.link_web0_text = ''
+
+  let g:vimwiki.rx.link_web1 = '\[[^\\]\{-}\]([^\\]\{-})'
+  let g:vimwiki.rx.link_web1_url = '\[[^\\]\{-}\](\zs[^\\]\{-}\ze)'
+  let g:vimwiki.rx.link_web1_text = '\[\zs[^\\]\{-}\ze\]([^\\]\{-})'
+
+  let g:vimwiki.rx.link_web =
+      \ g:vimwiki.rx.link_web1.'\|'.
+      \ g:vimwiki.rx.link_web0
+
+  let g:vimwiki.rx.link_web_url =
+      \ g:vimwiki.rx.link_web1_url.'\|'.
+      \ g:vimwiki.rx.link_web0_url
+
+  let g:vimwiki.rx.link_web_text =
+      \ g:vimwiki.rx.link_web1_text.'\|'.
+      \ g:vimwiki.rx.link_web0_text
+
+  let g:vimwiki.rx.link_all =
+        \   g:vimwiki.rx.link_wiki . '\|'
+        \ . g:vimwiki.rx.link_web
+
+  let g:vimwiki.rx.mkd_ref =
+        \ '\[[^\\\]]\{-}\]:\%(\s\+\|\n\)'
+        \ . g:vimwiki.rx.link_web0
+  let g:vimwiki.rx.mkd_ref_url =
+        \ '\[[^\\\]]\{-}\]:\%(\s\+\|\n\)\zs'
+        \ . g:vimwiki.rx.link_web0 . '\ze'
+  let g:vimwiki.rx.mkd_ref_text =
+        \ '\[\zs[^\\\]]\{-}\ze\]:\%(\s\+\|\n\)'
+        \ . g:vimwiki.rx.link_web0
+
+  let g:vimwiki.rx.word = '[^[:blank:]!"$%&''()*+,:;<=>?\[\]\\^`{}]\+'
 
   let g:vimwiki.rx.H = '#'
 
@@ -130,6 +195,11 @@ function! vimwiki#define_regexes() " {{{
         \'_'.
         \'\%([^_`[:space:]][^_`]*[^_`[:space:]]\|[^_`[:space:]]\)'.
         \'_'.
+        \'\%([[:punct:]]\|\s\|$\)\@='
+  let g:vimwiki.rx.bold = '\%(^\|\s\|[[:punct:]]\)\@<='.
+        \'\*'.
+        \'\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)'.
+        \'\*'.
         \'\%([[:punct:]]\|\s\|$\)\@='
   let g:vimwiki.rx.boldItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
         \'\*_'.
@@ -148,6 +218,8 @@ function! vimwiki#define_regexes() " {{{
   let g:vimwiki.rx.HR = '^\s*-\{4,}\s*$'
   let g:vimwiki.rx.listDefine = '::\%(\s\|$\)'
   let g:vimwiki.rx.comment = '^\s*%%.*$'
+  let g:vimwiki.rx.todo = '\C\%(TODO\|DONE\|STARTED\|FIXME\|FIXED\):\?'
+  let g:vimwiki.rx.header = '^\(#\{1,6}\)\s*\zs[^#].*\ze$'
 endfunction
 
 " }}}1

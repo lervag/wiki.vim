@@ -226,7 +226,7 @@ function! vimwiki#page#create_toc() " {{{1
   for [lvl, link, desc] in headers
     let esc_link = substitute(link, "'", "''", 'g')
     let esc_desc = substitute(desc, "'", "''", 'g')
-    let link = substitute(g:vimwiki_WikiLinkTemplate2, '__LinkUrl__',
+    let link = substitute(g:vimwiki.templ.link_wiki0_2, '__LinkUrl__',
           \ '\='."'".'#'.esc_link."'", '')
     let link = substitute(link, '__LinkDescription__', '\='."'".esc_desc."'", '')
     call add(lines, startindent.repeat(indentstring, lvl-1).bullet.link)
