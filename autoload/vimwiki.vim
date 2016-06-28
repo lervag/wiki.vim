@@ -67,9 +67,9 @@ function! vimwiki#init_buffer() " {{{1
   " Keybindings
   "
   nnoremap <silent><buffer> <leader>wb :call vimwiki#link#get_backlinks()<cr>
-  nnoremap <silent><buffer> <tab>      :call vimwiki#link#find_next()<cr>
-  nnoremap <silent><buffer> <s-tab>    :call vimwiki#link#find_prev()<cr>
-  nnoremap <silent><buffer> <bs>       :call vimwiki#link#go_back()<cr>
+  nnoremap <silent><buffer> <tab>      :call vimwiki#nav#next_link()<cr>
+  nnoremap <silent><buffer> <s-tab>    :call vimwiki#nav#prev_link()<cr>
+  nnoremap <silent><buffer> <bs>       :call vimwiki#nav#return()<cr>
   nnoremap <silent><buffer> <cr>       :call vimwiki#link#follow()<cr>
   nnoremap <silent><buffer> <c-cr>     :call vimwiki#link#follow('vsplit')<cr>
   vnoremap <silent><buffer> <cr>      :<c-u>call vimwiki#link#normalize(1)<cr>

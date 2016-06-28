@@ -10,31 +10,6 @@
 " - Add normlize_link_in_diary?
 "
 
-function! vimwiki#link#find_next() "{{{1
-  call search(g:vimwiki.rx.link_any, 's')
-endfunction
-
-" }}}1
-function! vimwiki#link#find_prev() "{{{1
-  if vimwiki#u#in_syntax('VimwikiLink')
-        \ && vimwiki#u#in_syntax('VimwikiLink', line('.'), col('.')-1)
-    call search(g:vimwiki.rx.link_any, 'sb')
-  endif
-  call search(g:vimwiki.rx.link_any, 'sb')
-endfunction
-
-" }}}1
-function! vimwiki#link#go_back() "{{{1
-  if exists('b:vimwiki.prev_link')
-    let [l:file, l:pos] = b:vimwiki.prev_link
-    execute ':e ' . substitute(l:file, '\s', '\\\0', 'g')
-    call setpos('.', l:pos)
-  else
-    silent! pop!
-  endif
-endfunction
-
-" }}}1
 function! vimwiki#link#resolve(url, ...) " {{{1
   let l:link = {}
   let l:link.origin = a:0 > 0 ? a:1 : expand('%:p')
