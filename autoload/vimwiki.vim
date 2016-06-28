@@ -66,7 +66,7 @@ function! vimwiki#init_buffer() " {{{1
   "
   " Keybindings
   "
-  nnoremap <silent><buffer> <leader>wb :call vimwiki#link#get_backlinks()<cr>
+  nnoremap <silent><buffer> <leader>wb :call vimwiki#get_backlinks()<cr>
   nnoremap <silent><buffer> <tab>      :call vimwiki#nav#next_link()<cr>
   nnoremap <silent><buffer> <s-tab>    :call vimwiki#nav#prev_link()<cr>
   nnoremap <silent><buffer> <bs>       :call vimwiki#nav#return()<cr>
@@ -212,6 +212,34 @@ function! vimwiki#edit_file(filename, ...) "{{{1
 endfunction
 
 " }}}1
+function! vimwiki#get_backlinks() "{{{1
+  let l:origin = expand("%:p")
+  let l:locs = []
+
+  for l:file in globpath(g:vimwiki.root, '**/*.wiki', 0, 1)
+    if resolve(l:file) ==# resolve(l:origin) | break | endif
+
+    for l:link in vimwiki#page#get_links(l:file)
+      if resolve(l:link.filename) ==# resolve(l:origin)
+        call add(l:locs, {
+              \ 'filename' : l:file,
+              \ 'text' : empty(l:link.anchor) ? '' : 'Anchor: ' . l:anchor,
+              \ 'lnum' : l:link.lnum,
+              \ 'col' : l:link.col
+              \})
+      endif
+    endfor
+  endfor
+
+  if empty(l:locs)
+    echomsg 'Vimwiki: No other file links to this file'
+  else
+    call setloclist(0, l:locs, 'r')
+    lopen
+  endif
+endfunction
+
+"}}}1
 
 "
 " Utility

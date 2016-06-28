@@ -105,6 +105,37 @@ function! vimwiki#page#rename() "{{{1
 endfunction
 
 " }}}1
+function! vimwiki#page#get_links(...) "{{{1
+  let l:file = a:0 > 0 ? a:1 : expand('%')
+  if !filereadable(l:file) | return [] | endif
+
+  " TODO: Should match more types of links
+  let l:regex = g:vimwiki_markdown_wikilink
+
+  let l:links = []
+  let l:lnum = 0
+  for l:line in readfile(l:file)
+    let l:lnum += 1
+    let l:count = 0
+    while 1
+      let l:count += 1
+      let l:col = match(l:line, l:regex, 0, l:count)+1
+      if l:col <= 0 | break | endif
+
+      let l:link = extend(
+            \ vimwiki#link#parse(matchstr(l:line, l:regex, 0, l:count), l:file),
+            \ { 'lnum' : l:lnum, 'col' : l:col })
+
+      if has_key(l:link, 'filename')
+        call add(l:links, l:link)
+      endif
+    endwhile
+  endfor
+
+  return l:links
+endfunction
+
+"}}}1
 
 function! s:rename_open_buffer(fname, prev_link) " {{{1
   let l:opts = {}

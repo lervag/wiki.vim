@@ -194,66 +194,6 @@ function! vimwiki#link#normalize(...) " {{{1
 endfunction
 
 " }}}1
-function! vimwiki#link#get_from_file(file) "{{{1
-  if !filereadable(a:file) | return [] | endif
-
-  " TODO: Should match more types of links
-  let l:rx_link = g:vimwiki_markdown_wikilink
-
-  let l:links = []
-  let l:lnum = 0
-  for l:line in readfile(a:file)
-    let l:lnum += 1
-    let l:count = 0
-    while 1
-      let l:count += 1
-      let l:col = match(l:line, l:rx_link, 0, l:count)+1
-      if l:col <= 0 | break | endif
-
-      let l:link = extend(
-            \ { 'lnum' : l:lnum, 'col' : l:col },
-            \ vimwiki#link#parse(
-            \   matchstr(l:line, l:rx_link, 0, l:count),
-            \   a:file))
-
-      if has_key(l:link, 'filename')
-        call add(l:links, l:link)
-      endif
-    endwhile
-  endfor
-
-  return l:links
-endfunction
-
-"}}}1
-function! vimwiki#link#get_backlinks() "{{{1
-  let l:origin = expand("%:p")
-  let l:locs = []
-
-  for l:file in globpath(g:vimwiki.root, '**/*.wiki', 0, 1)
-    if resolve(l:file) ==# resolve(l:origin) | break | endif
-
-    for l:link in vimwiki#link#get_from_file(l:file)
-      if resolve(l:link.filename) ==# resolve(l:origin)
-        call add(l:locs, {
-              \ 'filename' : l:file,
-              \ 'text' : empty(l:link.anchor) ? '' : 'Anchor: ' . l:anchor,
-              \ 'lnum' : l:link.lnum,
-              \ 'col' : l:link.col
-              \})
-      endif
-    endfor
-  endfor
-
-  if empty(l:locs)
-    echomsg 'Vimwiki: No other file links to this file'
-  else
-    call setloclist(0, l:locs, 'r')
-    lopen
-  endif
-endfunction
-
-"}}}1
 
 
 function! s:normalize_link_syntax_n() " {{{1
