@@ -10,20 +10,20 @@
 " - Add normlize_link_in_diary?
 "
 
-function! vimwiki#link#resolve(url, ...) " {{{1
+function! vimwiki#link#parse(url, ...) " {{{1
   let l:link = {}
+  let l:link.url = a:url
   let l:link.origin = a:0 > 0 ? a:1 : expand('%:p')
 
   " Decompose link into its scheme and link text
-  let l:decompose = matchlist(a:url, '\v((\w+):%(//)?)?(.*)')
-  if empty(l:decompose[2])
+  let l:link_parts = matchlist(a:url, '\v((\w+):%(//)?)?(.*)')
+  let l:link.text = l:link_parts[3]
+  if empty(l:link_parts[2])
     let l:link.scheme = 'wiki'
     let l:link.url = 'wiki:' . a:url
   else
-    let l:link.scheme = l:decompose[2]
-    let l:link.url = a:url
+    let l:link.scheme = l:link_parts[2]
   endif
-  let l:link.text = l:decompose[3]
 
   " This is enough for external links, such as weblinks
   if l:link.scheme !~# 'wiki\|diary\|local\|file'

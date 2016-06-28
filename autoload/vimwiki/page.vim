@@ -16,7 +16,7 @@ function! vimwiki#page#delete() "{{{1
     return
   endtry
 
-  call vimwiki#link#go_back()
+  call vimwiki#nav#return()
   execute 'bdelete! ' . escape(l:filename, " ")
 endfunction
 

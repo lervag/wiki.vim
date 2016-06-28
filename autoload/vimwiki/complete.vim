@@ -15,7 +15,7 @@ function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
     if a:base =~# '#'
       let l:segments = split(a:base, '#', 1)
       let l:base = join(l:segments[1:], '#')
-      let l:link_info = vimwiki#link#resolve(
+      let l:link_info = vimwiki#link#parse(
             \ empty(l:segments[0])
             \   ? expand('%:t:r')
             \   : l:segments[0])
