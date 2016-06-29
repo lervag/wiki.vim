@@ -8,144 +8,18 @@ if exists('b:current_syntax') | finish | endif
 let b:current_syntax = "vimwiki"
 
 syntax spell toplevel
-let s:options = ' contained transparent contains=NONE conceal'
 
-function! s:add_target_syntax(target, type) " {{{
-  let prefix0 = 'syntax match '.a:type.' `'
-  let suffix0 = '` display contains=@NoSpell,VimwikiLinkRest,'.a:type.'Char'
-  let prefix1 = 'syntax match '.a:type.'T `'
-  let suffix1 = '` display contained'
-  execute prefix0. a:target. suffix0
-  execute prefix1. a:target. suffix1
-endfunction
-
-" }}}
-function! s:wrap_wikilink1_rx(target) " {{{
-  return '[\]\[]\@<!' . a:target . '[\]\[]\@!'
-endfunction
-
-" }}}
-function! s:existing_mkd_refs() " {{{
-  call vimwiki#markdown_base#reset_mkd_refs()
-  return keys(vimwiki#markdown_base#get_reflinks())
-endfunction
-
-" }}}
-function! s:apply_template(template, rxUrl, rxDesc) " {{{1
-  let l:lnk = a:template
-
-  if !empty(a:rxUrl)
-    let l:lnk = substitute(l:lnk, '__LinkUrl__',
-          \ '\=''' . a:rxUrl . '''', 'g')
-  endif
-
-  if !empty(a:rxDesc)
-    let l:lnk = substitute(l:lnk, '__LinkDescription__',
-          \ '\=''' . a:rxDesc . '''', 'g')
-  endif
-
-  return l:lnk
-endfunction
-
-" }}}1
-function! s:detect_nested() " {{{1
-  let last_word = '\v.*<(\w+)\s*$'
-  let lines = map(filter(getline(1, "$"), 'v:val =~ "```" && v:val =~ last_word'),
-        \ 'substitute(v:val, last_word, "\\=submatch(1)", "")')
-  let dict = {}
-  for elem in lines
-    let dict[elem] = elem
-  endfor
-  return dict
-endfunction
-
-" }}}1
-function! s:add_nested(filetype, start, end, textSnipHl) abort " {{{1
-  " From http://vim.wikia.com/wiki/VimTip857
-  let ft=toupper(a:filetype)
-  let group='textGroup'.ft
-  if exists('b:current_syntax')
-    let s:current_syntax=b:current_syntax
-    " Remove current syntax definition, as some syntax files (e.g. cpp.vim)
-    " do nothing if b:current_syntax is defined.
-    unlet b:current_syntax
-  endif
-
-  " Some syntax files set up iskeyword which might scratch vimwiki a bit.
-  " Let us save and restore it later.
-  " let b:skip_set_iskeyword = 1
-  let is_keyword = &iskeyword
-
-  try
-    " keep going even if syntax file is not found
-    execute 'syntax include @'.group.' syntax/'.a:filetype.'.vim'
-    execute 'syntax include @'.group.' after/syntax/'.a:filetype.'.vim'
-  catch
-  endtry
-
-  let &iskeyword = is_keyword
-
-  if exists('s:current_syntax')
-    let b:current_syntax=s:current_syntax
-  else
-    unlet b:current_syntax
-  endif
-  execute 'syntax region textSnip'.ft.
-        \ ' matchgroup='.a:textSnipHl.
-        \ ' start="'.a:start.'" end="'.a:end.'"'.
-        \ ' contains=@'.group.' keepend'
-
-  " A workaround to Issue 115: Nested Perl syntax highlighting differs from
-  " regular one.
-  " Perl syntax file has perlFunctionName which is usually has no effect due to
-  " 'contained' flag. Now we have 'syntax include' that makes all the groups
-  " included as 'contained' into specific group.
-  " Here perlFunctionName (with quite an angry regexp "\h\w*[^:]") clashes with
-  " the rest syntax rules as now it has effect being really 'contained'.
-  " Clear it!
-  if ft =~? 'perl'
-    syntax clear perlFunctionName
-  endif
-endfunction
-
-" }}}1
-
-" {{{1 Match links
-
-call s:add_target_syntax(g:vimwiki.rx.link_wiki, 'VimwikiLink')
-call s:add_target_syntax(g:vimwiki.rx.link_wiki1, 'VimwikiWikiLink1')
-call s:add_target_syntax(g:vimwiki.rx.link_web, 'VimwikiLink')
-call s:add_target_syntax(g:vimwiki.rx.link_web1, 'VimwikiWeblink1')
-
-" WikiLink
-" All remaining schemes are highlighted automatically
-let s:rxSchemes = '\w\+:'
-
-" [[nonwiki-scheme-URL]]
-let s:target = s:apply_template(
-      \ vimwiki#u#escape(g:vimwiki.templ.link_wiki0_1),
-      \ s:rxSchemes.g:vimwiki.rx.link_wiki_url, g:vimwiki.rx.link_wiki_text)
-call s:add_target_syntax(s:target, 'VimwikiLink')
-
-" [[nonwiki-scheme-URL|DESCRIPTION]]
-let s:target = s:apply_template(
-      \ vimwiki#u#escape(g:vimwiki.templ.link_wiki0_2),
-      \ s:rxSchemes.g:vimwiki.rx.link_wiki_url, g:vimwiki.rx.link_wiki_text)
-call s:add_target_syntax(s:target, 'VimwikiLink')
-
-" [nonwiki-scheme-URL]
-let s:target = s:apply_template(
-      \ vimwiki#u#escape(g:vimwiki.templ.link_wiki1_1),
-      \ s:rxSchemes.'[^\\\[\]]\{-}', '[^\\\[\]]\{-}')
-call s:add_target_syntax(s:wrap_wikilink1_rx(s:target), 'VimwikiWikiLink1')
-
-" [DESCRIPTION][nonwiki-scheme-URL]
-let s:target = s:apply_template(
-      \ vimwiki#u#escape(g:vimwiki.templ.link_wiki1_2),
-      \ s:rxSchemes.'[^\\\[\]]\{-}', '[^\\\[\]]\{-}')
-call s:add_target_syntax(s:wrap_wikilink1_rx(s:target), 'VimwikiWikiLink1')
-
-" }}}1
+"
+" Match links
+"
+for s:m in values(g:vimwiki.link_matcher)
+  execute 'syntax cluster VimwikiLink  add=' . s:m.syntax
+  execute 'syntax cluster VimwikiLinkT add=' . s:m.syntax . 'T'
+  execute 'syntax match ' . s:m.syntax . ' `' . s:m.rx_full . '` '
+        \ . 'display contains=@NoSpell,' . s:m.syntax . 'Char'
+  execute 'syntax match ' . s:m.syntax . 'T `' . s:m.rx_full . '` '
+        \ . 'display contained'
+endfor
 
 " {{{1 Concealed
 
@@ -172,17 +46,25 @@ syntax match VimwikiSuperScriptT    contained /^/
 syntax match VimwikiSubScriptT      contained /,,/
 
 " Shorten long URLS (conceal middle part)
-execute 'syntax match VimwikiLinkRest `\%(///\=[^/ \t]\+/\)\zs\S\+\ze'
-      \ . '\%([/#?]\w\|\S\{15}\)` cchar=~' . s:options
+syntax match VimwikiLinkUrlChar
+      \ `\%(///\=[^/ \t]\+/\)\zs\S\+\ze\%([/#?]\w\|\S\{15}\)`
+      \ cchar=~ contained transparent contains=NONE conceal
 
-execute 'syntax match VimwikiLinkChar /\[\[\/\?\%([^\\\]]\{-}|\)\?/' . s:options
-execute 'syntax match VimwikiLinkChar /\]\]/' . s:options
+syntax match VimwikiLinkWikiChar /\[\[\/\?\%([^\\\]]\{-}|\)\?/
+      \ contained transparent contains=NONE conceal
+syntax match VimwikiLinkWikiChar /\]\]/
+      \ contained transparent contains=NONE conceal
 
-execute 'syntax match VimwikiWikiLink1Char /[\]\[]\@<!\[/' . s:options
-execute 'syntax match VimwikiWikiLink1Char /\][\]\[]\@!/' . s:options
-"execute 'syntax match VimwikiWikiLink1Char /...\][\]\[]\@!/' . s:options
-execute 'syntax match VimwikiWeblink1Char /\[/' . s:options
-execute 'syntax match VimwikiWeblink1Char /\]([^\\]\{-})/' . s:options
+syntax match VimwikiLinkRefChar /[\]\[]\@<!\[/
+      \ contained transparent contains=NONE conceal
+syntax match VimwikiLinkRefChar /\][\]\[]\@!/
+      \ contained transparent contains=NONE conceal
+" syntax match VimwikiLinkRefChar /...\][\]\[]\@!/
+"       \ contained transparent contains=NONE conceal
+syntax match VimwikiLinkMdChar /\[/
+      \ contained transparent contains=NONE conceal
+syntax match VimwikiLinkMdChar /\]([^\\]\{-})/
+      \ contained transparent contains=NONE conceal
 
 " }}}1
 
@@ -193,8 +75,7 @@ for s:i in range(1,6)
   execute 'syntax match VimwikiHeader' . s:i
         \ . ' /^#\{' . s:i . '}\zs[^#].*/'
         \ . ' contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,'
-        \ .           'VimwikiCode,VimwikiLink,VimwikiWeblink1,'
-        \ .           'VimwikiWikiLink1,@Spell'
+        \ .           'VimwikiCode,@VimwikiLink,@Spell'
 endfor
 syntax match VimwikiHeaderChar contained /^#\+/
 
@@ -205,8 +86,8 @@ execute 'syntax match VimwikiTodo /' . g:vimwiki.rx.todo . '/'
 syntax match VimwikiTableRow /^\s*|.\+|\s*$/
       \ transparent contains=VimwikiCellSeparator,
                            \ VimwikiLinkT,
-                           \ VimwikiWeblink1T,
-                           \ VimwikiWikiLink1T,
+                           \ VimwikiLinkMdT,
+                           \ VimwikiLinkRefT,
                            \ VimwikiNoExistsLinkT,
                            \ VimwikiTodo,
                            \ VimwikiBoldT,
@@ -227,7 +108,7 @@ execute 'syntax match VimwikiList /'.g:vimwiki.rx.lst_item_no_checkbox.'/'
 execute 'syntax match VimwikiList /'.g:vimwiki.rx.listDefine.'/'
 execute 'syntax match VimwikiListTodo /'.g:vimwiki.rx.lst_item.'/'
 execute 'syntax match VimwikiCheckBoxDone /'.g:vimwiki.rx.lst_item_no_checkbox.'\s*\['.g:vimwiki_listsyms_list[4].'\]\s.*$/ '.
-      \ 'contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
+      \ 'contains=VimwikiNoExistsLink,@VimwikiLink,@Spell'
 
 syntax match VimwikiEqIn  /\$[^$`]\+\$/ contains=VimwikiEqInChar
 syntax match VimwikiEqInT /\$[^$`]\+\$/ contained contains=VimwikiEqInCharT
@@ -349,11 +230,20 @@ hi def link VimwikiHeaderCharT VimwikiMarkers
 hi def link VimwikiLinkCharT VimwikiLinkT
 hi def link VimwikiNoExistsLinkCharT VimwikiNoExistsLinkT
 
-hi def link VimwikiWeblink1 VimwikiLink
-hi def link VimwikiWeblink1T VimwikiLink
+hi def link VimwikiLinkWiki  VimwikiLink
+hi def link VimwikiLinkWikiT VimwikiLink
 
-hi def link VimwikiWikiLink1 VimwikiLink
-hi def link VimwikiWikiLink1T VimwikiLink
+hi def link VimwikiLinkUrl  ModeMsg
+hi def link VimwikiLinkUrlT ModeMsg
+
+hi def link VimwikiLinkMd  VimwikiLink
+hi def link VimwikiLinkMdT VimwikiLink
+
+hi def link VimwikiLinkRef  VimwikiLink
+hi def link VimwikiLinkRefT VimwikiLink
+
+hi def link VimwikiLinkRefTarget  VimwikiLink
+hi def link VimwikiLinkRefTargetT VimwikiLink
 
 "
 " header groups highlighting
@@ -369,6 +259,69 @@ endfor
 " }}}1
 
 " {{{1 Nested syntax
+
+function! s:detect_nested() " {{{2
+  let last_word = '\v.*<(\w+)\s*$'
+  let lines = map(filter(getline(1, "$"), 'v:val =~ "```" && v:val =~ last_word'),
+        \ 'substitute(v:val, last_word, "\\=submatch(1)", "")')
+  let dict = {}
+  for elem in lines
+    let dict[elem] = elem
+  endfor
+  return dict
+endfunction
+
+" }}}2
+function! s:add_nested(filetype, start, end, textSnipHl) abort " {{{2
+  " From http://vim.wikia.com/wiki/VimTip857
+  let ft=toupper(a:filetype)
+  let group='textGroup'.ft
+  if exists('b:current_syntax')
+    let s:current_syntax=b:current_syntax
+    " Remove current syntax definition, as some syntax files (e.g. cpp.vim)
+    " do nothing if b:current_syntax is defined.
+    unlet b:current_syntax
+  endif
+
+  " Some syntax files set up iskeyword which might scratch vimwiki a bit.
+  " Let us save and restore it later.
+  " let b:skip_set_iskeyword = 1
+  let is_keyword = &iskeyword
+
+  try
+    " keep going even if syntax file is not found
+    execute 'syntax include @'.group.' syntax/'.a:filetype.'.vim'
+    execute 'syntax include @'.group.' after/syntax/'.a:filetype.'.vim'
+  catch
+  endtry
+
+  let &iskeyword = is_keyword
+
+  if exists('s:current_syntax')
+    let b:current_syntax=s:current_syntax
+  else
+    unlet b:current_syntax
+  endif
+  execute 'syntax region textSnip'.ft.
+        \ ' matchgroup='.a:textSnipHl.
+        \ ' start="'.a:start.'" end="'.a:end.'"'.
+        \ ' contains=@'.group.' keepend'
+
+  " A workaround to Issue 115: Nested Perl syntax highlighting differs from
+  " regular one.
+  " Perl syntax file has perlFunctionName which is usually has no effect due to
+  " 'contained' flag. Now we have 'syntax include' that makes all the groups
+  " included as 'contained' into specific group.
+  " Here perlFunctionName (with quite an angry regexp "\h\w*[^:]") clashes with
+  " the rest syntax rules as now it has effect being really 'contained'.
+  " Clear it!
+  if ft =~? 'perl'
+    syntax clear perlFunctionName
+  endif
+endfunction
+
+" }}}2
+
 for [s:hl_syntax, s:vim_syntax] in items(s:detect_nested())
   call s:add_nested(s:vim_syntax,
         \ g:vimwiki.rx.preStart.'\%(.*[[:blank:][:punct:]]\)\?'.

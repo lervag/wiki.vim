@@ -11,34 +11,40 @@
 "
 
 function! vimwiki#link#get_at_cursor() " {{{1
-  let l:lnk = matchstr(s:matchstr_at_cursor(g:vimwiki.rx.link_wiki),
-        \              g:vimwiki.rx.link_wiki_url)
+  "
+  " Try to match link at cursor position
+  "
+  for l:m in values(g:vimwiki.link_matcher)
+    let l:url = matchstr(s:matchstr_at_cursor(l:m.rx_full), l:m.rx_url)
+    if !empty(l:url)
+      return vimwiki#link#parse(l:url, { 'type' : l:m.default_scheme })
+    endif
+  endfor
 
-  if empty(l:lnk)
-    let l:lnk = matchstr(s:matchstr_at_cursor(g:vimwiki.rx.link_web),
-          \              g:vimwiki.rx.link_web_url)
+  "
+  " Also match ISO dates as 
+  "
+  let l:url = s:matchstr_at_cursor('\d\d\d\d-\d\d-\d\d')
+  if !empty(l:url)
+    return vimwiki#link#parse(l:url, { 'default_scheme' : 'diary' })
   endif
 
-  if empty(l:lnk)
-    let l:lnk = s:matchstr_at_cursor('\d\d\d\d-\d\d-\d\d')
-  endif
-
-  return empty(l:lnk) ? {} : vimwiki#link#parse(l:lnk)
+  return {}
 endfunction
 
 " }}}1
 function! vimwiki#link#parse(url, ...) " {{{1
+  let l:options = a:0 > 0 ? a:1 : {}
+
   let l:link = {}
   let l:link.url = a:url
-  let l:link.origin = a:0 > 0 ? a:1 : expand('%:p')
+  let l:link.origin = get(l:options, 'origin', expand('%:p'))
 
   " Decompose link into its scheme and link text
   let l:link_parts = matchlist(a:url, '\v((\w+):%(//)?)?(.*)')
   let l:link.text = l:link_parts[3]
   if empty(l:link_parts[2])
-    let l:link.scheme =
-          \ l:link.url =~# '^\d\d\d\d-\d\d-\d\d$'
-          \ ? 'diary' : 'wiki'
+    let l:link.scheme = get(l:options, 'default_scheme', 'wiki')
     let l:link.url = l:link.scheme . ':' . a:url
   else
     let l:link.scheme = l:link_parts[2]
@@ -152,14 +158,15 @@ function! s:follow_link_wiki(...) dict " {{{1
 
 "     try
 "       " Why noautocmd? Because https://github.com/vimwiki/vimwiki/issues/121
-"       noautocmd execute 'vimgrep #'.g:vimwiki.rx.mkd_ref.'#j %'
+"       noautocmd execute 'vimgrep #'
+"         \ . g:vimwiki.link_matcher.ref_target.rx_full . '#j %'
 "     catch /^Vim\%((\a\+)\)\=:E480/
 "     endtry
 
 "     for d in getqflist()
 "       let matchline = join(getline(d.lnum, min([d.lnum+1, line('$')])), ' ')
-"       let descr = matchstr(matchline, g:vimwiki.rx.mkd_ref_text)
-"       let url = matchstr(matchline, g:vimwiki.rx.mkd_ref_url)
+"       let descr = matchstr(matchline, g:vimwiki.link_matcher.ref_target.rx_text)
+"       let url = matchstr(matchline, g:vimwiki.link_matcher.ref_target.rx_url)
 "       if descr != '' && url != ''
 "         let b:vimwiki.reflinks[descr] = url
 "       endif
@@ -203,48 +210,37 @@ endfunction
 function! s:normalize_link_syntax_n() " {{{1
   let lnum = line('.')
 
-  " try WikiLink0: replace with WikiLink1
-  let lnk = s:matchstr_at_cursor(g:vimwiki.rx.link_wiki0)
+  let lnk = s:matchstr_at_cursor(g:vimwiki.link_matcher.wiki.rx_full)
   if !empty(lnk)
-    let sub = s:normalize_helper(lnk,
-          \ g:vimwiki.rx.link_wiki_url, g:vimwiki.rx.link_wiki_text,
-          \ g:vimwiki.templ.link_wiki1_2)
-    call s:replacestr_at_cursor(g:vimwiki.rx.link_wiki0, sub)
-    return
-  endif
-  
-  " try WikiLink1: replace with WikiLink0
-  let lnk = s:matchstr_at_cursor(g:vimwiki.rx.link_wiki1)
-  if !empty(lnk)
-    let sub = s:normalize_helper(lnk,
-          \ g:vimwiki.rx.link_wiki_url, g:vimwiki.rx.link_wiki_text,
-          \ g:vimwiki.templ.link_wiki0_2)
-    call s:replacestr_at_cursor(g:vimwiki.rx.link_wiki1, sub)
-    return
-  endif
-  
-  " try Weblink
-  let lnk = s:matchstr_at_cursor(g:vimwiki.rx.link_web)
-  if !empty(lnk)
-    let sub = s:normalize_helper(lnk,
-          \ g:vimwiki.rx.link_web_url, g:vimwiki.rx.link_web_text,
-          \ g:vimwiki.templ.link_web1)
-    call s:replacestr_at_cursor(g:vimwiki.rx.link_web, sub)
+    let sub = s:normalize_helper(lnk, g:vimwiki.link_matcher.wiki,
+          \ g:vimwiki.link_matcher.ref.template[1])
+    call s:replacestr_at_cursor(g:vimwiki.link_matcher.wiki.rx_full, sub)
     return
   endif
 
-  " try Word (any characters except separators)
-  " rxWord is less permissive than rxWikiLinkUrl which is used in
-  " normalize_link_syntax_v
+  let lnk = s:matchstr_at_cursor(g:vimwiki.link_matcher.ref.rx_full)
+  if !empty(lnk)
+    let sub = s:normalize_helper(lnk, g:vimwiki.link_matcher.ref,
+          \ g:vimwiki.link_matcher.wiki.template[1])
+    call s:replacestr_at_cursor(g:vimwiki.link_matcher.ref.rx_full, sub)
+    return
+  endif
+
+  let lnk = s:matchstr_at_cursor(g:vimwiki.link_matcher.url.rx_full)
+  if !empty(lnk)
+    let sub = s:normalize_helper(lnk, g:vimwiki.link_matcher.url,
+          \ g:vimwiki.link_matcher.md.template)
+    call s:replacestr_at_cursor(g:vimwiki.link_matcher.url.rx_full, sub)
+    return
+  endif
+
   let lnk = s:matchstr_at_cursor(g:vimwiki.rx.word)
   if !empty(lnk)
-    let sub = s:normalize_helper(lnk,
-          \ g:vimwiki.rx.word, '',
-          \ g:vimwiki.templ.link_web1)
-    call s:replacestr_at_cursor('\V'.lnk, sub)
+    let sub = s:normalize_helper(lnk, { 'rx_url' : g:vimwiki.rx.word },
+          \ g:vimwiki.link_matcher.wiki.template[1])
+    call s:replacestr_at_cursor(g:vimwiki.rx.word, sub)
     return
   endif
-
 endfunction
 
 " }}}1
@@ -259,8 +255,9 @@ function! s:normalize_link_syntax_v() " {{{
   try
     norm! gvy
     let visual_selection = @"
-    let link = substitute(g:vimwiki.templ.link_web1, '__LinkUrl__', '\='."'".visual_selection."'", '')
-    let link = substitute(link, '__LinkDescription__', '\='."'".visual_selection."'", '')
+    let link = substitute(g:vimwiki.link_matcher.md.template,
+          \ '__Url__', '\='."'".visual_selection."'", '')
+    let link = substitute(link, '__Text__', '\='."'".visual_selection."'", '')
 
     call setreg('"', link, 'v')
 
@@ -273,17 +270,16 @@ function! s:normalize_link_syntax_v() " {{{
   endtry
 
 endfunction " }}}
-function! s:normalize_helper(str, rxUrl, rxDesc, template) " {{{1
-  let l:url = matchstr(a:str, a:rxUrl)
-  let l:descr = matchstr(a:str, a:rxDesc)
-  if empty(l:descr)
-    let l:descr = s:clean_url(l:url)
+function! s:normalize_helper(str, matcher, template) " {{{1
+  let l:url = matchstr(a:str, a:matcher.rx_url)
+  let l:text = matchstr(a:str, get(a:matcher, 'rx_text', ''))
+  if empty(l:text)
+    let l:text = s:clean_url(l:url)
   endif
 
   return substitute(
-        \ substitute(a:template,
-        \   '__LinkDescription__', '\="' . l:descr . '"', ''),
-        \ '__LinkUrl__', '\="' . l:url . '"', '')
+        \ substitute(a:template, '__Text__', '\="' . l:text . '"', ''),
+        \ '__Url__', '\="' . l:url . '"', '')
 endfunction
 
 " }}}1
@@ -315,16 +311,18 @@ function! s:normalize_link_in_diary(lnk) " {{{1
     let str = a:lnk
     let rxUrl = g:vimwiki.rx.word
     let rxDesc = ''
-    let template = g:vimwiki.templ.link_wiki0_1
+    let template = g:vimwiki.link_matcher.wiki.template[0]
   else
     let depth = len(split(link_diary, '/'))
     let str = repeat('../', depth) . a:lnk . '|' . a:lnk
     let rxUrl = '^.*\ze|'
     let rxDesc = '|\zs.*$'
-    let template = g:vimwiki.templ.link_wiki0_2
+    let template = g:vimwiki.link_matcher.wiki.template[1]
   endif
 
-  return s:normalize_helper(str, rxUrl, rxDesc, template)
+  return s:normalize_helper(str,
+        \ { 'rx_url' : rxUrl, 'rx_text' : rxDesc },
+        \ template)
 endfunction
 
 " }}}1

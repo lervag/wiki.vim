@@ -110,72 +110,68 @@ function! vimwiki#define_regexes() " {{{
   let g:vimwiki_list_markers = ['-', '*', '+', '1.']
   call vimwiki#lst#setup_marker_infos()
 
-  let g:vimwiki.templ.link_wiki0_1 = '[[__LinkUrl__]]'
-  let g:vimwiki.templ.link_wiki0_2 = '[[__LinkUrl__|__LinkDescription__]]'
-  let g:vimwiki.templ.link_wiki1_1 = '[__LinkUrl__][]'
-  let g:vimwiki.templ.link_wiki1_2 = '[__LinkDescription__][__LinkUrl__]'
-  let g:vimwiki.templ.link_web1 = '[__LinkDescription__](__LinkUrl__)'
+  "
+  " Define link matchers
+  "
+  let l:rx_url = '\<\l\+:\%(//\)\?\S*'
+  let g:vimwiki.link_matcher = {}
+  let g:vimwiki.link_matcher.url = {
+        \ 'template' : '__Url__',
+        \ 'rx_full' : l:rx_url,
+        \ 'rx_url' : l:rx_url,
+        \ 'rx_text' : '',
+        \ 'syntax' : 'VimwikiLinkUrl',
+        \ 'default_scheme' : 'http',
+        \}
+  let g:vimwiki.link_matcher.wiki = {
+        \ 'template' : [
+        \   '[[__Url__]]',
+        \   '[[__Url__|__Text__]]',
+        \ ],
+        \ 'rx_full' : '\[\[\/\?[^\\\]]\{-}\%(|[^\\\]]\{-}\)\?\]\]',
+        \ 'rx_url' : '\[\[\/\?\zs[^\\\]]\{-}\ze\%(|[^\\\]]\{-}\)\?\]\]',
+        \ 'rx_text' : '\[\[\/\?[^\\\]]\{-}\%(|\zs[^\\\]]\{-}\ze\)\?\]\]',
+        \ 'syntax' : 'VimwikiLinkWiki',
+        \ 'default_scheme' : 'wiki',
+        \}
+  let g:vimwiki.link_matcher.md = {
+        \ 'template' : '[__Text__](__Url__)',
+        \ 'rx_full' : '\[[^\\]\{-}\]([^\\]\{-})',
+        \ 'rx_url' : '\[[^\\]\{-}\](\zs[^\\]\{-}\ze)',
+        \ 'rx_text' : '\[\zs[^\\]\{-}\ze\]([^\\]\{-})',
+        \ 'syntax' : 'VimwikiLinkMd',
+        \ 'default_scheme' : 'wiki',
+        \}
+  let g:vimwiki.link_matcher.ref = {
+        \ 'template' : [
+        \   '[__Url__]',
+        \   '[__Text__][__Url__]',
+        \ ],
+        \ 'rx_full' : '[\]\[]\@<!\['
+        \   . '[^\\\[\]]\{-}\]\[\%([^\\\[\]]\{-}\)\?'
+        \   . '\][\]\[]\@!',
+        \ 'rx_url' : '[\]\[]\@<!\['
+        \   . '\%(\zs[^\\\[\]]\{-}\ze\]\[\|[^\\\[\]]\{-}\]\[\zs[^\\\[\]]\{-1,}\ze\)'
+        \   . '\][\]\[]\@!',
+        \ 'rx_text' : '[\]\[]\@<!\['
+        \   . '\zs[^\\\[\]]\{-}\ze\]\[[^\\\[\]]\{-1,}'
+        \   . '\][\]\[]\@!',
+        \ 'syntax' : 'VimwikiLinkRef',
+        \ 'default_scheme' : 'wiki',
+        \}
+  let g:vimwiki.link_matcher.ref_target = {
+        \ 'template' : '[__Text__]: __Url__',
+        \ 'rx_full' : '\[[^\\\]]\{-}\]:\s\+' . l:rx_url,
+        \ 'rx_url' : '\[[^\\\]]\{-}\]:\s\+\zs' . l:rx_url . '\ze',
+        \ 'rx_text' : '\[\zs[^\\\]]\{-}\ze\]:\s\+' . l:rx_url,
+        \ 'syntax' : 'VimwikiLinkRefTarget',
+        \ 'default_scheme' : 'http',
+        \}
 
-  let g:vimwiki.rx.link_wiki0      = '\[\[\/\?[^\\\]]\{-}\%(|[^\\\]]\{-}\)\?\]\]'
-  let g:vimwiki.rx.link_wiki0_url  = '\[\[\/\?\zs[^\\\]]\{-}\ze\%(|[^\\\]]\{-}\)\?\]\]'
-  let g:vimwiki.rx.link_wiki0_text = '\[\[\/\?[^\\\]]\{-}\%(|\zs[^\\\]]\{-}\ze\)\?\]\]'
-
-  let g:vimwiki.rx.link_wiki1 = '[\]\[]\@<!\['
-        \ . '[^\\\[\]]\{-}\]\[\%([^\\\[\]]\{-}\)\?'
-        \ . '\][\]\[]\@!'
-  let g:vimwiki.rx.link_wiki1_url = '[\]\[]\@<!\['
-        \ . '\%(\zs[^\\\[\]]\{-}\ze\]\[\|[^\\\[\]]\{-}\]\[\zs[^\\\[\]]\{-1,}\ze\)'
-        \ . '\][\]\[]\@!'
-  let g:vimwiki.rx.link_wiki1_text = '[\]\[]\@<!\['
-        \ . '\zs[^\\\[\]]\{-}\ze\]\[[^\\\[\]]\{-1,}'
-        \ . '\][\]\[]\@!'
-
-  let g:vimwiki.rx.link_wiki =
-      \   g:vimwiki.rx.link_wiki0 . '\|'
-      \ . g:vimwiki.rx.link_wiki1
-
-  let g:vimwiki.rx.link_wiki_url =
-      \   g:vimwiki.rx.link_wiki0_url . '\|'
-      \ . g:vimwiki.rx.link_wiki1_url
-
-  let g:vimwiki.rx.link_wiki_text =
-      \   g:vimwiki.rx.link_wiki0_text . '\|'
-      \ . g:vimwiki.rx.link_wiki1_text
-
-  let g:vimwiki.rx.url_web = '\l\+:\%(//\)\?\S\{-1,}\%(([^ \t()]*)\)\='
-  let g:vimwiki.rx.link_web0 = '\<'. g:vimwiki.rx.url_web . '\S*'
-  let g:vimwiki.rx.link_web0_url = g:vimwiki.rx.link_web0
-  let g:vimwiki.rx.link_web0_text = ''
-
-  let g:vimwiki.rx.link_web1 = '\[[^\\]\{-}\]([^\\]\{-})'
-  let g:vimwiki.rx.link_web1_url = '\[[^\\]\{-}\](\zs[^\\]\{-}\ze)'
-  let g:vimwiki.rx.link_web1_text = '\[\zs[^\\]\{-}\ze\]([^\\]\{-})'
-
-  let g:vimwiki.rx.link_web =
-      \ g:vimwiki.rx.link_web1.'\|'.
-      \ g:vimwiki.rx.link_web0
-
-  let g:vimwiki.rx.link_web_url =
-      \ g:vimwiki.rx.link_web1_url.'\|'.
-      \ g:vimwiki.rx.link_web0_url
-
-  let g:vimwiki.rx.link_web_text =
-      \ g:vimwiki.rx.link_web1_text.'\|'.
-      \ g:vimwiki.rx.link_web0_text
-
-  let g:vimwiki.rx.link_all =
-        \   g:vimwiki.rx.link_wiki . '\|'
-        \ . g:vimwiki.rx.link_web
-
-  let g:vimwiki.rx.mkd_ref =
-        \ '\[[^\\\]]\{-}\]:\%(\s\+\|\n\)'
-        \ . g:vimwiki.rx.link_web0
-  let g:vimwiki.rx.mkd_ref_url =
-        \ '\[[^\\\]]\{-}\]:\%(\s\+\|\n\)\zs'
-        \ . g:vimwiki.rx.link_web0 . '\ze'
-  let g:vimwiki.rx.mkd_ref_text =
-        \ '\[\zs[^\\\]]\{-}\ze\]:\%(\s\+\|\n\)'
-        \ . g:vimwiki.rx.link_web0
+  let g:vimwiki.rx.link = join(map(
+        \   values(g:vimwiki.link_matcher),
+        \   'v:val.rx_full'),
+        \ '\|')
 
   let g:vimwiki.rx.word = '[^[:blank:]!"$%&''()*+,:;<=>?\[\]\\^`{}]\+'
 

@@ -123,7 +123,9 @@ function! vimwiki#page#get_links(...) "{{{1
       if l:col <= 0 | break | endif
 
       let l:link = extend(
-            \ vimwiki#link#parse(matchstr(l:line, l:regex, 0, l:count), l:file),
+            \ vimwiki#link#parse(
+            \   matchstr(l:line, l:regex, 0, l:count),
+            \   { 'origin' : l:file }),
             \ { 'lnum' : l:lnum, 'col' : l:col })
 
       if has_key(l:link, 'filename')
@@ -226,9 +228,9 @@ function! vimwiki#page#create_toc() " {{{1
   for [lvl, link, desc] in headers
     let esc_link = substitute(link, "'", "''", 'g')
     let esc_desc = substitute(desc, "'", "''", 'g')
-    let link = substitute(g:vimwiki.templ.link_wiki0_2, '__LinkUrl__',
+    let link = substitute(g:vimwiki.link_matcher.wiki.template[1], '__Url__',
           \ '\='."'".'#'.esc_link."'", '')
-    let link = substitute(link, '__LinkDescription__', '\='."'".esc_desc."'", '')
+    let link = substitute(link, '__Text__', '\='."'".esc_desc."'", '')
     call add(lines, startindent.repeat(indentstring, lvl-1).bullet.link)
   endfor
 

@@ -24,6 +24,10 @@ function! vimwiki#u#in_syntax(name, ...) " {{{1
   if mode() ==# 'i'
     let l:pos[1] -= 1
   endif
+  if l:pos[1] <= 0
+    let l:pos[0] -= 1
+    let l:pos[1] = 10000
+  endif
   call map(l:pos, 'max([v:val, 1])')
 
   " Check syntax at position
