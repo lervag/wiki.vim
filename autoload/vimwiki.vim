@@ -277,6 +277,8 @@ function! vimwiki#edit_file(filename, ...) "{{{1
     call s:jump_to_anchor(l:opts.anchor)
   endif
 
+  normal! zMzvzz
+
   if has_key(l:opts, 'prev_link')
     let b:vimwiki.prev_link = l:opts.prev_link
   endif

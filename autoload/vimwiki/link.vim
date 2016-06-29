@@ -63,7 +63,6 @@ function! vimwiki#link#follow(...) "{{{1
     call vimwiki#link#normalize()
   else
     call call(l:link.follow, a:000)
-    normal! zMzvzz
   endif
 endfunction
 
