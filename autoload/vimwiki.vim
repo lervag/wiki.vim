@@ -39,7 +39,6 @@ function! vimwiki#init_buffer() " {{{1
   setlocal nolisp
   setlocal nomodeline
   setlocal nowrap
-  setlocal foldlevel=1
   setlocal foldmethod=expr
   setlocal foldexpr=vimwiki#fold#level(v:lnum)
   setlocal foldtext=vimwiki#fold#text()

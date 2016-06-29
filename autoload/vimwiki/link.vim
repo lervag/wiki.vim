@@ -13,9 +13,14 @@
 function! vimwiki#link#get_at_cursor() " {{{1
   let l:lnk = matchstr(s:matchstr_at_cursor(g:vimwiki.rx.link_wiki),
         \              g:vimwiki.rx.link_wiki_url)
+
   if empty(l:lnk)
     let l:lnk = matchstr(s:matchstr_at_cursor(g:vimwiki.rx.link_web),
           \              g:vimwiki.rx.link_web_url)
+  endif
+
+  if empty(l:lnk)
+    let l:lnk = s:matchstr_at_cursor('\d\d\d\d-\d\d-\d\d')
   endif
 
   return empty(l:lnk) ? {} : vimwiki#link#parse(l:lnk)
@@ -31,8 +36,10 @@ function! vimwiki#link#parse(url, ...) " {{{1
   let l:link_parts = matchlist(a:url, '\v((\w+):%(//)?)?(.*)')
   let l:link.text = l:link_parts[3]
   if empty(l:link_parts[2])
-    let l:link.scheme = 'wiki'
-    let l:link.url = 'wiki:' . a:url
+    let l:link.scheme =
+          \ l:link.url =~# '^\d\d\d\d-\d\d-\d\d$'
+          \ ? 'diary' : 'wiki'
+    let l:link.url = l:link.scheme . ':' . a:url
   else
     let l:link.scheme = l:link_parts[2]
   endif
@@ -188,7 +195,7 @@ endfunction
 
 "}}}1
 function! s:follow_link_external(...) dict " {{{1
-  call system('xdg-open ' . shellescape(a:link.url) . '&')
+  call system('xdg-open ' . shellescape(self.url) . '&')
 endfunction
 
 "}}}1

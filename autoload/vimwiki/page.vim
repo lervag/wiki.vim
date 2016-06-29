@@ -242,9 +242,7 @@ function! s:update_listing_in_buffer(strings, start_header, content_regex, defau
   " check if the listing is already there
   let already_there = 0
 
-  let header_rx = '\m^\s*'.
-        \ substitute(g:vimwiki.rx.H1_Template, '__Header__', a:start_header, '')
-        \ .'\s*$'
+  let header_rx = '\m^\s*# ' . a:start_header
 
   let start_lnum = 1
   while start_lnum <= line('$')

@@ -175,8 +175,8 @@ syntax match VimwikiSubScriptT      contained /,,/
 execute 'syntax match VimwikiLinkRest `\%(///\=[^/ \t]\+/\)\zs\S\+\ze'
       \ . '\%([/#?]\w\|\S\{15}\)` cchar=~' . s:options
 
-execute 'syntax match VimwikiLinkChar /\[\[\/\?/' . s:options
-execute 'syntax match VimwikiLinkChar /\%(|[^\\\]]\{-}\)\?\]\]/' . s:options
+execute 'syntax match VimwikiLinkChar /\[\[\/\?\%([^\\\]]\{-}|\)\?/' . s:options
+execute 'syntax match VimwikiLinkChar /\]\]/' . s:options
 
 execute 'syntax match VimwikiWikiLink1Char /[\]\[]\@<!\[/' . s:options
 execute 'syntax match VimwikiWikiLink1Char /\][\]\[]\@!/' . s:options
@@ -191,7 +191,7 @@ execute 'syntax match VimwikiWeblink1Char /\]([^\\]\{-})/' . s:options
 " Header
 for s:i in range(1,6)
   execute 'syntax match VimwikiHeader' . s:i
-        \ . ' /^#\{' . s:i . '}[^#]/'
+        \ . ' /^#\{' . s:i . '}\zs[^#].*/'
         \ . ' contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,'
         \ .           'VimwikiCode,VimwikiLink,VimwikiWeblink1,'
         \ .           'VimwikiWikiLink1,@Spell'
@@ -378,10 +378,6 @@ endfor
 
 " }}}1
 
-" {{{1 Diary specific additions
-
-if !b:vimwiki.in_diary | finish | endif
-
 " Standard syntax elements
 syn match line    /-\{10,}/
 syn match number  /\d\+\.\d\+/
@@ -396,7 +392,5 @@ hi link line    line
 hi link time    number
 hi link number  Constant
 hi link version Statement
-
-" }}}1
 
 " vim: fdm=marker sw=2
