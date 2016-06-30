@@ -206,8 +206,8 @@ function! vimwiki#define_regexes() " {{{
   let g:vimwiki.rx.listDefine = '::\%(\s\|$\)'
   let g:vimwiki.rx.comment = '^\s*%%.*$'
   let g:vimwiki.rx.todo = '\C\%(TODO\|DONE\|STARTED\|FIXME\|FIXED\):\?'
-  let g:vimwiki.rx.header = '^#\{1,6}s*\zs[^#].*\ze$'
-  let g:vimwiki.rx.header2 = '^\(#\{1,6}\)\s*\([^#].*\)\s*$'
+  let g:vimwiki.rx.header = '^#\{1,6}\s*[^#].*'
+  let g:vimwiki.rx.header_items = '^\(#\{1,6}\)\s*\([^#].*\)\s*$'
 endfunction
 
 " }}}1

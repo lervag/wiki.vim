@@ -201,7 +201,7 @@ function! vimwiki#page#create_toc() " {{{1
     endif
 
     let h_level = len(matchstr(l:line, '#*'))
-    let h_text = vimwiki#u#trim(matchstr(l:line, g:vimwiki.rx.header))
+    let h_text = matchlist(l:line, g:vimwiki.rx.header_items)[2]
 
     " Don't include the TOC's header itself
     if h_text ==# 'Innhald'

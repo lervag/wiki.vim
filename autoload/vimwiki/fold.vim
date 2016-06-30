@@ -11,7 +11,7 @@ function! vimwiki#fold#level(lnum) " {{{1
     return '>' . len(matchstr(l:line, '#*'))
   endif
 
-  if l:line =~# '^```'
+  if l:line =~# '^\s*```'
     return (s:is_code(a:lnum+1) ? 'a1' : 's1')
   endif
 

@@ -4,14 +4,6 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimwiki#u#trim(string, ...) " {{{1
-  let l:pattern = '[[:space:]' . (a:0 > 0 ? a:1 : '') . ']\+'
-  return substitute(substitute(a:string,
-        \ '^' . l:pattern,       '', ''),
-        \       l:pattern . '$', '', '')
-endfunction
-
-" }}}1
 function! vimwiki#u#escape(string) "{{{1
   return escape(a:string, '~.*[]\^$')
 endfunction
