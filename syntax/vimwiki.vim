@@ -259,7 +259,7 @@ hi def link VimwikiLinkRefT VimwikiLinkRef
 hi def link VimwikiLinkRefTargetT VimwikiLinkRefTarget
 
 "
-" header groups highlighting
+" Header groups highlighting
 "
 let g:vimwiki_hcolor_guifg_light = ['#aa5858','#507030','#1030a0','#103040','#505050','#636363']
 let g:vimwiki_hcolor_ctermfg_light = ['DarkRed','DarkGreen','DarkBlue','Black','Black','Black']
