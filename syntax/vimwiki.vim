@@ -150,8 +150,6 @@ execute 'syntax match VimwikiCodeT /'.g:vimwiki.rx.code.'/ contained contains=Vi
 " <hr> horizontal rule
 execute 'syntax match VimwikiHR /'.g:vimwiki.rx.HR.'/'
 
-syntax region VimwikiPre start=/^\s*```/ end=/```\s*$/ contains=@NoSpell
-
 execute 'syntax region VimwikiMath start=/'.g:vimwiki.rx.mathStart.
       \ '/ end=/'.g:vimwiki.rx.mathEnd.'/ contains=@Spell'
 
@@ -190,6 +188,9 @@ hi def link VimwikiCodeT VimwikiCode
 
 hi def link VimwikiPre PreProc
 hi def link VimwikiPreT VimwikiPre
+hi def link VimwikiPreStart VimwikiPre
+hi def link VimwikiPreEnd VimwikiPre
+hi def link VimwikiPreStartName Identifier
 
 hi def link VimwikiMath Number
 hi def link VimwikiMathT VimwikiMath
@@ -273,59 +274,33 @@ endfor
 
 " {{{1 Nested syntax
 
-function! s:detect_nested() " {{{2
-  let last_word = '\v.*<(\w+)\s*$'
-  let lines = map(filter(getline(1, "$"), 'v:val =~ "```" && v:val =~ last_word'),
-        \ 'substitute(v:val, last_word, "\\=submatch(1)", "")')
-  let dict = {}
-  for elem in lines
-    let dict[elem] = elem
-  endfor
-  return dict
-endfunction
+syntax region VimwikiPre start=/^\s*```/ end=/```\s*$/ contains=@NoSpell
+syntax match VimwikiPreStart /^\s*```\w\+/ contained contains=VimwikiPreStartName
+syntax match VimwikiPreEnd /^\s*```\s*$/ contained
+syntax match VimwikiPreStartName /\w\+/ contained
 
-" }}}2
-function! s:add_nested(filetype, start, end, textSnipHl) abort " {{{2
-  let ft=toupper(a:filetype)
-  let group='textGroup'.ft
-  if exists('b:current_syntax')
-    let s:current_syntax=b:current_syntax
-    unlet b:current_syntax
-  endif
+for s:ft in map(
+        \ filter(getline(1, '$'), 'v:val =~# ''^\s*```\w\+\s*$'''),
+        \ 'matchstr(v:val, ''```\zs\w\+\ze\s*$'')')
+  let s:iskeyword = &iskeyword
+  unlet b:current_syntax
 
-  let is_keyword = &iskeyword
+  let s:cluster = '@VimwikiNested' . toupper(s:ft)
+  let s:group = 'VimwikiPre' . toupper(s:ft)
 
   try
-    " keep going even if syntax file is not found
-    execute 'syntax include @'.group.' syntax/'.a:filetype.'.vim'
-    execute 'syntax include @'.group.' after/syntax/'.a:filetype.'.vim'
+    execute 'syntax include' s:cluster 'syntax/' . s:ft . '.vim'
+    execute 'syntax include' s:cluster 'after/syntax/' . s:ft . '.vim'
   catch
   endtry
 
-  let &iskeyword = is_keyword
+  execute 'syntax region' s:group
+        \ 'start="^\s*```' . s:ft . '" end="```"'
+        \ 'keepend transparent'
+        \ 'contains=VimwikiPreStart,VimwikiPreEnd,' . s:cluster
 
-  if exists('s:current_syntax')
-    let b:current_syntax=s:current_syntax
-  else
-    unlet b:current_syntax
-  endif
-  execute 'syntax region textSnip'.ft.
-        \ ' matchgroup='.a:textSnipHl.
-        \ ' start="'.a:start.'" end="'.a:end.'"'.
-        \ ' contains=@'.group.' keepend'
-
-  if ft =~? 'perl'
-    syntax clear perlFunctionName
-  endif
-endfunction
-
-" }}}2
-
-for [s:hl_syntax, s:vim_syntax] in items(s:detect_nested())
-  call s:add_nested(s:vim_syntax,
-        \ g:vimwiki.rx.preStart.'\%(.*[[:blank:][:punct:]]\)\?'.
-        \ s:hl_syntax.'\%([[:blank:][:punct:]].*\)\?',
-        \ g:vimwiki.rx.preEnd, 'VimwikiPre')
+  let &iskeyword = s:iskeyword
+  let b:current_syntax='vimwiki'
 endfor
 
 " }}}1
