@@ -113,7 +113,7 @@ function! vimwiki#define_regexes() " {{{
   "
   " Define link matchers
   "
-  let l:rx_url = '\<\l\+:\%(//\)\?\S*'
+  let l:rx_url = '\<\l\+:\%(//\)\?[^ \t()\[\]]\+'
   let g:vimwiki.link_matcher = {}
   let g:vimwiki.link_matcher.url = {
         \ 'template' : '__Url__',

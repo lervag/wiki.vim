@@ -21,6 +21,15 @@ for s:m in values(g:vimwiki.link_matcher)
         \ . 'display contained'
 endfor
 
+"
+" Standard syntax elements
+"
+syntax match line    /-\{10,}/
+syntax match number  /\d\+\.\d\+/
+syntax match version /\d\+\.\d\+\(\.\d\)\+/
+syntax match time    /\d\d:\d\d/
+syntax match date    /\d\d\d\d-\d\d-\d\d/
+
 " {{{1 Concealed
 
 " Conceal some contained characters
@@ -150,6 +159,14 @@ execute 'syntax region VimwikiMath start=/'.g:vimwiki.rx.mathStart.
 
 " {{{1 Define highlighting
 
+" Set colors
+hi def  date    guifg=blue
+hi def  line    guifg=black
+hi link line    line
+hi link time    number
+hi link number  Constant
+hi link version Statement
+
 hi def link VimwikiMarkers Normal
 
 hi def link VimwikiEqIn Number
@@ -179,9 +196,6 @@ hi def link VimwikiMathT VimwikiMath
 
 hi def link VimwikiNoExistsLink SpellBad
 hi def link VimwikiNoExistsLinkT VimwikiNoExistsLink
-
-hi def link VimwikiLink Underlined
-hi def link VimwikiLinkT VimwikiLink
 
 hi def link VimwikiList Identifier
 hi def link VimwikiListTodo VimwikiList
@@ -217,6 +231,15 @@ hi def link VimwikiSubScriptChar VimwikiMarkers
 hi def link VimwikiCodeChar VimwikiMarkers
 hi def link VimwikiHeaderChar VimwikiMarkers
 
+hi def link VimwikiLinkUrl ModeMsg
+hi def link VimwikiLinkWiki Underlined
+hi def link VimwikiLinkMd Underlined
+hi def link VimwikiLinkRef Underlined
+hi def link VimwikiLinkRefTarget Underlined
+
+"
+" Table
+"
 hi def link VimwikiEqInCharT VimwikiMarkers
 hi def link VimwikiBoldCharT VimwikiMarkers
 hi def link VimwikiItalicCharT VimwikiMarkers
@@ -229,21 +252,11 @@ hi def link VimwikiCodeCharT VimwikiMarkers
 hi def link VimwikiHeaderCharT VimwikiMarkers
 hi def link VimwikiLinkCharT VimwikiLinkT
 hi def link VimwikiNoExistsLinkCharT VimwikiNoExistsLinkT
-
-hi def link VimwikiLinkWiki  VimwikiLink
-hi def link VimwikiLinkWikiT VimwikiLink
-
-hi def link VimwikiLinkUrl  ModeMsg
-hi def link VimwikiLinkUrlT ModeMsg
-
-hi def link VimwikiLinkMd  VimwikiLink
-hi def link VimwikiLinkMdT VimwikiLink
-
-hi def link VimwikiLinkRef  VimwikiLink
-hi def link VimwikiLinkRefT VimwikiLink
-
-hi def link VimwikiLinkRefTarget  VimwikiLink
-hi def link VimwikiLinkRefTargetT VimwikiLink
+hi def link VimwikiLinkUrlT VimwikiLinkUrl
+hi def link VimwikiLinkWikiT VimwikiLinkWiki
+hi def link VimwikiLinkMdT VimwikiLinkMd
+hi def link VimwikiLinkRefT VimwikiLinkRef
+hi def link VimwikiLinkRefTargetT VimwikiLinkRefTarget
 
 "
 " header groups highlighting
@@ -330,20 +343,5 @@ for [s:hl_syntax, s:vim_syntax] in items(s:detect_nested())
 endfor
 
 " }}}1
-
-" Standard syntax elements
-syn match line    /-\{10,}/
-syn match number  /\d\+\.\d\+/
-syn match version /\d\+\.\d\+\(\.\d\)\+/
-syn match time    /\d\d:\d\d/
-syn match date    /\d\d\d\d-\d\d-\d\d/
-
-" Set colors
-hi def  date    guifg=blue
-hi def  line    guifg=black
-hi link line    line
-hi link time    number
-hi link number  Constant
-hi link version Statement
 
 " vim: fdm=marker sw=2
