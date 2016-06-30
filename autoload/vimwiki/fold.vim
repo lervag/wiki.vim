@@ -22,14 +22,6 @@ endfunction
 function! vimwiki#fold#text() " {{{1
   let l:line = getline(v:foldstart)
   let l:text = substitute(l:line, '^\s*', repeat(' ',indent(v:foldstart)), '')
-
-  " Header fold text
-  if l:line !~# g:vimwiki.rx.preStart
-    let [l:text, spare_len] = s:shorten_text(l:text, 65)
-    return l:text
-  endif
-
-  " Code block fold text
   return l:text
 endfunction
 

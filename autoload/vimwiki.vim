@@ -90,12 +90,6 @@ endfunction
 " Miscellaneous
 "
 function! vimwiki#define_regexes() " {{{
-  let g:vimwiki_markdown_header_match = '^\(#\{1,6}\)#\@!\s*__Header__\s*$'
-  let g:vimwiki_markdown_bold_search = '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)\ze\*\%([[:punct:]]\|\s\|$\)\@='
-  let g:vimwiki_markdown_bold_match = '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*\%([[:punct:]]\|\s\|$\)\@='
-  let g:vimwiki_markdown_tag_search = '\(^\|\s\)\zs:\([^:''[:space:]]\+:\)\+\ze\(\s\|$\)'
-  let g:vimwiki_markdown_tag_match = '\(^\|\s\):\([^:''[:space:]]\+:\)*__Tag__:\([^:[:space:]]\+:\)*\(\s\|$\)'
-
   "
   " Define link matchers
   "
@@ -154,10 +148,13 @@ function! vimwiki#define_regexes() " {{{
         \ 'default_scheme' : 'http',
         \}
 
+  "
+  " Define regexes
+  "
+  let g:vimwiki.rx = {}
   let g:vimwiki_bullet_types = { '-':0, '*':0, '+':0 }
   let g:vimwiki_number_types = ['1.']
   let g:vimwiki_list_markers = ['-', '*', '+', '1.']
-  let g:vimwiki.rx = {}
   call vimwiki#lst#setup_marker_infos()
 
   let g:vimwiki.rx.link = join(map(
@@ -175,34 +172,14 @@ function! vimwiki#define_regexes() " {{{
   let g:vimwiki.rx.preStart = '^\s*```'
   let g:vimwiki.rx.preEnd = '^\s*```\s*$'
 
-  let g:vimwiki.rx.mathStart = '^\s*\$\$'
-  let g:vimwiki.rx.mathEnd = '^\s*\$\$\s*$'
+  let g:vimwiki.rx.italic = s:rx_generate_bold_italic('_')
+  let g:vimwiki.rx.bold = s:rx_generate_bold_italic('*')
+  let g:vimwiki.rx.boldItalic = s:rx_generate_bold_italic('*_')
+  let g:vimwiki.rx.italicBold = s:rx_generate_bold_italic('_*')
 
-  let g:vimwiki.rx.italic = '\%(^\|\s\|[[:punct:]]\)\@<='.
-        \'_'.
-        \'\%([^_`[:space:]][^_`]*[^_`[:space:]]\|[^_`[:space:]]\)'.
-        \'_'.
-        \'\%([[:punct:]]\|\s\|$\)\@='
-  let g:vimwiki.rx.bold = '\%(^\|\s\|[[:punct:]]\)\@<='.
-        \'\*'.
-        \'\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)'.
-        \'\*'.
-        \'\%([[:punct:]]\|\s\|$\)\@='
-  let g:vimwiki.rx.boldItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
-        \'\*_'.
-        \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
-        \'_\*'.
-        \'\%([[:punct:]]\|\s\|$\)\@='
-  let g:vimwiki.rx.italicBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
-        \'_\*'.
-        \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
-        \'\*_'.
-        \'\%([[:punct:]]\|\s\|$\)\@='
-  let g:vimwiki.rx.code = '`[^`]\+`'
   let g:vimwiki.rx.delText = '\~\~[^~`]\+\~\~'
   let g:vimwiki.rx.superScript = '\^[^^`]\+\^'
   let g:vimwiki.rx.subScript = ',,[^,`]\+,,'
-  let g:vimwiki.rx.HR = '^\s*-\{4,}\s*$'
   let g:vimwiki.rx.listDefine = '::\%(\s\|$\)'
   let g:vimwiki.rx.comment = '^\s*%%.*$'
   let g:vimwiki.rx.todo = '\C\%(TODO\|DONE\|STARTED\|FIXME\|FIXED\):\?'
@@ -306,30 +283,30 @@ endfunction
 "
 " Utility
 "
+function! s:rx_generate_bold_italic(chars, ...) " {{{1
+  let l:bolded = a:0 > 0 ? a:1
+        \ : '[^' . a:chars . '`[:space:]]'
+        \ . '\%([^' . a:chars . '`]*[^' . a:chars . '`[:space:]]\)\?'
+  return '\%(^\|\s\|[[:punct:]]\)\@<=' . escape(a:chars, '*')
+        \ . l:bolded
+        \ . escape(join(reverse(split(a:chars, '\zs')), ''), '*')
+        \ . '\%([[:punct:]]\|\s\|$\)\@='
+endfunction
+
+" }}}1
 function! s:jump_to_anchor(anchor) " {{{1
-  let oldpos = getpos('.')
+  let l:old_pos = getpos('.')
   call cursor(1, 1)
 
-  let anchor = vimwiki#u#escape(a:anchor)
+  for l:part in split(a:anchor, '#', 0)
+    let l:header = '^#\{1,6}\s*' . l:part . '\s*$'
+    let l:bold = s:rx_generate_bold_italic('*', l:part)
 
-  let segments = split(anchor, '#', 0)
-  for segment in segments
-
-    let anchor_header = substitute(
-          \ g:vimwiki_markdown_header_match,
-          \ '__Header__', "\\='".segment."'", '')
-    let anchor_bold = substitute(g:vimwiki_markdown_bold_match,
-          \ '__Text__', "\\='".segment."'", '')
-    let anchor_tag = substitute(g:vimwiki_markdown_tag_match,
-          \ '__Tag__', "\\='".segment."'", '')
-
-    if         !search(anchor_tag, 'Wc')
-          \ && !search(anchor_header, 'Wc')
-          \ && !search(anchor_bold, 'Wc')
-      call setpos('.', oldpos)
+    if !(search(l:header, 'Wc') || search(l:bold, 'Wc'))
+      call setpos('.', l:old_pos)
       break
     endif
-    let oldpos = getpos('.')
+    let l:old_pos = getpos('.')
   endfor
 endfunction
 

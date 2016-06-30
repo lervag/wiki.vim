@@ -46,9 +46,6 @@ function! s:get_anchors(filename) " {{{1
     return []
   endif
 
-  let rxbold = g:vimwiki_markdown_bold_search
-  let rxtag = g:vimwiki_markdown_tag_search
-
   let anchor_level = ['', '', '', '', '', '', '']
   let anchors = []
   let current_complete_anchor = ''
@@ -78,36 +75,20 @@ function! s:get_anchors(filename) " {{{1
       endif
     endif
 
-    " collect bold text (there can be several in one line)
-    let bold_count = 1
+    "
+    " Collect bold text (there can be several in one line)
+    "
+    let l:count = 0
     while 1
-      let bold_text = matchstr(line, rxbold, 0, bold_count)
-      if bold_text == ''
-        break
-      endif
-      call add(anchors, bold_text)
+      let l:count += 1
+      let l:text = matchstr(line, g:vimwiki.rx.bold, 0, l:count)
+      if l:text == '' | break | endif
+
+      call add(anchors, l:text)
       if current_complete_anchor != ''
-        call add(anchors, current_complete_anchor.'#'.bold_text)
+        call add(anchors, current_complete_anchor . '#' . l:text)
       endif
-      let bold_count += 1
     endwhile
-
-    " collect tags text (there can be several in one line)
-    let tag_count = 1
-    while 1
-      let tag_group_text = matchstr(line, rxtag, 0, tag_count)
-      if tag_group_text == ''
-        break
-      endif
-      for tag_text in split(tag_group_text, ':')
-        call add(anchors, tag_text)
-        if current_complete_anchor != ''
-          call add(anchors, current_complete_anchor.'#'.tag_text)
-        endif
-      endfor
-      let tag_count += 1
-    endwhile
-
   endfor
 
   return anchors

@@ -144,14 +144,10 @@ execute 'syntax match VimwikiSuperScriptT /'.g:vimwiki.rx.superScript.'/ contain
 execute 'syntax match VimwikiSubScript /'.g:vimwiki.rx.subScript.'/ contains=VimwikiSubScriptChar,@Spell'
 execute 'syntax match VimwikiSubScriptT /'.g:vimwiki.rx.subScript.'/ contained contains=VimwikiSubScriptCharT,@Spell'
 
-execute 'syntax match VimwikiCode /'.g:vimwiki.rx.code.'/ contains=VimwikiCodeChar'
-execute 'syntax match VimwikiCodeT /'.g:vimwiki.rx.code.'/ contained contains=VimwikiCodeCharT'
+syntax match VimwikiCode /`[^`]\+`/ contains=VimwikiCodeChar
+syntax match VimwikiCodeT /`[^`]\+`/ contained contains=VimwikiCodeCharT
 
-" <hr> horizontal rule
-execute 'syntax match VimwikiHR /'.g:vimwiki.rx.HR.'/'
-
-execute 'syntax region VimwikiMath start=/'.g:vimwiki.rx.mathStart.
-      \ '/ end=/'.g:vimwiki.rx.mathEnd.'/ contains=@Spell'
+syntax match VimwikiHR /^\s*-\{4,}\s*$/
 
 " }}}
 
