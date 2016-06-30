@@ -40,7 +40,6 @@ syntax match VimwikiItalicChar     contained /_/    conceal
 syntax match VimwikiBoldItalicChar contained /\*_/  conceal
 syntax match VimwikiItalicBoldChar contained /_\*/  conceal
 syntax match VimwikiCodeChar       contained /`/    conceal
-syntax match VimwikiDelTextChar    contained /\~\~/ conceal
 syntax match VimwikiSuperScript    contained /^/    conceal
 syntax match VimwikiSubScript      contained /,,/   conceal
 
@@ -51,7 +50,6 @@ syntax match VimwikiItalicCharT     contained /_/
 syntax match VimwikiBoldItalicCharT contained /\*_/
 syntax match VimwikiItalicBoldCharT contained /_\*/
 syntax match VimwikiCodeCharT       contained /`/
-syntax match VimwikiDelTextCharT    contained /\~\~/
 syntax match VimwikiSuperScriptT    contained /^/
 syntax match VimwikiSubScriptT      contained /,,/
 
@@ -104,7 +102,6 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
                            \ VimwikiItalicT,
                            \ VimwikiBoldItalicT,
                            \ VimwikiItalicBoldT,
-                           \ VimwikiDelTextT,
                            \ VimwikiSuperScriptT,
                            \ VimwikiSubScriptT,
                            \ VimwikiCodeT,
@@ -134,9 +131,6 @@ execute 'syntax match VimwikiBoldItalicT /'.g:vimwiki.rx.boldItalic.'/ contained
 
 execute 'syntax match VimwikiItalicBold /'.g:vimwiki.rx.italicBold.'/ contains=VimwikiBoldItalicChar,VimwikiItalicBoldChar,@Spell'
 execute 'syntax match VimwikiItalicBoldT /'.g:vimwiki.rx.italicBold.'/ contained contains=VimwikiBoldItalicCharT,VimsikiItalicBoldCharT,@Spell'
-
-execute 'syntax match VimwikiDelText /'.g:vimwiki.rx.delText.'/ contains=VimwikiDelTextChar,@Spell'
-execute 'syntax match VimwikiDelTextT /'.g:vimwiki.rx.delText.'/ contained contains=VimwikiDelTextChar,@Spell'
 
 execute 'syntax match VimwikiSuperScript /'.g:vimwiki.rx.superScript.'/ contains=VimwikiSuperScriptChar,@Spell'
 execute 'syntax match VimwikiSuperScriptT /'.g:vimwiki.rx.superScript.'/ contained contains=VimwikiSuperScriptCharT,@Spell'
@@ -233,9 +227,6 @@ hi def link VimwikiCheckBoxDone Comment
 hi def link VimwikiHR Identifier
 hi def link VimwikiTag Keyword
 
-hi def link VimwikiDelText Constant
-hi def link VimwikiDelTextT VimwikiDelText
-
 hi def link VimwikiSuperScript Number
 hi def link VimwikiSuperScriptT VimwikiSuperScript
 
@@ -255,7 +246,6 @@ hi def link VimwikiBoldChar VimwikiMarkers
 hi def link VimwikiItalicChar VimwikiMarkers
 hi def link VimwikiBoldItalicChar VimwikiMarkers
 hi def link VimwikiItalicBoldChar VimwikiMarkers
-hi def link VimwikiDelTextChar VimwikiMarkers
 hi def link VimwikiSuperScriptChar VimwikiMarkers
 hi def link VimwikiSubScriptChar VimwikiMarkers
 hi def link VimwikiCodeChar VimwikiMarkers
@@ -275,7 +265,6 @@ hi def link VimwikiBoldCharT VimwikiMarkers
 hi def link VimwikiItalicCharT VimwikiMarkers
 hi def link VimwikiBoldItalicCharT VimwikiMarkers
 hi def link VimwikiItalicBoldCharT VimwikiMarkers
-hi def link VimwikiDelTextCharT VimwikiMarkers
 hi def link VimwikiSuperScriptCharT VimwikiMarkers
 hi def link VimwikiSubScriptCharT VimwikiMarkers
 hi def link VimwikiCodeCharT VimwikiMarkers

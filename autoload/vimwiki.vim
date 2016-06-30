@@ -164,8 +164,6 @@ function! vimwiki#define_regexes() " {{{
 
   let g:vimwiki.rx.word = '[^[:blank:]!"$%&''()*+,:;<=>?\[\]\\^`{}]\+'
 
-  let g:vimwiki.rx.H = '#'
-
   let g:vimwiki.rx.lst_item_no_checkbox = '^\s*\%(\('.g:vimwiki.rx.lst_bullet.'\)\|\('.g:vimwiki.rx.lst_number.'\)\)\s'
   let g:vimwiki.rx.lst_item = g:vimwiki.rx.lst_item_no_checkbox . '\+\%(\[\(['.g:vimwiki_listsyms.']\)\]\s\)\?'
 
@@ -177,7 +175,6 @@ function! vimwiki#define_regexes() " {{{
   let g:vimwiki.rx.boldItalic = s:rx_generate_bold_italic('*_')
   let g:vimwiki.rx.italicBold = s:rx_generate_bold_italic('_*')
 
-  let g:vimwiki.rx.delText = '\~\~[^~`]\+\~\~'
   let g:vimwiki.rx.superScript = '\^[^^`]\+\^'
   let g:vimwiki.rx.subScript = ',,[^,`]\+,,'
   let g:vimwiki.rx.listDefine = '::\%(\s\|$\)'
