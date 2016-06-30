@@ -8,6 +8,7 @@ if exists('b:current_syntax') | finish | endif
 let b:current_syntax = "vimwiki"
 
 syntax spell toplevel
+syntax sync minlines=100
 
 "
 " Match links
@@ -149,8 +150,7 @@ execute 'syntax match VimwikiCodeT /'.g:vimwiki.rx.code.'/ contained contains=Vi
 " <hr> horizontal rule
 execute 'syntax match VimwikiHR /'.g:vimwiki.rx.HR.'/'
 
-execute 'syntax region VimwikiPre start=/'.g:vimwiki.rx.preStart.
-      \ '/ end=/'.g:vimwiki.rx.preEnd.'/ contains=@Spell'
+syntax region VimwikiPre start=/^\s*```/ end=/```\s*$/ contains=@NoSpell
 
 execute 'syntax region VimwikiMath start=/'.g:vimwiki.rx.mathStart.
       \ '/ end=/'.g:vimwiki.rx.mathEnd.'/ contains=@Spell'
@@ -286,19 +286,13 @@ endfunction
 
 " }}}2
 function! s:add_nested(filetype, start, end, textSnipHl) abort " {{{2
-  " From http://vim.wikia.com/wiki/VimTip857
   let ft=toupper(a:filetype)
   let group='textGroup'.ft
   if exists('b:current_syntax')
     let s:current_syntax=b:current_syntax
-    " Remove current syntax definition, as some syntax files (e.g. cpp.vim)
-    " do nothing if b:current_syntax is defined.
     unlet b:current_syntax
   endif
 
-  " Some syntax files set up iskeyword which might scratch vimwiki a bit.
-  " Let us save and restore it later.
-  " let b:skip_set_iskeyword = 1
   let is_keyword = &iskeyword
 
   try
@@ -320,14 +314,6 @@ function! s:add_nested(filetype, start, end, textSnipHl) abort " {{{2
         \ ' start="'.a:start.'" end="'.a:end.'"'.
         \ ' contains=@'.group.' keepend'
 
-  " A workaround to Issue 115: Nested Perl syntax highlighting differs from
-  " regular one.
-  " Perl syntax file has perlFunctionName which is usually has no effect due to
-  " 'contained' flag. Now we have 'syntax include' that makes all the groups
-  " included as 'contained' into specific group.
-  " Here perlFunctionName (with quite an angry regexp "\h\w*[^:]") clashes with
-  " the rest syntax rules as now it has effect being really 'contained'.
-  " Clear it!
   if ft =~? 'perl'
     syntax clear perlFunctionName
   endif

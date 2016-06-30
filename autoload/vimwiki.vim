@@ -11,8 +11,6 @@ function! vimwiki#init() " {{{1
   let g:vimwiki = {}
   let g:vimwiki.root = g:vimwiki_path
   let g:vimwiki.diary = g:vimwiki_path . 'journal/'
-  let g:vimwiki.rx = {}
-  let g:vimwiki.templ = {}
 
   "
   " Define mappings
@@ -24,10 +22,6 @@ endfunction
 
 " }}}1
 function! vimwiki#init_buffer() " {{{1
-  "
-  " Set default options
-  "
-
   let b:vimwiki = {}
   let g:vimwiki_listsyms = ' .oOX'
   let b:vimwiki.in_diary = stridx(
@@ -81,7 +75,6 @@ function! vimwiki#init_buffer() " {{{1
   vnoremap <silent><buffer> <c-space>  :VimwikiToggleListItem<cr>
 
   if b:vimwiki.in_diary
-    setlocal foldlevel=0
     nnoremap <silent><buffer> <c-j> :<c-u>call vimwiki#diary#go(-v:count1)<cr>
     nnoremap <silent><buffer> <c-k> :<c-u>call vimwiki#diary#go(v:count1)<cr>
     nnoremap <silent><buffer> <leader>wk :call vimwiki#diary#copy_note()<cr>
@@ -97,18 +90,11 @@ endfunction
 " Miscellaneous
 "
 function! vimwiki#define_regexes() " {{{
-  let g:vimwiki_markdown_header_search = '^\s*\(#\{1,6}\)\([^#].*\)$'
-  let g:vimwiki_markdown_header_match = '^\s*\(#\{1,6}\)#\@!\s*__Header__\s*$'
+  let g:vimwiki_markdown_header_match = '^\(#\{1,6}\)#\@!\s*__Header__\s*$'
   let g:vimwiki_markdown_bold_search = '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)\ze\*\%([[:punct:]]\|\s\|$\)\@='
   let g:vimwiki_markdown_bold_match = '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*\%([[:punct:]]\|\s\|$\)\@='
-  let g:vimwiki_markdown_wikilink = '\[\[\zs[^\\\]|]\+\ze\%(|[^\\\]]\+\)\?\]\]'
   let g:vimwiki_markdown_tag_search = '\(^\|\s\)\zs:\([^:''[:space:]]\+:\)\+\ze\(\s\|$\)'
   let g:vimwiki_markdown_tag_match = '\(^\|\s\):\([^:''[:space:]]\+:\)*__Tag__:\([^:[:space:]]\+:\)*\(\s\|$\)'
-
-  let g:vimwiki_bullet_types = { '-':0, '*':0, '+':0 }
-  let g:vimwiki_number_types = ['1.']
-  let g:vimwiki_list_markers = ['-', '*', '+', '1.']
-  call vimwiki#lst#setup_marker_infos()
 
   "
   " Define link matchers
@@ -168,6 +154,12 @@ function! vimwiki#define_regexes() " {{{
         \ 'default_scheme' : 'http',
         \}
 
+  let g:vimwiki_bullet_types = { '-':0, '*':0, '+':0 }
+  let g:vimwiki_number_types = ['1.']
+  let g:vimwiki_list_markers = ['-', '*', '+', '1.']
+  let g:vimwiki.rx = {}
+  call vimwiki#lst#setup_marker_infos()
+
   let g:vimwiki.rx.link = join(map(
         \   values(g:vimwiki.link_matcher),
         \   'v:val.rx_full'),
@@ -214,7 +206,8 @@ function! vimwiki#define_regexes() " {{{
   let g:vimwiki.rx.listDefine = '::\%(\s\|$\)'
   let g:vimwiki.rx.comment = '^\s*%%.*$'
   let g:vimwiki.rx.todo = '\C\%(TODO\|DONE\|STARTED\|FIXME\|FIXED\):\?'
-  let g:vimwiki.rx.header = '^\(#\{1,6}\)\s*\zs[^#].*\ze$'
+  let g:vimwiki.rx.header = '^#\{1,6}s*\zs[^#].*\ze$'
+  let g:vimwiki.rx.header2 = '^\(#\{1,6}\)\s*\([^#].*\)\s*$'
 endfunction
 
 " }}}1

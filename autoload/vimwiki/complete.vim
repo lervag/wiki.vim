@@ -46,7 +46,6 @@ function! s:get_anchors(filename) " {{{1
     return []
   endif
 
-  let rxheader = g:vimwiki_markdown_header_search
   let rxbold = g:vimwiki_markdown_bold_search
   let rxtag = g:vimwiki_markdown_tag_search
 
@@ -56,7 +55,7 @@ function! s:get_anchors(filename) " {{{1
   for line in readfile(a:filename)
 
     " collect headers
-    let h_match = matchlist(line, rxheader)
+    let h_match = matchlist(line, g:vimwiki.rx.header2)
     if !empty(h_match)
       let header = vimwiki#u#trim(h_match[2])
       let level = len(h_match[1])

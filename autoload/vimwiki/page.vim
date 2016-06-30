@@ -110,7 +110,7 @@ function! vimwiki#page#get_links(...) "{{{1
   if !filereadable(l:file) | return [] | endif
 
   " TODO: Should match more types of links
-  let l:regex = g:vimwiki_markdown_wikilink
+  let l:regex = g:vimwiki.link_matcher.wiki.rx_url
 
   let l:links = []
   let l:lnum = 0
