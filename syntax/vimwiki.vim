@@ -155,6 +155,39 @@ execute 'syntax region VimwikiMath start=/'.g:vimwiki.rx.mathStart.
 
 " }}}
 
+" {{{1 Nested syntax
+
+syntax region VimwikiPre start=/^\s*```/ end=/```\s*$/ contains=@NoSpell
+syntax match VimwikiPreStart /^\s*```\w\+/ contained contains=VimwikiPreStartName
+syntax match VimwikiPreEnd /^\s*```\s*$/ contained
+syntax match VimwikiPreStartName /\w\+/ contained
+
+for s:ft in map(
+        \ filter(getline(1, '$'), 'v:val =~# ''^\s*```\w\+\s*$'''),
+        \ 'matchstr(v:val, ''```\zs\w\+\ze\s*$'')')
+  let s:cluster = '@VimwikiNested' . toupper(s:ft)
+  let s:group = 'VimwikiPre' . toupper(s:ft)
+
+  unlet b:current_syntax
+  let s:iskeyword = &l:iskeyword
+  let s:fdm = &l:foldmethod
+  try
+    execute 'syntax include' s:cluster 'syntax/' . s:ft . '.vim'
+    execute 'syntax include' s:cluster 'after/syntax/' . s:ft . '.vim'
+  catch
+  endtry
+  let b:current_syntax='vimwiki'
+  let &l:foldmethod = s:fdm
+  let &iskeyword = s:iskeyword
+
+  execute 'syntax region' s:group
+        \ 'start="^\s*```' . s:ft . '" end="```"'
+        \ 'keepend transparent'
+        \ 'contains=VimwikiPreStart,VimwikiPreEnd,' . s:cluster
+endfor
+
+" }}}1
+
 " {{{1 Define highlighting
 
 " Set colors
@@ -268,39 +301,6 @@ let g:vimwiki_hcolor_guifg_dark = ['#e08090','#80e090','#6090e0','#c0c0f0','#e0e
 let g:vimwiki_hcolor_ctermfg_dark = ['Red','Green','Blue','White','White','White']
 for s:i in range(1,6)
   execute 'hi def VimwikiHeader'.s:i.' guibg=bg guifg='.g:vimwiki_hcolor_guifg_{&bg}[s:i-1].' gui=bold ctermfg='.g:vimwiki_hcolor_ctermfg_{&bg}[s:i-1].' term=bold cterm=bold'
-endfor
-
-" }}}1
-
-" {{{1 Nested syntax
-
-syntax region VimwikiPre start=/^\s*```/ end=/```\s*$/ contains=@NoSpell
-syntax match VimwikiPreStart /^\s*```\w\+/ contained contains=VimwikiPreStartName
-syntax match VimwikiPreEnd /^\s*```\s*$/ contained
-syntax match VimwikiPreStartName /\w\+/ contained
-
-for s:ft in map(
-        \ filter(getline(1, '$'), 'v:val =~# ''^\s*```\w\+\s*$'''),
-        \ 'matchstr(v:val, ''```\zs\w\+\ze\s*$'')')
-  let s:iskeyword = &iskeyword
-  unlet b:current_syntax
-
-  let s:cluster = '@VimwikiNested' . toupper(s:ft)
-  let s:group = 'VimwikiPre' . toupper(s:ft)
-
-  try
-    execute 'syntax include' s:cluster 'syntax/' . s:ft . '.vim'
-    execute 'syntax include' s:cluster 'after/syntax/' . s:ft . '.vim'
-  catch
-  endtry
-
-  execute 'syntax region' s:group
-        \ 'start="^\s*```' . s:ft . '" end="```"'
-        \ 'keepend transparent'
-        \ 'contains=VimwikiPreStart,VimwikiPreEnd,' . s:cluster
-
-  let &iskeyword = s:iskeyword
-  let b:current_syntax='vimwiki'
 endfor
 
 " }}}1
