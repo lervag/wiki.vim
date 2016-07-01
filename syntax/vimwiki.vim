@@ -147,10 +147,14 @@ syntax match VimwikiHR /^\s*-\{4,}\s*$/
 
 " {{{1 Nested syntax
 
-syntax region VimwikiPre start=/^\s*```/ end=/```\s*$/ contains=@NoSpell
+syntax region VimwikiPre start=/^\s*```\s*/ end=/```\s*$/ contains=@NoSpell
 syntax match VimwikiPreStart /^\s*```\w\+/ contained contains=VimwikiPreStartName
 syntax match VimwikiPreEnd /^\s*```\s*$/ contained
 syntax match VimwikiPreStartName /\w\+/ contained
+
+let s:ignored = {
+      \ 'sh' : ['shCommandSub'] ,
+      \}
 
 for s:ft in map(
         \ filter(getline(1, '$'), 'v:val =~# ''^\s*```\w\+\s*$'''),
@@ -166,14 +170,19 @@ for s:ft in map(
     execute 'syntax include' s:cluster 'after/syntax/' . s:ft . '.vim'
   catch
   endtry
+
+  for s:ignore in get(s:ignored, s:ft, [])
+    execute 'syntax cluster VimwikiNested' . toupper(s:ft) 'remove=' . s:ignore
+  endfor
+
   let b:current_syntax='vimwiki'
   let &l:foldmethod = s:fdm
   let &iskeyword = s:iskeyword
 
   execute 'syntax region' s:group
-        \ 'start="^\s*```' . s:ft . '" end="```"'
+        \ 'start=/^\s*```' . s:ft . '/ end=/```\s*$/'
         \ 'keepend transparent'
-        \ 'contains=VimwikiPreStart,VimwikiPreEnd,' . s:cluster
+        \ 'contains=VimwikiPreStart,VimwikiPreEnd,@NoSpell,' . s:cluster
 endfor
 
 " }}}1
