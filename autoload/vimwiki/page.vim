@@ -179,64 +179,48 @@ endfunction
 " }}}1
 
 function! vimwiki#page#create_toc() " {{{1
-  "
-  " Collect new headers
-  "
-  let l:inside_pre = 0
-  let headers = []
-  let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
-  for l:line in getline(1, '$')
-    if l:inside_pre
-      if l:line =~# g:vimwiki.rx.preEnd
-        let l:inside_pre = 0
-      endif
-      continue
-    endif
-    if l:line =~# g:vimwiki.rx.preStart
-      let l:inside_pre = 1
-      continue
-    endif
-    if l:line !~# g:vimwiki.rx.header
-      continue
-    endif
+  let l:headers = []
+  let l:header_stack = []
+  for l:lnum in range(1, line('$'))
+    if vimwiki#u#is_code(l:lnum) | continue | endif
 
-    let h_level = len(matchstr(l:line, '#*'))
-    let h_text = matchlist(l:line, g:vimwiki.rx.header_items)[2]
+    " Get line - check for header
+    let l:line = getline(l:lnum)
+    if l:line !~# g:vimwiki.rx.header | continue | endif
 
-    " Don't include the TOC's header itself
-    if h_text ==# 'Innhald'
-      continue
+    " Parse current header
+    let l:level = len(matchstr(l:line, '^#*'))
+    let l:header = matchlist(l:line, g:vimwiki.rx.header_items)[2]
+    if l:header ==# 'Innhald' | continue | endif
+
+    " Update header stack in order to have well defined anchor
+    let l:depth = len(l:header_stack)
+    if l:depth >= l:level
+      call remove(l:header_stack, l:level-1, l:depth-1)
     endif
-    let headers_levels[h_level-1] = [h_text, headers_levels[h_level-1][1]+1]
-    for idx in range(h_level, 5) | let headers_levels[idx] = ['', 0] | endfor
+    call add(l:header_stack, l:header)
 
-    let h_complete_id = ''
-    for l in range(h_level-1)
-      if headers_levels[l][0] != ''
-        let h_complete_id .= headers_levels[l][0].'#'
-      endif
-    endfor
-    let h_complete_id .= headers_levels[h_level-1][0]
-
-    call add(headers, [h_level, h_complete_id, h_text])
+    " Store current header with level and anchor
+    call add(l:headers, [l:level, l:header, '#' . join(l:header_stack, '#')])
   endfor
 
-  let lines = []
-  let startindent = repeat(' ', shiftwidth())
-  let indentstring = repeat(' ', shiftwidth())
-  let bullet = vimwiki#lst#default_symbol().' '
-  for [lvl, link, desc] in headers
-    let esc_link = substitute(link, "'", "''", 'g')
-    let esc_desc = substitute(desc, "'", "''", 'g')
-    let link = substitute(g:vimwiki.link_matcher.wiki.template[1], '__Url__',
-          \ '\='."'".'#'.esc_link."'", '')
-    let link = substitute(link, '__Text__', '\='."'".esc_desc."'", '')
-    call add(lines, startindent.repeat(indentstring, lvl-1).bullet.link)
+  "
+  " Generate TOC lines
+  "
+  let l:toc = []
+  let l:indent = repeat(' ', shiftwidth())
+  for [l:level, l:header, l:anchor] in l:headers
+    let l:parts = split(g:vimwiki.link_matcher.wiki.template[1], '__Url__')
+    let l:link = l:parts[0] . l:anchor
+    let l:parts = split(l:parts[1], '__Text__')
+    let l:link .= l:parts[0] . l:header . l:parts[1]
+    call add(l:toc, repeat(l:indent, l:level-1) . '- ' . l:link)
   endfor
 
-  let links_rx = '\m^\s*'.vimwiki#u#escape(vimwiki#lst#default_symbol()).' '
-
-  call s:update_listing_in_buffer(lines, 'Innhald', links_rx, 1, 1)
+  call s:update_listing_in_buffer(l:toc,
+        \ 'Innhald',
+        \ '\m^\s*'.vimwiki#u#escape(vimwiki#lst#default_symbol()).' ',
+        \ 1, 1)
 endfunction
 
 " }}}1

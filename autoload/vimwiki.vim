@@ -54,12 +54,12 @@ function! vimwiki#init_buffer() " {{{1
     setlocal conceallevel=2
   endif
 
-  command! -buffer          VimwikiTOC            call vimwiki#page#create_toc()
   command! -buffer -range   VimwikiToggleListItem call vimwiki#lst#toggle_cb(<line1>, <line2>)
 
   "
   " Keybindings
   "
+  nnoremap <silent><buffer> <leader>wt :call vimwiki#page#create_toc()<cr>
   nnoremap <silent><buffer> <leader>wb :call vimwiki#get_backlinks()<cr>
   nnoremap <silent><buffer> <tab>      :call vimwiki#nav#next_link()<cr>
   nnoremap <silent><buffer> <s-tab>    :call vimwiki#nav#prev_link()<cr>
