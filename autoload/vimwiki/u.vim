@@ -29,5 +29,13 @@ function! vimwiki#u#in_syntax(name, ...) " {{{1
 endfunction
 
 " }}}1
+function! vimwiki#u#is_code(...) " {{{1
+  let l:lnum = a:0 > 0 ? a:1 : line('.')
+
+  return match(map(synstack(l:lnum, 1),
+          \        "synIDattr(v:val, 'name')"), '^VimwikiPre') > -1
+endfunction
+
+" }}}1
 
 " vim: fdm=marker sw=2
