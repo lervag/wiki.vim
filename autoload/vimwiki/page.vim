@@ -179,8 +179,18 @@ endfunction
 " }}}1
 
 function! vimwiki#page#create_toc() " {{{1
-  let l:headers = []
-  let l:header_stack = []
+  let l:winsave = winsaveview()
+  let l:syntax = &l:syntax
+  setlocal syntax=off
+
+  let l:start = 1
+  let l:entries = []
+  let l:anchor_stack = []
+  let l:link = split(g:vimwiki.link_matcher.wiki.template[1], '\v__(Url|Text)__')
+
+  "
+  " Create toc entries
+  "
   for l:lnum in range(1, line('$'))
     if vimwiki#u#is_code(l:lnum) | continue | endif
 
@@ -194,116 +204,56 @@ function! vimwiki#page#create_toc() " {{{1
     if l:header ==# 'Innhald' | continue | endif
 
     " Update header stack in order to have well defined anchor
-    let l:depth = len(l:header_stack)
+    let l:depth = len(l:anchor_stack)
     if l:depth >= l:level
-      call remove(l:header_stack, l:level-1, l:depth-1)
+      call remove(l:anchor_stack, l:level-1, l:depth-1)
     endif
-    call add(l:header_stack, l:header)
+    call add(l:anchor_stack, l:header)
+    let l:anchor = '#' . join(l:anchor_stack, '#')
 
-    " Store current header with level and anchor
-    call add(l:headers, [l:level, l:header, '#' . join(l:header_stack, '#')])
+    " Add current entry
+    call add(l:entries, repeat(' ', shiftwidth()*(l:level-1)) . '- '
+          \ . l:link[0] . l:anchor . l:link[1] . l:header . l:link[2])
   endfor
 
   "
-  " Generate TOC lines
+  " Delete TOC if it exists
   "
-  let l:toc = []
-  let l:indent = repeat(' ', shiftwidth())
-  for [l:level, l:header, l:anchor] in l:headers
-    let l:parts = split(g:vimwiki.link_matcher.wiki.template[1], '__Url__')
-    let l:link = l:parts[0] . l:anchor
-    let l:parts = split(l:parts[1], '__Text__')
-    let l:link .= l:parts[0] . l:header . l:parts[1]
-    call add(l:toc, repeat(l:indent, l:level-1) . '- ' . l:link)
-  endfor
+  for l:lnum in range(1, line('$'))
+    if getline(l:lnum) =~# '^\s*#[^#]\+Innhald'
+      let l:start = l:lnum
+      let l:end = l:start + (getline(l:lnum+1) =~# '^\s*$' ? 2 : 1)
+      while l:end <= line('$') && getline(l:end) =~# '^\s*- '
+        let l:end += 1
+      endwhile
 
-  call s:update_listing_in_buffer(l:toc,
-        \ 'Innhald',
-        \ '\m^\s*'.vimwiki#u#escape(vimwiki#lst#default_symbol()).' ',
-        \ 1, 1)
-endfunction
+      let l:foldenable = &l:foldenable
+      setlocal nofoldenable
+      silent execute printf('%d,%ddelete _', l:start, l:end - 1)
+      let &l:foldenable = l:foldenable
 
-" }}}1
-function! s:update_listing_in_buffer(strings, start_header, content_regex, default_lnum, create) " {{{1
-  " check if the listing is already there
-  let already_there = 0
-
-  let header_rx = '\m^\s*# ' . a:start_header
-
-  let start_lnum = 1
-  while start_lnum <= line('$')
-    if getline(start_lnum) =~# header_rx
-      let already_there = 1
       break
     endif
-    let start_lnum += 1
-  endwhile
-
-  if !already_there && !a:create
-    return
-  endif
-
-  let winview_save = winsaveview()
-  let cursor_line = winview_save.lnum
-  let is_cursor_after_listing = 0
-
-  let is_fold_closed = 1
-
-  let lines_diff = 0
-
-  if already_there
-    let is_fold_closed = ( foldclosed(start_lnum) > -1 )
-    " delete the old listing
-    let whitespaces_in_first_line = matchstr(getline(start_lnum), '\m^\s*')
-    let end_lnum = start_lnum + 1
-    while end_lnum <= line('$') && getline(end_lnum) =~# a:content_regex
-      let end_lnum += 1
-    endwhile
-    let is_cursor_after_listing = ( cursor_line >= end_lnum )
-    " We'll be removing a range.  But, apparently, if folds are enabled, Vim
-    " won't let you remove a range that overlaps with closed fold -- the entire
-    " fold gets deleted.  So we temporarily disable folds, and then reenable
-    " them right back.
-    let foldenable_save = &l:foldenable
-    setlo nofoldenable
-    silent exe start_lnum.','.string(end_lnum - 1).'delete _'
-    let &l:foldenable = foldenable_save
-    let lines_diff = 0 - (end_lnum - start_lnum)
-  else
-    let start_lnum = a:default_lnum
-    let is_cursor_after_listing = ( cursor_line > a:default_lnum )
-    let whitespaces_in_first_line = ''
-  endif
-
-  let start_of_listing = start_lnum
-
-  " write new listing
-  let new_header = whitespaces_in_first_line
-        \ . substitute(g:vimwiki.rx.H1_Template,
-        \ '__Header__', '\='."'".a:start_header."'", '')
-  call append(start_lnum - 1, new_header)
-  let start_lnum += 1
-  let lines_diff += 1 + len(a:strings)
-  for string in a:strings
-    call append(start_lnum - 1, string)
-    let start_lnum += 1
   endfor
-  " append an empty line if there is not one
-  if start_lnum <= line('$') && getline(start_lnum) !~# '\m^\s*$'
-    call append(start_lnum - 1, '')
-    let lines_diff += 1
-  endif
 
-  " Open fold, if needed
-  if !is_fold_closed && ( foldclosed(start_of_listing) > -1 )
-    exe start_of_listing
-    norm! zo
+  "
+  " Add updated TOC
+  "
+  call append(l:start - 1, '# Innhald')
+  let l:length = len(l:entries)
+  for l:i in range(l:length)
+    call append(l:start + l:i, l:entries[l:i])
+  endfor
+  if getline(l:start + l:length + 1) !=# ''
+    call append(l:start + l:length, '')
   endif
+  call append(l:start, '')
 
-  if is_cursor_after_listing
-    let winview_save.lnum += lines_diff
-  endif
-  call winrestview(winview_save)
+  "
+  " Restore view
+  "
+  let &l:syntax = l:syntax
+  call winrestview(l:winsave)
 endfunction
 
 " }}}1
