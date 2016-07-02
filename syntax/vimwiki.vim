@@ -82,7 +82,7 @@ syntax match VimwikiLinkMdChar /\]([^\\]\{-})/
 for s:i in range(1,6)
   execute 'syntax match VimwikiHeader' . s:i
         \ . ' /^#\{' . s:i . '}\zs[^#].*/'
-        \ . ' contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,'
+        \ . ' contains=VimwikiTodo,VimwikiHeaderChar,'
         \ .           'VimwikiCode,@VimwikiLink,@Spell'
 endfor
 syntax match VimwikiHeaderChar contained /^#\+/
@@ -111,11 +111,12 @@ syntax match VimwikiCellSeparator
       \ /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
 
 " Lists
-execute 'syntax match VimwikiList /'.g:vimwiki.rx.lst_item_no_checkbox.'/'
-execute 'syntax match VimwikiList /'.g:vimwiki.rx.listDefine.'/'
-execute 'syntax match VimwikiListTodo /'.g:vimwiki.rx.lst_item.'/'
-execute 'syntax match VimwikiCheckBoxDone /'.g:vimwiki.rx.lst_item_no_checkbox.'\s*\['.g:vimwiki_listsyms_list[4].'\]\s.*$/ '.
-      \ 'contains=VimwikiNoExistsLink,@VimwikiLink,@Spell'
+syntax match VimwikiList /^\s*[-*#]/
+syntax match VimwikiList /::\%(\s\|$\)/
+syntax match VimwikiListTodo /^\s*[-*#] \[ \]/
+syntax match VimwikiListTodo /^\s*[-*#] \[ \]/
+syntax match VimwikiListTodoDone /^\s*[-*#] \[[xX]\]/
+      \ contains=@VimwikiLink,@Spell
 
 syntax match VimwikiEqIn  /\$[^$`]\+\$/ contains=VimwikiEqInChar
 syntax match VimwikiEqInT /\$[^$`]\+\$/ contained contains=VimwikiEqInCharT
@@ -227,12 +228,9 @@ hi def link VimwikiPreStartName Identifier
 hi def link VimwikiMath Number
 hi def link VimwikiMathT VimwikiMath
 
-hi def link VimwikiNoExistsLink SpellBad
-hi def link VimwikiNoExistsLinkT VimwikiNoExistsLink
-
 hi def link VimwikiList Identifier
 hi def link VimwikiListTodo VimwikiList
-hi def link VimwikiCheckBoxDone Comment
+hi def link VimwikiListTodoDone Comment
 hi def link VimwikiHR Identifier
 hi def link VimwikiTag Keyword
 

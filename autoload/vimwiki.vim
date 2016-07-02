@@ -46,9 +46,7 @@ function! vimwiki#init_buffer() " {{{1
   setlocal comments+=:-\ TODO:,b:-\ [\ ],b:-\ [X],b:-
   " setlocal formatoptions-=cr02
   " setlocal formatoptions+=n
-
-  "Create 'formatlistpat'
-  let &formatlistpat = g:vimwiki.rx.lst_item
+  setlocal formatlistpat=
 
   if exists('+conceallevel')
     setlocal conceallevel=2
@@ -109,7 +107,7 @@ function! vimwiki#define_regexes() " {{{
         \   '[[__Url__|__Text__]]',
         \ ],
         \ 'rx_full' : '\[\[\/\?[^\\\]]\{-}\%(|[^\\\]]\{-}\)\?\]\]',
-        \ 'rx_url' : '\[\[\/\?\zs[^\\\]]\{-}\ze\%(|[^\\\]]\{-}\)\?\]\]',
+        \ 'rx_url' : '\[\[\zs\/\?[^\\\]]\{-}\ze\%(|[^\\\]]\{-}\)\?\]\]',
         \ 'rx_text' : '\[\[\/\?[^\\\]]\{-}\%(|\zs[^\\\]]\{-}\ze\)\?\]\]',
         \ 'syntax' : 'VimwikiLinkWiki',
         \ 'default_scheme' : 'wiki',
@@ -152,20 +150,17 @@ function! vimwiki#define_regexes() " {{{
   " Define regexes
   "
   let g:vimwiki.rx = {}
-  let g:vimwiki_bullet_types = { '-':0, '*':0, '+':0 }
-  let g:vimwiki_number_types = ['1.']
-  let g:vimwiki_list_markers = ['-', '*', '+', '1.']
-  call vimwiki#lst#setup_marker_infos()
 
   let g:vimwiki.rx.link = join(map(
         \   values(g:vimwiki.link_matcher),
         \   'v:val.rx_full'),
         \ '\|')
 
-  let g:vimwiki.rx.word = '[^[:blank:]!"$%&''()*+,:;<=>?\[\]\\^`{}]\+'
+  let g:vimwiki_bullet_types = { '-':0, '*':0, '+':0 }
+  let g:vimwiki_number_types = ['1.']
+  let g:vimwiki_list_markers = ['-', '*', '+', '1.']
 
-  let g:vimwiki.rx.lst_item_no_checkbox = '^\s*\%(\('.g:vimwiki.rx.lst_bullet.'\)\|\('.g:vimwiki.rx.lst_number.'\)\)\s'
-  let g:vimwiki.rx.lst_item = g:vimwiki.rx.lst_item_no_checkbox . '\+\%(\[\(['.g:vimwiki_listsyms.']\)\]\s\)\?'
+  let g:vimwiki.rx.word = '[^[:blank:]!"$%&''()*+,:;<=>?\[\]\\^`{}]\+'
 
   let g:vimwiki.rx.preStart = '^\s*```'
   let g:vimwiki.rx.preEnd = '^\s*```\s*$'
