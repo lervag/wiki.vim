@@ -242,7 +242,7 @@ function! vimwiki#edit_file(filename, ...) "{{{1
 
   normal! zMzvzz
 
-  if has_key(l:opts, 'prev_link')
+  if !empty(get(l:opts, 'prev_link', ''))
     let b:vimwiki.prev_link = l:opts.prev_link
   endif
 endfunction
