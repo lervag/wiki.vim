@@ -22,14 +22,6 @@ endfunction
 
 " }}}1
 function! vimwiki#init_buffer() " {{{1
-  let b:vimwiki = {}
-  let g:vimwiki_listsyms = ' .oOX'
-  let b:vimwiki.in_diary = stridx(
-        \ resolve(expand('%:p')),
-        \ resolve(g:vimwiki.diary)) == 0
-
-  call vimwiki#define_regexes()
-
   setlocal nolisp
   setlocal nomodeline
   setlocal nowrap
@@ -47,31 +39,32 @@ function! vimwiki#init_buffer() " {{{1
   " setlocal formatoptions-=cr02
   " setlocal formatoptions+=n
   setlocal formatlistpat=
-
   if exists('+conceallevel')
     setlocal conceallevel=2
   endif
 
-  command! -buffer -range   VimwikiToggleListItem call vimwiki#lst#toggle_cb(<line1>, <line2>)
+  let b:vimwiki = {
+        \ 'in_diary' : stridx(
+        \   resolve(expand('%:p')),
+        \   resolve(g:vimwiki.diary)) == 0
+        \ }
+
+  call vimwiki#define_regexes()
+
 
   "
   " Keybindings
   "
   nnoremap <silent><buffer> <leader>wt :call vimwiki#page#create_toc()<cr>
   nnoremap <silent><buffer> <leader>wb :call vimwiki#get_backlinks()<cr>
+  nnoremap <silent><buffer> <leader>wd :call vimwiki#page#delete()<cr>
+  nnoremap <silent><buffer> <leader>wr :call vimwiki#page#rename()<cr>
   nnoremap <silent><buffer> <tab>      :call vimwiki#nav#next_link()<cr>
   nnoremap <silent><buffer> <s-tab>    :call vimwiki#nav#prev_link()<cr>
   nnoremap <silent><buffer> <bs>       :call vimwiki#nav#return()<cr>
   nnoremap <silent><buffer> <cr>       :call vimwiki#link#follow()<cr>
   nnoremap <silent><buffer> <c-cr>     :call vimwiki#link#follow('vsplit')<cr>
-  vnoremap <silent><buffer> <cr>      :<c-u>call vimwiki#link#normalize(1)<cr>
-
-  nnoremap <silent><buffer> <leader>wd :call vimwiki#page#delete()<cr>
-  nnoremap <silent><buffer> <leader>wr :call vimwiki#page#rename()<cr>
-
-  nnoremap <silent><buffer> <c-space>  :VimwikiToggleListItem<cr>
-  vnoremap <silent><buffer> <c-space>  :VimwikiToggleListItem<cr>
-
+  vnoremap <silent><buffer> <cr>       :<c-u>call vimwiki#link#normalize(1)<cr>
   if b:vimwiki.in_diary
     nnoremap <silent><buffer> <c-j> :<c-u>call vimwiki#diary#go(-v:count1)<cr>
     nnoremap <silent><buffer> <c-k> :<c-u>call vimwiki#diary#go(v:count1)<cr>
