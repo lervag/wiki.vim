@@ -67,6 +67,7 @@ function! vimwiki#init_buffer() " {{{1
   nnoremap <silent><buffer> <s-tab>    :call vimwiki#nav#prev_link()<cr>
   nnoremap <silent><buffer> <bs>       :call vimwiki#nav#return()<cr>
   nnoremap <silent><buffer> <cr>       :call vimwiki#link#follow()<cr>
+  nnoremap <silent><buffer> <leader>wf :call vimwiki#link#toggle()<cr>
   nnoremap <silent><buffer> <c-cr>     :call vimwiki#link#follow('vsplit')<cr>
   vnoremap <silent><buffer> <cr>       :<c-u>call vimwiki#link#normalize()<cr>
   if b:vimwiki.in_diary
@@ -105,7 +106,7 @@ function! vimwiki#define_regexes() " {{{
         \ ],
         \ 'rx_full' : '\[\[\/\?[^\\\]]\{-}\%(|[^\\\]]\{-}\)\?\]\]',
         \ 'rx_url' : '\[\[\zs\/\?[^\\\]]\{-}\ze\%(|[^\\\]]\{-}\)\?\]\]',
-        \ 'rx_text' : '\[\[\/\?[^\\\]]\{-}\%(|\zs[^\\\]]\{-}\ze\)\?\]\]',
+        \ 'rx_text' : '\[\[\/\?[^\\\]]\{-}|\zs[^\\\]]\{-}\]\]',
         \ 'syntax' : 'VimwikiLinkWiki',
         \ 'default_scheme' : 'wiki',
         \}
