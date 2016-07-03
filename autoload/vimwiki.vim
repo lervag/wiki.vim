@@ -36,9 +36,9 @@ function! vimwiki#init_buffer() " {{{1
   setlocal nocindent
   setlocal comments =:*\ TODO:,b:*\ [\ ],b:*\ [X],b:*
   setlocal comments+=:-\ TODO:,b:-\ [\ ],b:-\ [X],b:-
-  " setlocal formatoptions-=cr02
-  " setlocal formatoptions+=n
-  setlocal formatlistpat=
+  setlocal formatoptions-=o
+  setlocal formatoptions+=na
+  let &l:formatlistpat = '\v\s*%(\d|\l|i+)\.\s'
   if exists('+conceallevel')
     setlocal conceallevel=2
   endif
@@ -50,7 +50,6 @@ function! vimwiki#init_buffer() " {{{1
         \ }
 
   call vimwiki#define_regexes()
-
 
   "
   " Keybindings
