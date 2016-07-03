@@ -39,9 +39,6 @@ function! vimwiki#init_buffer() " {{{1
   setlocal formatoptions-=o
   setlocal formatoptions+=na
   let &l:formatlistpat = '\v\s*%(\d|\l|i+)\.\s'
-  if exists('+conceallevel')
-    setlocal conceallevel=2
-  endif
 
   let b:vimwiki = {
         \ 'in_diary' : stridx(
@@ -50,6 +47,14 @@ function! vimwiki#init_buffer() " {{{1
         \ }
 
   call vimwiki#define_regexes()
+
+  "
+  " Autocommands
+  "
+  augroup vimwiki
+    autocmd!
+    autocmd BufWinEnter *.wiki setlocal conceallevel=2
+  augroup END
 
   "
   " Keybindings
