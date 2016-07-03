@@ -66,18 +66,59 @@ function! vimwiki#link#follow(...) "{{{1
   let l:link = vimwiki#link#get_at_cursor()
 
   if empty(l:link)
-    call vimwiki#link#normalize()
+    call vimwiki#link#normalize_normal()
   else
     call call(l:link.follow, a:000)
   endif
 endfunction
 
 " }}}1
-function! vimwiki#link#normalize(...) " {{{1
-  if a:0 == 0
-    call s:normalize_link_syntax_n()
-  elseif visualmode() ==# 'v' && line("'<") == line("'>")
-    call s:normalize_link_syntax_v()
+function! vimwiki#link#normalize() " {{{1
+  "
+  " Note: This function assumes that it is called from visual mode.
+  "
+  let l:save_reg = @a
+  let l:parts = split(g:vimwiki.link_matcher.wiki.template[0], '__Url__')
+  let l:link = l:parts[0] . getreg('*') . l:parts[1]
+  call setreg('a', l:link, 'v')
+  normal! gvd"aP
+  call setreg('a', l:save_reg)
+endfunction
+
+" }}}1
+function! vimwiki#link#normalize_normal() " {{{1
+  let lnum = line('.')
+
+  let lnk = s:matchstr_at_cursor(g:vimwiki.link_matcher.wiki.rx_full)
+  if !empty(lnk)
+    let sub = s:normalize_helper(lnk, g:vimwiki.link_matcher.wiki,
+          \ g:vimwiki.link_matcher.ref.template[1])
+    call s:replacestr_at_cursor(g:vimwiki.link_matcher.wiki.rx_full, sub)
+    return
+  endif
+
+  let lnk = s:matchstr_at_cursor(g:vimwiki.link_matcher.ref.rx_full)
+  if !empty(lnk)
+    let sub = s:normalize_helper(lnk, g:vimwiki.link_matcher.ref,
+          \ g:vimwiki.link_matcher.wiki.template[1])
+    call s:replacestr_at_cursor(g:vimwiki.link_matcher.ref.rx_full, sub)
+    return
+  endif
+
+  let lnk = s:matchstr_at_cursor(g:vimwiki.link_matcher.url.rx_full)
+  if !empty(lnk)
+    let sub = s:normalize_helper(lnk, g:vimwiki.link_matcher.url,
+          \ g:vimwiki.link_matcher.md.template)
+    call s:replacestr_at_cursor(g:vimwiki.link_matcher.url.rx_full, sub)
+    return
+  endif
+
+  let lnk = s:matchstr_at_cursor(g:vimwiki.rx.word)
+  if !empty(lnk)
+    let sub = s:normalize_helper(lnk, { 'rx_url' : g:vimwiki.rx.word },
+          \ g:vimwiki.link_matcher.wiki.template[1])
+    call s:replacestr_at_cursor(g:vimwiki.rx.word, sub)
+    return
   endif
 endfunction
 
@@ -207,69 +248,6 @@ endfunction
 
 "}}}1
 
-function! s:normalize_link_syntax_n() " {{{1
-  let lnum = line('.')
-
-  let lnk = s:matchstr_at_cursor(g:vimwiki.link_matcher.wiki.rx_full)
-  if !empty(lnk)
-    let sub = s:normalize_helper(lnk, g:vimwiki.link_matcher.wiki,
-          \ g:vimwiki.link_matcher.ref.template[1])
-    call s:replacestr_at_cursor(g:vimwiki.link_matcher.wiki.rx_full, sub)
-    return
-  endif
-
-  let lnk = s:matchstr_at_cursor(g:vimwiki.link_matcher.ref.rx_full)
-  if !empty(lnk)
-    let sub = s:normalize_helper(lnk, g:vimwiki.link_matcher.ref,
-          \ g:vimwiki.link_matcher.wiki.template[1])
-    call s:replacestr_at_cursor(g:vimwiki.link_matcher.ref.rx_full, sub)
-    return
-  endif
-
-  let lnk = s:matchstr_at_cursor(g:vimwiki.link_matcher.url.rx_full)
-  if !empty(lnk)
-    let sub = s:normalize_helper(lnk, g:vimwiki.link_matcher.url,
-          \ g:vimwiki.link_matcher.md.template)
-    call s:replacestr_at_cursor(g:vimwiki.link_matcher.url.rx_full, sub)
-    return
-  endif
-
-  let lnk = s:matchstr_at_cursor(g:vimwiki.rx.word)
-  if !empty(lnk)
-    let sub = s:normalize_helper(lnk, { 'rx_url' : g:vimwiki.rx.word },
-          \ g:vimwiki.link_matcher.wiki.template[1])
-    call s:replacestr_at_cursor(g:vimwiki.rx.word, sub)
-    return
-  endif
-endfunction
-
-" }}}1
-function! s:normalize_link_syntax_v() " {{{
-  let lnum = line('.')
-  let sel_save = &selection
-  let &selection = "old"
-  let rv = @"
-  let rt = getregtype('"')
-  let done = 0
-
-  try
-    norm! gvy
-    let visual_selection = @"
-    let link = substitute(g:vimwiki.link_matcher.md.template,
-          \ '__Url__', '\='."'".visual_selection."'", '')
-    let link = substitute(link, '__Text__', '\='."'".visual_selection."'", '')
-
-    call setreg('"', link, 'v')
-
-    " paste result
-    norm! `>pgvd
-
-  finally
-    call setreg('"', rv, rt)
-    let &selection = sel_save
-  endtry
-
-endfunction " }}}
 function! s:normalize_helper(str, matcher, template) " {{{1
   let l:url = matchstr(a:str, a:matcher.rx_url)
   let l:text = matchstr(a:str, get(a:matcher, 'rx_text', ''))

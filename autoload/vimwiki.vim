@@ -37,7 +37,7 @@ function! vimwiki#init_buffer() " {{{1
   setlocal comments =:*\ TODO:,b:*\ [\ ],b:*\ [X],b:*
   setlocal comments+=:-\ TODO:,b:-\ [\ ],b:-\ [X],b:-
   setlocal formatoptions-=o
-  setlocal formatoptions+=na
+  setlocal formatoptions+=n
   let &l:formatlistpat = '\v\s*%(\d|\l|i+)\.\s'
 
   let b:vimwiki = {
@@ -68,7 +68,7 @@ function! vimwiki#init_buffer() " {{{1
   nnoremap <silent><buffer> <bs>       :call vimwiki#nav#return()<cr>
   nnoremap <silent><buffer> <cr>       :call vimwiki#link#follow()<cr>
   nnoremap <silent><buffer> <c-cr>     :call vimwiki#link#follow('vsplit')<cr>
-  vnoremap <silent><buffer> <cr>       :<c-u>call vimwiki#link#normalize(1)<cr>
+  vnoremap <silent><buffer> <cr>       :<c-u>call vimwiki#link#normalize()<cr>
   if b:vimwiki.in_diary
     nnoremap <silent><buffer> <c-j> :<c-u>call vimwiki#diary#go(-v:count1)<cr>
     nnoremap <silent><buffer> <c-k> :<c-u>call vimwiki#diary#go(v:count1)<cr>
