@@ -15,14 +15,9 @@ function! vimwiki#link#get_at_cursor() " {{{1
   " Try to match link at cursor position
   "
   for [l:key, l:m] in items(g:vimwiki.link_matcher)
-    let l:link = s:matchstr_at_cursor(l:m.rx_full)
-    let l:url = matchstr(l:link, l:m.rx_url)
-    if !empty(l:url)
-      return vimwiki#link#parse(l:url, {
-            \ 'default_scheme' : l:m.default_scheme,
-            \ 'type' : l:key,
-            \ 'text' : matchstr(l:link, l:m.rx_text),
-            \})
+    let l:link = s:matchlink_at_cursor(l:m, l:key)
+    if !empty(l:link)
+      return extend(vimwiki#link#parse(l:link.url), l:link)
     endif
   endfor
 
@@ -31,10 +26,7 @@ function! vimwiki#link#get_at_cursor() " {{{1
   "
   let l:url = s:matchstr_at_cursor('\d\d\d\d-\d\d-\d\d')
   if !empty(l:url)
-    return vimwiki#link#parse(l:url, {
-          \ 'default_scheme' : 'diary',
-          \ 'type' : 'date',
-          \})
+    return vimwiki#link#parse('diary:' . l:url)
   endif
 
   return {}
@@ -46,15 +38,13 @@ function! vimwiki#link#parse(url, ...) " {{{1
 
   let l:link = {}
   let l:link.url = a:url
-  let l:link.type = get(l:options, 'type', '')
-  let l:link.text = get(l:options, 'text', '')
   let l:link.origin = get(l:options, 'origin', expand('%:p'))
 
   " Decompose link into its scheme and link text
   let l:link_parts = matchlist(a:url, '\v((\w+):%(//)?)?(.*)')
   let l:link.stripped = l:link_parts[3]
   if empty(l:link_parts[2])
-    let l:link.scheme = get(l:options, 'default_scheme', 'wiki')
+    let l:link.scheme = 'wiki'
     let l:link.url = l:link.scheme . ':' . a:url
   else
     let l:link.scheme = l:link_parts[2]
@@ -75,59 +65,9 @@ function! vimwiki#link#follow(...) "{{{1
   let l:link = vimwiki#link#get_at_cursor()
 
   if empty(l:link)
-    call vimwiki#link#normalize_normal()
+    call vimwiki#link#toggle()
   else
     call call(l:link.follow, a:000)
-  endif
-endfunction
-
-" }}}1
-function! vimwiki#link#normalize() " {{{1
-  "
-  " Note: This function assumes that it is called from visual mode.
-  "
-  let l:save_reg = @a
-  let l:parts = split(g:vimwiki.link_matcher.wiki.template[0], '__Url__')
-  let l:link = l:parts[0] . getreg('*') . l:parts[1]
-  call setreg('a', l:link, 'v')
-  normal! gvd"aP
-  call setreg('a', l:save_reg)
-endfunction
-
-" }}}1
-function! vimwiki#link#normalize_normal() " {{{1
-  let lnum = line('.')
-
-  let lnk = s:matchstr_at_cursor(g:vimwiki.link_matcher.wiki.rx_full)
-  if !empty(lnk)
-    let sub = s:normalize_helper(lnk, g:vimwiki.link_matcher.wiki,
-          \ g:vimwiki.link_matcher.ref.template[1])
-    call s:replacestr_at_cursor(g:vimwiki.link_matcher.wiki.rx_full, sub)
-    return
-  endif
-
-  let lnk = s:matchstr_at_cursor(g:vimwiki.link_matcher.ref.rx_full)
-  if !empty(lnk)
-    let sub = s:normalize_helper(lnk, g:vimwiki.link_matcher.ref,
-          \ g:vimwiki.link_matcher.wiki.template[1])
-    call s:replacestr_at_cursor(g:vimwiki.link_matcher.ref.rx_full, sub)
-    return
-  endif
-
-  let lnk = s:matchstr_at_cursor(g:vimwiki.link_matcher.url.rx_full)
-  if !empty(lnk)
-    let sub = s:normalize_helper(lnk, g:vimwiki.link_matcher.url,
-          \ g:vimwiki.link_matcher.md.template)
-    call s:replacestr_at_cursor(g:vimwiki.link_matcher.url.rx_full, sub)
-    return
-  endif
-
-  let lnk = s:matchstr_at_cursor(g:vimwiki.rx.word)
-  if !empty(lnk)
-    let sub = s:normalize_helper(lnk, { 'rx_url' : g:vimwiki.rx.word },
-          \ g:vimwiki.link_matcher.wiki.template[1])
-    call s:replacestr_at_cursor(g:vimwiki.rx.word, sub)
-    return
   endif
 endfunction
 
@@ -140,7 +80,7 @@ function! vimwiki#link#toggle() " {{{1
   "
   if empty(l:link)
     normal! viwy
-    call vimwiki#link#normalize()
+    call vimwiki#link#toggle_visual()
   endif
 
   "
@@ -180,8 +120,24 @@ function! vimwiki#link#toggle() " {{{1
   endif
 
   "
-  " TODO: Replace current link with l:new
+  " Replace current link with l:new
   "
+  let l:line = getline(l:link.lnum)
+  call setline(l:link.lnum, strpart(l:line, 0, l:link.cnum1-1)
+        \ . l:new . strpart(l:line, l:link.cnum2))
+endfunction
+
+" }}}1
+function! vimwiki#link#toggle_visual() " {{{1
+  "
+  " Note: This function assumes that it is called from visual mode.
+  "
+  let l:save_reg = @a
+  let l:parts = split(g:vimwiki.link_matcher.wiki.template[0], '__Url__')
+  let l:link = l:parts[0] . getreg('*') . l:parts[1]
+  call setreg('a', l:link, 'v')
+  normal! gvd"aP
+  call setreg('a', l:save_reg)
 endfunction
 
 " }}}1
@@ -194,20 +150,20 @@ function! s:parse_link_wiki(link) " {{{1
   let l:anchors = split(a:link.stripped, '#', 1)
   let l:link.anchor = (len(l:anchors) > 1) && (l:anchors[-1] != '')
         \ ? join(l:anchors[1:], '#') : ''
-  let l:link.stripped = !empty(l:anchors[0]) ? l:anchors[0]
+  let l:fname = !empty(l:anchors[0]) ? l:anchors[0]
         \ : fnamemodify(a:link.origin, ':p:t:r')
 
   " Extract target filename (full path)
   if a:link.scheme ==# 'diary'
     let l:link.scheme = 'wiki'
-    let l:link.filename = g:vimwiki.diary . l:link.stripped . '.wiki'
+    let l:link.filename = g:vimwiki.diary . l:fname . '.wiki'
   else
-    if a:link.stripped[0] == '/'
-      let l:link.stripped = strpart(l:link.stripped, 1)
-      let l:link.filename = g:vimwiki.root . l:link.stripped . '.wiki'
+    if l:fname[0] == '/'
+      let l:fname = strpart(l:fname, 1)
+      let l:link.filename = g:vimwiki.root . l:fname . '.wiki'
     else
       let l:link.filename = fnamemodify(a:link.origin, ':p:h') . '/'
-            \ . l:link.stripped . '.wiki'
+            \ . l:fname . '.wiki'
     endif
   endif
 
@@ -310,58 +266,6 @@ endfunction
 
 "}}}1
 
-function! s:normalize_helper(str, matcher, template) " {{{1
-  let l:url = matchstr(a:str, a:matcher.rx_url)
-  let l:text = matchstr(a:str, get(a:matcher, 'rx_text', ''))
-  if empty(l:text)
-    let l:text = split(l:url, '/\|=\|-\|&\|?\|\.')
-    let l:text = filter(l:text, 'v:val !=# ""')
-    let l:text = filter(l:text, 'v:val !=# "www"')
-    let l:text = filter(l:text, 'v:val !=# "com"')
-    let l:text = filter(l:text, 'v:val !=# "org"')
-    let l:text = filter(l:text, 'v:val !=# "net"')
-    let l:text = filter(l:text, 'v:val !=# "edu"')
-    let l:text = filter(l:text, 'v:val !=# "http\:"')
-    let l:text = filter(l:text, 'v:val !=# "https\:"')
-    let l:text = filter(l:text, 'v:val !=# "file\:"')
-    let l:text = filter(l:text, 'v:val !=# "xml\:"')
-    let l:text = join(l:text, " ")
-  endif
-
-  return substitute(
-        \ substitute(a:template, '__Text__', '\="' . l:text . '"', ''),
-        \ '__Url__', '\="' . l:url . '"', '')
-endfunction
-
-" }}}1
-function! s:normalize_link_in_diary(lnk) " {{{1
-  let link = a:lnk . '.wiki'
-  let link_wiki = g:vimwiki.root . link
-  let link_diary = g:vimwiki.diary . link
-  let link_exists_in_diary = filereadable(link_diary)
-  let link_exists_in_wiki = filereadable(link_wiki)
-  let link_is_date = a:lnk =~# '\d\d\d\d-\d\d-\d\d'
-
-  if ! link_exists_in_wiki || link_exists_in_diary || link_is_date
-    let str = a:lnk
-    let rxUrl = g:vimwiki.rx.word
-    let rxDesc = ''
-    let template = g:vimwiki.link_matcher.wiki.template[0]
-  else
-    let depth = len(split(link_diary, '/'))
-    let str = repeat('../', depth) . a:lnk . '|' . a:lnk
-    let rxUrl = '^.*\ze|'
-    let rxDesc = '|\zs.*$'
-    let template = g:vimwiki.link_matcher.wiki.template[1]
-  endif
-
-  return s:normalize_helper(str,
-        \ { 'rx_url' : rxUrl, 'rx_text' : rxDesc },
-        \ template)
-endfunction
-
-" }}}1
-
 function! s:matchstr_at_cursor(regex) " {{{1
   let l:c1 = searchpos(a:regex, 'ncb', line('.'))[1]
   let l:c2 = searchpos(a:regex, 'nce', line('.'))[1]
@@ -372,26 +276,26 @@ function! s:matchstr_at_cursor(regex) " {{{1
 endfunction
 
 "}}}1
-function! s:replacestr_at_cursor(wikiRX, sub) " {{{1
-  let col = col('.') - 1
-  let line = getline('.')
-  let ebeg = -1
-  let cont = match(line, a:wikiRX, 0)
-  while (ebeg >= 0 || (0 <= cont) && (cont <= col))
-    let contn = matchend(line, a:wikiRX, cont)
-    if (cont <= col) && (col < contn)
-      let ebeg = match(line, a:wikiRX, cont)
-      let elen = contn - ebeg
-      break
-    else
-      let cont = match(line, a:wikiRX, contn)
-    endif
-  endwh
-  if ebeg >= 0
-    " TODO: There might be problems with Unicode chars...
-    let newline = strpart(line, 0, ebeg).a:sub.strpart(line, ebeg+elen)
-    call setline(line('.'), newline)
-  endif
-endf "}}}
+function! s:matchlink_at_cursor(matcher, type) " {{{1
+  let l:lnum = line('.')
+
+  let l:cnum1 = searchpos(a:matcher.rx_full, 'ncb', l:lnum)[1]
+  let l:cnum2 = searchpos(a:matcher.rx_full, 'nce', l:lnum)[1]
+
+  if (l:cnum1 == 0) || (l:cnum2 == 0) | return {} | endif
+  let l:link = strpart(getline('.'), l:cnum1-1, l:cnum2)
+
+  return {
+        \ 'link' : l:link,
+        \ 'type' : a:type,
+        \ 'url' : matchstr(l:link, a:matcher.rx_url),
+        \ 'text' : matchstr(l:link, a:matcher.rx_text),
+        \ 'lnum' : l:lnum,
+        \ 'cnum1' : l:cnum1,
+        \ 'cnum2' : l:cnum2,
+        \}
+endfunction
+
+"}}}1
 
 " vim: fdm=marker sw=2

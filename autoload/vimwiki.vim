@@ -69,7 +69,7 @@ function! vimwiki#init_buffer() " {{{1
   nnoremap <silent><buffer> <cr>       :call vimwiki#link#follow()<cr>
   nnoremap <silent><buffer> <leader>wf :call vimwiki#link#toggle()<cr>
   nnoremap <silent><buffer> <c-cr>     :call vimwiki#link#follow('vsplit')<cr>
-  vnoremap <silent><buffer> <cr>       :<c-u>call vimwiki#link#normalize()<cr>
+  vnoremap <silent><buffer> <cr>       :<c-u>call vimwiki#link#toggle_visual()<cr>
   if b:vimwiki.in_diary
     nnoremap <silent><buffer> <c-j> :<c-u>call vimwiki#diary#go(-v:count1)<cr>
     nnoremap <silent><buffer> <c-k> :<c-u>call vimwiki#diary#go(v:count1)<cr>
@@ -97,7 +97,6 @@ function! vimwiki#define_regexes() " {{{
         \ 'rx_url' : l:rx_url,
         \ 'rx_text' : '',
         \ 'syntax' : 'VimwikiLinkUrl',
-        \ 'default_scheme' : 'http',
         \}
   let g:vimwiki.link_matcher.wiki = {
         \ 'template' : [
@@ -106,9 +105,8 @@ function! vimwiki#define_regexes() " {{{
         \ ],
         \ 'rx_full' : '\[\[\/\?[^\\\]]\{-}\%(|[^\\\]]\{-}\)\?\]\]',
         \ 'rx_url' : '\[\[\zs\/\?[^\\\]]\{-}\ze\%(|[^\\\]]\{-}\)\?\]\]',
-        \ 'rx_text' : '\[\[\/\?[^\\\]]\{-}|\zs[^\\\]]\{-}\]\]',
+        \ 'rx_text' : '\[\[\/\?[^\\\]]\{-}|\zs[^\\\]]\{-}\ze\]\]',
         \ 'syntax' : 'VimwikiLinkWiki',
-        \ 'default_scheme' : 'wiki',
         \}
   let g:vimwiki.link_matcher.md = {
         \ 'template' : '[__Text__](__Url__)',
@@ -116,7 +114,6 @@ function! vimwiki#define_regexes() " {{{
         \ 'rx_url' : '\[[^\\]\{-}\](\zs[^\\]\{-}\ze)',
         \ 'rx_text' : '\[\zs[^\\]\{-}\ze\]([^\\]\{-})',
         \ 'syntax' : 'VimwikiLinkMd',
-        \ 'default_scheme' : 'wiki',
         \}
   let g:vimwiki.link_matcher.ref = {
         \ 'template' : [
@@ -133,7 +130,6 @@ function! vimwiki#define_regexes() " {{{
         \   . '\zs[^\\\[\]]\{-}\ze\]\[[^\\\[\]]\{-1,}'
         \   . '\][\]\[]\@!',
         \ 'syntax' : 'VimwikiLinkRef',
-        \ 'default_scheme' : 'wiki',
         \}
   let g:vimwiki.link_matcher.ref_target = {
         \ 'template' : '[__Text__]: __Url__',
@@ -141,7 +137,6 @@ function! vimwiki#define_regexes() " {{{
         \ 'rx_url' : '\[[^\\\]]\{-}\]:\s\+\zs' . l:rx_url . '\ze',
         \ 'rx_text' : '\[\zs[^\\\]]\{-}\ze\]:\s\+' . l:rx_url,
         \ 'syntax' : 'VimwikiLinkRefTarget',
-        \ 'default_scheme' : 'http',
         \}
 
   "
