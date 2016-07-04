@@ -111,12 +111,11 @@ syntax match VimwikiCellSeparator
       \ /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
 
 " Lists
-syntax match VimwikiList /^\s*[-*#]/
+syntax match VimwikiList /^\s*[-*]\s\+/
 syntax match VimwikiList /::\%(\s\|$\)/
-syntax match VimwikiListTodo /^\s*[-*#] \[ \]/
-syntax match VimwikiListTodo /^\s*[-*#] \[ \]/
-syntax match VimwikiListTodoDone /^\s*[-*#] \[[xX]\]/
-      \ contains=@VimwikiLink,@Spell
+syntax match VimwikiListTodo /^\s*[-*] \[ \]/
+syntax match VimwikiListTodo /^\s*[-*] \[ \]/
+syntax match VimwikiListTodoDone /^\s*[-*] \[[xX]\]/ contains=@VimwikiLink,@Spell
 
 syntax match VimwikiEqIn  /\$[^$`]\+\$/ contains=VimwikiEqInChar
 syntax match VimwikiEqInT /\$[^$`]\+\$/ contained contains=VimwikiEqInCharT

@@ -38,7 +38,7 @@ function! vimwiki#init_buffer() " {{{1
   setlocal comments+=:-\ TODO:,b:-\ [\ ],b:-\ [X],b:-
   setlocal formatoptions-=o
   setlocal formatoptions+=n
-  let &l:formatlistpat = '\v\s*%(\d|\l|i+)\.\s'
+  let &l:formatlistpat = '\v^\s*%(\d|\l|i+)\.\s'
 
   let b:vimwiki = {
         \ 'in_diary' : stridx(
