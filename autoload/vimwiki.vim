@@ -158,10 +158,10 @@ function! vimwiki#define_regexes() " {{{
   let g:vimwiki.rx.preStart = '^\s*```'
   let g:vimwiki.rx.preEnd = '^\s*```\s*$'
 
-  let g:vimwiki.rx.italic = s:rx_generate_bold_italic('_')
-  let g:vimwiki.rx.bold = s:rx_generate_bold_italic('*')
-  let g:vimwiki.rx.boldItalic = s:rx_generate_bold_italic('*_')
-  let g:vimwiki.rx.italicBold = s:rx_generate_bold_italic('_*')
+  let g:vimwiki.rx.italic = vimwiki#rx#generate_bold_italic('_')
+  let g:vimwiki.rx.bold = vimwiki#rx#generate_bold_italic('*')
+  let g:vimwiki.rx.boldItalic = vimwiki#rx#generate_bold_italic('*_')
+  let g:vimwiki.rx.italicBold = vimwiki#rx#generate_bold_italic('_*')
 
   let g:vimwiki.rx.superScript = '\^[^^`]\+\^'
   let g:vimwiki.rx.subScript = ',,[^,`]\+,,'
@@ -174,7 +174,7 @@ endfunction
 
 " }}}1
 function! vimwiki#goto_index() " {{{1
-  call vimwiki#edit_file(g:vimwiki.root . 'index.wiki')
+  call vimwiki#url#parse('wiki:/index').open()
 endfunction
 
 " }}}1
@@ -212,30 +212,6 @@ if !exists('s:reloading_script')
 endif
 
 " }}}1
-function! vimwiki#edit_file(filename, ...) "{{{1
-  let l:dir = fnamemodify(a:filename, ':p:h')
-  if !isdirectory(l:dir)
-    echom 'Vimwiki Error: Unable to edit file in non-existent directory:' l:dir
-    return
-  endif
-
-  let l:opts = a:0 > 0 ? a:1 : {}
-  if resolve(a:filename) !=# resolve(expand('%:p'))
-    execute get(l:opts, 'cmd', 'edit') fnameescape(a:filename)
-  endif
-
-  if !empty(get(l:opts, 'anchor', ''))
-    call s:jump_to_anchor(l:opts.anchor)
-  endif
-
-  normal! zMzvzz
-
-  if !empty(get(l:opts, 'prev_link', ''))
-    let b:vimwiki.prev_link = l:opts.prev_link
-  endif
-endfunction
-
-" }}}1
 function! vimwiki#get_backlinks() "{{{1
   let l:origin = expand("%:p")
   let l:locs = []
@@ -264,37 +240,5 @@ function! vimwiki#get_backlinks() "{{{1
 endfunction
 
 "}}}1
-
-"
-" Utility
-"
-function! s:rx_generate_bold_italic(chars, ...) " {{{1
-  let l:bolded = a:0 > 0 ? a:1
-        \ : '[^' . a:chars . '`[:space:]]'
-        \ . '\%([^' . a:chars . '`]*[^' . a:chars . '`[:space:]]\)\?'
-  return '\%(^\|\s\|[[:punct:]]\)\@<=' . escape(a:chars, '*')
-        \ . l:bolded
-        \ . escape(join(reverse(split(a:chars, '\zs')), ''), '*')
-        \ . '\%([[:punct:]]\|\s\|$\)\@='
-endfunction
-
-" }}}1
-function! s:jump_to_anchor(anchor) " {{{1
-  let l:old_pos = getpos('.')
-  call cursor(1, 1)
-
-  for l:part in split(a:anchor, '#', 0)
-    let l:header = '^#\{1,6}\s*' . l:part . '\s*$'
-    let l:bold = s:rx_generate_bold_italic('*', l:part)
-
-    if !(search(l:header, 'Wc') || search(l:bold, 'Wc'))
-      call setpos('.', l:old_pos)
-      break
-    endif
-    let l:old_pos = getpos('.')
-  endfor
-endfunction
-
-" }}}1
 
 " vim: fdm=marker sw=2

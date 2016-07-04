@@ -7,7 +7,7 @@
 "
 " TODO
 " - reference links don't work
-" - Add normlize_link_in_diary?
+" - Toggle targets in diary
 "
 
 function! vimwiki#link#get_at_cursor() " {{{1
@@ -17,7 +17,7 @@ function! vimwiki#link#get_at_cursor() " {{{1
   for [l:key, l:m] in items(g:vimwiki.link_matcher)
     let l:link = s:matchlink_at_cursor(l:m, l:key)
     if !empty(l:link)
-      return extend(vimwiki#link#parse(l:link.url), l:link)
+      return extend(vimwiki#url#parse(l:link.url), l:link)
     endif
   endfor
 
@@ -26,38 +26,10 @@ function! vimwiki#link#get_at_cursor() " {{{1
   "
   let l:url = s:matchstr_at_cursor('\d\d\d\d-\d\d-\d\d')
   if !empty(l:url)
-    return vimwiki#link#parse('diary:' . l:url)
+    return vimwiki#url#parse('diary:' . l:url)
   endif
 
   return {}
-endfunction
-
-" }}}1
-function! vimwiki#link#parse(url, ...) " {{{1
-  let l:options = a:0 > 0 ? a:1 : {}
-
-  let l:link = {}
-  let l:link.url = a:url
-  let l:link.origin = get(l:options, 'origin', expand('%:p'))
-
-  " Decompose link into its scheme and link text
-  let l:link_parts = matchlist(a:url, '\v((\w+):%(//)?)?(.*)')
-  let l:link.stripped = l:link_parts[3]
-  if empty(l:link_parts[2])
-    let l:link.scheme = 'wiki'
-    let l:link.url = l:link.scheme . ':' . a:url
-  else
-    let l:link.scheme = l:link_parts[2]
-  endif
-
-  let l:link_parsed = get({
-        \   'wiki':  s:parse_link_wiki(l:link),
-        \   'diary': s:parse_link_wiki(l:link),
-        \   'file':  s:parse_link_file(l:link),
-        \   'doi':   s:parse_link_doi(l:link),
-        \ }, l:link.scheme, s:parse_link_external(l:link))
-
-  return extend(l:link, l:link_parsed, 'force')
 endfunction
 
 " }}}1
@@ -67,7 +39,7 @@ function! vimwiki#link#follow(...) "{{{1
   if empty(l:link)
     call vimwiki#link#toggle()
   else
-    call call(l:link.follow, a:000)
+    call call(l:link.open, a:000)
   endif
 endfunction
 
@@ -132,139 +104,16 @@ function! vimwiki#link#toggle_visual() " {{{1
   "
   " Note: This function assumes that it is called from visual mode.
   "
-  let l:save_reg = @a
   let l:parts = split(g:vimwiki.link_matcher.wiki.template[0], '__Url__')
   let l:link = l:parts[0] . getreg('*') . l:parts[1]
-  call setreg('a', l:link, 'v')
-  normal! gvd"aP
-  call setreg('a', l:save_reg)
+
+  let l:line = getline('.')
+  let l:c1 = getpos("'<")[2]
+  let l:c2 = getpos("'>")[2]
+  call setline('.', strpart(l:line, 0, l:c1-1) . l:link . strpart(l:line, l:c2))
 endfunction
 
 " }}}1
-
-function! s:parse_link_wiki(link) " {{{1
-  let l:link = {}
-  let l:link.follow = function('s:follow_link_wiki')
-
-  " Parse link anchor
-  let l:anchors = split(a:link.stripped, '#', 1)
-  let l:link.anchor = (len(l:anchors) > 1) && (l:anchors[-1] != '')
-        \ ? join(l:anchors[1:], '#') : ''
-  let l:fname = !empty(l:anchors[0]) ? l:anchors[0]
-        \ : fnamemodify(a:link.origin, ':p:t:r')
-
-  " Extract target filename (full path)
-  if a:link.scheme ==# 'diary'
-    let l:link.scheme = 'wiki'
-    let l:link.filename = g:vimwiki.diary . l:fname . '.wiki'
-  else
-    if l:fname[0] == '/'
-      let l:fname = strpart(l:fname, 1)
-      let l:link.filename = g:vimwiki.root . l:fname . '.wiki'
-    else
-      let l:link.filename = fnamemodify(a:link.origin, ':p:h') . '/'
-            \ . l:fname . '.wiki'
-    endif
-  endif
-
-  return l:link
-endfunction
-
-" }}}1
-function! s:parse_link_file(link) " {{{1
-  if a:link.stripped[0] ==# '/'
-    let l:filename = a:link.stripped
-  elseif a:link.stripped =~# '\~\w*\/'
-    let l:filename = simplify(fnamemodify(a:link.stripped, ':p'))
-  else
-    let l:filename = simplify(
-          \ fnamemodify(a:link.origin, ':p:h') . '/' . a:link.stripped)
-  endif
-
-  return { 'follow' : function('s:follow_link_file'),
-        \  'filename' : l:filename }
-endfunction
-
-" }}}1
-function! s:parse_link_doi(link) " {{{1
-  return {
-        \ 'scheme' : 'http',
-        \ 'stripped' : 'dx.doi.org/' . a:link.stripped,
-        \ 'url' : 'http://dx.doi.org/' . a:link.stripped,
-        \ 'follow' : function('s:follow_link_external'),
-        \}
-endfunction
-
-" }}}1
-function! s:parse_link_external(link) " {{{1
-  return { 'follow' : function('s:follow_link_external') }
-endfunction
-
-" }}}1
-
-function! s:follow_link_wiki(...) dict " {{{1
-  let l:opts = {}
-  let l:opts.cmd = a:0 > 0 ? a:1 : 'edit'
-  let l:opts.anchor = self.anchor
-
-  if resolve(self.filename) !=# resolve(expand('%:p'))
-    if a:0 > 1
-      let l:opts.prev_link = [a:2, []]
-    elseif &ft ==# 'vimwiki'
-      let l:opts.prev_link = [expand('%:p'), getpos('.')]
-    endif
-  endif
-
-  call vimwiki#edit_file(self.filename, l:opts)
-
-"   if !has_key(b:vimwiki, 'reflinks')
-"     let b:vimwiki.reflinks = {}
-
-"     try
-"       " Why noautocmd? Because https://github.com/vimwiki/vimwiki/issues/121
-"       noautocmd execute 'vimgrep #'
-"         \ . g:vimwiki.link_matcher.ref_target.rx_full . '#j %'
-"     catch /^Vim\%((\a\+)\)\=:E480/
-"     endtry
-
-"     for d in getqflist()
-"       let matchline = join(getline(d.lnum, min([d.lnum+1, line('$')])), ' ')
-"       let descr = matchstr(matchline, g:vimwiki.link_matcher.ref_target.rx_text)
-"       let url = matchstr(matchline, g:vimwiki.link_matcher.ref_target.rx_url)
-"       if descr != '' && url != ''
-"         let b:vimwiki.reflinks[descr] = url
-"       endif
-"     endfor
-"   endif
-
-"   if has_key(b:vimwiki.reflinks, self.url)
-"     call s:follow_link_external(b:vimwiki.reflinks[self.url])
-"   endif
-endfunction
-
-"}}}1
-function! s:follow_link_file(...) dict " {{{1
-  if isdirectory(self.filename)
-    execute 'Unite file:' . self.filename
-    return
-  endif
-
-  if !filereadable(self.filename) | return | endif
-
-  if self.filename =~# 'pdf$'
-    silent execute '!zathura' self.filename '&'
-    return
-  endif
-
-  execute 'edit' self.filename
-endfunction
-
-"}}}1
-function! s:follow_link_external(...) dict " {{{1
-  call system('xdg-open ' . shellescape(self.url) . '&')
-endfunction
-
-"}}}1
 
 function! s:matchstr_at_cursor(regex) " {{{1
   let l:c1 = searchpos(a:regex, 'ncb', line('.'))[1]
@@ -294,6 +143,37 @@ function! s:matchlink_at_cursor(matcher, type) " {{{1
         \ 'cnum1' : l:cnum1,
         \ 'cnum2' : l:cnum2,
         \}
+endfunction
+
+"}}}1
+
+"
+" Old code for opening ref type links
+"
+function! s:url_open_ref_tmp(...) dict " {{{1
+"   if !has_key(b:vimwiki, 'reflinks')
+"     let b:vimwiki.reflinks = {}
+
+"     try
+"       " Why noautocmd? Because https://github.com/vimwiki/vimwiki/issues/121
+"       noautocmd execute 'vimgrep #'
+"         \ . g:vimwiki.link_matcher.ref_target.rx_full . '#j %'
+"     catch /^Vim\%((\a\+)\)\=:E480/
+"     endtry
+
+"     for d in getqflist()
+"       let matchline = join(getline(d.lnum, min([d.lnum+1, line('$')])), ' ')
+"       let descr = matchstr(matchline, g:vimwiki.link_matcher.ref_target.rx_text)
+"       let url = matchstr(matchline, g:vimwiki.link_matcher.ref_target.rx_url)
+"       if descr != '' && url != ''
+"         let b:vimwiki.reflinks[descr] = url
+"       endif
+"     endfor
+"   endif
+
+"   if has_key(b:vimwiki.reflinks, self.url)
+"     call s:url_open_external(b:vimwiki.reflinks[self.url])
+"   endif
 endfunction
 
 "}}}1

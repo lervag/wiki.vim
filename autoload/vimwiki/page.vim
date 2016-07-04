@@ -97,10 +97,15 @@ function! vimwiki#page#rename() "{{{1
   " Restore wiki buffers
   for [l:bufname, l:prev_link] in l:bufs
     if resolve(l:bufname) ==# resolve(l:old.path)
-      call vimwiki#edit_file(l:new.path, { 'prev_link' : l:old.prev_link })
+      let l:url = vimwiki#url#parse(
+            \ l:new.name,
+            \ { 'origin' : l:old.prev_link })
     else
-      call vimwiki#edit_file(l:bufname, { 'prev_link' : l:prev_link })
+      let l:url = vimwiki#url#parse(
+            \ fnamemodify(l:bufname, ':p:h:r'),
+            \ { 'prev_link' : l:prev_link })
     endif
+    call l:url.open()
   endfor
 endfunction
 

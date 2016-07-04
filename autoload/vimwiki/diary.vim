@@ -6,7 +6,7 @@
 
 function! vimwiki#diary#make_note(...) " {{{1
   let l:date = (a:0 > 0 ? a:1 : strftime('%Y-%m-%d'))
-  call vimwiki#link#parse('diary:' . l:date).follow()
+  call vimwiki#url#parse('diary:' . l:date).open()
 endfunction
 
 " }}}1
@@ -37,7 +37,7 @@ function! vimwiki#diary#go(step) " {{{1
     return
   endif
 
-  call vimwiki#link#parse('diary:' . l:links[l:target]).follow()
+  call vimwiki#url#parse('diary:' . l:links[l:target]).open()
 endfunction
 
 " }}}1
