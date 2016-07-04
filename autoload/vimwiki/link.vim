@@ -33,7 +33,7 @@ function! vimwiki#link#get_at_cursor() " {{{1
 endfunction
 
 " }}}1
-function! vimwiki#link#follow(...) "{{{1
+function! vimwiki#link#open(...) "{{{1
   let l:link = vimwiki#link#get_at_cursor()
 
   if empty(l:link)
