@@ -15,13 +15,11 @@ function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
     if a:base =~# '#'
       let l:segments = split(a:base, '#', 1)
       let l:base = join(l:segments[1:], '#')
-      let l:link_info = vimwiki#link#parse(
-            \ empty(l:segments[0])
-            \   ? expand('%:t:r')
-            \   : l:segments[0])
+      let l:url = vimwiki#url#parse(
+            \ empty(l:segments[0]) ? expand('%:t:r') : l:segments[0])
 
       return map(
-            \   filter(s:get_anchors(l:link_info.filename),
+            \   filter(s:get_anchors(l:url.path),
             \     'v:val =~# ''^'' . vimwiki#u#escape(l:base)'),
             \   'l:segments[0] . ''#'' . v:val')
     else

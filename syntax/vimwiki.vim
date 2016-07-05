@@ -42,6 +42,7 @@ syntax match VimwikiItalicBoldChar contained /_\*/  conceal
 syntax match VimwikiCodeChar       contained /`/    conceal
 syntax match VimwikiSuperScript    contained /^/    conceal
 syntax match VimwikiSubScript      contained /,,/   conceal
+syntax match VimwikiQuoteChar      contained /^>/   conceal cchar= 
 
 " Match groups to force visible
 syntax match VimwikiEqInCharT       contained /\$/
@@ -143,6 +144,8 @@ syntax match VimwikiCodeT /`[^`]\+`/ contained contains=VimwikiCodeCharT
 
 syntax match VimwikiHR /^\s*-\{4,}\s*$/
 
+syntax region VimwikiQuote start=/^>\s\+/ end=/^$/ contains=VimwikiQuoteChar
+
 " }}}
 
 " {{{1 Nested syntax
@@ -240,7 +243,9 @@ hi def link VimwikiSubScript Number
 hi def link VimwikiSubScriptT VimwikiSubScript
 
 hi def link VimwikiTodo Todo
-hi def link VimwikiComment Comment
+
+hi def link VimwikiQuote Comment
+hi def link VimwikiQuoteChar Todo
 
 hi def link VimwikiPlaceholder SpecialKey
 hi def link VimwikiPlaceholderParam String
