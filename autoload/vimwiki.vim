@@ -89,38 +89,35 @@ function! vimwiki#define_regexes() " {{{
   "
   " Define link matchers
   "
-  let l:rx_url = '\<\l\+:\%(//\)\?[^ \t()\[\]]\+'
-  let g:vimwiki.link_matcher = {}
-  let g:vimwiki.link_matcher.url = {
-        \ 'template' : '__Url__',
-        \ 'rx_full' : l:rx_url,
-        \ 'rx_url' : l:rx_url,
-        \ 'rx_text' : '',
-        \ 'syntax' : 'VimwikiLinkUrl',
-        \}
-  let g:vimwiki.link_matcher.wiki = {
-        \ 'template' : [
-        \   '[[__Url__]]',
-        \   '[[__Url__|__Text__]]',
-        \ ],
-        \ 'rx_full' : '\[\[\/\?[^\\\]]\{-}\%(|[^\\\]]\{-}\)\?\]\]',
+  let l:rx_url = '\<\l\+:\%(//\)\?[^ \t()\[\]|]\+'
+  let g:vimwiki.link_matchers = []
+  call add(g:vimwiki.link_matchers, {
+        \ 'type' : 'wiki',
+        \ 'rx' : '\[\[\/\?[^\\\]]\{-}\%(|[^\\\]]\{-}\)\?\]\]',
         \ 'rx_url' : '\[\[\zs\/\?[^\\\]]\{-}\ze\%(|[^\\\]]\{-}\)\?\]\]',
         \ 'rx_text' : '\[\[\/\?[^\\\]]\{-}|\zs[^\\\]]\{-}\ze\]\]',
         \ 'syntax' : 'VimwikiLinkWiki',
-        \}
-  let g:vimwiki.link_matcher.md = {
-        \ 'template' : '[__Text__](__Url__)',
-        \ 'rx_full' : '\[[^\\]\{-}\]([^\\]\{-})',
+        \ 'toggle' : 'md',
+        \})
+  call add(g:vimwiki.link_matchers, {
+        \ 'type' : 'md',
+        \ 'rx' : '\[[^\\]\{-}\]([^\\]\{-})',
         \ 'rx_url' : '\[[^\\]\{-}\](\zs[^\\]\{-}\ze)',
         \ 'rx_text' : '\[\zs[^\\]\{-}\ze\]([^\\]\{-})',
         \ 'syntax' : 'VimwikiLinkMd',
-        \}
-  let g:vimwiki.link_matcher.ref = {
-        \ 'template' : [
-        \   '[__Url__]',
-        \   '[__Text__][__Url__]',
-        \ ],
-        \ 'rx_full' : '[\]\[]\@<!\['
+        \ 'toggle' : 'wiki',
+        \})
+  call add(g:vimwiki.link_matchers, {
+        \ 'type' : 'url',
+        \ 'rx' : l:rx_url,
+        \ 'rx_url' : l:rx_url,
+        \ 'rx_text' : '',
+        \ 'syntax' : 'VimwikiLinkUrl',
+        \ 'toggle' : 'md',
+        \})
+  call add(g:vimwiki.link_matchers, {
+        \ 'type' : 'ref',
+        \ 'rx' : '[\]\[]\@<!\['
         \   . '[^\\\[\]]\{-}\]\[\%([^\\\[\]]\{-}\)\?'
         \   . '\][\]\[]\@!',
         \ 'rx_url' : '[\]\[]\@<!\['
@@ -130,24 +127,21 @@ function! vimwiki#define_regexes() " {{{
         \   . '\zs[^\\\[\]]\{-}\ze\]\[[^\\\[\]]\{-1,}'
         \   . '\][\]\[]\@!',
         \ 'syntax' : 'VimwikiLinkRef',
-        \}
-  let g:vimwiki.link_matcher.ref_target = {
-        \ 'template' : '[__Text__]: __Url__',
-        \ 'rx_full' : '\[[^\\\]]\{-}\]:\s\+' . l:rx_url,
-        \ 'rx_url' : '\[[^\\\]]\{-}\]:\s\+\zs' . l:rx_url . '\ze',
-        \ 'rx_text' : '\[\zs[^\\\]]\{-}\ze\]:\s\+' . l:rx_url,
-        \ 'syntax' : 'VimwikiLinkRefTarget',
-        \}
+        \ 'target' : {
+        \   'rx' : '\[[^\\\]]\{-}\]:\s\+' . l:rx_url,
+        \   'rx_url' : '\[[^\\\]]\{-}\]:\s\+\zs' . l:rx_url . '\ze',
+        \   'rx_text' : '\[\zs[^\\\]]\{-}\ze\]:\s\+' . l:rx_url,
+        \   'syntax' : 'VimwikiLinkRefTarget',
+        \  },
+        \})
 
   "
   " Define regexes
   "
   let g:vimwiki.rx = {}
 
-  let g:vimwiki.rx.link = join(map(
-        \   values(g:vimwiki.link_matcher),
-        \   'v:val.rx_full'),
-        \ '\|')
+  let g:vimwiki.rx.link = join(
+        \ map(copy(g:vimwiki.link_matchers), 'v:val.rx'), '\|')
 
   let g:vimwiki_bullet_types = { '-':0, '*':0, '+':0 }
   let g:vimwiki_number_types = ['1.']

@@ -115,7 +115,7 @@ function! vimwiki#page#get_links(...) "{{{1
   if !filereadable(l:file) | return [] | endif
 
   " TODO: Should match more types of links
-  let l:regex = g:vimwiki.link_matcher.wiki.rx_url
+  let l:regex = g:vimwiki.link_matchers[0].rx_url
 
   let l:links = []
   let l:lnum = 0
@@ -151,7 +151,6 @@ function! vimwiki#page#create_toc() " {{{1
   let l:start = 1
   let l:entries = []
   let l:anchor_stack = []
-  let l:link = split(g:vimwiki.link_matcher.wiki.template[1], '\v__(Url|Text)__')
 
   "
   " Create toc entries
@@ -178,7 +177,7 @@ function! vimwiki#page#create_toc() " {{{1
 
     " Add current entry
     call add(l:entries, repeat(' ', shiftwidth()*(l:level-1)) . '- '
-          \ . l:link[0] . l:anchor . l:link[1] . l:header . l:link[2])
+          \ . vimwiki#link#template_wiki(l:anchor, l:header))
   endfor
 
   "

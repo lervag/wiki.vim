@@ -13,12 +13,12 @@ syntax sync minlines=100
 "
 " Match links
 "
-for s:m in values(g:vimwiki.link_matcher)
+for s:m in g:vimwiki.link_matchers
   execute 'syntax cluster VimwikiLink  add=' . s:m.syntax
   execute 'syntax cluster VimwikiLinkT add=' . s:m.syntax . 'T'
-  execute 'syntax match ' . s:m.syntax . ' `' . s:m.rx_full . '` '
+  execute 'syntax match ' . s:m.syntax . ' `' . s:m.rx . '` '
         \ . 'display contains=@NoSpell,' . s:m.syntax . 'Char'
-  execute 'syntax match ' . s:m.syntax . 'T `' . s:m.rx_full . '` '
+  execute 'syntax match ' . s:m.syntax . 'T `' . s:m.rx . '` '
         \ . 'display contained'
 endfor
 
