@@ -7,7 +7,6 @@
 "
 " TODO
 " - reference links don't work
-" - Toggle targets in diary
 "
 
 function! vimwiki#link#get_at_cursor() " {{{1
@@ -43,7 +42,7 @@ function! vimwiki#link#get_at_cursor() " {{{1
     let l:link.url = l:link.full
     let l:link.scheme = ''
     let l:link.text = ''
-    let l:link.toggle = function('vimwiki#link#template_wiki')
+    let l:link.toggle = function('vimwiki#link#template_word')
     return l:link
   endif
 
@@ -96,7 +95,7 @@ function! vimwiki#link#toggle_visual() " {{{1
         \ 'lnum' : line('.'),
         \ 'c1' : getpos("'<")[2],
         \ 'c2' : getpos("'>")[2],
-        \ 'toggle' : function('vimwiki#link#template_wiki'),
+        \ 'toggle' : function('vimwiki#link#template_word'),
         \})
 endfunction
 
@@ -116,6 +115,74 @@ function! vimwiki#link#template_md(url, ...) " {{{1
     let l:text = input('Link text: ')
   endif
   return '[' . l:text . '](' . a:url . ')'
+endfunction
+
+" }}}1
+function! vimwiki#link#template_word(url, ...) " {{{1
+  "
+  " This template returns a wiki template for the provided word(s). It does
+  " a smart search for likely candidates and if there is no unique match, it
+  " asks for target link.
+  "
+
+  "
+  " First try local page
+  "
+  if filereadable(expand('%:p:h') . '/' . a:url . '.wiki')
+    return vimwiki#link#template_wiki(a:url)
+  endif
+
+  "
+  " Next try at wiki root
+  "
+  if filereadable(g:vimwiki.root . a:url . '.wiki')
+    return vimwiki#link#template_wiki('/' . a:url)
+  endif
+
+  "
+  " Finally we see if there are completable candidates
+  "
+  let l:candidates = map(
+        \ glob(g:vimwiki.root . a:url . '*.wiki', 0, 1),
+        \ 'fnamemodify(v:val, '':t:r'')')
+
+  "
+  " Solve trivial cases first
+  "
+  if len(l:candidates) == 0
+    return vimwiki#link#template_wiki('/' . a:url)
+  elseif len(l:candidates) == 1
+    return vimwiki#link#template_wiki('/' . l:candidates[0], a:url)
+  endif
+
+  "
+  " Finally we ask for user input to choose desired candidate
+  "
+  while 1
+    redraw
+    "
+    " The list doesn't show for operator mapping unless I print it as one long
+    " string
+    "
+    let l:echo = ''
+    for l:i in range(len(l:candidates))
+      let l:echo .= '[' . (l:i + 1) . '] ' . l:candidates[l:i] . "\n"
+    endfor
+    echo l:echo . '[n] New page at wiki root: ' . a:url
+    let l:choice = input('Choice: ')
+
+    if l:choice ==# 'n'
+      return vimwiki#link#template_wiki('/' . a:url)
+    endif
+
+    try
+      let l:cand = l:candidates[l:choice - 1]
+      redraw!
+      return vimwiki#link#template_wiki('/' . l:cand, a:url)
+    catch
+      continue
+    endtry
+  endwhile
 endfunction
 
 " }}}1
