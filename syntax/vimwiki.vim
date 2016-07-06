@@ -157,6 +157,7 @@ syntax match VimwikiPreStartName /\w\+/ contained
 
 let s:ignored = {
       \ 'sh' : ['shCommandSub'] ,
+      \ 'pandoc' : ['pandocDelimitedCodeBlock', 'pandocNoFormatted'] ,
       \}
 
 for s:ft in map(
