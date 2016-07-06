@@ -28,29 +28,29 @@ syntax cluster VimwikiLinkT add=VimwikiLinkRefSimpleT
 syntax cluster VimwikiLinkT add=VimwikiLinkUrlT
 syntax cluster VimwikiLinkT add=VimwikiLinkDateT
 
+execute 'syntax match VimwikiLinkUrl /'
+      \ . vimwiki#link#get_matcher_opt('url', 'rx')
+      \ . '/ display contains=@NoSpell,VimwikiLinkUrlChar'
+
 execute 'syntax match VimwikiLinkWiki /'
       \ . vimwiki#link#get_matcher_opt('wiki', 'rx')
       \ . '/ display contains=@NoSpell,VimwikiLinkWikiChar'
 
-execute 'syntax match VimwikiLinkMd /'
-      \ . vimwiki#link#get_matcher_opt('md', 'rx')
-      \ . '/ display contains=@NoSpell,VimwikiLinkMdChar'
-
 execute 'syntax match VimwikiLinkRef /'
-      \ . vimwiki#link#get_matcher_opt('ref', 'rx')
-      \ . '/ display contains=@NoSpell,VimwikiLinkRefChar'
+      \ . vimwiki#link#get_matcher_opt('ref_simple', 'rx')
+      \ . '/ display contains=@NoSpell'
 
 execute 'syntax match VimwikiLinkRefTarget /'
       \ . vimwiki#link#get_matcher_opt('ref_target', 'rx')
       \ . '/ display contains=@NoSpell,VimwikiLinkUrl'
 
 execute 'syntax match VimwikiLinkRef /'
-      \ . vimwiki#link#get_matcher_opt('ref_simple', 'rx')
-      \ . '/ display contains=@NoSpell'
+      \ . vimwiki#link#get_matcher_opt('ref', 'rx')
+      \ . '/ display contains=@NoSpell,VimwikiLinkRefChar'
 
-execute 'syntax match VimwikiLinkUrl /'
-      \ . vimwiki#link#get_matcher_opt('url', 'rx')
-      \ . '/ display contains=@NoSpell,VimwikiLinkUrlChar'
+execute 'syntax match VimwikiLinkMd /'
+      \ . vimwiki#link#get_matcher_opt('md', 'rx')
+      \ . '/ display contains=@NoSpell,VimwikiLinkMdChar'
 
 execute 'syntax match VimwikiLinkDate /'
       \ . vimwiki#link#get_matcher_opt('date', 'rx')

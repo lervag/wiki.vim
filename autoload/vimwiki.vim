@@ -92,12 +92,16 @@ endfunction
 " }}}1
 function! s:init_mappings() " {{{1
   "
-  " Various
+  " General wiki mappings
   "
   nnoremap <silent><buffer> <leader>wt :call vimwiki#page#create_toc()<cr>
   nnoremap <silent><buffer> <leader>wb :call vimwiki#get_backlinks()<cr>
   nnoremap <silent><buffer> <leader>wd :call vimwiki#page#delete()<cr>
   nnoremap <silent><buffer> <leader>wr :call vimwiki#page#rename()<cr>
+
+  "
+  " Link mappings
+  "
   nnoremap <silent><buffer> <leader>wf :call vimwiki#link#toggle()<cr>
 
   "
