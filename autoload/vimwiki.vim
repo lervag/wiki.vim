@@ -40,14 +40,6 @@ function! vimwiki#init_buffer() " {{{1
   setlocal formatoptions+=n
   let &l:formatlistpat = '\v^\s*%(\d|\l|i+)\.\s'
 
-  let b:vimwiki = {
-        \ 'in_diary' : stridx(
-        \   resolve(expand('%:p')),
-        \   resolve(g:vimwiki.diary)) == 0
-        \ }
-
-  call vimwiki#define_regexes()
-
   "
   " Autocommands
   "
@@ -56,11 +48,48 @@ function! vimwiki#init_buffer() " {{{1
     autocmd BufWinEnter *.wiki setlocal conceallevel=2
   augroup END
 
+  let b:vimwiki = {
+        \ 'in_diary' : stridx(
+        \   resolve(expand('%:p')),
+        \   resolve(g:vimwiki.diary)) == 0
+        \ }
+
+  call s:init_regexes()
   call s:init_mappings()
 endfunction
 
 " }}}1
 
+function! s:init_regexes() " {{{
+  let g:vimwiki.rx = {}
+
+  let g:vimwiki.rx.link = join(
+        \ map(vimwiki#link#get_matchers_links(), 'v:val.rx'), '\|')
+
+  let g:vimwiki_bullet_types = { '-':0, '*':0, '+':0 }
+  let g:vimwiki_number_types = ['1.']
+  let g:vimwiki_list_markers = ['-', '*', '+', '1.']
+
+  let g:vimwiki.rx.word = '[^[:blank:]!"$%&''()*+,:;<=>?\[\]\\^`{}]\+'
+
+  let g:vimwiki.rx.preStart = '^\s*```'
+  let g:vimwiki.rx.preEnd = '^\s*```\s*$'
+
+  let g:vimwiki.rx.italic = vimwiki#rx#generate_bold_italic('_')
+  let g:vimwiki.rx.bold = vimwiki#rx#generate_bold_italic('*')
+  let g:vimwiki.rx.boldItalic = vimwiki#rx#generate_bold_italic('*_')
+  let g:vimwiki.rx.italicBold = vimwiki#rx#generate_bold_italic('_*')
+
+  let g:vimwiki.rx.superScript = '\^[^^`]\+\^'
+  let g:vimwiki.rx.subScript = ',,[^,`]\+,,'
+  let g:vimwiki.rx.listDefine = '::\%(\s\|$\)'
+  let g:vimwiki.rx.comment = '^\s*%%.*$'
+  let g:vimwiki.rx.todo = '\C\%(TODO\|DONE\|STARTED\|FIXME\|FIXED\):\?'
+  let g:vimwiki.rx.header = '^#\{1,6}\s*[^#].*'
+  let g:vimwiki.rx.header_items = '^\(#\{1,6}\)\s*\([^#].*\)\s*$'
+endfunction
+
+" }}}1
 function! s:init_mappings() " {{{1
   "
   " Various
@@ -101,88 +130,6 @@ endfunction
 "
 " Miscellaneous
 "
-function! vimwiki#define_regexes() " {{{
-  "
-  " Define link matchers
-  "
-  let l:rx_url = '\<\l\+:\%(//\)\?[^ \t()\[\]|]\+'
-  let g:vimwiki.link_matchers = []
-  call add(g:vimwiki.link_matchers, {
-        \ 'type' : 'wiki',
-        \ 'rx' : '\[\[\/\?[^\\\]]\{-}\%(|[^\\\]]\{-}\)\?\]\]',
-        \ 'rx_url' : '\[\[\zs\/\?[^\\\]]\{-}\ze\%(|[^\\\]]\{-}\)\?\]\]',
-        \ 'rx_text' : '\[\[\/\?[^\\\]]\{-}|\zs[^\\\]]\{-}\ze\]\]',
-        \ 'syntax' : 'VimwikiLinkWiki',
-        \ 'toggle' : 'md',
-        \})
-  call add(g:vimwiki.link_matchers, {
-        \ 'type' : 'md',
-        \ 'rx' : '\[[^\\]\{-}\]([^\\]\{-})',
-        \ 'rx_url' : '\[[^\\]\{-}\](\zs[^\\]\{-}\ze)',
-        \ 'rx_text' : '\[\zs[^\\]\{-}\ze\]([^\\]\{-})',
-        \ 'syntax' : 'VimwikiLinkMd',
-        \ 'toggle' : 'wiki',
-        \})
-  call add(g:vimwiki.link_matchers, {
-        \ 'type' : 'url',
-        \ 'rx' : l:rx_url,
-        \ 'rx_url' : l:rx_url,
-        \ 'rx_text' : '',
-        \ 'syntax' : 'VimwikiLinkUrl',
-        \ 'toggle' : 'md',
-        \})
-  call add(g:vimwiki.link_matchers, {
-        \ 'type' : 'ref',
-        \ 'rx' : '[\]\[]\@<!\['
-        \   . '[^\\\[\]]\{-}\]\[\%([^\\\[\]]\{-}\)\?'
-        \   . '\][\]\[]\@!',
-        \ 'rx_url' : '[\]\[]\@<!\['
-        \   . '\%(\zs[^\\\[\]]\{-}\ze\]\[\|[^\\\[\]]\{-}\]\[\zs[^\\\[\]]\{-1,}\ze\)'
-        \   . '\][\]\[]\@!',
-        \ 'rx_text' : '[\]\[]\@<!\['
-        \   . '\zs[^\\\[\]]\{-}\ze\]\[[^\\\[\]]\{-1,}'
-        \   . '\][\]\[]\@!',
-        \ 'syntax' : 'VimwikiLinkRef',
-        \ 'target' : {
-        \   'rx' : '\[[^\\\]]\{-}\]:\s\+' . l:rx_url,
-        \   'rx_url' : '\[[^\\\]]\{-}\]:\s\+\zs' . l:rx_url . '\ze',
-        \   'rx_text' : '\[\zs[^\\\]]\{-}\ze\]:\s\+' . l:rx_url,
-        \   'syntax' : 'VimwikiLinkRefTarget',
-        \  },
-        \})
-
-  "
-  " Define regexes
-  "
-  let g:vimwiki.rx = {}
-
-  let g:vimwiki.rx.link = join(
-        \ map(copy(g:vimwiki.link_matchers), 'v:val.rx'), '\|')
-
-  let g:vimwiki_bullet_types = { '-':0, '*':0, '+':0 }
-  let g:vimwiki_number_types = ['1.']
-  let g:vimwiki_list_markers = ['-', '*', '+', '1.']
-
-  let g:vimwiki.rx.word = '[^[:blank:]!"$%&''()*+,:;<=>?\[\]\\^`{}]\+'
-
-  let g:vimwiki.rx.preStart = '^\s*```'
-  let g:vimwiki.rx.preEnd = '^\s*```\s*$'
-
-  let g:vimwiki.rx.italic = vimwiki#rx#generate_bold_italic('_')
-  let g:vimwiki.rx.bold = vimwiki#rx#generate_bold_italic('*')
-  let g:vimwiki.rx.boldItalic = vimwiki#rx#generate_bold_italic('*_')
-  let g:vimwiki.rx.italicBold = vimwiki#rx#generate_bold_italic('_*')
-
-  let g:vimwiki.rx.superScript = '\^[^^`]\+\^'
-  let g:vimwiki.rx.subScript = ',,[^,`]\+,,'
-  let g:vimwiki.rx.listDefine = '::\%(\s\|$\)'
-  let g:vimwiki.rx.comment = '^\s*%%.*$'
-  let g:vimwiki.rx.todo = '\C\%(TODO\|DONE\|STARTED\|FIXME\|FIXED\):\?'
-  let g:vimwiki.rx.header = '^#\{1,6}\s*[^#].*'
-  let g:vimwiki.rx.header_items = '^\(#\{1,6}\)\s*\([^#].*\)\s*$'
-endfunction
-
-" }}}1
 function! vimwiki#goto_index() " {{{1
   call vimwiki#url#parse('wiki:/index').open()
 endfunction

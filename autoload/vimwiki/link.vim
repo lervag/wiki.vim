@@ -10,41 +10,15 @@
 "
 
 function! vimwiki#link#get_at_cursor() " {{{1
-  "
-  " Try to match link at cursor position
-  "
-  for l:m in g:vimwiki.link_matchers
+  for l:m in s:matchers_all
     let l:link = s:matchstr_at_cursor(l:m.rx)
     if !empty(l:link)
-      let l:link.text = matchstr(l:link.full, l:m.rx_text)
+      let l:link.text = matchstr(l:link.full, get(l:m, 'rx_text', ''))
       let l:link.type = l:m.type
       let l:link.toggle = function('vimwiki#link#template_' . l:m.toggle)
-      return extend(l:link, vimwiki#url#parse(matchstr(l:link.full, l:m.rx_url)))
+      return l:m.parser(l:link)
     endif
   endfor
-
-  "
-  " Match ISO dates as diary links
-  "
-  let l:link = s:matchstr_at_cursor('\d\d\d\d-\d\d-\d\d')
-  if !empty(l:link)
-    let l:link.type = 'date'
-    let l:link.toggle = function('vimwiki#link#template_wiki')
-    return extend(l:link, vimwiki#url#parse('diary:' . l:link.full))
-  endif
-
-  "
-  " Return word at cursor
-  "
-  let l:link = s:matchstr_at_cursor('\<\w\+\>')
-  if !empty(l:link)
-    let l:link.type = 'word'
-    let l:link.url = l:link.full
-    let l:link.scheme = ''
-    let l:link.text = ''
-    let l:link.toggle = function('vimwiki#link#template_word')
-    return l:link
-  endif
 
   return {}
 endfunction
@@ -124,6 +98,28 @@ endfunction
 
 " }}}1
 
+function! s:matchstr_at_cursor(regex) " {{{1
+  let l:lnum = line('.')
+  let l:c1 = searchpos(a:regex, 'ncb', l:lnum)[1]
+  let l:c2 = searchpos(a:regex, 'nce', l:lnum)[1]
+
+  if (l:c1 > 0) && (l:c2 > 0)
+    return {
+          \ 'full' : strpart(getline('.'), l:c1-1, l:c2-l:c1+1),
+          \ 'lnum' : l:lnum,
+          \ 'c1' : l:c1,
+          \ 'c2' : l:c2,
+          \}
+  else
+    return {}
+  endif
+endfunction
+
+"}}}1
+
+"
+" Templates translate url and possibly text into an appropriate link
+"
 function! vimwiki#link#template_wiki(url, ...) " {{{1
   let l:text = a:0 > 0 ? a:1 : ''
   return empty(l:text)
@@ -209,25 +205,155 @@ function! vimwiki#link#template_word(url, ...) " {{{1
 endfunction
 
 " }}}1
-
-function! s:matchstr_at_cursor(regex) " {{{1
-  let l:lnum = line('.')
-  let l:c1 = searchpos(a:regex, 'ncb', l:lnum)[1]
-  let l:c2 = searchpos(a:regex, 'nce', l:lnum)[1]
-
-  if (l:c1 > 0) && (l:c2 > 0)
-    return {
-          \ 'full' : strpart(getline('.'), l:c1-1, l:c2-l:c1+1),
-          \ 'lnum' : l:lnum,
-          \ 'c1' : l:c1,
-          \ 'c2' : l:c2,
-          \}
-  else
-    return {}
-  endif
+function! vimwiki#link#template_ref(url, ...) " {{{1
+  return vimwiki#link#template_wiki(a:url)
 endfunction
 
-"}}}1
+" }}}1
+
+"
+" Link matchers are the matcher objects used to parse and create links
+"
+" {{{1 Link matchers
+
+function! vimwiki#link#get_matcher(name) " {{{2
+  return s:matcher_{a:name}
+endfunction
+
+" }}}2
+function! vimwiki#link#get_matcher_opt(name, opt) " {{{2
+  return escape(s:matcher_{a:name}[a:opt], '')
+endfunction
+
+" }}}2
+function! vimwiki#link#get_matchers() " {{{2
+  return s:matchers_all
+endfunction
+
+" }}}2
+function! vimwiki#link#get_matchers_links() " {{{2
+  return s:matchers_all_links
+endfunction
+
+" }}}2
+
+function! s:parser_general(link) dict " {{{2
+  return extend(a:link, vimwiki#url#parse(
+        \ matchstr(a:link.full, get(self, 'rx_url', get(self, 'rx')))))
+endfunction
+
+" }}}2
+function! s:parser_date(link) dict " {{{2
+  return extend(a:link, vimwiki#url#parse('diary:' . a:link.full))
+endfunction
+
+" }}}2
+function! s:parser_word(link) dict " {{{2
+  return extend(a:link, {
+        \ 'scheme' : '',
+        \ 'url' : a:link.full,
+        \})
+endfunction
+
+" }}}2
+function! s:parser_ref(link) dict " {{{2
+  return a:link
+endfunction
+
+" }}}2
+
+" {{{2 Define the matchers
+
+" Common url regex
+let s:rx_url = '\<\l\+:\%(\/\/\)\?[^ \t()\[\]|]\+'
+
+let s:matcher_wiki = {
+      \ 'type' : 'wiki',
+      \ 'parser' : function('s:parser_general'),
+      \ 'toggle' : 'md',
+      \ 'rx'      : '\[\[\/\?[^\\\]]\{-}\%(|[^\\\]]\{-}\)\?\]\]',
+      \ 'rx_url'  : '\[\[\zs\/\?[^\\\]]\{-}\ze\%(|[^\\\]]\{-}\)\?\]\]',
+      \ 'rx_text' : '\[\[\/\?[^\\\]]\{-}|\zs[^\\\]]\{-}\ze\]\]',
+      \}
+
+let s:matcher_md = {
+      \ 'type' : 'md',
+      \ 'parser' : function('s:parser_general'),
+      \ 'toggle' : 'wiki',
+      \ 'rx'      : '\[[^\\]\{-}\]([^\\]\{-})',
+      \ 'rx_url'  : '\[[^\\]\{-}\](\zs[^\\]\{-}\ze)',
+      \ 'rx_text' : '\[\zs[^\\]\{-}\ze\]([^\\]\{-})',
+      \}
+
+let s:matcher_ref = {
+      \ 'type' : 'ref',
+      \ 'parser' : function('s:parser_ref'),
+      \ 'toggle' : 'ref',
+      \ 'rx' : '[\]\[]\@<!\['
+      \   . '[^\\\[\]]\{-}\]\[\%([^\\\[\]]\{-}\)\?'
+      \   . '\][\]\[]\@!',
+      \ 'rx_url' : '[\]\[]\@<!\['
+      \   . '\%(\zs[^\\\[\]]\{-}\ze\]\[\|[^\\\[\]]\{-}\]\[\zs[^\\\[\]]\{-1,}\ze\)'
+      \   . '\][\]\[]\@!',
+      \ 'rx_text' : '[\]\[]\@<!\['
+      \   . '\zs[^\\\[\]]\{-}\ze\]\[[^\\\[\]]\{-1,}'
+      \   . '\][\]\[]\@!',
+      \}
+
+let s:matcher_ref_simple = {
+      \ 'type' : 'ref',
+      \ 'parser' : function('s:parser_ref'),
+      \ 'toggle' : 'ref',
+      \ 'rx' : '[\]\[]\@<!\[[^\\\[\]]\{-}\][\]\[]\@!',
+      \ 'rx_url' : '\[\zs[^\\\[\]]\{-}\ze\]',
+      \}
+
+let s:matcher_ref_target = {
+      \ 'type' : 'ref_target',
+      \ 'rx' : '\[[^\\\]]\{-}\]:\s\+' . s:rx_url,
+      \ 'rx_url' : '\[[^\\\]]\{-}\]:\s\+\zs' . s:rx_url . '\ze',
+      \ 'rx_text' : '\[\zs[^\\\]]\{-}\ze\]:\s\+' . s:rx_url,
+      \}
+
+let s:matcher_url = {
+      \ 'type' : 'url',
+      \ 'parser' : function('s:parser_general'),
+      \ 'toggle' : 'md',
+      \ 'rx'     : s:rx_url,
+      \}
+
+let s:matcher_date = {
+      \ 'type' : 'date',
+      \ 'parser' : function('s:parser_date'),
+      \ 'toggle' : 'wiki',
+      \ 'rx' : '\d\d\d\d-\d\d-\d\d',
+      \}
+
+let s:matcher_word = {
+      \ 'type' : 'word',
+      \ 'parser' : function('s:parser_word'),
+      \ 'toggle' : 'word',
+      \ 'rx' : '\<\w\+\>',
+      \}
+
+let s:matchers_all = [
+      \ s:matcher_wiki,
+      \ s:matcher_md,
+      \ s:matcher_ref,
+      \ s:matcher_ref_target,
+      \ s:matcher_ref_simple,
+      \ s:matcher_url,
+      \ s:matcher_date,
+      \ s:matcher_word,
+      \]
+
+let s:matchers_all_links = s:matchers_all[0:-2]
+
+unlet s:rx_url
+
+" }}}2
+
+" }}}1
 
 "
 " Old code for opening ref type links

@@ -10,17 +10,76 @@ let b:current_syntax = "vimwiki"
 syntax spell toplevel
 syntax sync minlines=100
 
-"
-" Match links
-"
-for s:m in g:vimwiki.link_matchers
-  execute 'syntax cluster VimwikiLink  add=' . s:m.syntax
-  execute 'syntax cluster VimwikiLinkT add=' . s:m.syntax . 'T'
-  execute 'syntax match ' . s:m.syntax . ' `' . s:m.rx . '` '
-        \ . 'display contains=@NoSpell,' . s:m.syntax . 'Char'
-  execute 'syntax match ' . s:m.syntax . 'T `' . s:m.rx . '` '
-        \ . 'display contained'
-endfor
+" {{{1 Match links
+
+syntax cluster VimwikiLink add=VimwikiLinkWiki
+syntax cluster VimwikiLink add=VimwikiLinkMd
+syntax cluster VimwikiLink add=VimwikiLinkRef
+syntax cluster VimwikiLink add=VimwikiLinkRefTarget
+syntax cluster VimwikiLink add=VimwikiLinkRefSimple
+syntax cluster VimwikiLink add=VimwikiLinkUrl
+syntax cluster VimwikiLink add=VimwikiLinkDate
+
+syntax cluster VimwikiLinkT add=VimwikiLinkWikiT
+syntax cluster VimwikiLinkT add=VimwikiLinkMdT
+syntax cluster VimwikiLinkT add=VimwikiLinkRefT
+syntax cluster VimwikiLinkT add=VimwikiLinkRefTargetT
+syntax cluster VimwikiLinkT add=VimwikiLinkRefSimpleT
+syntax cluster VimwikiLinkT add=VimwikiLinkUrlT
+syntax cluster VimwikiLinkT add=VimwikiLinkDateT
+
+execute 'syntax match VimwikiLinkWiki /'
+      \ . vimwiki#link#get_matcher_opt('wiki', 'rx')
+      \ . '/ display contains=@NoSpell,VimwikiLinkWikiChar'
+
+execute 'syntax match VimwikiLinkMd /'
+      \ . vimwiki#link#get_matcher_opt('md', 'rx')
+      \ . '/ display contains=@NoSpell,VimwikiLinkMdChar'
+
+execute 'syntax match VimwikiLinkRef /'
+      \ . vimwiki#link#get_matcher_opt('ref', 'rx')
+      \ . '/ display contains=@NoSpell,VimwikiLinkRefChar'
+
+execute 'syntax match VimwikiLinkRefTarget /'
+      \ . vimwiki#link#get_matcher_opt('ref_target', 'rx')
+      \ . '/ display contains=@NoSpell,VimwikiLinkUrl'
+
+execute 'syntax match VimwikiLinkRef /'
+      \ . vimwiki#link#get_matcher_opt('ref_simple', 'rx')
+      \ . '/ display contains=@NoSpell'
+
+execute 'syntax match VimwikiLinkUrl /'
+      \ . vimwiki#link#get_matcher_opt('url', 'rx')
+      \ . '/ display contains=@NoSpell,VimwikiLinkUrlChar'
+
+execute 'syntax match VimwikiLinkDate /'
+      \ . vimwiki#link#get_matcher_opt('date', 'rx')
+      \ . '/ display contains=@NoSpell'
+
+" Conceal
+syntax match VimwikiLinkWikiChar /\[\[\/\?\%([^\\\]]\{-}|\)\?/
+      \ contained transparent contains=NONE conceal
+syntax match VimwikiLinkWikiChar /\]\]/
+      \ contained transparent contains=NONE conceal
+
+" Shorten long URLS (conceal middle part)
+syntax match VimwikiLinkUrlChar
+      \ `\%(///\=[^/ \t]\+/\)\zs\S\+\ze\%([/#?]\w\|\S\{15}\)`
+      \ cchar=~ contained transparent contains=NONE conceal
+
+" Conceal md link parts
+syntax match VimwikiLinkMdChar /\[/
+      \ contained transparent contains=NONE conceal
+syntax match VimwikiLinkMdChar /\]([^\\]\{-})/
+      \ contained transparent contains=NONE conceal
+
+" Conceal ref link parts
+syntax match VimwikiLinkRefChar /[\]\[]\@<!\[/
+      \ contained transparent contains=NONE conceal
+syntax match VimwikiLinkRefChar /\]\[.*\]/
+      \ contained transparent contains=NONE conceal
+
+" }}}1
 
 "
 " Standard syntax elements
@@ -29,7 +88,6 @@ syntax match line    /-\{10,}/
 syntax match number  /\d\+\.\d\+/
 syntax match version /\d\+\.\d\+\(\.\d\)\+/
 syntax match time    /\d\d:\d\d/
-syntax match date    /\d\d\d\d-\d\d-\d\d/
 
 " {{{1 Concealed
 
@@ -53,27 +111,6 @@ syntax match VimwikiItalicBoldCharT contained /_\*/
 syntax match VimwikiCodeCharT       contained /`/
 syntax match VimwikiSuperScriptT    contained /^/
 syntax match VimwikiSubScriptT      contained /,,/
-
-" Shorten long URLS (conceal middle part)
-syntax match VimwikiLinkUrlChar
-      \ `\%(///\=[^/ \t]\+/\)\zs\S\+\ze\%([/#?]\w\|\S\{15}\)`
-      \ cchar=~ contained transparent contains=NONE conceal
-
-syntax match VimwikiLinkWikiChar /\[\[\/\?\%([^\\\]]\{-}|\)\?/
-      \ contained transparent contains=NONE conceal
-syntax match VimwikiLinkWikiChar /\]\]/
-      \ contained transparent contains=NONE conceal
-
-syntax match VimwikiLinkRefChar /[\]\[]\@<!\[/
-      \ contained transparent contains=NONE conceal
-syntax match VimwikiLinkRefChar /\][\]\[]\@!/
-      \ contained transparent contains=NONE conceal
-" syntax match VimwikiLinkRefChar /...\][\]\[]\@!/
-"       \ contained transparent contains=NONE conceal
-syntax match VimwikiLinkMdChar /\[/
-      \ contained transparent contains=NONE conceal
-syntax match VimwikiLinkMdChar /\]([^\\]\{-})/
-      \ contained transparent contains=NONE conceal
 
 " }}}1
 
@@ -194,7 +231,7 @@ endfor
 " {{{1 Define highlighting
 
 " Set colors
-hi def  date    guifg=blue
+hi def  VimwikiLinkDate guifg=blue
 hi def  line    guifg=black
 hi link line    line
 hi link time    number
