@@ -100,6 +100,29 @@ function! vimwiki#link#toggle_visual() " {{{1
 endfunction
 
 " }}}1
+function! vimwiki#link#toggle_operator(type, ...) " {{{1
+  "
+  " Note: This function assumes that it is called as an operator.
+  "
+
+  let l:save = @@
+  silent execute 'normal! `[v`]y'
+  let l:word = substitute(@@, '\s\+$', '', '')
+  let l:diff = strlen(@@) - strlen(l:word)
+  let @@ = l:save
+
+  call vimwiki#link#toggle({
+        \ 'url' : l:word,
+        \ 'text' : '',
+        \ 'scheme' : '',
+        \ 'lnum' : line('.'),
+        \ 'c1' : getpos("'<")[2],
+        \ 'c2' : getpos("'>")[2] - l:diff,
+        \ 'toggle' : function('vimwiki#link#template_word'),
+        \})
+endfunction
+
+" }}}1
 
 function! vimwiki#link#template_wiki(url, ...) " {{{1
   let l:text = a:0 > 0 ? a:1 : ''

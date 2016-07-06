@@ -56,27 +56,43 @@ function! vimwiki#init_buffer() " {{{1
     autocmd BufWinEnter *.wiki setlocal conceallevel=2
   augroup END
 
+  call s:init_mappings()
+endfunction
+
+" }}}1
+
+function! s:init_mappings() " {{{1
   "
-  " Keybindings
+  " Various
   "
   nnoremap <silent><buffer> <leader>wt :call vimwiki#page#create_toc()<cr>
   nnoremap <silent><buffer> <leader>wb :call vimwiki#get_backlinks()<cr>
   nnoremap <silent><buffer> <leader>wd :call vimwiki#page#delete()<cr>
   nnoremap <silent><buffer> <leader>wr :call vimwiki#page#rename()<cr>
+  nnoremap <silent><buffer> <leader>wf :call vimwiki#link#toggle()<cr>
+
+  "
+  " Navigation
+  "
   nnoremap <silent><buffer> <tab>      :call vimwiki#nav#next_link()<cr>
   nnoremap <silent><buffer> <s-tab>    :call vimwiki#nav#prev_link()<cr>
   nnoremap <silent><buffer> <bs>       :call vimwiki#nav#return()<cr>
+
+  "
+  " Open / toggle
+  "
   nnoremap <silent><buffer> <cr>       :call vimwiki#link#open()<cr>
-  nnoremap <silent><buffer> <leader>wf :call vimwiki#link#toggle()<cr>
   nnoremap <silent><buffer> <c-cr>     :call vimwiki#link#open('vsplit')<cr>
   vnoremap <silent><buffer> <cr>       :<c-u>call vimwiki#link#toggle_visual()<cr>
+  nnoremap <silent><buffer> gl         :set opfunc=vimwiki#link#toggle_operator<cr>g@
+
+  "
+  " Diary specific mappings
+  "
   if b:vimwiki.in_diary
     nnoremap <silent><buffer> <c-j> :<c-u>call vimwiki#diary#go(-v:count1)<cr>
     nnoremap <silent><buffer> <c-k> :<c-u>call vimwiki#diary#go(v:count1)<cr>
     nnoremap <silent><buffer> <leader>wk :call vimwiki#diary#copy_note()<cr>
-  else
-    nnoremap <silent><buffer> <c-j>      :call vimwiki#diary#make_note()<cr>
-    nnoremap <silent><buffer> <c-k>      :call vimwiki#diary#make_note()<cr>
   endif
 endfunction
 
