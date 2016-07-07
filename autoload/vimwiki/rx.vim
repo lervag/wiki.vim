@@ -90,16 +90,6 @@ function! vimwiki#rx#italic() " {{{1
 endfunction
 
 " }}}1
-function! vimwiki#rx#bold_italic() " {{{1
-  return s:rx.bold_italic
-endfunction
-
-" }}}1
-function! vimwiki#rx#italic_bold() " {{{1
-  return s:rx.italic_bold
-endfunction
-
-" }}}1
 
 " {{{1 Define regexes
 
@@ -116,12 +106,8 @@ let s:rx.header = '^#\{1,6}\s*[^#].*'
 let s:rx.header_items = '^\(#\{1,6}\)\s*\([^#].*\)\s*$'
 let s:rx.bold = vimwiki#rx#surrounded(
       \ '[^*`[:space:]]\%([^*`]*[^*`[:space:]]\)\?', '*')
-let s:rx.bold_italic = vimwiki#rx#surrounded(
-      \ '[^*_`[:space:]]\%([^*_`]*[^*_`[:space:]]\)\?', '*_')
 let s:rx.italic = vimwiki#rx#surrounded(
       \ '[^_`[:space:]]\%([^_`]*[^_`[:space:]]\)\?', '_')
-let s:rx.italic_bold = vimwiki#rx#surrounded(
-      \ '[^_*`[:space:]]\%([^_*`]*[^_*`[:space:]]\)\?', '_*')
 
 " }}}1
 
