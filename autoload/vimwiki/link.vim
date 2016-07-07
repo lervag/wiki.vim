@@ -24,6 +24,49 @@ function! vimwiki#link#get_at_cursor() " {{{1
 endfunction
 
 " }}}1
+function! vimwiki#link#get_all(...) "{{{1
+  let l:file = a:0 > 0 ? a:1 : expand('%')
+  if !filereadable(l:file) | return [] | endif
+
+  let l:links = []
+  let l:lnum = 0
+  for l:line in readfile(l:file)
+    let l:lnum += 1
+    let l:col = 0
+    while 1
+      let l:c1 = match(l:line, vimwiki#rx#link(), l:col) + 1
+      if l:c1 == 0 | break | endif
+
+      "
+      " Create link
+      "
+      let l:link = {}
+      let l:link.full = matchstr(l:line, vimwiki#rx#link(), l:col)
+      let l:link.lnum = l:lnum
+      let l:link.c1 = l:c1
+      let l:link.c2 = l:c1 + strlen(l:link.full)
+      let l:col = l:link.c2
+
+      "
+      " Add link details
+      "
+      for l:m in s:matchers_all_links
+        if l:link.full =~# '^' . l:m.rx
+          let l:link.text = matchstr(l:link.full, get(l:m, 'rx_text', ''))
+          let l:link.type = l:m.type
+          let l:link.toggle = function('vimwiki#link#template_' . l:m.toggle)
+          call add(l:links, l:m.parser(l:link, { 'origin' : l:file }))
+          break
+        endif
+      endfor
+    endwhile
+  endfor
+
+  return l:links
+endfunction
+
+"}}}1
+
 function! vimwiki#link#open(...) "{{{1
   let l:link = vimwiki#link#get_at_cursor()
 
@@ -227,28 +270,30 @@ endfunction
 
 " }}}2
 function! vimwiki#link#get_matchers() " {{{2
-  return s:matchers_all
+  return copy(s:matchers_all)
 endfunction
 
 " }}}2
 function! vimwiki#link#get_matchers_links() " {{{2
-  return s:matchers_all_links
+  return copy(s:matchers_all_links)
 endfunction
 
 " }}}2
 
-function! s:parser_general(link) dict " {{{2
-  return extend(a:link, vimwiki#url#parse(
-        \ matchstr(a:link.full, get(self, 'rx_url', get(self, 'rx')))))
+function! s:parser_general(link, ...) dict " {{{2
+  return extend(a:link, call('vimwiki#url#parse',
+        \ [matchstr(a:link.full, get(self, 'rx_url', get(self, 'rx')))]
+        \ + a:000))
 endfunction
 
 " }}}2
-function! s:parser_date(link) dict " {{{2
-  return extend(a:link, vimwiki#url#parse('diary:' . a:link.full))
+function! s:parser_date(link, ...) dict " {{{2
+  return extend(a:link, call('vimwiki#url#parse',
+        \ ['diary:' . a:link.full] + a:000))
 endfunction
 
 " }}}2
-function! s:parser_word(link) dict " {{{2
+function! s:parser_word(link, ...) dict " {{{2
   return extend(a:link, {
         \ 'scheme' : '',
         \ 'url' : a:link.full,
@@ -256,7 +301,7 @@ function! s:parser_word(link) dict " {{{2
 endfunction
 
 " }}}2
-function! s:parser_ref(link) dict " {{{2
+function! s:parser_ref(link, ...) dict " {{{2
   return a:link
 endfunction
 
@@ -339,15 +384,16 @@ let s:matcher_word = {
 let s:matchers_all = [
       \ s:matcher_wiki,
       \ s:matcher_md,
-      \ s:matcher_ref,
-      \ s:matcher_ref_target,
-      \ s:matcher_ref_simple,
       \ s:matcher_url,
       \ s:matcher_date,
       \ s:matcher_word,
       \]
 
-let s:matchers_all_links = s:matchers_all[0:-2]
+let s:matchers_all_links = [
+      \ s:matcher_wiki,
+      \ s:matcher_md,
+      \ s:matcher_url,
+      \]
 
 unlet s:rx_url
 

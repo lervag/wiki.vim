@@ -171,19 +171,20 @@ endif
 
 " }}}1
 function! vimwiki#get_backlinks() "{{{1
-  let l:origin = expand("%:p")
+  let l:origin = expand('%:p')
   let l:locs = []
 
   for l:file in globpath(g:vimwiki.root, '**/*.wiki', 0, 1)
     if resolve(l:file) ==# resolve(l:origin) | break | endif
 
-    for l:link in vimwiki#page#get_links(l:file)
-      if resolve(l:link.filename) ==# resolve(l:origin)
+    for l:link in vimwiki#link#get_all(l:file)
+      if get(l:link, 'scheme', '') !=# 'wiki' | continue | endif
+      if resolve(l:link.path) ==# resolve(l:origin)
         call add(l:locs, {
               \ 'filename' : l:file,
-              \ 'text' : empty(l:link.anchor) ? '' : 'Anchor: ' . l:anchor,
+              \ 'text' : empty(l:link.anchor) ? '' : 'Anchor: ' . l:link.anchor,
               \ 'lnum' : l:link.lnum,
-              \ 'col' : l:link.col
+              \ 'col' : l:link.c1
               \})
       endif
     endfor
