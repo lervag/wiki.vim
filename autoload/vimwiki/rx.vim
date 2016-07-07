@@ -10,7 +10,7 @@
 function! vimwiki#rx#link() " {{{1
   if !exists('s:rx.link')
     let s:rx.link = join(
-        \ map(copy(vimwiki#link#get_matchers_links()), 'v:val.rx'), '\|')
+        \ map(vimwiki#link#get_matchers_links(), 'v:val.rx'), '\|')
   endif
 
   return s:rx.link
