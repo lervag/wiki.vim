@@ -5,16 +5,16 @@
 "
 
 function! vimwiki#nav#next_link() "{{{1
-  call search(g:vimwiki.rx.link, 's')
+  call search(vimwiki#rx#link(), 's')
 endfunction
 
 " }}}1
 function! vimwiki#nav#prev_link() "{{{1
   if vimwiki#u#in_syntax('VimwikiLink.*')
         \ && vimwiki#u#in_syntax('VimwikiLink.*', line('.'), col('.')-1)
-    call search(g:vimwiki.rx.link, 'sb')
+    call search(vimwiki#rx#link(), 'sb')
   endif
-  call search(g:vimwiki.rx.link, 'sb')
+  call search(vimwiki#rx#link(), 'sb')
 endfunction
 
 " }}}1

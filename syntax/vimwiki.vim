@@ -126,7 +126,7 @@ endfor
 syntax match VimwikiHeaderChar contained /^#\+/
 
 " TODO like items
-execute 'syntax match VimwikiTodo /' . g:vimwiki.rx.todo . '/'
+execute 'syntax match VimwikiTodo /' . vimwiki#rx#todo() . '/'
 
 " Tables
 syntax match VimwikiTableRow /^\s*|.\+|\s*$/
@@ -158,23 +158,23 @@ syntax match VimwikiListTodoDone /^\s*[-*] \[[xX]\]/ contains=@VimwikiLink,@Spel
 syntax match VimwikiEqIn  /\$[^$`]\+\$/ contains=VimwikiEqInChar
 syntax match VimwikiEqInT /\$[^$`]\+\$/ contained contains=VimwikiEqInCharT
 
-execute 'syntax match VimwikiBold /'.g:vimwiki.rx.bold.'/ contains=VimwikiBoldChar,@Spell'
-execute 'syntax match VimwikiBoldT /'.g:vimwiki.rx.bold.'/ contained contains=VimwikiBoldCharT,@Spell'
+execute 'syntax match VimwikiBold /'.vimwiki#rx#bold().'/ contains=VimwikiBoldChar,@Spell'
+execute 'syntax match VimwikiBoldT /'.vimwiki#rx#bold().'/ contained contains=VimwikiBoldCharT,@Spell'
 
-execute 'syntax match VimwikiItalic /'.g:vimwiki.rx.italic.'/ contains=VimwikiItalicChar,@Spell'
-execute 'syntax match VimwikiItalicT /'.g:vimwiki.rx.italic.'/ contained contains=VimwikiItalicCharT,@Spell'
+execute 'syntax match VimwikiItalic /'.vimwiki#rx#italic().'/ contains=VimwikiItalicChar,@Spell'
+execute 'syntax match VimwikiItalicT /'.vimwiki#rx#italic().'/ contained contains=VimwikiItalicCharT,@Spell'
 
-execute 'syntax match VimwikiBoldItalic /'.g:vimwiki.rx.boldItalic.'/ contains=VimwikiBoldItalicChar,VimwikiItalicBoldChar,@Spell'
-execute 'syntax match VimwikiBoldItalicT /'.g:vimwiki.rx.boldItalic.'/ contained contains=VimwikiBoldItalicChatT,VimwikiItalicBoldCharT,@Spell'
+execute 'syntax match VimwikiBoldItalic /'.vimwiki#rx#bold_italic().'/ contains=VimwikiBoldItalicChar,VimwikiItalicBoldChar,@Spell'
+execute 'syntax match VimwikiBoldItalicT /'.vimwiki#rx#bold_italic().'/ contained contains=VimwikiBoldItalicChatT,VimwikiItalicBoldCharT,@Spell'
 
-execute 'syntax match VimwikiItalicBold /'.g:vimwiki.rx.italicBold.'/ contains=VimwikiBoldItalicChar,VimwikiItalicBoldChar,@Spell'
-execute 'syntax match VimwikiItalicBoldT /'.g:vimwiki.rx.italicBold.'/ contained contains=VimwikiBoldItalicCharT,VimsikiItalicBoldCharT,@Spell'
+execute 'syntax match VimwikiItalicBold /'.vimwiki#rx#italic_bold().'/ contains=VimwikiBoldItalicChar,VimwikiItalicBoldChar,@Spell'
+execute 'syntax match VimwikiItalicBoldT /'.vimwiki#rx#italic_bold().'/ contained contains=VimwikiBoldItalicCharT,VimsikiItalicBoldCharT,@Spell'
 
-execute 'syntax match VimwikiSuperScript /'.g:vimwiki.rx.superScript.'/ contains=VimwikiSuperScriptChar,@Spell'
-execute 'syntax match VimwikiSuperScriptT /'.g:vimwiki.rx.superScript.'/ contained contains=VimwikiSuperScriptCharT,@Spell'
+execute 'syntax match VimwikiSuperScript /'.vimwiki#rx#super().'/ contains=VimwikiSuperScriptChar,@Spell'
+execute 'syntax match VimwikiSuperScriptT /'.vimwiki#rx#super().'/ contained contains=VimwikiSuperScriptCharT,@Spell'
 
-execute 'syntax match VimwikiSubScript /'.g:vimwiki.rx.subScript.'/ contains=VimwikiSubScriptChar,@Spell'
-execute 'syntax match VimwikiSubScriptT /'.g:vimwiki.rx.subScript.'/ contained contains=VimwikiSubScriptCharT,@Spell'
+execute 'syntax match VimwikiSubScript /'.vimwiki#rx#sub().'/ contains=VimwikiSubScriptChar,@Spell'
+execute 'syntax match VimwikiSubScriptT /'.vimwiki#rx#sub().'/ contained contains=VimwikiSubScriptCharT,@Spell'
 
 syntax match VimwikiCode /`[^`]\+`/ contains=VimwikiCodeChar
 syntax match VimwikiCodeT /`[^`]\+`/ contained contains=VimwikiCodeCharT

@@ -160,11 +160,11 @@ function! vimwiki#page#create_toc() " {{{1
 
     " Get line - check for header
     let l:line = getline(l:lnum)
-    if l:line !~# g:vimwiki.rx.header | continue | endif
+    if l:line !~# vimwiki#rx#header() | continue | endif
 
     " Parse current header
     let l:level = len(matchstr(l:line, '^#*'))
-    let l:header = matchlist(l:line, g:vimwiki.rx.header_items)[2]
+    let l:header = matchlist(l:line, vimwiki#rx#header_items())[2]
     if l:header ==# 'Innhald' | continue | endif
 
     " Update header stack in order to have well defined anchor

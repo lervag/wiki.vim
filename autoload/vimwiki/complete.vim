@@ -50,7 +50,7 @@ function! s:get_anchors(filename) " {{{1
   for line in readfile(a:filename)
 
     " collect headers
-    let h_match = matchlist(line, g:vimwiki.rx.header_items)
+    let h_match = matchlist(line, vimwiki#rx#header_items())
     if !empty(h_match)
       let header = h_match[2]
       let level = len(h_match[1])
@@ -79,7 +79,7 @@ function! s:get_anchors(filename) " {{{1
     let l:count = 0
     while 1
       let l:count += 1
-      let l:text = matchstr(line, g:vimwiki.rx.bold, 0, l:count)
+      let l:text = matchstr(line, vimwiki#rx#bold(), 0, l:count)
       if l:text == '' | break | endif
 
       call add(anchors, l:text)

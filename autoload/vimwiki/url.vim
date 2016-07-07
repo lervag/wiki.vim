@@ -116,7 +116,7 @@ function! s:url_wiki_open_anchor() dict " {{{1
 
   for l:part in split(self.anchor, '#', 0)
     let l:header = '^#\{1,6}\s*' . l:part . '\s*$'
-    let l:bold = vimwiki#rx#generate_bold_italic('*', l:part)
+    let l:bold = vimwiki#rx#surrounded(l:part, '*')
 
     if !(search(l:header, 'Wc') || search(l:bold, 'Wc'))
       call setpos('.', l:old_pos)

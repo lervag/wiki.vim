@@ -8,9 +8,33 @@
 " Init functions
 "
 function! vimwiki#init() " {{{1
-  let g:vimwiki = {}
-  let g:vimwiki.root = g:vimwiki_path
-  let g:vimwiki.diary = g:vimwiki_path . 'journal/'
+  "
+  " Require minimum configuration
+  "
+  if !exists('g:vimwiki') || !exists('g:vimwiki.root')
+    echomsg 'Please define g:vimwiki.root!'
+    finish
+  endif
+
+  "
+  " Only load the plugin once
+  "
+  if get(g:vimwiki, 'loaded', 0) | finish | endif
+  let g:vimwiki.loaded = 1
+
+  "
+  " Ensure absolute path
+  "
+  let g:vimwiki.root = fnamemodify(g:vimwiki.root, ':p')
+  let g:vimwiki.diary = g:vimwiki.root . 'journal/'
+
+  "
+  " Warn if wiki path is invalid
+  "
+  if !isdirectory(g:vimwiki.root)
+    echomsg 'Please set g:vimwiki.root to a valid wiki path!'
+    finish
+  endif
 
   "
   " Define mappings
@@ -54,42 +78,15 @@ function! vimwiki#init_buffer() " {{{1
         \   resolve(g:vimwiki.diary)) == 0
         \ }
 
-  call s:init_regexes()
+  let g:vimwiki_bullet_types = { '-':0, '*':0, '+':0 }
+  let g:vimwiki_number_types = ['1.']
+  let g:vimwiki_list_markers = ['-', '*', '+', '1.']
+
   call s:init_mappings()
 endfunction
 
 " }}}1
 
-function! s:init_regexes() " {{{
-  let g:vimwiki.rx = {}
-
-  let g:vimwiki.rx.link = join(
-        \ map(vimwiki#link#get_matchers_links(), 'v:val.rx'), '\|')
-
-  let g:vimwiki_bullet_types = { '-':0, '*':0, '+':0 }
-  let g:vimwiki_number_types = ['1.']
-  let g:vimwiki_list_markers = ['-', '*', '+', '1.']
-
-  let g:vimwiki.rx.word = '[^[:blank:]!"$%&''()*+,:;<=>?\[\]\\^`{}]\+'
-
-  let g:vimwiki.rx.preStart = '^\s*```'
-  let g:vimwiki.rx.preEnd = '^\s*```\s*$'
-
-  let g:vimwiki.rx.italic = vimwiki#rx#generate_bold_italic('_')
-  let g:vimwiki.rx.bold = vimwiki#rx#generate_bold_italic('*')
-  let g:vimwiki.rx.boldItalic = vimwiki#rx#generate_bold_italic('*_')
-  let g:vimwiki.rx.italicBold = vimwiki#rx#generate_bold_italic('_*')
-
-  let g:vimwiki.rx.superScript = '\^[^^`]\+\^'
-  let g:vimwiki.rx.subScript = ',,[^,`]\+,,'
-  let g:vimwiki.rx.listDefine = '::\%(\s\|$\)'
-  let g:vimwiki.rx.comment = '^\s*%%.*$'
-  let g:vimwiki.rx.todo = '\C\%(TODO\|DONE\|STARTED\|FIXME\|FIXED\):\?'
-  let g:vimwiki.rx.header = '^#\{1,6}\s*[^#].*'
-  let g:vimwiki.rx.header_items = '^\(#\{1,6}\)\s*\([^#].*\)\s*$'
-endfunction
-
-" }}}1
 function! s:init_mappings() " {{{1
   "
   " General wiki mappings

@@ -13,7 +13,7 @@ function! vimwiki#fold#level(lnum) " {{{1
           \ : '='
   endif
 
-  if l:line =~# g:vimwiki.rx.header
+  if l:line =~# vimwiki#rx#header()
     return '>' . len(matchstr(l:line, '#*'))
   endif
 
