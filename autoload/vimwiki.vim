@@ -13,13 +13,13 @@ function! vimwiki#init() " {{{1
   "
   if !exists('g:vimwiki') || !exists('g:vimwiki.root')
     echomsg 'Please define g:vimwiki.root!'
-    finish
+    return
   endif
 
   "
   " Only load the plugin once
   "
-  if get(g:vimwiki, 'loaded', 0) | finish | endif
+  if get(g:vimwiki, 'loaded', 0) | return | endif
   let g:vimwiki.loaded = 1
 
   "
@@ -33,7 +33,7 @@ function! vimwiki#init() " {{{1
   "
   if !isdirectory(g:vimwiki.root)
     echomsg 'Please set g:vimwiki.root to a valid wiki path!'
-    finish
+    return
   endif
 
   "
@@ -138,9 +138,9 @@ endfunction
 " }}}1
 " {{{1 function! vimwiki#reload()
 let s:file = expand('<sfile>')
-if !exists('s:reloading_script')
+if get(s:, 'reload_guard', 1)
   function! vimwiki#reload()
-    let s:reloading_script = 1
+    let s:reload_guard = 0
 
     " Reload autoload scripts
     for l:file in [s:file]
@@ -165,7 +165,7 @@ if !exists('s:reloading_script')
       endif
     endif
 
-    unlet s:reloading_script
+    unlet s:reload_guard
   endfunction
 endif
 
