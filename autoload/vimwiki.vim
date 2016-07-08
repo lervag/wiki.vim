@@ -96,6 +96,7 @@ function! s:init_mappings() " {{{1
   nnoremap <silent><buffer> <leader>wd :call vimwiki#page#delete()<cr>
   nnoremap <silent><buffer> <leader>wr :call vimwiki#page#rename()<cr>
   nnoremap <silent><buffer> <leader>wh :call vimwiki#timesheet#get()<cr>
+  nnoremap <silent><buffer> <leader>wj :call vimwiki#timesheet#show()<cr>
 
   "
   " Link mappings
@@ -176,7 +177,8 @@ function! vimwiki#get_backlinks() "{{{1
   let l:locs = []
 
   for l:file in globpath(g:vimwiki.root, '**/*.wiki', 0, 1)
-    if resolve(l:file) ==# resolve(l:origin) | break | endif
+    if resolve(l:file) ==# resolve(l:origin) | continue | endif
+    echo 'Vimwiki: Scanning files ...'
 
     for l:link in vimwiki#link#get_all(l:file)
       if get(l:link, 'scheme', '') !=# 'wiki' | continue | endif
