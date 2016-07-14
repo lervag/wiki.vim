@@ -62,7 +62,7 @@ syntax match VimwikiLinkMdConceal /\]([^\\]\{-})/
 
 syntax match VimwikiLinkRefConceal /[\]\[]\@<!\[/
       \ contained transparent contains=NONE conceal
-syntax match VimwikiLinkRefConceal /\]\[.*\]/
+syntax match VimwikiLinkRefConceal /\]\[[^\\\[\]]\{-}\]/
       \ contained transparent contains=NONE conceal
 
 " }}}2

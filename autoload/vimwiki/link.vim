@@ -4,11 +4,6 @@
 " Email:      karl.yngve@gmail.com
 "
 
-"
-" TODO
-" - reference links don't work
-"
-
 function! vimwiki#link#get_at_cursor() " {{{1
   for l:m in s:matchers_all
     let l:link = s:matchstr_at_cursor(l:m.rx)
@@ -51,6 +46,7 @@ function! vimwiki#link#get_all(...) "{{{1
       " Add link details
       "
       for l:m in s:matchers_all_links
+        if l:m.type ==# 'ref' | continue | endif
         if l:link.full =~# '^' . l:m.rx
           let l:link.text = matchstr(l:link.full, get(l:m, 'rx_text', ''))
           let l:link.type = l:m.type
@@ -85,7 +81,10 @@ function! vimwiki#link#toggle(...) " {{{1
   "
   " Use stripped url for wiki links
   "
-  let l:url = l:link.scheme ==# 'wiki' ? l:link.stripped : l:link.url
+  let l:url = get(l:link, 'scheme', '') ==# 'wiki'
+        \ ? l:link.stripped
+        \ : get(l:link, 'url', '')
+  if empty(l:url) | return | endif
 
   "
   " Apply link template
@@ -143,19 +142,20 @@ endfunction
 
 function! s:matchstr_at_cursor(regex) " {{{1
   let l:lnum = line('.')
-  let l:c1 = searchpos(a:regex, 'ncb', l:lnum)[1]
-  let l:c2 = searchpos(a:regex, 'nce', l:lnum)[1]
+  let l:c1 = searchpos(a:regex, 'ncb',  l:lnum)[1]
+  let l:c2 = searchpos(a:regex, 'nce',  l:lnum)[1]
+  if l:c1 == 0 || l:c2 == 0 | return {} | endif
 
-  if (l:c1 > 0) && (l:c2 > 0)
-    return {
-          \ 'full' : strpart(getline('.'), l:c1-1, l:c2-l:c1+1),
-          \ 'lnum' : l:lnum,
-          \ 'c1' : l:c1,
-          \ 'c2' : l:c2,
-          \}
-  else
-    return {}
-  endif
+  let l:c1e = searchpos(a:regex, 'ncbe', l:lnum)[1]
+  echom a:regex[0:10] col('.') l:c1 l:c1e l:c2
+  if l:c1e > l:c1 && l:c1e < col('.') | return {} | endif
+
+  return {
+        \ 'full' : strpart(getline('.'), l:c1-1, l:c2-l:c1+1),
+        \ 'lnum' : l:lnum,
+        \ 'c1' : l:c1,
+        \ 'c2' : l:c2,
+        \}
 endfunction
 
 "}}}1
@@ -248,8 +248,17 @@ function! vimwiki#link#template_word(url, ...) " {{{1
 endfunction
 
 " }}}1
-function! vimwiki#link#template_ref(url, ...) " {{{1
-  return vimwiki#link#template_wiki(a:url)
+function! vimwiki#link#template_ref(...) " {{{1
+  return call('vimwiki#link#template_wiki', a:000)
+endfunction
+
+" }}}1
+function! vimwiki#link#template_ref_target(url, ...) " {{{1
+  let l:id = a:0 > 0 ? a:1 : ''
+  if empty(l:id)
+    let l:id = input('Input id: ')
+  endif
+  return '[' . l:id . '] ' . a:url
 endfunction
 
 " }}}1
@@ -302,7 +311,14 @@ endfunction
 
 " }}}2
 function! s:parser_ref(link, ...) dict " {{{2
-  return a:link
+  let l:id = matchstr(a:link.full, self.rx_id)
+  let l:lnum = searchpos('^\[' . l:id . '\]: ', 'nW')[0]
+  if l:lnum == 0
+    return a:link
+  else
+    let l:url = matchstr(getline(l:lnum), s:rx_url)
+    return extend(a:link, call('vimwiki#url#parse', [l:url] + a:000))
+  endif
 endfunction
 
 " }}}2
@@ -337,7 +353,7 @@ let s:matcher_ref = {
       \ 'rx' : '[\]\[]\@<!\['
       \   . '[^\\\[\]]\{-}\]\[\%([^\\\[\]]\{-}\)\?'
       \   . '\][\]\[]\@!',
-      \ 'rx_url' : '[\]\[]\@<!\['
+      \ 'rx_id' : '[\]\[]\@<!\['
       \   . '\%(\zs[^\\\[\]]\{-}\ze\]\[\|[^\\\[\]]\{-}\]\[\zs[^\\\[\]]\{-1,}\ze\)'
       \   . '\][\]\[]\@!',
       \ 'rx_text' : '[\]\[]\@<!\['
@@ -350,11 +366,13 @@ let s:matcher_ref_simple = {
       \ 'parser' : function('s:parser_ref'),
       \ 'toggle' : 'ref',
       \ 'rx' : '[\]\[]\@<!\[[^\\\[\]]\{-}\][\]\[]\@!',
-      \ 'rx_url' : '\[\zs[^\\\[\]]\{-}\ze\]',
+      \ 'rx_id' : '\[\zs[^\\\[\]]\{-}\ze\]',
       \}
 
 let s:matcher_ref_target = {
       \ 'type' : 'ref_target',
+      \ 'parser' : function('s:parser_general'),
+      \ 'toggle' : 'ref_target',
       \ 'rx' : '\[[^\\\]]\{-}\]:\s\+' . s:rx_url,
       \ 'rx_url' : '\[[^\\\]]\{-}\]:\s\+\zs' . s:rx_url . '\ze',
       \ 'rx_text' : '\[\zs[^\\\]]\{-}\ze\]:\s\+' . s:rx_url,
@@ -381,21 +399,17 @@ let s:matcher_word = {
       \ 'rx' : '\<\w\+\>',
       \}
 
-let s:matchers_all = [
-      \ s:matcher_wiki,
-      \ s:matcher_md,
-      \ s:matcher_url,
-      \ s:matcher_date,
-      \ s:matcher_word,
-      \]
-
 let s:matchers_all_links = [
       \ s:matcher_wiki,
       \ s:matcher_md,
+      \ s:matcher_ref_target,
+      \ s:matcher_ref_simple,
+      \ s:matcher_ref,
       \ s:matcher_url,
       \]
 
-unlet s:rx_url
+let s:matchers_all = copy(s:matchers_all_links)
+      \ + [s:matcher_date, s:matcher_word]
 
 " }}}2
 
