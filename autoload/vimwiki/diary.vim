@@ -47,12 +47,18 @@ function! s:get_links() " {{{1
         \   'fnamemodify(v:val, '':t:r'')'),
         \ 'v:val =~# ''^\d\{4}-\d\d-\d\d''')
 
-  if index(l:links, strftime('%Y-%m-%d')) == -1
-    call add(l:links, strftime('%Y-%m-%d'))
-    call sort(l:links)
-  endif
+  for l:cand in [
+        \ strftime('%Y-%m-%d'),
+        \ expand('%:r'),
+        \]
+    if l:cand =~# '^\d\{4}-\d\d-\d\d'
+          \ && index(l:links, l:cand) == -1
+      call add(l:links, l:cand)
+      let l:sort = 1
+    endif
+  endfor
 
-  return l:links
+  return get(l:, 'sort', 0) ? sort(l:links) : l:links
 endfunction
 
 " }}}1
