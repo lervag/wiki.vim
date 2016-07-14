@@ -147,7 +147,6 @@ function! s:matchstr_at_cursor(regex) " {{{1
   if l:c1 == 0 || l:c2 == 0 | return {} | endif
 
   let l:c1e = searchpos(a:regex, 'ncbe', l:lnum)[1]
-  echom a:regex[0:10] col('.') l:c1 l:c1e l:c2
   if l:c1e > l:c1 && l:c1e < col('.') | return {} | endif
 
   return {
@@ -341,9 +340,9 @@ let s:matcher_md = {
       \ 'type' : 'md',
       \ 'parser' : function('s:parser_general'),
       \ 'toggle' : 'wiki',
-      \ 'rx'      : '\[[^\\]\{-}\]([^\\]\{-})',
-      \ 'rx_url'  : '\[[^\\]\{-}\](\zs[^\\]\{-}\ze)',
-      \ 'rx_text' : '\[\zs[^\\]\{-}\ze\]([^\\]\{-})',
+      \ 'rx'      : '\[[^\\\[\]]\{-}\]([^\\]\{-})',
+      \ 'rx_url'  : '\[[^\\\[\]]\{-}\](\zs[^\\]\{-}\ze)',
+      \ 'rx_text' : '\[\zs[^\\\[\]]\{-}\ze\]([^\\]\{-})',
       \}
 
 let s:matcher_ref = {
