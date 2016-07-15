@@ -95,7 +95,7 @@ function! s:init_mappings() " {{{1
   nnoremap <silent><buffer> <leader>wb :call vimwiki#get_backlinks()<cr>
   nnoremap <silent><buffer> <leader>wd :call vimwiki#page#delete()<cr>
   nnoremap <silent><buffer> <leader>wr :call vimwiki#page#rename()<cr>
-  nnoremap <silent><buffer> <leader>wh :call vimwiki#timesheet#get()<cr>
+  nnoremap <silent><buffer> <leader>wh :call vimwiki#timesheet#submit()<cr>
   nnoremap <silent><buffer> <leader>wj :call vimwiki#timesheet#show()<cr>
 
   "
