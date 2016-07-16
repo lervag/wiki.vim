@@ -114,11 +114,17 @@ syntax match VimwikiQuoteChar      contained /^>/   conceal cchar=
 
 " }}}2
 " {{{2 Define table groups
-
+"
 syntax match VimwikiTableRow /^\s*|.\+|\s*$/
       \ transparent contains=@VimwikiInTable,@Spell
-syntax match VimwikiCellSeparator
-      \ /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
+syntax match VimwikiCellSeparator /[|\-+]/ contained
+
+syntax match VimwikiTableFormulaLine /^\/\* tmf:.*\*\//
+      \ contains=VimwikiTableFormulaConcealed,VimwikiTableFormulaHeader,VimwikiTableFormula
+syntax match VimwikiTableFormulaConcealed /\s*\%(\/\*\|\*\/\)\s*/
+      \ contained conceal
+syntax match VimwikiTableFormula contained /\$.*\ze\*\//
+syntax match VimwikiTableFormulaHeader contained /tmf:/
 
 call add(s:table_groups, ['VimwikiCellSeparator', ''])
 call add(s:table_groups, ['VimwikiTodo', ''])
@@ -134,6 +140,11 @@ for [s:g1, s:g2] in s:table_groups
   endif
 endfor
 unlet s:g1 s:g2
+
+highlight default link VimwikiCellSeparator Constant
+highlight default link VimwikiTableFormula Normal
+highlight default link VimwikiTableFormulaHeader VimwikiCellSeparator
+highlight default link VimwikiTableFormulaConcealed VimwikiTableFormulaHeader
 
 " }}}2
 
@@ -219,7 +230,6 @@ highlight default link VimwikiQuote Comment
 highlight default link VimwikiMarkers Normal
 highlight default link VimwikiHeaderChar VimwikiMarkers
 highlight default link VimwikiEqInChar VimwikiMarkers
-highlight default link VimwikiCellSeparator VimwikiMarkers
 highlight default link VimwikiBoldChar VimwikiMarkers
 highlight default link VimwikiItalicChar VimwikiMarkers
 highlight default link VimwikiCodeChar VimwikiMarkers
