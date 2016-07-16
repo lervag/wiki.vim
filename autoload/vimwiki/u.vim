@@ -33,7 +33,7 @@ function! vimwiki#u#is_code(...) " {{{1
   let l:lnum = a:0 > 0 ? a:1 : line('.')
 
   return match(map(synstack(l:lnum, 1),
-          \        "synIDattr(v:val, 'name')"), '^VimwikiPre') > -1
+          \        "synIDattr(v:val, 'name')"), '^wikiPre') > -1
 endfunction
 
 " }}}1

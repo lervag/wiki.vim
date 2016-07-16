@@ -10,8 +10,8 @@ endfunction
 
 " }}}1
 function! vimwiki#nav#prev_link() "{{{1
-  if vimwiki#u#in_syntax('VimwikiLink.*')
-        \ && vimwiki#u#in_syntax('VimwikiLink.*', line('.'), col('.')-1)
+  if vimwiki#u#in_syntax('wikiLink.*')
+        \ && vimwiki#u#in_syntax('wikiLink.*', line('.'), col('.')-1)
     call search(vimwiki#rx#link(), 'sb')
   endif
   call search(vimwiki#rx#link(), 'sb')
