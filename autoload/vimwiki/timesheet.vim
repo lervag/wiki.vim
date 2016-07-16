@@ -5,7 +5,7 @@
 "
 
 function! vimwiki#timesheet#show() " {{{1
-  let l:timesheet = s:get_timesheet()
+  let l:timesheet = s:parse_timesheet_week()
 
   let l:sum = 0.0
   let l:list = []
@@ -39,40 +39,17 @@ python3 <<EOF
 from vim import *
 import sintefpy
 
-entries = bindeval('s:parse_list()')
-print([list(entry) for entry in entries])
+lists = bindeval('s:create_maconomy_lists()')
+print([list(entry) for entry in lists])
 
 EOF
 endfunction
 
 " }}}1
 
-function! s:get_timesheet(...) " {{{1
-  "
-  " Get date, day of week, and list of days in the week
-  "
-  let l:date = a:0 > 0
-        \ ? a:1
-        \ : (expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
-        \   ? expand('%:r') : strftime('%F'))
-  let l:dow = systemlist('date -d ' . l:date . ' +%u')[0]
-  let l:week = systemlist('date -d ' . l:date . ' +%W')[0]
-  let l:days = map(range(1-l:dow, 7-l:dow),
-        \   'systemlist(''date +%F -d "'
-        \               . l:date . ' '' . v:val . '' days"'')[0]')
-
-  let l:timesheet = {}
-  for l:dow in range(1,7)
-    call s:parse_timesheet(l:dow, l:days[l:dow - 1], l:timesheet)
-  endfor
-
-  return l:timesheet
-endfunction
-
-" }}}1
-function! s:parse_list() " {{{1
+function! s:create_maconomy_lists() " {{{1
   let l:list = []
-  for [l:key, l:vals] in items(s:get_timesheet())
+  for [l:key, l:vals] in items(s:parse_timesheet_week())
     if !has_key(s:table, l:key)
       echo 'Project is not defined in project table'
       echo '-' l:key
@@ -111,7 +88,31 @@ function! s:parse_list() " {{{1
 endfunction
 
 " }}}1
-function! s:parse_timesheet(dow, day, timesheet) " {{{1
+
+function! s:parse_timesheet_week(...) " {{{1
+  "
+  " Get date, day of week, and list of days in the week
+  "
+  let l:date = a:0 > 0
+        \ ? a:1
+        \ : (expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
+        \   ? expand('%:r') : strftime('%F'))
+  let l:dow = systemlist('date -d ' . l:date . ' +%u')[0]
+  let l:week = systemlist('date -d ' . l:date . ' +%W')[0]
+  let l:days = map(range(1-l:dow, 7-l:dow),
+        \   'systemlist(''date +%F -d "'
+        \               . l:date . ' '' . v:val . '' days"'')[0]')
+
+  let l:timesheet = {}
+  for l:dow in range(1,7)
+    call s:parse_timesheet_day(l:dow, l:days[l:dow - 1], l:timesheet)
+  endfor
+
+  return l:timesheet
+endfunction
+
+" }}}1
+function! s:parse_timesheet_day(dow, day, timesheet) " {{{1
   let l:file = g:vimwiki.diary . a:day . '.wiki'
   if !filereadable(l:file) | return | endif
 
