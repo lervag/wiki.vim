@@ -51,9 +51,8 @@ function! s:create_maconomy_lists() " {{{1
   let l:list = []
   for [l:key, l:vals] in items(s:parse_timesheet_week())
     if !has_key(s:table, l:key)
-      echo 'Project is not defined in project table'
-      echo '-' l:key
-      return
+      echo 'Project is not defined in project table:' l:key
+      return []
     endif
     let l:info = s:table[l:key]
     let l:new = [
@@ -64,10 +63,11 @@ function! s:create_maconomy_lists() " {{{1
     if has_key(l:vals, 'hours')
       if len(l:info.tasks) > 1
         echo 'Task was not uniquely specified for project:' l:key
-        for l:name in keys(l:info.tasks)
-          echo '-' l:name
+        echo 'Registered tasks are:'
+        for [l:name, l:task] in items(l:info.tasks)
+          echo '-' l:name  '(' . l:task[0] . ')'
         endfor
-        return
+        return []
       endif
 
       call add(l:list, l:new + values(l:info.tasks)[0]
@@ -77,7 +77,11 @@ function! s:create_maconomy_lists() " {{{1
     for l:task in filter(keys(l:vals), 'v:val !~# ''hours\|note''')
       if !has_key(l:info.tasks, l:task)
         echo 'Task "' . l:task . '" is not registered for project:' l:key
-        return
+        echo 'Registered tasks are:'
+        for [l:name, l:task] in items(l:info.tasks)
+          echo '-' l:name  '(' . l:task[0] . ')'
+        endfor
+        return []
       endif
       call add(l:list, l:new + l:info.tasks[l:task]
             \ + l:vals[l:task].hours + l:vals[l:task].note)
