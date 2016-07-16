@@ -33,9 +33,10 @@ for s:i in range(6)
         \ 'guifg='   . s:gcolors[&background][s:i]
         \ 'ctermfg=' . s:ccolors[&background][s:i]
 endfor
-unlet s:i s:gcolors s:ccolors
 
 highlight default link wikiHeaderChar Normal
+
+unlet s:i s:gcolors s:ccolors
 
 " }}}1
 " {{{1 Links
@@ -62,7 +63,6 @@ for [s:group, s:rx; s:contained] in [
         \ 'display contained contains=@NoSpell'
         \ . (empty(s:contained) ? '' : ',' . join(s:contained, ','))
 endfor
-unlet s:group s:rx s:contained
 
 syntax match wikiLinkUrlConceal
       \ `\%(///\=[^/ \t]\+/\)\zs\S\+\ze\%([/#?]\w\|\S\{15}\)`
@@ -86,6 +86,8 @@ highlight default link wikiLinkMd Underlined
 highlight default link wikiLinkRef Underlined
 highlight default link wikiLinkRefTarget Underlined
 highlight default      wikiLinkDate guifg=blue
+
+unlet s:group s:rx s:contained
 
 " }}}1
 " {{{1 Table
@@ -128,10 +130,12 @@ highlight default link wikiTableLine wikiTableSeparator
 highlight default wikiTableFormula ctermfg=darkgray guifg=gray
 highlight default wikiTableFormulaConcealed ctermfg=8 guifg=bg
 
+unlet s:group s:target
+
 " }}}1
 " {{{1 Code and nested syntax
 
-syntax match wikiCode /`[^`]\+`/ contains=wikiCodeConceal
+syntax match wikiCode /`[^`]\+`/ contains=wikiCodeConceal,@NoSpell
 syntax match wikiCodeConceal contained /`/ conceal
 syntax match wikiCodeT /`[^`]\+`/ contained
 
@@ -179,6 +183,8 @@ highlight default link wikiPre PreProc
 highlight default link wikiPreStart wikiPre
 highlight default link wikiPreEnd wikiPre
 highlight default link wikiPreStartName Identifier
+
+unlet s:ignored
 
 " }}}1
 " {{{1 Lists
