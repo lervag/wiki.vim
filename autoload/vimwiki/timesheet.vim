@@ -16,7 +16,7 @@ function! vimwiki#timesheet#show() " {{{1
       let l:sum += l:val
     endif
 
-    for l:task in filter(keys(l:vals), 'v:val !~# ''hours\|comments''')
+    for l:task in filter(keys(l:vals), 'v:val !~# ''hours\|note''')
       let l:val = s:sum(l:vals[l:task].hours)
       let l:list += [printf('%-20s %6.2f', l:key . ' ' . l:task, l:val)]
       let l:sum += l:val
@@ -71,16 +71,16 @@ function! s:create_maconomy_lists() " {{{1
       endif
 
       call add(l:list, l:new + values(l:info.tasks)[0]
-            \ + l:vals.hours + l:vals.comments)
+            \ + l:vals.hours + l:vals.note)
     endif
 
-    for l:task in filter(keys(l:vals), 'v:val !~# ''hours\|comments''')
+    for l:task in filter(keys(l:vals), 'v:val !~# ''hours\|note''')
       if !has_key(l:info.tasks, l:task)
         echo 'Task "' . l:task . '" is not registered for project:' l:key
         return
       endif
       call add(l:list, l:new + l:info.tasks[l:task]
-            \ + l:vals[l:task].hours + l:vals[l:task].comments)
+            \ + l:vals[l:task].hours + l:vals[l:task].note)
     endfor
   endfor
 
@@ -116,59 +116,72 @@ function! s:parse_timesheet_day(dow, day, timesheet) " {{{1
   let l:file = g:vimwiki.diary . a:day . '.wiki'
   if !filereadable(l:file) | return | endif
 
-  for l:line in readfile(l:file, 20)
-    " Detect start of timesheet info
-    if !get(l:, 'start', 0)
-      let l:start = (l:line =~# 'Timeoversikt')
-      continue
-    endif
+  let l:regex = '^\v\s*(\| )?(' . join(keys(s:table), '|') . ').*\d\.\d'
+  let l:lines = filter(readfile(l:file, 15), 'v:val =~# l:regex')
+  if empty(l:lines) | return | endif
 
-    " Detect end of timesheet info
-    if l:line =~# '^\s*$' | break | endif
+  let l:type = l:lines[0] =~# '^\s*|' ? 'new' : 'old'
+  call s:parse_timesheet_lines_{l:type}(l:lines, a:dow, a:timesheet)
+endfunction
 
-    " Skip some lines
-    if l:line =~# '^\s*\%(Starta\|Slutta\|-\+\s*$\)' | continue | endif
-
-    " Parse line
-    let l:parts = split(l:line, '\s\{2,}')
-    let l:key = l:parts[0]
-    let l:parts = split(l:parts[1], '\s')
-    let l:value = str2float(l:parts[0])
-    if len(l:parts) > 1
-      let l:note = substitute(join(l:parts[1:], ' '), '^(\|)$', '', 'g')
-      if l:note =~# '^T\d'
-        let l:task = l:note
-        unlet l:note
-      endif
-    endif
-
-    " Create timesheet entry if it does not exist
-    if !has_key(a:timesheet, l:key)
-      let a:timesheet[l:key] = {}
-    endif
-    if exists('l:task')
-      if !has_key(a:timesheet[l:key], l:task)
-        let a:timesheet[l:key][l:task] = {}
-      endif
-      let l:timesheet = a:timesheet[l:key][l:task]
-    else
-      let l:timesheet = a:timesheet[l:key]
-    endif
-    if !has_key(l:timesheet, 'hours')
-      let l:timesheet.hours = repeat([0.0], 7)
-      let l:timesheet.comments = repeat([''], 7)
-    endif
-
-    " Add entry to timesheet
-    let l:timesheet.hours[a:dow-1] = l:value
-    if exists('l:note')
-      let l:timesheet.comments[a:dow-1] = l:note
-    endif
-
-    " Clean up before next iteration
-    if exists('l:task') | unlet l:task | endif
-    if exists('l:note') | unlet l:note | endif
+" }}}1
+function! s:parse_timesheet_lines_new(lines, dow, timesheet) " {{{1
+  for l:line in a:lines
+    let [l:key, l:task, l:hours, l:note] = split(l:line, '\s*|\s*')
+    call s:parse_timesheet_add_line(l:key,
+          \ l:task, str2float(l:hours), l:note, a:dow, a:timesheet)
   endfor
+endfunction
+
+" }}}1
+function! s:parse_timesheet_lines_old(lines, dow, timesheet) " {{{1
+  for l:line in a:lines
+    let l:parts1 = split(l:line, '\s\{2,}')
+    let l:parts2 = split(l:parts1[1], '\s')
+
+    let l:key = l:parts1[0]
+    let l:hours = str2float(l:parts2[0])
+    let l:note = ''
+    let l:task = ''
+    if len(l:parts2) > 1
+      let l:string = substitute(join(l:parts2[1:], ' '), '^(\|)$', '', 'g')
+      if l:string =~# '^T\d'
+        let l:task = l:string
+      else
+        let l:note = l:string
+      endif
+    endif
+
+    call s:parse_timesheet_add_line(l:key, l:task, l:hours, l:note, a:dow, a:timesheet)
+  endfor
+endfunction
+
+" }}}1
+function! s:parse_timesheet_add_line(key, task, hours, note, dow, timesheet) " {{{1
+  if empty(a:key) || a:hours == 0.0 | return | endif
+
+  if !has_key(a:timesheet, a:key)
+    let a:timesheet[a:key] = {}
+  endif
+
+  if empty(a:task)
+    let l:timesheet = a:timesheet[a:key]
+  else
+    if !has_key(a:timesheet[a:key], a:task)
+      let a:timesheet[a:key][a:task] = {}
+    endif
+    let l:timesheet = a:timesheet[a:key][a:task]
+  endif
+
+  if !has_key(l:timesheet, 'hours')
+    let l:timesheet.hours = repeat([0.0], 7)
+    let l:timesheet.note = repeat([''], 7)
+  endif
+
+  let l:timesheet.hours[a:dow-1] = a:hours
+  if !empty('a:note')
+    let l:timesheet.note[a:dow-1] = a:note
+  endif
 endfunction
 
 " }}}1
