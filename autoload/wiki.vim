@@ -96,6 +96,8 @@ function! s:init_mappings() " {{{1
     nnoremap <silent><buffer> <c-j> :<c-u>call wiki#diary#go(-v:count1)<cr>
     nnoremap <silent><buffer> <c-k> :<c-u>call wiki#diary#go(v:count1)<cr>
     nnoremap <silent><buffer> <leader>wk :call wiki#diary#copy_note()<cr>
+    nnoremap <silent><buffer> <leader>wu :call wiki#diary#go_weekly()<cr>
+    nnoremap <silent><buffer> <leader>wm :call wiki#diary#go_monthly()<cr>
   endif
 
   "
