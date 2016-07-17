@@ -29,7 +29,10 @@ function! vimwiki#timesheet#show() " {{{1
     endfor
   endfor
 
-  if l:sums[-1] == 0.0 | return | endif
+  if l:sums[-1] == 0.0
+    echo 'No hours registered'
+    return
+  endif
 
   if l:sums[7] == 0.0
     call remove(l:sums, 7)
