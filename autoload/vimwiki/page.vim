@@ -112,9 +112,6 @@ endfunction
 " }}}1
 function! vimwiki#page#create_toc() " {{{1
   let l:winsave = winsaveview()
-  let l:syntax = &l:syntax
-  setlocal syntax=off
-
   let l:start = 1
   let l:entries = []
   let l:anchor_stack = []
@@ -146,6 +143,9 @@ function! vimwiki#page#create_toc() " {{{1
     call add(l:entries, repeat(' ', shiftwidth()*(l:level-1)) . '- '
           \ . vimwiki#link#template_wiki(l:anchor, l:header))
   endfor
+
+  let l:syntax = &l:syntax
+  setlocal syntax=off
 
   "
   " Delete TOC if it exists
@@ -181,7 +181,7 @@ function! vimwiki#page#create_toc() " {{{1
   call append(l:start, '')
 
   "
-  " Restore view
+  " Restore syntax and view
   "
   let &l:syntax = l:syntax
   call winrestview(l:winsave)
