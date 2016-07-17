@@ -90,6 +90,15 @@ endfunction
 
 function! s:init_mappings() " {{{1
   "
+  " Diary specific mappings
+  "
+  if b:vimwiki.in_diary
+    nnoremap <silent><buffer> <c-j> :<c-u>call vimwiki#diary#go(-v:count1)<cr>
+    nnoremap <silent><buffer> <c-k> :<c-u>call vimwiki#diary#go(v:count1)<cr>
+    nnoremap <silent><buffer> <leader>wk :call vimwiki#diary#copy_note()<cr>
+  endif
+
+  "
   " General wiki mappings
   "
   nnoremap <silent><buffer> <leader>wt :call vimwiki#page#create_toc()<cr>
@@ -119,13 +128,19 @@ function! s:init_mappings() " {{{1
   nnoremap <silent><buffer> gl         :set opfunc=vimwiki#link#toggle_operator<cr>g@
 
   "
-  " Diary specific mappings
+  " Text objects
   "
-  if b:vimwiki.in_diary
-    nnoremap <silent><buffer> <c-j> :<c-u>call vimwiki#diary#go(-v:count1)<cr>
-    nnoremap <silent><buffer> <c-k> :<c-u>call vimwiki#diary#go(v:count1)<cr>
-    nnoremap <silent><buffer> <leader>wk :call vimwiki#diary#copy_note()<cr>
-  endif
+  "
+  onoremap <silent><buffer> al :call vimwiki#text_obj#link(0)<cr>
+  xnoremap <silent><buffer> al :call vimwiki#text_obj#link(0)<cr>
+  onoremap <silent><buffer> il :call vimwiki#text_obj#link(1)<cr>
+  xnoremap <silent><buffer> il :call vimwiki#text_obj#link(1)<cr>
+  onoremap <silent><buffer> it :call vimwiki#text_obj#link(1, 'text')<cr>
+  xnoremap <silent><buffer> it :call vimwiki#text_obj#link(1, 'text')<cr>
+  onoremap <silent><buffer> ac :call vimwiki#text_obj#code(0)<cr>
+  xnoremap <silent><buffer> ac :call vimwiki#text_obj#code(0)<cr>
+  onoremap <silent><buffer> ic :call vimwiki#text_obj#code(1)<cr>
+  xnoremap <silent><buffer> ic :call vimwiki#text_obj#code(1)<cr>
 endfunction
 
 " }}}1
