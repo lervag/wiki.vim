@@ -96,10 +96,11 @@ syntax match wikiTable /^\s*|.\+|\s*$/ transparent contains=@wikiInTable,@Spell
 syntax match wikiTableSeparator /|/ contained
 syntax match wikiTableLine /^\s*[|\-+:]\+\s*$/ contained
 
-syntax match wikiTableFormula /^\/\* tmf:.*\*\//
-      \ contains=wikiTableFormulaConcealed
-syntax match wikiTableFormulaConcealed /\s*\%(\/\* tmf:\s*\|\*\/\)\s*/
-      \ contained
+syntax match wikiTableFormulaLine /^\/\/ tmf:.*/ contains=wikiTableFormula
+syntax match wikiTableFormula /^\s*\/\/ tmf:\zs.*/ contained
+      \ contains=wikiTableFormulaChars,wikiTableFormulaSyms
+syntax match wikiTableFormulaSyms /[$=():]/ contained
+syntax match wikiTableFormulaChars /\a\|,/ contained
 
 for [s:group, s:target] in [
       \ ['wikiTableSeparator', ''],
@@ -127,8 +128,12 @@ endfor
 
 highlight default wikiTableSeparator ctermfg=lightgray guifg=#40474d
 highlight default link wikiTableLine wikiTableSeparator
-highlight default wikiTableFormula ctermfg=darkgray guifg=gray
-highlight default wikiTableFormulaConcealed ctermfg=8 guifg=bg
+highlight default link wikiTableFormulaLine wikiTableSeparator
+highlight default link wikiTableFormula Number
+highlight default link wikiTableFormulaSyms Special
+highlight default link wikiTableFormulaChars ModeMsg
+" highlight default wikiTableFormulaLine ctermfg=darkgray guifg=gray
+" highlight default wikiTableFormula ctermfg=8 guifg=bg
 
 unlet s:group s:target
 

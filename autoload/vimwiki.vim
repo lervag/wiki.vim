@@ -60,6 +60,7 @@ function! vimwiki#init_buffer() " {{{1
   setlocal nocindent
   setlocal comments =:*\ TODO:,b:*\ [\ ],b:*\ [X],b:*
   setlocal comments+=:-\ TODO:,b:-\ [\ ],b:-\ [X],b:-
+  let &l:commentstring = '// %s'
   setlocal formatoptions-=o
   setlocal formatoptions+=n
   let &l:formatlistpat = '\v^\s*%(\d|\l|i+)\.\s'
