@@ -1,11 +1,11 @@
-" vimwiki
+" wiki
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
 "
 
 if exists('b:current_syntax') | finish | endif
-let b:current_syntax = 'vimwiki'
+let b:current_syntax = 'wiki'
 
 syntax spell toplevel
 syntax sync minlines=100
@@ -53,13 +53,13 @@ for [s:group, s:rx; s:contained] in [
       \]
   execute 'syntax cluster wikiLink  add=' . s:group
   execute 'syntax match' s:group
-        \ '/' . vimwiki#link#get_matcher_opt(s:rx, 'rx') . '/'
+        \ '/' . wiki#link#get_matcher_opt(s:rx, 'rx') . '/'
         \ 'display contains=@NoSpell'
         \ . (empty(s:contained) ? '' : ',' . join(s:contained, ','))
 
   call filter(s:contained, 'v:val !~# ''Conceal''')
   execute 'syntax match' s:group . 'T'
-        \ '/' . vimwiki#link#get_matcher_opt(s:rx, 'rx') . '/'
+        \ '/' . wiki#link#get_matcher_opt(s:rx, 'rx') . '/'
         \ 'display contained contains=@NoSpell'
         \ . (empty(s:contained) ? '' : ',' . join(s:contained, ','))
 endfor
@@ -173,7 +173,7 @@ for s:ft in map(
     execute 'syntax cluster wikiNested' . toupper(s:ft) 'remove=' . s:ignore
   endfor
 
-  let b:current_syntax='vimwiki'
+  let b:current_syntax='wiki'
   let &l:foldmethod = s:fdm
   let &iskeyword = s:iskeyword
 
@@ -207,18 +207,18 @@ highlight default link wikiListTodoDone Comment
 " {{{1 Formatting
 
 execute 'syntax match wikiBold'
-      \ '/' . vimwiki#rx#bold() . '/'
+      \ '/' . wiki#rx#bold() . '/'
       \ 'contains=wikiBoldConceal,@Spell'
 execute 'syntax match wikiBoldT'
-      \ '/' . vimwiki#rx#bold() . '/'
+      \ '/' . wiki#rx#bold() . '/'
       \ 'contained contains=@Spell'
 syntax match wikiBoldConceal /*/ contained conceal
 
 execute 'syntax match wikiItalic'
-      \ '/' . vimwiki#rx#italic() . '/'
+      \ '/' . wiki#rx#italic() . '/'
       \ 'contains=wikiItalicConceal,@Spell'
 execute 'syntax match wikiItalicT'
-      \ '/' . vimwiki#rx#italic() . '/'
+      \ '/' . wiki#rx#italic() . '/'
       \ 'contained contains=@Spell'
 syntax match wikiItalicConceal /_/ contained conceal
 
@@ -237,7 +237,7 @@ highlight default link wikiEqIn Number
 " }}}1
 " {{{1 Miscellaneous
 
-execute 'syntax match wikiTodo /' . vimwiki#rx#todo() . '/'
+execute 'syntax match wikiTodo /' . wiki#rx#todo() . '/'
 highlight default link wikiTodo Todo
 
 syntax region wikiQuote start=/^>\s\+/ end=/^$/ contains=wikiQuoteChar

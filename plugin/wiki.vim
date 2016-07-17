@@ -1,9 +1,9 @@
-" vimwiki
+" wiki
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
 "
 
-call vimwiki#init()
+call wiki#init()
 
 " vim: fdm=marker sw=2

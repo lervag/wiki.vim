@@ -1,10 +1,10 @@
-" vimwiki
+" wiki
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimwiki#timesheet#show() " {{{1
+function! wiki#timesheet#show() " {{{1
   let l:timesheet = s:parse_timesheet_week()
 
   let l:titles = ['Projects',
@@ -82,12 +82,12 @@ function! vimwiki#timesheet#show() " {{{1
 
   echo ''
   if input('Submit to Maconomy? [y/N]') =~# '^y'
-    call vimwiki#timesheet#submit()
+    call wiki#timesheet#submit()
   endif
 endfunction
 
 " }}}1
-function! vimwiki#timesheet#submit() " {{{1
+function! wiki#timesheet#submit() " {{{1
 python3 <<EOF
 from vim import *
 import sintefpy
@@ -170,7 +170,7 @@ endfunction
 
 " }}}1
 function! s:parse_timesheet_day(dow, day, timesheet) " {{{1
-  let l:file = g:vimwiki.diary . a:day . '.wiki'
+  let l:file = g:wiki.diary . a:day . '.wiki'
   if !filereadable(l:file) | return | endif
 
   let l:regex = '^\v\s*(\| )?(' . join(keys(s:table), '|') . ').*\d\.\d'
@@ -362,7 +362,7 @@ endfunction
 
 " }}}1
 function! s:parse_timesheet_day_new(day) " {{{1
-  let l:file = g:vimwiki.diary . a:day . '.wiki'
+  let l:file = g:wiki.diary . a:day . '.wiki'
   if !filereadable(l:file) | return | endif
 
   let l:entry = {}

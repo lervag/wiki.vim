@@ -7,7 +7,7 @@ augroup END
 
 function! s:set_filetype() " {{{1
   if expand('%:p') =~# 'documents\/wiki'
-    set filetype=vimwiki
+    set filetype=wiki
   endif
 endfunction
 

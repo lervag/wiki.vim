@@ -1,16 +1,16 @@
-" vimwiki
+" wiki
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimwiki#diary#make_note(...) " {{{1
+function! wiki#diary#make_note(...) " {{{1
   let l:date = (a:0 > 0 ? a:1 : strftime('%Y-%m-%d'))
-  call vimwiki#url#parse('diary:' . l:date).open()
+  call wiki#url#parse('diary:' . l:date).open()
 endfunction
 
 " }}}1
-function! vimwiki#diary#copy_note() " {{{1
+function! wiki#diary#copy_note() " {{{1
   let l:current = expand('%:t:r')
 
   " Get next weekday
@@ -24,11 +24,11 @@ function! vimwiki#diary#copy_note() " {{{1
     execute 'write' l:next
   endif
 
-  call vimwiki#diary#go(1)
+  call wiki#diary#go(1)
 endfunction
 
 " }}}1
-function! vimwiki#diary#go(step) " {{{1
+function! wiki#diary#go(step) " {{{1
   let l:links = s:get_links()
   let l:index = index(l:links, expand('%:t:r'))
   let l:target = l:index + a:step
@@ -37,13 +37,13 @@ function! vimwiki#diary#go(step) " {{{1
     return
   endif
 
-  call vimwiki#url#parse('diary:' . l:links[l:target]).open()
+  call wiki#url#parse('diary:' . l:links[l:target]).open()
 endfunction
 
 " }}}1
 
 function! s:get_links() " {{{1
-  let l:links = filter(map(glob(g:vimwiki.diary . '*.wiki', 0, 1),
+  let l:links = filter(map(glob(g:wiki.diary . '*.wiki', 0, 1),
         \   'fnamemodify(v:val, '':t:r'')'),
         \ 'v:val =~# ''^\d\{4}-\d\d-\d\d''')
 

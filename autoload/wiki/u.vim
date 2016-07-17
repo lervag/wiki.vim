@@ -1,15 +1,15 @@
-" vimwiki
+" wiki
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimwiki#u#escape(string) "{{{1
+function! wiki#u#escape(string) "{{{1
   return escape(a:string, '~.*[]\^$')
 endfunction
 
 "}}}1
-function! vimwiki#u#in_syntax(name, ...) " {{{1
+function! wiki#u#in_syntax(name, ...) " {{{1
   let l:pos = [0, 0]
   let l:pos[0] = a:0 > 0 ? a:1 : line('.')
   let l:pos[1] = a:0 > 1 ? a:2 : col('.')
@@ -29,7 +29,7 @@ function! vimwiki#u#in_syntax(name, ...) " {{{1
 endfunction
 
 " }}}1
-function! vimwiki#u#is_code(...) " {{{1
+function! wiki#u#is_code(...) " {{{1
   let l:lnum = a:0 > 0 ? a:1 : line('.')
 
   return match(map(synstack(l:lnum, 1),
@@ -37,20 +37,20 @@ function! vimwiki#u#is_code(...) " {{{1
 endfunction
 
 " }}}1
-function! vimwiki#u#run_code_snippet() " {{{1
+function! wiki#u#run_code_snippet() " {{{1
   let l:pos = getpos('.')
   let l:lnum1 = l:pos[1]
   let l:lnum2 = l:pos[1]
-  if !vimwiki#u#is_code(l:lnum1) | return | endif
+  if !wiki#u#is_code(l:lnum1) | return | endif
 
   while 1
-    if !vimwiki#u#is_code(l:lnum1-1) | break | endif
+    if !wiki#u#is_code(l:lnum1-1) | break | endif
     let l:lnum1 -= 1
   endwhile
   let l:lnum1 += 1
 
   while 1
-    if !vimwiki#u#is_code(l:lnum2+1) | break | endif
+    if !wiki#u#is_code(l:lnum2+1) | break | endif
     let l:lnum2 += 1
   endwhile
   let l:lnum2 -= 1

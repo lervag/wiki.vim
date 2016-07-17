@@ -1,18 +1,18 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! unite#sources#vimwiki#define()
-  return s:vimwiki
+function! unite#sources#wiki#define()
+  return s:wiki
 endfunction
 
-let s:vimwiki = {
-      \ 'name': 'vimwiki',
+let s:wiki = {
+      \ 'name': 'wiki',
       \ 'sorters': 'sorter_word',
       \ 'default_action': 'open_focus',
       \}
 
-function! s:vimwiki.gather_candidates(args, context)
-  return map(globpath(g:vimwiki.root, '**/*.wiki', 0, 1),
+function! s:wiki.gather_candidates(args, context)
+  return map(globpath(g:wiki.root, '**/*.wiki', 0, 1),
         \'{
         \ "word": substitute(fnamemodify(v:val, ":p:r"),
         \                    "^.*documents\/wiki\/", "", ""),

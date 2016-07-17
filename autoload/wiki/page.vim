@@ -1,10 +1,10 @@
-" vimwiki
+" wiki
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimwiki#page#delete() "{{{1
+function! wiki#page#delete() "{{{1
   let l:input_response = input('Delete "' . expand('%') . '" [y]es/[N]o? ')
   if l:input_response !~? '^y' | return | endif
 
@@ -12,24 +12,24 @@ function! vimwiki#page#delete() "{{{1
   try
     call delete(l:filename)
   catch /.*/
-    echomsg 'Vimwiki Error: Cannot delete "' . expand('%:t:r') . '"!'
+    echomsg 'wiki Error: Cannot delete "' . expand('%:t:r') . '"!'
     return
   endtry
 
-  call vimwiki#nav#return()
+  call wiki#nav#return()
   execute 'bdelete! ' . escape(l:filename, " ")
 endfunction
 
 "}}}1
-function! vimwiki#page#rename() "{{{1
+function! wiki#page#rename() "{{{1
   " Check if current file exists
   if !filereadable(expand('%:p'))
-    echom 'Vimwiki Error: Cannot rename "' . expand('%:p')
+    echom 'wiki Error: Cannot rename "' . expand('%:p')
           \ . '". It does not exist! (New file? Save it before renaming.)'
     return
   endif
 
-  if b:vimwiki.in_diary
+  if b:wiki.in_diary
     echom 'Not supported yet.'
     return
   endif
@@ -44,28 +44,28 @@ function! vimwiki#page#rename() "{{{1
   let l:new.name = substitute(input('Enter new name: '), '\.wiki$', '', '')
   echon "\r"
   if empty(substitute(l:new.name, '\s*', '', ''))
-    echom 'Vimwiki Error: Cannot rename to an empty filename!'
+    echom 'wiki Error: Cannot rename to an empty filename!'
     return
   endif
 
   " Expand to full path name, check if already exists
   let l:new.path = expand('%:p:h') . '/' . l:new.name . '.wiki'
   if filereadable(l:new.path)
-    echom 'Vimwiki Error: Cannot rename to "' . l:new.path
+    echom 'wiki Error: Cannot rename to "' . l:new.path
           \ . '". File with that name exist!'
     return
   endif
 
   " Rename current file to l:new.path
   try
-    echom 'Vimwiki: Renaming ' . expand('%:t')
+    echom 'wiki: Renaming ' . expand('%:t')
           \ . ' to ' . fnamemodify(l:new.path, ':t')
     if rename(expand('%:p'), l:new.path) != 0
       throw 'Cannot rename!'
     end
     setlocal buftype=nofile
   catch
-    echom 'Vimwiki Error: Cannot rename "'
+    echom 'wiki Error: Cannot rename "'
           \ . expand('%:t:r') . '" to "' . l:new.path . '"!'
     return
   endtry
@@ -74,7 +74,7 @@ function! vimwiki#page#rename() "{{{1
   let l:old = {
         \ 'path' : expand('%:p'),
         \ 'name' : expand('%:t:r'),
-        \ 'prev_link' : get(b:, 'vimwiki_prev_link', ''),
+        \ 'prev_link' : get(b:, 'wiki_prev_link', ''),
         \}
 
   " Get list of open wiki buffers
@@ -82,7 +82,7 @@ function! vimwiki#page#rename() "{{{1
         \       'bufexists(v:val)'),
         \     'fnamemodify(bufname(v:val), '':p'')'),
         \   'v:val =~# ''.wiki$'''),
-        \ '[v:val, getbufvar(v:val, ''vimwiki.prev_link'')]')
+        \ '[v:val, getbufvar(v:val, ''wiki.prev_link'')]')
 
   " Save and close wiki buffers
   for [l:bufname, l:dummy] in l:bufs
@@ -97,11 +97,11 @@ function! vimwiki#page#rename() "{{{1
   " Restore wiki buffers
   for [l:bufname, l:prev_link] in l:bufs
     if resolve(l:bufname) ==# resolve(l:old.path)
-      let l:url = vimwiki#url#parse(
+      let l:url = wiki#url#parse(
             \ l:new.name,
             \ { 'origin' : l:old.prev_link })
     else
-      let l:url = vimwiki#url#parse(
+      let l:url = wiki#url#parse(
             \ fnamemodify(l:bufname, ':p:h:r'),
             \ { 'prev_link' : l:prev_link })
     endif
@@ -110,7 +110,7 @@ function! vimwiki#page#rename() "{{{1
 endfunction
 
 " }}}1
-function! vimwiki#page#create_toc() " {{{1
+function! wiki#page#create_toc() " {{{1
   let l:winsave = winsaveview()
   let l:start = 1
   let l:entries = []
@@ -120,15 +120,15 @@ function! vimwiki#page#create_toc() " {{{1
   " Create toc entries
   "
   for l:lnum in range(1, line('$'))
-    if vimwiki#u#is_code(l:lnum) | continue | endif
+    if wiki#u#is_code(l:lnum) | continue | endif
 
     " Get line - check for header
     let l:line = getline(l:lnum)
-    if l:line !~# vimwiki#rx#header() | continue | endif
+    if l:line !~# wiki#rx#header() | continue | endif
 
     " Parse current header
     let l:level = len(matchstr(l:line, '^#*'))
-    let l:header = matchlist(l:line, vimwiki#rx#header_items())[2]
+    let l:header = matchlist(l:line, wiki#rx#header_items())[2]
     if l:header ==# 'Innhald' | continue | endif
 
     " Update header stack in order to have well defined anchor
@@ -141,7 +141,7 @@ function! vimwiki#page#create_toc() " {{{1
 
     " Add current entry
     call add(l:entries, repeat(' ', shiftwidth()*(l:level-1)) . '- '
-          \ . vimwiki#link#template_wiki(l:anchor, l:header))
+          \ . wiki#link#template_wiki(l:anchor, l:header))
   endfor
 
   let l:syntax = &l:syntax
@@ -195,7 +195,7 @@ function! s:rename_update_links(old, new) " {{{1
   let l:pattern .= '|\[.*\]\(\zs' . a:old . '\ze%(#.*)?\)'
   let l:pattern .= '|\[\zs' . a:old . '\ze%(#.*)?\]\[\]'
 
-  for l:file in glob(g:vimwiki.root . '**/*.wiki', 0, 1)
+  for l:file in glob(g:wiki.root . '**/*.wiki', 0, 1)
     let l:updates = 0
     let l:lines = []
     for l:line in readfile(l:file)

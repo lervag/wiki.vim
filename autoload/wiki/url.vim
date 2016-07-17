@@ -1,10 +1,10 @@
-" vimwiki
+" wiki
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimwiki#url#parse(string, ...) " {{{1
+function! wiki#url#parse(string, ...) " {{{1
   "
   " The following is a description of a typical url object
   "
@@ -64,10 +64,10 @@ function! s:url_wiki_parse(url) " {{{1
   " Extract path
   if a:url.scheme ==# 'diary'
     let l:url.scheme = 'wiki'
-    let l:url.path = g:vimwiki.diary . l:fname
+    let l:url.path = g:wiki.diary . l:fname
   else
     let l:url.path = l:fname[0] ==# '/'
-          \ ? g:vimwiki.root . strpart(l:fname, 1)
+          \ ? g:wiki.root . strpart(l:fname, 1)
           \ : fnamemodify(a:url.origin, ':p:h') . '/' . l:fname
   endif
 
@@ -81,7 +81,7 @@ function! s:url_wiki_open(...) dict " {{{1
   " Check if dir exists
   let l:dir = fnamemodify(self.path, ':p:h')
   if !isdirectory(l:dir)
-    echom 'Vimwiki Error: Unable to edit in non-existent directory:' l:dir
+    echom 'wiki Error: Unable to edit in non-existent directory:' l:dir
     return
   endif
 
@@ -89,14 +89,14 @@ function! s:url_wiki_open(...) dict " {{{1
   if resolve(self.path) !=# resolve(expand('%:p'))
     if resolve(self.origin) ==# resolve(expand('%:p'))
       let l:prev_link = [expand('%:p'), getpos('.')]
-    elseif &filetype ==# 'vimwiki'
+    elseif &filetype ==# 'wiki'
       let l:prev_link = [self.origin, []]
     endif
 
     execute l:cmd fnameescape(self.path)
 
     if exists('l:prev_link')
-      let b:vimwiki.prev_link = l:prev_link
+      let b:wiki.prev_link = l:prev_link
     endif
   endif
 
@@ -116,7 +116,7 @@ function! s:url_wiki_open_anchor() dict " {{{1
 
   for l:part in split(self.anchor, '#', 0)
     let l:header = '^#\{1,6}\s*' . l:part . '\s*$'
-    let l:bold = vimwiki#rx#surrounded(l:part, '*')
+    let l:bold = wiki#rx#surrounded(l:part, '*')
 
     if !(search(l:header, 'Wc') || search(l:bold, 'Wc'))
       call setpos('.', l:old_pos)

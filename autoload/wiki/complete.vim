@@ -1,10 +1,10 @@
-" vimwiki
+" wiki
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
+function! wiki#complete#omnicomplete(findstart, base) " {{{1
   if a:findstart
     let l:line = getline('.')[:col('.')-2]
 
@@ -15,16 +15,16 @@ function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
     if a:base =~# '#'
       let l:segments = split(a:base, '#', 1)
       let l:base = join(l:segments[1:], '#')
-      let l:url = vimwiki#url#parse(
+      let l:url = wiki#url#parse(
             \ empty(l:segments[0]) ? expand('%:t:r') : l:segments[0])
 
       return map(
             \   filter(s:get_anchors(l:url.path),
-            \     'v:val =~# ''^'' . vimwiki#u#escape(l:base)'),
+            \     'v:val =~# ''^'' . wiki#u#escape(l:base)'),
             \   'l:segments[0] . ''#'' . v:val')
     else
       if len(a:base) > 0 && a:base[0] ==# '/'
-        let l:cwd = resolve(g:vimwiki.root)
+        let l:cwd = resolve(g:wiki.root)
         let l:cands = map(globpath(l:cwd, '**/*.wiki', 0, 1),
               \ '''/'' . s:relpath(l:cwd, fnamemodify(v:val, '':r''))')
       else
@@ -32,7 +32,7 @@ function! vimwiki#complete#omnicomplete(findstart, base) " {{{1
               \ 'resolve(fnamemodify(v:val, '':.:r''))')
       endif
 
-      return filter(l:cands, 'v:val =~# ''^'' . vimwiki#u#escape(a:base)')
+      return filter(l:cands, 'v:val =~# ''^'' . wiki#u#escape(a:base)')
     endif
   endif
 endfunction
@@ -50,7 +50,7 @@ function! s:get_anchors(filename) " {{{1
   for line in readfile(a:filename)
 
     " collect headers
-    let h_match = matchlist(line, vimwiki#rx#header_items())
+    let h_match = matchlist(line, wiki#rx#header_items())
     if !empty(h_match)
       let header = h_match[2]
       let level = len(h_match[1])
@@ -79,7 +79,7 @@ function! s:get_anchors(filename) " {{{1
     let l:count = 0
     while 1
       let l:count += 1
-      let l:text = matchstr(line, vimwiki#rx#bold(), 0, l:count)
+      let l:text = matchstr(line, wiki#rx#bold(), 0, l:count)
       if l:text == '' | break | endif
 
       call add(anchors, l:text)

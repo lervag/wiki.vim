@@ -1,11 +1,11 @@
-" vimwiki
+" wiki
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimwiki#text_obj#link(is_inner) " {{{1
-  let l:link = vimwiki#link#get_at_cursor()
+function! wiki#text_obj#link(is_inner) " {{{1
+  let l:link = wiki#link#get_at_cursor()
   if empty(l:link) | return | endif
 
   if a:is_inner && has_key(l:link, 'url_c1')
@@ -22,8 +22,8 @@ function! vimwiki#text_obj#link(is_inner) " {{{1
 endfunction
 
 " }}}1
-function! vimwiki#text_obj#link_text(is_inner, ...) " {{{1
-  let l:link = vimwiki#link#get_at_cursor()
+function! wiki#text_obj#link_text(is_inner, ...) " {{{1
+  let l:link = wiki#link#get_at_cursor()
   if empty(l:link) | return | endif
   if empty(l:link.text) | return | endif
 
@@ -38,18 +38,18 @@ function! vimwiki#text_obj#link_text(is_inner, ...) " {{{1
 endfunction
 
 " }}}1
-function! vimwiki#text_obj#code(is_inner) " {{{1
-  if !vimwiki#u#is_code(line('.')) | return | endif
+function! wiki#text_obj#code(is_inner) " {{{1
+  if !wiki#u#is_code(line('.')) | return | endif
 
   let l:lnum1 = line('.')
   while 1
-    if !vimwiki#u#is_code(l:lnum1-1) | break | endif
+    if !wiki#u#is_code(l:lnum1-1) | break | endif
     let l:lnum1 -= 1
   endwhile
 
   let l:lnum2 = line('.')
   while 1
-    if !vimwiki#u#is_code(l:lnum2+1) | break | endif
+    if !wiki#u#is_code(l:lnum2+1) | break | endif
     let l:lnum2 += 1
   endwhile
 

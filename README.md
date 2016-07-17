@@ -1,4 +1,4 @@
-My Personal vimwiki plugin
+My Personal wiki plugin
 ==============================================================================
 
 This is a personal fork of [vimwiki](vimwiki/vimwiki) that I made because I

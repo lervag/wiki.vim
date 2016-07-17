@@ -1,10 +1,10 @@
-" vimwiki
+" wiki
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimwiki#link#get_at_cursor() " {{{1
+function! wiki#link#get_at_cursor() " {{{1
   for l:m in s:matchers_all
     let l:link = s:matchstr_at_cursor(l:m.rx)
     if !empty(l:link)
@@ -30,7 +30,7 @@ function! vimwiki#link#get_at_cursor() " {{{1
       endif
 
       let l:link.type = l:m.type
-      let l:link.toggle = function('vimwiki#link#template_' . l:m.toggle)
+      let l:link.toggle = function('wiki#link#template_' . l:m.toggle)
       return l:m.parser(l:link)
     endif
   endfor
@@ -39,7 +39,7 @@ function! vimwiki#link#get_at_cursor() " {{{1
 endfunction
 
 " }}}1
-function! vimwiki#link#get_all(...) "{{{1
+function! wiki#link#get_all(...) "{{{1
   let l:file = a:0 > 0 ? a:1 : expand('%')
   if !filereadable(l:file) | return [] | endif
 
@@ -49,14 +49,14 @@ function! vimwiki#link#get_all(...) "{{{1
     let l:lnum += 1
     let l:col = 0
     while 1
-      let l:c1 = match(l:line, vimwiki#rx#link(), l:col) + 1
+      let l:c1 = match(l:line, wiki#rx#link(), l:col) + 1
       if l:c1 == 0 | break | endif
 
       "
       " Create link
       "
       let l:link = {}
-      let l:link.full = matchstr(l:line, vimwiki#rx#link(), l:col)
+      let l:link.full = matchstr(l:line, wiki#rx#link(), l:col)
       let l:link.lnum = l:lnum
       let l:link.c1 = l:c1
       let l:link.c2 = l:c1 + strlen(l:link.full)
@@ -70,7 +70,7 @@ function! vimwiki#link#get_all(...) "{{{1
         if l:link.full =~# '^' . l:m.rx
           let l:link.text = matchstr(l:link.full, get(l:m, 'rx_text', ''))
           let l:link.type = l:m.type
-          let l:link.toggle = function('vimwiki#link#template_' . l:m.toggle)
+          let l:link.toggle = function('wiki#link#template_' . l:m.toggle)
           call add(l:links, l:m.parser(l:link, { 'origin' : l:file }))
           break
         endif
@@ -83,19 +83,19 @@ endfunction
 
 "}}}1
 
-function! vimwiki#link#open(...) "{{{1
-  let l:link = vimwiki#link#get_at_cursor()
+function! wiki#link#open(...) "{{{1
+  let l:link = wiki#link#get_at_cursor()
 
   try
     call call(l:link.open, a:000)
   catch
-    call vimwiki#link#toggle(l:link)
+    call wiki#link#toggle(l:link)
   endtry
 endfunction
 
 " }}}1
-function! vimwiki#link#toggle(...) " {{{1
-  let l:link = a:0 > 0 ? a:1 : vimwiki#link#get_at_cursor()
+function! wiki#link#toggle(...) " {{{1
+  let l:link = a:0 > 0 ? a:1 : wiki#link#get_at_cursor()
   if empty(l:link) | return | endif
 
   "
@@ -120,23 +120,23 @@ function! vimwiki#link#toggle(...) " {{{1
 endfunction
 
 " }}}1
-function! vimwiki#link#toggle_visual() " {{{1
+function! wiki#link#toggle_visual() " {{{1
   "
   " Note: This function assumes that it is called from visual mode.
   "
-  call vimwiki#link#toggle({
+  call wiki#link#toggle({
         \ 'url' : getreg('*'),
         \ 'text' : '',
         \ 'scheme' : '',
         \ 'lnum' : line('.'),
         \ 'c1' : getpos("'<")[2],
         \ 'c2' : getpos("'>")[2],
-        \ 'toggle' : function('vimwiki#link#template_word'),
+        \ 'toggle' : function('wiki#link#template_word'),
         \})
 endfunction
 
 " }}}1
-function! vimwiki#link#toggle_operator(type, ...) " {{{1
+function! wiki#link#toggle_operator(type, ...) " {{{1
   "
   " Note: This function assumes that it is called as an operator.
   "
@@ -147,14 +147,14 @@ function! vimwiki#link#toggle_operator(type, ...) " {{{1
   let l:diff = strlen(@@) - strlen(l:word)
   let @@ = l:save
 
-  call vimwiki#link#toggle({
+  call wiki#link#toggle({
         \ 'url' : l:word,
         \ 'text' : '',
         \ 'scheme' : '',
         \ 'lnum' : line('.'),
         \ 'c1' : getpos("'<")[2],
         \ 'c2' : getpos("'>")[2] - l:diff,
-        \ 'toggle' : function('vimwiki#link#template_word'),
+        \ 'toggle' : function('wiki#link#template_word'),
         \})
 endfunction
 
@@ -182,7 +182,7 @@ endfunction
 "
 " Templates translate url and possibly text into an appropriate link
 "
-function! vimwiki#link#template_wiki(url, ...) " {{{1
+function! wiki#link#template_wiki(url, ...) " {{{1
   let l:text = a:0 > 0 ? a:1 : ''
   return empty(l:text)
         \ ? '[[' . a:url . ']]'
@@ -190,7 +190,7 @@ function! vimwiki#link#template_wiki(url, ...) " {{{1
 endfunction
 
 " }}}1
-function! vimwiki#link#template_md(url, ...) " {{{1
+function! wiki#link#template_md(url, ...) " {{{1
   let l:text = a:0 > 0 ? a:1 : ''
   if empty(l:text)
     let l:text = input('Link text: ')
@@ -199,7 +199,7 @@ function! vimwiki#link#template_md(url, ...) " {{{1
 endfunction
 
 " }}}1
-function! vimwiki#link#template_word(url, ...) " {{{1
+function! wiki#link#template_word(url, ...) " {{{1
   "
   " This template returns a wiki template for the provided word(s). It does
   " a smart search for likely candidates and if there is no unique match, it
@@ -210,30 +210,30 @@ function! vimwiki#link#template_word(url, ...) " {{{1
   " First try local page
   "
   if filereadable(expand('%:p:h') . '/' . a:url . '.wiki')
-    return vimwiki#link#template_wiki(a:url)
+    return wiki#link#template_wiki(a:url)
   endif
 
   "
   " Next try at wiki root
   "
-  if filereadable(g:vimwiki.root . a:url . '.wiki')
-    return vimwiki#link#template_wiki('/' . a:url)
+  if filereadable(g:wiki.root . a:url . '.wiki')
+    return wiki#link#template_wiki('/' . a:url)
   endif
 
   "
   " Finally we see if there are completable candidates
   "
   let l:candidates = map(
-        \ glob(g:vimwiki.root . a:url . '*.wiki', 0, 1),
+        \ glob(g:wiki.root . a:url . '*.wiki', 0, 1),
         \ 'fnamemodify(v:val, '':t:r'')')
 
   "
   " Solve trivial cases first
   "
   if len(l:candidates) == 0
-    return vimwiki#link#template_wiki('/' . a:url)
+    return wiki#link#template_wiki('/' . a:url)
   elseif len(l:candidates) == 1
-    return vimwiki#link#template_wiki('/' . l:candidates[0], a:url)
+    return wiki#link#template_wiki('/' . l:candidates[0], a:url)
   endif
 
   "
@@ -253,13 +253,13 @@ function! vimwiki#link#template_word(url, ...) " {{{1
     let l:choice = input('Choice: ')
 
     if l:choice ==# 'n'
-      return vimwiki#link#template_wiki('/' . a:url)
+      return wiki#link#template_wiki('/' . a:url)
     endif
 
     try
       let l:cand = l:candidates[l:choice - 1]
       redraw!
-      return vimwiki#link#template_wiki('/' . l:cand, a:url)
+      return wiki#link#template_wiki('/' . l:cand, a:url)
     catch
       continue
     endtry
@@ -267,12 +267,12 @@ function! vimwiki#link#template_word(url, ...) " {{{1
 endfunction
 
 " }}}1
-function! vimwiki#link#template_ref(...) " {{{1
-  return call('vimwiki#link#template_wiki', a:000)
+function! wiki#link#template_ref(...) " {{{1
+  return call('wiki#link#template_wiki', a:000)
 endfunction
 
 " }}}1
-function! vimwiki#link#template_ref_target(url, ...) " {{{1
+function! wiki#link#template_ref_target(url, ...) " {{{1
   let l:id = a:0 > 0 ? a:1 : ''
   if empty(l:id)
     let l:id = input('Input id: ')
@@ -287,36 +287,36 @@ endfunction
 "
 " {{{1 Link matchers
 
-function! vimwiki#link#get_matcher(name) " {{{2
+function! wiki#link#get_matcher(name) " {{{2
   return s:matcher_{a:name}
 endfunction
 
 " }}}2
-function! vimwiki#link#get_matcher_opt(name, opt) " {{{2
+function! wiki#link#get_matcher_opt(name, opt) " {{{2
   return escape(s:matcher_{a:name}[a:opt], '')
 endfunction
 
 " }}}2
-function! vimwiki#link#get_matchers() " {{{2
+function! wiki#link#get_matchers() " {{{2
   return copy(s:matchers_all)
 endfunction
 
 " }}}2
-function! vimwiki#link#get_matchers_links() " {{{2
+function! wiki#link#get_matchers_links() " {{{2
   return copy(s:matchers_all_links)
 endfunction
 
 " }}}2
 
 function! s:parser_general(link, ...) dict " {{{2
-  return extend(a:link, call('vimwiki#url#parse',
+  return extend(a:link, call('wiki#url#parse',
         \ [matchstr(a:link.full, get(self, 'rx_url', get(self, 'rx')))]
         \ + a:000))
 endfunction
 
 " }}}2
 function! s:parser_date(link, ...) dict " {{{2
-  return extend(a:link, call('vimwiki#url#parse',
+  return extend(a:link, call('wiki#url#parse',
         \ ['diary:' . a:link.full] + a:000))
 endfunction
 
@@ -336,7 +336,7 @@ function! s:parser_ref(link, ...) dict " {{{2
     return a:link
   else
     let l:url = matchstr(getline(l:lnum), s:rx_url)
-    return extend(a:link, call('vimwiki#url#parse', [l:url] + a:000))
+    return extend(a:link, call('wiki#url#parse', [l:url] + a:000))
   endif
 endfunction
 
@@ -438,28 +438,28 @@ let s:matchers_all = copy(s:matchers_all_links)
 " Old code for opening ref type links
 "
 function! s:url_open_ref_tmp(...) dict " {{{1
-"   if !has_key(b:vimwiki, 'reflinks')
-"     let b:vimwiki.reflinks = {}
+"   if !has_key(b:wiki, 'reflinks')
+"     let b:wiki.reflinks = {}
 
 "     try
-"       " Why noautocmd? Because https://github.com/vimwiki/vimwiki/issues/121
+"       " Why noautocmd? Because https://github.com/wiki/wiki/issues/121
 "       noautocmd execute 'vimgrep #'
-"         \ . g:vimwiki.link_matchers.ref_target.rx . '#j %'
+"         \ . g:wiki.link_matchers.ref_target.rx . '#j %'
 "     catch /^Vim\%((\a\+)\)\=:E480/
 "     endtry
 
 "     for d in getqflist()
 "       let matchline = join(getline(d.lnum, min([d.lnum+1, line('$')])), ' ')
-"       let descr = matchstr(matchline, g:vimwiki.link_matchers.ref_target.rx_text)
-"       let url = matchstr(matchline, g:vimwiki.link_matchers.ref_target.rx_url)
+"       let descr = matchstr(matchline, g:wiki.link_matchers.ref_target.rx_text)
+"       let url = matchstr(matchline, g:wiki.link_matchers.ref_target.rx_url)
 "       if descr != '' && url != ''
-"         let b:vimwiki.reflinks[descr] = url
+"         let b:wiki.reflinks[descr] = url
 "       endif
 "     endfor
 "   endif
 
-"   if has_key(b:vimwiki.reflinks, self.url)
-"     call s:url_open_external(b:vimwiki.reflinks[self.url])
+"   if has_key(b:wiki.reflinks, self.url)
+"     call s:url_open_external(b:wiki.reflinks[self.url])
 "   endif
 endfunction
 
