@@ -4,26 +4,37 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimwiki#text_obj#link(is_inner, ...) " {{{1
+function! vimwiki#text_obj#link(is_inner) " {{{1
   let l:link = vimwiki#link#get_at_cursor()
   if empty(l:link) | return | endif
 
-  if !a:is_inner
+  if a:is_inner && has_key(l:link, 'url_c1')
+    let l:c1 = l:link.url_c1
+    let l:c2 = l:link.url_c2
+  else
     let l:c1 = l:link.c1
     let l:c2 = l:link.c2
-  else
-    if get(a:000, 0, 'url') ==# 'text'
-      let l:c1 = l:link.text_c1
-      let l:c2 = l:link.text_c2
-    else
-      echo 'test 2'
-      return
-    endif
   endif
 
   call cursor(l:link.lnum, l:c1)
   normal! v
   call cursor(l:link.lnum, l:c2)
+endfunction
+
+" }}}1
+function! vimwiki#text_obj#link_text(is_inner, ...) " {{{1
+  let l:link = vimwiki#link#get_at_cursor()
+  if empty(l:link) | return | endif
+  if empty(l:link.text) | return | endif
+
+  let l:c1 = l:link.text_c1
+  if !a:is_inner && l:link.type ==# 'wiki'
+    let l:c1 -= 1
+  endif
+
+  call cursor(l:link.lnum, l:c1)
+  normal! v
+  call cursor(l:link.lnum, l:link.text_c2)
 endfunction
 
 " }}}1

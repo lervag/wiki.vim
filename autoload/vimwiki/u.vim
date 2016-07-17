@@ -37,5 +37,32 @@ function! vimwiki#u#is_code(...) " {{{1
 endfunction
 
 " }}}1
+function! vimwiki#u#run_code_snippet() " {{{1
+  let l:pos = getpos('.')
+  let l:lnum1 = l:pos[1]
+  let l:lnum2 = l:pos[1]
+  if !vimwiki#u#is_code(l:lnum1) | return | endif
+
+  while 1
+    if !vimwiki#u#is_code(l:lnum1-1) | break | endif
+    let l:lnum1 -= 1
+  endwhile
+  let l:lnum1 += 1
+
+  while 1
+    if !vimwiki#u#is_code(l:lnum2+1) | break | endif
+    let l:lnum2 += 1
+  endwhile
+  let l:lnum2 -= 1
+
+  let l:ft = matchstr(getline(l:lnum1-1), '^\s*```\zs\w\+')
+  if empty(l:ft) | let l:ft = 'sh' | endif
+
+  execute l:lnum1 . ',' . l:lnum2 . 'QuickRun' l:ft
+
+  call setpos('.', l:pos)
+endfunction
+
+" }}}1
 
 " vim: fdm=marker sw=2

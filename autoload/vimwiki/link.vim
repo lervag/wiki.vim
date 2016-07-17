@@ -8,12 +8,27 @@ function! vimwiki#link#get_at_cursor() " {{{1
   for l:m in s:matchers_all
     let l:link = s:matchstr_at_cursor(l:m.rx)
     if !empty(l:link)
+      "
+      " Get link text
+      "
       let l:match = matchstrpos(l:link.full, get(l:m, 'rx_text', ''))
       let l:link.text = l:match[0]
       if !empty(l:link.text)
         let l:link.text_c1 = l:link.c1 + l:match[1]
         let l:link.text_c2 = l:link.c1 + l:match[2] - 1
       endif
+
+      "
+      " Get link url position (if available)
+      "
+      if has_key(l:m, 'rx_url')
+        let l:match = matchstrpos(l:link.full, l:m.rx_url)
+        if !empty(l:match[0])
+          let l:link.url_c1 = l:link.c1 + l:match[1]
+          let l:link.url_c2 = l:link.c1 + l:match[2] - 1
+        endif
+      endif
+
       let l:link.type = l:m.type
       let l:link.toggle = function('vimwiki#link#template_' . l:m.toggle)
       return l:m.parser(l:link)

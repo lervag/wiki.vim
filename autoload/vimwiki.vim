@@ -106,11 +106,8 @@ function! s:init_mappings() " {{{1
   nnoremap <silent><buffer> <leader>wd :call vimwiki#page#delete()<cr>
   nnoremap <silent><buffer> <leader>wr :call vimwiki#page#rename()<cr>
   nnoremap <silent><buffer> <leader>wh :call vimwiki#timesheet#show()<cr>
-
-  "
-  " Link mappings
-  "
   nnoremap <silent><buffer> <leader>wf :call vimwiki#link#toggle()<cr>
+  nnoremap <silent><buffer> <leader>wc :call vimwiki#u#run_code_snippet()<cr>
 
   "
   " Navigation
@@ -130,13 +127,14 @@ function! s:init_mappings() " {{{1
   "
   " Text objects
   "
-  "
   onoremap <silent><buffer> al :call vimwiki#text_obj#link(0)<cr>
   xnoremap <silent><buffer> al :call vimwiki#text_obj#link(0)<cr>
   onoremap <silent><buffer> il :call vimwiki#text_obj#link(1)<cr>
   xnoremap <silent><buffer> il :call vimwiki#text_obj#link(1)<cr>
-  onoremap <silent><buffer> it :call vimwiki#text_obj#link(1, 'text')<cr>
-  xnoremap <silent><buffer> it :call vimwiki#text_obj#link(1, 'text')<cr>
+  onoremap <silent><buffer> at :call vimwiki#text_obj#link_text(0)<cr>
+  xnoremap <silent><buffer> at :call vimwiki#text_obj#link_text(0)<cr>
+  onoremap <silent><buffer> it :call vimwiki#text_obj#link_text(1)<cr>
+  xnoremap <silent><buffer> it :call vimwiki#text_obj#link_text(1)<cr>
   onoremap <silent><buffer> ac :call vimwiki#text_obj#code(0)<cr>
   xnoremap <silent><buffer> ac :call vimwiki#text_obj#code(0)<cr>
   onoremap <silent><buffer> ic :call vimwiki#text_obj#code(1)<cr>
