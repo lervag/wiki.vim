@@ -7,30 +7,80 @@
 function! vimwiki#timesheet#show() " {{{1
   let l:timesheet = s:parse_timesheet_week()
 
-  let l:sum = 0.0
-  let l:list = []
-  for [l:key, l:vals] in sort(items(l:timesheet))
+  let l:titles = ['Projects',
+        \ 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Sum']
+
+  let l:projects = []
+  for [l:key, l:vals] in items(l:timesheet)
     if has_key(l:vals, 'hours')
-      let l:val = s:sum(l:vals.hours)
-      let l:list += [printf('%-20s %6.2f', l:key, l:val)]
-      let l:sum += l:val
+      call add(l:projects, [l:key] + l:vals.hours + [s:sum(l:vals.hours)])
     endif
 
     for l:task in filter(keys(l:vals), 'v:val !~# ''hours\|note''')
-      let l:val = s:sum(l:vals[l:task].hours)
-      let l:list += [printf('%-20s %6.2f', l:key . ' ' . l:task, l:val)]
-      let l:sum += l:val
+      call add(l:projects, [l:key . ' ' . l:task]
+            \ + l:vals[l:task].hours + [s:sum(l:vals[l:task].hours)])
     endfor
   endfor
 
-  let l:list = sort(l:list)
-  let l:list += [repeat('-', 27)]
-  let l:list += [printf('%-20s %6.2f', 'Sum', l:sum)]
-  let l:list += [repeat('-', 27)]
-
-  for l:entry in l:list
-    echo l:entry
+  let l:sums = ['Sum'] + repeat([0.0], 8)
+  for l:proj in l:projects
+    for l:i in range(1,8)
+      let l:sums[i] += l:proj[i]
+    endfor
   endfor
+
+  if l:sums[-1] == 0.0 | return | endif
+
+  if l:sums[7] == 0.0
+    call remove(l:sums, 7)
+    call remove(l:titles, 7)
+    for l:proj in l:projects
+      call remove(l:proj, 7)
+    endfor
+  endif
+
+  if l:sums[6] == 0.0
+    call remove(l:sums, 6)
+    call remove(l:titles, 6)
+    for l:proj in l:projects
+      call remove(l:proj, 6)
+    endfor
+  endif
+
+  echohl Title
+  echo call('printf', ['%-20s' . repeat('%7s', len(l:sums) - 1)] + l:titles)
+  echohl ModeMsg
+  echo repeat('-', 20 + 7*(len(l:sums) - 1))
+  echohl None
+  for l:proj in l:projects
+    let l:fmt = ''
+    for l:i in range(1, len(l:proj)-1)
+      if l:proj[l:i] == 0.0
+        let l:proj[l:i] = ''
+        let l:fmt .= '%7s'
+      else
+        let l:fmt .= '%7.2f'
+      endif
+    endfor
+    echohl ModeMsg
+    echo printf('%-20s', l:proj[0])
+    echohl ModeMsg
+    echohl Number
+    echon call('printf', [l:fmt] + l:proj[1:])
+    echohl None
+  endfor
+  echohl ModeMsg
+  echo repeat('-', 20 + 7*(len(l:sums) - 1))
+  echohl Title
+  echo call('printf', ['%-20s' . repeat('%7.2f', len(l:sums) - 1)] + l:sums)
+  echohl ModeMsg
+  echo repeat('-', 20 + 7*(len(l:sums) - 1))
+  echohl None
+
+  echo ''
+  if input('Submit to Maconomy? [y/N]') =~# '^y'
+    call vimwiki#timesheet#submit()
+  endif
 endfunction
 
 " }}}1
