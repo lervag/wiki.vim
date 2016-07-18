@@ -72,6 +72,8 @@ function! wiki#diary#go_monthly() " {{{1
   call wiki#url#parse('diary:' . l:date[:3] . '_m' . l:month).open()
 
   if !filereadable(expand('%'))
+    let l:months = ['januar', 'februar', 'mars', 'april', 'mai', 'juni',
+          \ 'juli', 'august', 'september', 'oktober', 'november', 'desember']
     let l:days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     if systemlist('date +%F -d ' . l:date[:3] . '-02-29')[0] =~# '^\d\d\d\d'
       let l:days_in_month[1] = 29
@@ -87,38 +89,17 @@ function! wiki#diary#go_monthly() " {{{1
       let l:weeks += [l:first_week+l:i]
     endfor
 
-    let l:days_pre = l:first_monday > 1
+    let l:links = l:first_monday > 1
           \ ? l:days[:l:first_monday-2] : []
-    let l:days_post = l:remaining_days > 0
+    let l:links += map(l:weeks, 'l:date[:3] . ''_w'' . v:val')
+    let l:links += l:remaining_days > 0
           \ ? l:days[-l:remaining_days:] : []
+    call map(l:links, '''diary:'' . v:val')
 
-    PP l:days_pre
-    PP l:weeks
-    PP l:days_post
+    let l:entries = ['# Samandrag frå ' . l:months[l:month] . ' ' . l:date[:3]]
+    let l:entries += [''] + l:links
 
-"     PP l:first
-"     PP l:last
-
-    " call filter(l:days, 'filereadable(v:val . ''.wiki'')')
-    " PP l:days
-
-"     let l:months = [
-"           \ 'januar',
-"           \ 'februar',
-"           \ 'mars',
-"           \ 'april',
-"           \ 'mai',
-"           \ 'juni',
-"           \ 'juli',
-"           \ 'august',
-"           \ 'september',
-"           \ 'oktober',
-"           \ 'november',
-"           \ 'desember',
-"           \]
-"     call append(0, [
-"           \ '# Samandrag frå ' . l:months[l:month] . ' ' . l:date[:3],
-"           \])
+    call append(0, l:entries)
   endif
 endfunction
 
