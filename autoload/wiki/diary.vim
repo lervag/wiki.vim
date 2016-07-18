@@ -66,11 +66,12 @@ function! wiki#diary#go_monthly() " {{{1
 
   if !filereadable(expand('%'))
     let [l:pre, l:weeks, l:post] = wiki#date#decompose_month(l:month, l:year)
+    let l:links = copy(l:pre)
+          \ + map(l:weeks, 'l:year . ''_w'' . v:val')
+          \ + copy(l:post)
 
-    let l:links = map(
-          \ copy(l:pre)
-          \ + map(l:weeks, 'l:year . ''_w'' . v:val') + copy(l:post),
-          \ '''diary:'' . v:val')
+    call filter(l:links, 'filereadable(v:val . ''.wiki'')')
+    call map(l:links, '''diary:'' . v:val')
 
     call append(0, [
           \ '# Samandrag frå ' . wiki#date#get_month_name(l:month) . ' ' . l:date[:3],
