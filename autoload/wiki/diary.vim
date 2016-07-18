@@ -11,20 +11,14 @@ endfunction
 
 " }}}1
 function! wiki#diary#copy_note() " {{{1
-  let l:current = expand('%:t:r')
+  let l:next_day = wiki#date#get_next_weekday(expand('%:t:r'))
 
-  " Get next weekday
-  let l:candidate = systemlist('date -d "' . l:current . ' +1 day" +%F')[0]
-  while systemlist('date -d "' . l:candidate . '" +%u')[0] > 5
-    let l:candidate = systemlist('date -d "' . l:candidate . ' +1 day" +%F')[0]
-  endwhile
-
-  let l:next = expand('%:p:h') . '/' . l:candidate . '.wiki'
-  if !filereadable(l:next)
-    execute 'write' l:next
+  let l:next_entry = g:wiki.diary . l:next_day . '.wiki'
+  if !filereadable(l:next_entry)
+    execute 'write' l:next_entry
   endif
 
-  call wiki#diary#go(1)
+  call wiki#url#parse('diary:' . l:next_day).open()
 endfunction
 
 " }}}1
@@ -45,17 +39,15 @@ function! wiki#diary#go_weekly() " {{{1
   let l:date = expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
         \ ? expand('%:r')
         \ : strftime('%F')
-  let l:week = systemlist('date -d ' . l:date . ' +%W')[0]
-  call wiki#url#parse('diary:' . l:date[:3] . '_w' . l:week).open()
+  let l:year = l:date[:3]
+  let l:week = wiki#date#get_week(l:date)
+  call wiki#url#parse('diary:' . l:year . '_w' . l:week).open()
 
   if !filereadable(expand('%'))
-    let l:dow = systemlist('date -d ' . l:date . ' +%u')[0]
-    let l:days = map(range(1-l:dow, 7-l:dow),
-          \   'systemlist(''date +%F -d "'
-          \               . l:date . ' '' . v:val . '' days"'')[0]')
-    call filter(l:days, 'filereadable(v:val . ''.wiki'')')
+    let l:days = filter(wiki#date#get_dates_in_week(l:date),
+          \ 'filereadable(v:val . ''.wiki'')')
 
-    let l:lines = ['# Samandrag veke ' . l:week . ', ' . l:date[:3]]
+    let l:lines = ['# Samandrag veke ' . l:week . ', ' . l:year]
     let l:lines += ['']
     let l:lines += l:days
 
@@ -68,38 +60,22 @@ function! wiki#diary#go_monthly() " {{{1
   let l:date = expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
         \ ? expand('%:r')
         \ : strftime('%F')
-  let l:month = systemlist('date +%m -d ' . l:date)[0]
-  call wiki#url#parse('diary:' . l:date[:3] . '_m' . l:month).open()
+  let l:year = l:date[:3]
+  let l:month = wiki#date#get_month(l:date)
+  call wiki#url#parse('diary:' . l:year . '_m' . l:month).open()
 
   if !filereadable(expand('%'))
-    let l:months = ['januar', 'februar', 'mars', 'april', 'mai', 'juni',
-          \ 'juli', 'august', 'september', 'oktober', 'november', 'desember']
-    let l:days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    if systemlist('date +%F -d ' . l:date[:3] . '-02-29')[0] =~# '^\d\d\d\d'
-      let l:days_in_month[1] = 29
-    endif
-    let l:ndays = l:days_in_month[l:month-1]
-    let l:days = map(range(1, l:ndays), 'printf(''%s%02d'', l:date[:7], v:val)')
-    let l:first_monday = (9 - systemlist('date +%u -d ' . l:days[0])[0]) % 7
-    let l:nweeks = (l:ndays - l:first_monday + 1)/7
-    let l:remaining_days = l:ndays - l:nweeks*7 - l:first_monday + 1
-    let l:first_week = systemlist('date +%W -d ' . l:days[l:first_monday-1])[0]
-    let l:weeks = []
-    for l:i in range(l:nweeks)
-      let l:weeks += [l:first_week+l:i]
-    endfor
+    let [l:pre, l:weeks, l:post] = wiki#date#decompose_month(l:month, l:year)
 
-    let l:links = l:first_monday > 1
-          \ ? l:days[:l:first_monday-2] : []
-    let l:links += map(l:weeks, 'l:date[:3] . ''_w'' . v:val')
-    let l:links += l:remaining_days > 0
-          \ ? l:days[-l:remaining_days:] : []
-    call map(l:links, '''diary:'' . v:val')
+    let l:links = map(
+          \ copy(l:pre)
+          \ + map(l:weeks, 'l:year . ''_w'' . v:val') + copy(l:post),
+          \ '''diary:'' . v:val')
 
-    let l:entries = ['# Samandrag frå ' . l:months[l:month] . ' ' . l:date[:3]]
-    let l:entries += [''] + l:links
-
-    call append(0, l:entries)
+    call append(0, [
+          \ '# Samandrag frå ' . wiki#date#get_month_name(l:month) . ' ' . l:date[:3],
+          \ ''
+          \] + l:links)
   endif
 endfunction
 

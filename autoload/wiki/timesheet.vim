@@ -147,18 +147,13 @@ endfunction
 " }}}1
 
 function! s:parse_timesheet_week(...) " {{{1
-  "
-  " Get date, day of week, and list of days in the week
-  "
   let l:date = a:0 > 0
         \ ? a:1
-        \ : (expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
-        \   ? expand('%:r') : strftime('%F'))
-  let l:dow = systemlist('date -d ' . l:date . ' +%u')[0]
-  let l:week = systemlist('date -d ' . l:date . ' +%W')[0]
-  let l:days = map(range(1-l:dow, 7-l:dow),
-        \   'systemlist(''date +%F -d "'
-        \               . l:date . ' '' . v:val . '' days"'')[0]')
+        \ : expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
+        \   ? expand('%:r')
+        \   : strftime('%F')
+
+  let l:days = wiki#date#get_dates_in_week(l:date)
 
   let l:timesheet = {}
   for l:dow in range(1,7)
@@ -324,28 +319,19 @@ let s:table.RPT = {
 " Better data structure?
 "
 function! s:parse_timesheet_week_new(...) " {{{1
-  "
-  " Get date for week to parse
-  "
   let l:date = a:0 > 0
         \ ? a:1
-        \ : (expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
+        \ : expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
         \   ? expand('%:r')
-        \   : strftime('%F'))
+        \   : strftime('%F')
 
-  "
-  " Get the day of week and the list of dates for the given week
-  "
-  let l:dow = systemlist('date -d ' . l:date . ' +%u')[0]
-  let l:days = map(range(1-l:dow, 7-l:dow),
-        \   'systemlist(''date +%F -d "'
-        \               . l:date . ' '' . v:val . '' days"'')[0]')
+  let l:days = wiki#date#get_dates_in_week(l:date)
 
   "
   " Create timesheet dictionary
   "
   let l:timesheet = {
-        \ 'week' : systemlist('date -d ' . l:date . ' +%W')[0],
+        \ 'week' : systemlist('date +%W -d ' . l:date)[0],
         \ 'entries' : [],
         \}
   for l:dow in range(1,7)
