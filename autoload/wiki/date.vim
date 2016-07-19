@@ -35,11 +35,19 @@ function! wiki#date#get_next_weekday(date) " {{{1
 endfunction
 
 " }}}1
-function! wiki#date#get_dates_in_week(date) " {{{1
-  let l:dow = wiki#date#get_day_of_week(a:date)
-  return map(range(1-l:dow, 7-l:dow),
-        \    'systemlist(''date +%F -d "'
-        \                . a:date . ' '' . v:val . '' days"'')[0]')
+function! wiki#date#get_week_dates(week, year) " {{{1
+  let l:date_first = a:year . '-01-01'
+
+  let [l:first_week, l:dow] =
+        \ split(systemlist('date +"%V %u" -d ' . l:date_first)[0], ' ')
+
+  let l:first_monday = (9 - l:dow) % 7
+  let l:first_week = (l:first_week % 53) + (l:first_monday > 1)
+  let l:ndays = 7*(a:week - l:first_week + 1) - (l:dow - 1)
+
+  return map(range(l:ndays, l:ndays+6),
+        \ 'systemlist(''date +%F -d "'
+        \             . l:date_first . ' '' . v:val . '' days"'')[0]')
 endfunction
 
 " }}}1

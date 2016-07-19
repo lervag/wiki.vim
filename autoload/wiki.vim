@@ -84,6 +84,20 @@ function! wiki#init_buffer() " {{{1
   let g:wiki_list_markers = ['-', '*', '+', '1.']
 
   call s:init_mappings()
+
+  "
+  " Prefill journal summaries
+  "
+  if !filereadable(expand('%'))
+    let l:match = matchlist(expand('%:t:r'), '^\(\d\d\d\d\)_\(\w\)\(\d\d\)$')
+    if !empty(l:match)
+      if l:match[2] ==# 'w'
+        call wiki#diary#prefill_summary_weekly(l:match[1], l:match[3])
+      elseif l:match[2] ==# 'm'
+        call wiki#diary#prefill_summary_monthly(l:match[1], l:match[3])
+      endif
+    endif
+  endif
 endfunction
 
 " }}}1
@@ -96,8 +110,8 @@ function! s:init_mappings() " {{{1
     nnoremap <silent><buffer> <c-j> :<c-u>call wiki#diary#go(-v:count1)<cr>
     nnoremap <silent><buffer> <c-k> :<c-u>call wiki#diary#go(v:count1)<cr>
     nnoremap <silent><buffer> <leader>wk :call wiki#diary#copy_note()<cr>
-    nnoremap <silent><buffer> <leader>wu :call wiki#diary#go_weekly()<cr>
-    nnoremap <silent><buffer> <leader>wm :call wiki#diary#go_monthly()<cr>
+    nnoremap <silent><buffer> <leader>wu :call wiki#diary#go_to_week()<cr>
+    nnoremap <silent><buffer> <leader>wm :call wiki#diary#go_to_month()<cr>
   endif
 
   "

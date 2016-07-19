@@ -99,6 +99,11 @@ EOF
 endfunction
 
 " }}}1
+function! wiki#timesheet#get_registered_projects() " {{{1
+  return keys(s:table)
+endfunction
+
+" }}}1
 
 function! s:create_maconomy_lists() " {{{1
   let l:list = []
@@ -153,7 +158,7 @@ function! s:parse_timesheet_week(...) " {{{1
         \   ? expand('%:r')
         \   : strftime('%F')
 
-  let l:days = wiki#date#get_dates_in_week(l:date)
+  let l:days = wiki#date#get_week_dates(wiki#date#get_week(l:date), l:date[:3])
 
   let l:timesheet = {}
   for l:dow in range(1,7)
@@ -325,7 +330,7 @@ function! s:parse_timesheet_week_new(...) " {{{1
         \   ? expand('%:r')
         \   : strftime('%F')
 
-  let l:days = wiki#date#get_dates_in_week(l:date)
+  let l:days = wiki#date#get_week_dates(wiki#date#get_week(l:date), l:date[:3])
 
   "
   " Create timesheet dictionary

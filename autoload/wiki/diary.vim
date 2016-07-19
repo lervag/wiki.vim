@@ -35,49 +35,84 @@ function! wiki#diary#go(step) " {{{1
 endfunction
 
 " }}}1
-function! wiki#diary#go_weekly() " {{{1
+function! wiki#diary#go_to_week() " {{{1
   let l:date = expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
         \ ? expand('%:r')
         \ : strftime('%F')
-  let l:year = l:date[:3]
-  let l:week = wiki#date#get_week(l:date)
-  call wiki#url#parse('diary:' . l:year . '_w' . l:week).open()
-
-  if !filereadable(expand('%'))
-    let l:days = filter(wiki#date#get_dates_in_week(l:date),
-          \ 'filereadable(v:val . ''.wiki'')')
-
-    let l:lines = ['# Samandrag veke ' . l:week . ', ' . l:year]
-    let l:lines += ['']
-    let l:lines += l:days
-
-    call append(0, l:lines)
-  endif
+  call wiki#url#parse('diary:' . l:date[:3]
+        \ . '_w' . wiki#date#get_week(l:date)).open()
 endfunction
 
 " }}}1
-function! wiki#diary#go_monthly() " {{{1
+function! wiki#diary#go_to_month() " {{{1
   let l:date = expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
         \ ? expand('%:r')
         \ : strftime('%F')
-  let l:year = l:date[:3]
-  let l:month = wiki#date#get_month(l:date)
-  call wiki#url#parse('diary:' . l:year . '_m' . l:month).open()
+  call wiki#url#parse('diary:' . l:date[:3]
+        \ . '_m' . wiki#date#get_month(l:date)).open()
+endfunction
 
-  if !filereadable(expand('%'))
-    let [l:pre, l:weeks, l:post] = wiki#date#decompose_month(l:month, l:year)
-    let l:links = copy(l:pre)
-          \ + map(l:weeks, 'l:year . ''_w'' . v:val')
-          \ + copy(l:post)
+" }}}1
 
-    call filter(l:links, 'filereadable(v:val . ''.wiki'')')
-    call map(l:links, '''diary:'' . v:val')
+function! wiki#diary#prefill_summary_weekly(year, week) " {{{1
+  let l:links = map(filter(
+        \   wiki#date#get_week_dates(a:week, a:year),
+        \   'filereadable(v:val . ''.wiki'')'),
+        \ '''diary:'' . v:val')
 
-    call append(0, [
-          \ '# Samandrag frå ' . wiki#date#get_month_name(l:month) . ' ' . l:date[:3],
-          \ ''
-          \] + l:links)
-  endif
+  let l:lines = []
+  let l:entries = map(copy(l:links), 's:parse_entry(v:val)')
+  for l:project in s:project_list
+    let l:first = 1
+    for l:entry in l:entries
+      if has_key(l:entry, l:project)
+        if l:first
+          let l:lines += ['']
+          let l:lines += l:entry[l:project]
+        else
+          let l:lines += l:entry[l:project][1:]
+        endif
+        let l:first = 0
+      endif
+    endfor
+  endfor
+
+  let l:title = '# Samandrag veke ' . a:week . ', ' . a:year
+
+  call append(0, [l:title, ''] + l:links + l:lines)
+endfunction
+
+" }}}1
+function! wiki#diary#prefill_summary_monthly(year, month) " {{{1
+  let [l:pre, l:weeks, l:post] = wiki#date#decompose_month(a:month, a:year)
+  let l:links = copy(l:pre)
+        \ + map(l:weeks, 'a:year . ''_w'' . v:val')
+        \ + copy(l:post)
+
+  call filter(l:links, 'filereadable(v:val . ''.wiki'')')
+  call map(l:links, '''diary:'' . v:val')
+
+  let l:lines = []
+  let l:entries = map(copy(l:links), 's:parse_entry(v:val)')
+  for l:project in s:project_list
+    let l:first = 1
+    for l:entry in l:entries
+      if has_key(l:entry, l:project)
+        if l:first
+          let l:lines += ['']
+          let l:lines += l:entry[l:project]
+        else
+          let l:lines += l:entry[l:project][1:]
+        endif
+        let l:first = 0
+      endif
+    endfor
+  endfor
+
+  let l:title = '# Samandrag frå '
+        \ . wiki#date#get_month_name(a:month) . ' ' . a:year
+
+  call append(0, [l:title, ''] + l:links + l:lines)
 endfunction
 
 " }}}1
@@ -116,6 +151,76 @@ function! s:get_links_generic(rx, fmt) " {{{1
   endfor
 
   return get(l:, 'sort', 0) ? sort(l:links) : l:links
+endfunction
+
+" }}}1
+
+let s:project_list = [
+      \ 'Diverse',
+      \ 'Leiested',
+      \ 'Tekna',
+      \ 'Sommerjobb-administrasjon',
+      \ '3dmf',
+      \ 'NanoHX',
+      \ 'FerroCool 2',
+      \ 'FerroCool',
+      \ 'RPT',
+      \]
+let s:project_title = join(s:project_list, '\|')
+function! s:parse_entry(link) " {{{1
+  let l:link = wiki#url#parse(a:link)
+
+  let l:entries = {}
+  let l:new_entry = 1
+  let l:title = ''
+  let l:lines = []
+  for l:line in readfile(l:link.path)
+    "
+    " Ignore everything after title lines
+    "
+    if l:line =~# '^\#' | break | endif
+
+    "
+    " Empty lines separate entries
+    "
+    if l:line =~# '^\s*$'
+      if !empty(l:lines)
+        let l:entries[l:title] = l:lines
+      endif
+      let l:ignore = 0
+      let l:new_entry = 1
+      let l:title = ''
+      let l:lines = []
+      continue
+    endif
+
+    "
+    " Ignore time tables
+    "
+    if l:line =~# '^\*Timeoversikt\|^\s*|-\+'
+      let l:ignore = 1
+    endif
+
+    if l:ignore | continue | endif
+
+    "
+    " Detect header of entries
+    "
+    if l:new_entry
+      if l:line =~# s:project_title
+        let l:new_entry = 0
+        let l:title = matchstr(l:line, s:project_title)
+        call add(l:lines, l:line)
+      endif
+      continue
+    endif
+
+    if !empty(l:title)
+      call add(l:lines, l:line)
+    endif
+  endfor
+
+  return l:entries
 endfunction
 
 " }}}1
