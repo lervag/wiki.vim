@@ -170,7 +170,7 @@ endfunction
 
 " }}}1
 function! s:parse_timesheet_day(dow, day, timesheet) " {{{1
-  let l:file = g:wiki.diary . a:day . '.wiki'
+  let l:file = g:wiki.journal . a:day . '.wiki'
   if !filereadable(l:file) | return | endif
 
   let l:regex = '^\v\s*(\| )?(' . join(keys(s:table), '|') . ').*\d\.\d'
@@ -353,7 +353,7 @@ endfunction
 
 " }}}1
 function! s:parse_timesheet_day_new(day) " {{{1
-  let l:file = g:wiki.diary . a:day . '.wiki'
+  let l:file = g:wiki.journal . a:day . '.wiki'
   if !filereadable(l:file) | return | endif
 
   let l:entry = {}

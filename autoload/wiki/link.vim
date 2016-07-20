@@ -317,7 +317,7 @@ endfunction
 " }}}2
 function! s:parser_date(link, ...) dict " {{{2
   return extend(a:link, call('wiki#url#parse',
-        \ ['diary:' . a:link.full] + a:000))
+        \ ['journal:' . a:link.full] + a:000))
 endfunction
 
 " }}}2

@@ -37,7 +37,7 @@ function! wiki#url#parse(string, ...) " {{{1
   " Extend through specific parsers
   return extend(l:url, get({
         \   'wiki'  : s:url_wiki_parse(l:url),
-        \   'diary' : s:url_wiki_parse(l:url),
+        \   'journal' : s:url_wiki_parse(l:url),
         \   'file'  : s:url_file_parse(l:url),
         \   'doi'   : s:url_doi_parse(l:url),
         \ }, l:url.scheme,
@@ -62,9 +62,9 @@ function! s:url_wiki_parse(url) " {{{1
         \ : fnamemodify(a:url.origin, ':p:t:r')) . '.wiki'
 
   " Extract path
-  if a:url.scheme ==# 'diary'
+  if a:url.scheme ==# 'journal'
     let l:url.scheme = 'wiki'
-    let l:url.path = g:wiki.diary . l:fname
+    let l:url.path = g:wiki.journal . l:fname
   else
     let l:url.path = l:fname[0] ==# '/'
           \ ? g:wiki.root . strpart(l:fname, 1)

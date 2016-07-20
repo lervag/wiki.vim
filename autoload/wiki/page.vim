@@ -29,7 +29,7 @@ function! wiki#page#rename() "{{{1
     return
   endif
 
-  if b:wiki.in_diary
+  if b:wiki.in_journal
     echom 'Not supported yet.'
     return
   endif

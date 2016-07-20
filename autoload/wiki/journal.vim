@@ -4,25 +4,25 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#diary#make_note(...) " {{{1
+function! wiki#journal#make_note(...) " {{{1
   let l:date = (a:0 > 0 ? a:1 : strftime('%Y-%m-%d'))
-  call wiki#url#parse('diary:' . l:date).open()
+  call wiki#url#parse('journal:' . l:date).open()
 endfunction
 
 " }}}1
-function! wiki#diary#copy_note() " {{{1
+function! wiki#journal#copy_note() " {{{1
   let l:next_day = wiki#date#get_next_weekday(expand('%:t:r'))
 
-  let l:next_entry = g:wiki.diary . l:next_day . '.wiki'
+  let l:next_entry = g:wiki.journal . l:next_day . '.wiki'
   if !filereadable(l:next_entry)
     execute 'write' l:next_entry
   endif
 
-  call wiki#url#parse('diary:' . l:next_day).open()
+  call wiki#url#parse('journal:' . l:next_day).open()
 endfunction
 
 " }}}1
-function! wiki#diary#go(step) " {{{1
+function! wiki#journal#go(step) " {{{1
   let l:links = s:get_links()
   let l:index = index(l:links, expand('%:t:r'))
   let l:target = l:index + a:step
@@ -31,34 +31,34 @@ function! wiki#diary#go(step) " {{{1
     return
   endif
 
-  call wiki#url#parse('diary:' . l:links[l:target]).open()
+  call wiki#url#parse('journal:' . l:links[l:target]).open()
 endfunction
 
 " }}}1
-function! wiki#diary#go_to_week() " {{{1
+function! wiki#journal#go_to_week() " {{{1
   let l:date = expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
         \ ? expand('%:r')
         \ : strftime('%F')
-  call wiki#url#parse('diary:' . l:date[:3]
+  call wiki#url#parse('journal:' . l:date[:3]
         \ . '_w' . wiki#date#get_week(l:date)).open()
 endfunction
 
 " }}}1
-function! wiki#diary#go_to_month() " {{{1
+function! wiki#journal#go_to_month() " {{{1
   let l:date = expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
         \ ? expand('%:r')
         \ : strftime('%F')
-  call wiki#url#parse('diary:' . l:date[:3]
+  call wiki#url#parse('journal:' . l:date[:3]
         \ . '_m' . wiki#date#get_month(l:date)).open()
 endfunction
 
 " }}}1
 
-function! wiki#diary#prefill_summary_weekly(year, week) " {{{1
+function! wiki#journal#prefill_summary_weekly(year, week) " {{{1
   let l:links = map(filter(
         \   wiki#date#get_week_dates(a:week, a:year),
         \   'filereadable(v:val . ''.wiki'')'),
-        \ '''diary:'' . v:val')
+        \ '''journal:'' . v:val')
 
   let l:lines = []
   let l:entries = map(copy(l:links), 's:parse_entry(v:val)')
@@ -83,14 +83,14 @@ function! wiki#diary#prefill_summary_weekly(year, week) " {{{1
 endfunction
 
 " }}}1
-function! wiki#diary#prefill_summary_monthly(year, month) " {{{1
+function! wiki#journal#prefill_summary_monthly(year, month) " {{{1
   let [l:pre, l:weeks, l:post] = wiki#date#decompose_month(a:month, a:year)
   let l:links = copy(l:pre)
         \ + map(l:weeks, 'a:year . ''_w'' . v:val')
         \ + copy(l:post)
 
   call filter(l:links, 'filereadable(v:val . ''.wiki'')')
-  call map(l:links, '''diary:'' . v:val')
+  call map(l:links, '''journal:'' . v:val')
 
   let l:lines = []
   let l:entries = map(copy(l:links), 's:parse_entry(v:val)')
@@ -136,7 +136,7 @@ endfunction
 
 " }}}1
 function! s:get_links_generic(rx, fmt) " {{{1
-  let l:links = filter(map(glob(g:wiki.diary . '*.wiki', 0, 1),
+  let l:links = filter(map(glob(g:wiki.journal . '*.wiki', 0, 1),
         \   'fnamemodify(v:val, '':t:r'')'),
         \ 'v:val =~# a:rx')
 

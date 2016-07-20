@@ -26,7 +26,7 @@ function! wiki#init() " {{{1
   " Ensure absolute path
   "
   let g:wiki.root = fnamemodify(g:wiki.root, ':p')
-  let g:wiki.diary = g:wiki.root . 'journal/'
+  let g:wiki.journal = g:wiki.root . 'journal/'
 
   "
   " Warn if wiki path is invalid
@@ -41,7 +41,7 @@ function! wiki#init() " {{{1
   "
   nnoremap <silent> <leader>ww         :call wiki#goto_index()<cr>
   nnoremap <silent> <leader>wx         :call wiki#reload()<cr>
-  nnoremap <silent> <leader>w<leader>w :call wiki#diary#make_note()<cr>
+  nnoremap <silent> <leader>w<leader>w :call wiki#journal#make_note()<cr>
 endfunction
 
 " }}}1
@@ -74,9 +74,9 @@ function! wiki#init_buffer() " {{{1
   augroup END
 
   let b:wiki = {
-        \ 'in_diary' : stridx(
+        \ 'in_journal' : stridx(
         \   resolve(expand('%:p')),
-        \   resolve(g:wiki.diary)) == 0
+        \   resolve(g:wiki.journal)) == 0
         \ }
 
   let g:wiki_bullet_types = { '-':0, '*':0, '+':0 }
@@ -92,9 +92,9 @@ function! wiki#init_buffer() " {{{1
     let l:match = matchlist(expand('%:t:r'), '^\(\d\d\d\d\)_\(\w\)\(\d\d\)$')
     if !empty(l:match)
       if l:match[2] ==# 'w'
-        call wiki#diary#prefill_summary_weekly(l:match[1], l:match[3])
+        call wiki#journal#prefill_summary_weekly(l:match[1], l:match[3])
       elseif l:match[2] ==# 'm'
-        call wiki#diary#prefill_summary_monthly(l:match[1], l:match[3])
+        call wiki#journal#prefill_summary_monthly(l:match[1], l:match[3])
       endif
     endif
   endif
@@ -104,14 +104,14 @@ endfunction
 
 function! s:init_mappings() " {{{1
   "
-  " Diary specific mappings
+  " Journal specific mappings
   "
-  if b:wiki.in_diary
-    nnoremap <silent><buffer> <c-j> :<c-u>call wiki#diary#go(-v:count1)<cr>
-    nnoremap <silent><buffer> <c-k> :<c-u>call wiki#diary#go(v:count1)<cr>
-    nnoremap <silent><buffer> <leader>wk :call wiki#diary#copy_note()<cr>
-    nnoremap <silent><buffer> <leader>wu :call wiki#diary#go_to_week()<cr>
-    nnoremap <silent><buffer> <leader>wm :call wiki#diary#go_to_month()<cr>
+  if b:wiki.in_journal
+    nnoremap <silent><buffer> <c-j> :<c-u>call wiki#journal#go(-v:count1)<cr>
+    nnoremap <silent><buffer> <c-k> :<c-u>call wiki#journal#go(v:count1)<cr>
+    nnoremap <silent><buffer> <leader>wk :call wiki#journal#copy_note()<cr>
+    nnoremap <silent><buffer> <leader>wu :call wiki#journal#go_to_week()<cr>
+    nnoremap <silent><buffer> <leader>wm :call wiki#journal#go_to_month()<cr>
   endif
 
   "
