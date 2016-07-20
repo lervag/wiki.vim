@@ -8,7 +8,7 @@ function! wiki#template#weekly_summary(year, week) " {{{1
   let l:parser = s:summary.new()
 
   call append(0,
-        \ ['# Samandrag veke ' . a:week . ', ' . a:year, '']
+        \ ['# Samandrag veke ' . a:week . ', ' . a:year]
         \ + l:parser.parse(wiki#date#get_week_dates(a:week, a:year)))
 
   call setpos('.', [0, 3, 0, 0])
@@ -26,8 +26,7 @@ function! wiki#template#monthly_summary(year, month) " {{{1
   endfor
 
   call append(0,
-        \ ['# Samandrag frå '
-        \  . wiki#date#get_month_name(a:month) . ' ' . a:year, '']
+        \ ['# Samandrag frå ' . wiki#date#get_month_name(a:month) . ' ' . a:year]
         \ + l:parser.parse(l:links))
 
   call setpos('.', [0, 3, 0, 0])
@@ -75,7 +74,7 @@ function! s:summary.parse(links) dict " {{{2
   let self.entries = map(copy(self.links), 'self.parse_link(v:val)')
   let self.lines = self.combine_entries()
 
-  return self.links + self.lines
+  return [''] + self.links + self.lines
 endfunction
 
 " }}}2
