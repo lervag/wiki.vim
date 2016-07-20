@@ -86,7 +86,7 @@ function! wiki#date#get_month_days(month, year) " {{{1
 endfunction
 
 " }}}1
-function! wiki#date#decompose_month(month, year) " {{{1
+function! wiki#date#get_month_decomposed(month, year) " {{{1
     let l:n = wiki#date#get_month_size(a:month, a:year)
     let l:days = wiki#date#get_month_days(a:month, a:year)
 
@@ -100,7 +100,7 @@ function! wiki#date#decompose_month(month, year) " {{{1
     let l:days_post = l:remaining_days > 0 ? l:days[-l:remaining_days:] : []
     let l:weeks = map(range(l:number_of_weeks), 'l:first_week + v:val')
 
-    return [l:days_pre, l:weeks, l:days_post]
+    return l:days_pre + l:weeks + l:days_post
 endfunction
 
 " }}}1

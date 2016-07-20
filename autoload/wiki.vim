@@ -65,9 +65,6 @@ function! wiki#init_buffer() " {{{1
   setlocal formatoptions+=n
   let &l:formatlistpat = '\v^\s*%(\d|\l|i+)\.\s'
 
-  "
-  " Autocommands
-  "
   augroup wiki
     autocmd!
     autocmd BufWinEnter *.wiki setlocal conceallevel=2
@@ -79,25 +76,13 @@ function! wiki#init_buffer() " {{{1
         \   resolve(g:wiki.journal)) == 0
         \ }
 
+  " TODO
   let g:wiki_bullet_types = { '-':0, '*':0, '+':0 }
   let g:wiki_number_types = ['1.']
   let g:wiki_list_markers = ['-', '*', '+', '1.']
 
   call s:init_mappings()
-
-  "
-  " Prefill journal summaries
-  "
-  if !filereadable(expand('%'))
-    let l:match = matchlist(expand('%:t:r'), '^\(\d\d\d\d\)_\(\w\)\(\d\d\)$')
-    if !empty(l:match)
-      if l:match[2] ==# 'w'
-        call wiki#journal#prefill_summary_weekly(l:match[1], l:match[3])
-      elseif l:match[2] ==# 'm'
-        call wiki#journal#prefill_summary_monthly(l:match[1], l:match[3])
-      endif
-    endif
-  endif
+  call s:init_prefill()
 endfunction
 
 " }}}1
@@ -155,6 +140,21 @@ function! s:init_mappings() " {{{1
   xnoremap <silent><buffer> ac :call wiki#text_obj#code(0)<cr>
   onoremap <silent><buffer> ic :call wiki#text_obj#code(1)<cr>
   xnoremap <silent><buffer> ic :call wiki#text_obj#code(1)<cr>
+endfunction
+
+" }}}1
+function! s:init_prefill() " {{{1
+  if filereadable(expand('%')) | return | endif
+
+  let l:match = matchlist(expand('%:t:r'), '^\(\d\d\d\d\)_\(\w\)\(\d\d\)$')
+  if empty(l:match) | return | endif
+  let [l:year, l:type, l:number] = l:match[1:3]
+
+  if l:type ==# 'w'
+    call wiki#template#weekly_summary(l:year, l:number)
+  elseif l:type ==# 'm'
+    call wiki#template#monthly_summary(l:year, l:number)
+  endif
 endfunction
 
 " }}}1
