@@ -151,18 +151,21 @@ endfunction
 
 " }}}1
 
-function! s:parse_timesheet_week(...) " {{{1
-  let l:date = a:0 > 0
-        \ ? a:1
-        \ : expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
-        \   ? expand('%:r')
-        \   : strftime('%F')
+function! s:parse_timesheet_week() " {{{1
+  if expand('%:t:r') =~# '\d\d\d\d-\d\d-\d\d'
+    let l:date = expand('%:t:r')
+    let l:week = wiki#date#get_week(l:date)
+    let l:year = l:date[:3]
+  else
+    let l:week = strftime('%V')
+    let l:year = strftime('%Y')
+  endif
 
-  let l:days = wiki#date#get_week_dates(wiki#date#get_week(l:date), l:date[:3])
+  let l:days = wiki#date#get_week_dates(l:week, l:year)
 
   let l:timesheet = {}
-  for l:dow in range(1,7)
-    call s:parse_timesheet_day(l:dow, l:days[l:dow - 1], l:timesheet)
+  for l:dow in range(7)
+    call s:parse_timesheet_day(l:dow+1, l:days[l:dow], l:timesheet)
   endfor
 
   return l:timesheet
@@ -323,67 +326,34 @@ let s:table.RPT = {
 "
 " Better data structure?
 "
-function! s:parse_timesheet_week_new(...) " {{{1
-  let l:date = a:0 > 0
-        \ ? a:1
-        \ : expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
-        \   ? expand('%:r')
-        \   : strftime('%F')
+function! s:parse_timesheet_week_new() " {{{1
+  if expand('%:t:r') =~# '\d\d\d\d-\d\d-\d\d'
+    let l:date = expand('%:t:r')
+    let l:week = wiki#date#get_week(l:date)
+    let l:year = l:date[:3]
+  else
+    let l:week = strftime('%V')
+    let l:year = strftime('%Y')
+  endif
 
-  let l:days = wiki#date#get_week_dates(wiki#date#get_week(l:date), l:date[:3])
+  let l:days = wiki#date#get_week_dates(l:week, l:year)
 
   "
   " Create timesheet dictionary
   "
   let l:timesheet = {
-        \ 'week' : systemlist('date +%W -d ' . l:date)[0],
+        \ 'week' : l:week,
         \ 'entries' : [],
         \}
-  for l:dow in range(1,7)
-    let l:
-          \ 'projects' : s:parse_timesheet_day(l:days[l:dow-1])
+  for l:dow in range(7)
     call add(l:timesheet.entries, {
-          \ 'dow' : l:days[l:dow-1],
-          \ 'date' : l:dow,
-          \ 'projects' : s:parse_timesheet_day(l:days[l:dow-1])
+          \ 'dow' : l:days[l:dow],
+          \ 'date' : l:dow+1,
+          \ 'projects' : s:parse_timesheet_day(l:days[l:dow])
           \})
-
-  return l:timesheet
-endfunction
-
-" }}}1
-function! s:parse_timesheet_day_new(day) " {{{1
-  let l:file = g:wiki.journal . a:day . '.wiki'
-  if !filereadable(l:file) | return | endif
-
-  let l:entry = {}
-
-  for l:line in readfile(l:file, 20)
-    if !get(l:, 'start', 0)
-      let l:start = (l:line =~# 'Timeoversikt')
-      continue
-    endif
-    if l:line =~# '^\s*$' | break | endif
-    if l:line =~# '^\s*\%(Starta\|Slutta\|-\+\s*$\)' | continue | endif
-
-    let l:parts = split(l:line, '\s\{2,}')
-    let l:key = l:parts[0]
-    let l:entry[l:key] = {}
-
-    let l:parts = split(l:parts[1], '\s')
-    let l:value = str2float(l:parts[0])
-    if len(l:parts) > 1
-      let l:string = substitute(join(l:parts[1:], ' '), '^(\|)$', '', 'g')
-      if l:string =~# '^T\d'
-        let l:entry[l:key][l:string] = { 'hours' : l:value }
-        continue
-      endif
-      let l:entry[l:key].note = l:string
-    endif
-    let l:entry[l:key].hours = l:value
   endfor
 
-  return l:entry
+  return l:timesheet
 endfunction
 
 " }}}1
