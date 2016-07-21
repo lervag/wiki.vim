@@ -48,8 +48,7 @@ function! wiki#journal#go_to_month() " {{{1
   let l:date = expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
         \ ? expand('%:r')
         \ : strftime('%F')
-  call wiki#url#parse('journal:' . l:date[:3]
-        \ . '_m' . wiki#date#get_month(l:date)).open()
+  call wiki#url#parse('journal:' . l:date[:3] . '_m' . l:date[5:6]).open()
 endfunction
 
 " }}}1

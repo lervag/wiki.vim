@@ -153,15 +153,11 @@ endfunction
 
 function! s:parse_timesheet_week() " {{{1
   if expand('%:t:r') =~# '\d\d\d\d-\d\d-\d\d'
-    let l:date = expand('%:t:r')
-    let l:week = wiki#date#get_week(l:date)
-    let l:year = l:date[:3]
+    let l:days = wiki#date#get_week_dates(expand('%:t:r'))
   else
-    let l:week = strftime('%V')
-    let l:year = strftime('%Y')
+    let l:days = wiki#date#get_week_dates(strftime('%V'), strftime('%Y'))
   endif
 
-  let l:days = wiki#date#get_week_dates(l:week, l:year)
 
   let l:timesheet = {}
   for l:dow in range(7)
@@ -328,15 +324,10 @@ let s:table.RPT = {
 "
 function! s:parse_timesheet_week_new() " {{{1
   if expand('%:t:r') =~# '\d\d\d\d-\d\d-\d\d'
-    let l:date = expand('%:t:r')
-    let l:week = wiki#date#get_week(l:date)
-    let l:year = l:date[:3]
+    let l:days = wiki#date#get_week_dates(expand('%:t:r'))
   else
-    let l:week = strftime('%V')
-    let l:year = strftime('%Y')
+    let l:days = wiki#date#get_week_dates(strftime('%V'), strftime('%Y'))
   endif
-
-  let l:days = wiki#date#get_week_dates(l:week, l:year)
 
   "
   " Create timesheet dictionary

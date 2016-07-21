@@ -12,11 +12,6 @@ function! wiki#date#get_week(date) " {{{1
 endfunction
 
 " }}}1
-function! wiki#date#get_month(date) " {{{1
-  return systemlist('date +%m -d ' . a:date)[0]
-endfunction
-
-" }}}1
 function! wiki#date#get_day_of_week(date) " {{{1
   return systemlist('date +%u -d ' . a:date)[0]
 endfunction
@@ -35,19 +30,34 @@ function! wiki#date#get_next_weekday(date) " {{{1
 endfunction
 
 " }}}1
-function! wiki#date#get_week_dates(week, year) " {{{1
-  let l:date_first = a:year . '-01-01'
+function! wiki#date#get_week_dates(...) " {{{1
+  "
+  " Argument: Either a single date string, or a week number and a year
+  "
+  if a:0 == 1
+    let l:date = a:1
+    let l:dow = systemlist('date +"%u" -d ' . l:date)[0]
+    return map(range(1-l:dow,7-l:dow),
+          \ 'systemlist(''date +%F -d "'
+          \             . l:date . ' '' . v:val . '' days"'')[0]')
+  elseif a:0 == 2
+    let l:week = a:1
+    let l:year = a:2
+    let l:date_first = l:year . '-01-01'
 
-  let [l:first_week, l:dow] =
-        \ split(systemlist('date +"%V %u" -d ' . l:date_first)[0], ' ')
+    let [l:first_week, l:dow] =
+          \ split(systemlist('date +"%V %u" -d ' . l:date_first)[0], ' ')
 
-  let l:first_monday = (9 - l:dow) % 7
-  let l:first_week = (l:first_week % 53) + (l:first_monday > 1)
-  let l:ndays = 7*(a:week - l:first_week + 1) - (l:dow - 1)
+    let l:first_monday = (9 - l:dow) % 7
+    let l:first_week = (l:first_week % 53) + (l:first_monday > 1)
+    let l:ndays = 7*(l:week - l:first_week + 1) - (l:dow - 1)
 
-  return map(range(l:ndays, l:ndays+6),
-        \ 'systemlist(''date +%F -d "'
-        \             . l:date_first . ' '' . v:val . '' days"'')[0]')
+    return map(range(l:ndays, l:ndays+6),
+          \ 'systemlist(''date +%F -d "'
+          \             . l:date_first . ' '' . v:val . '' days"'')[0]')
+  else
+    return []
+  endif
 endfunction
 
 " }}}1
