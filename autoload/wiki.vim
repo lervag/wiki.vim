@@ -207,7 +207,7 @@ function! wiki#get_backlinks() "{{{1
 
   for l:file in globpath(g:wiki.root, '**/*.wiki', 0, 1)
     if resolve(l:file) ==# resolve(l:origin) | continue | endif
-    echo 'wiki: Scanning files ...'
+    echon "\rwiki: Scanning " . fnamemodify(l:file, ':t')
 
     for l:link in wiki#link#get_all(l:file)
       if get(l:link, 'scheme', '') !=# 'wiki' | continue | endif
@@ -221,6 +221,7 @@ function! wiki#get_backlinks() "{{{1
       endif
     endfor
   endfor
+  echon "\rwiki: Scanning completed" . repeat(' ', 40)
 
   if empty(l:locs)
     echomsg 'wiki: No other file links to this file'
