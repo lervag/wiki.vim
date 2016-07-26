@@ -126,6 +126,11 @@ function! s:init_mappings() " {{{1
   nnoremap <silent><buffer> gl         :set opfunc=wiki#link#toggle_operator<cr>g@
 
   "
+  " Lists
+  "
+  nnoremap <silent><buffer> <c-space> :call wiki#list#toggle_todo()<cr>
+
+  "
   " Text objects
   "
   onoremap <silent><buffer> al :call wiki#text_obj#link(0)<cr>
