@@ -5,7 +5,7 @@
 "
 
 function! wiki#link#get_at_cursor() " {{{1
-  for l:m in s:matchers_all
+  for l:m in wiki#link#get_matchers_all()
     let l:link = s:matchstr_at_cursor(l:m.rx)
     if !empty(l:link)
       "
@@ -65,7 +65,7 @@ function! wiki#link#get_all(...) "{{{1
       "
       " Add link details
       "
-      for l:m in s:matchers_all_links
+      for l:m in wiki#link#get_matchers_links()
         if l:m.type ==# 'ref' | continue | endif
         if l:link.full =~# '^' . l:m.rx
           let l:link.text = matchstr(l:link.full, get(l:m, 'rx_text', ''))
@@ -283,53 +283,70 @@ endfunction
 " }}}1
 
 "
-" Link matchers are the matcher objects used to parse and create links
+" Methods to get matchers
 "
-" {{{1 Link matchers
-
-function! wiki#link#get_matcher(name) " {{{2
+function! wiki#link#get_matcher(name) " {{{1
   return s:matcher_{a:name}
 endfunction
 
-" }}}2
-function! wiki#link#get_matcher_opt(name, opt) " {{{2
+" }}}1
+function! wiki#link#get_matcher_opt(name, opt) " {{{1
   return escape(s:matcher_{a:name}[a:opt], '')
 endfunction
 
-" }}}2
-function! wiki#link#get_matchers() " {{{2
-  return copy(s:matchers_all)
+" }}}1
+function! wiki#link#get_matchers_all() " {{{1
+  return [
+        \ s:matcher_wiki,
+        \ s:matcher_md,
+        \ s:matcher_ref_target,
+        \ s:matcher_ref_simple,
+        \ s:matcher_ref,
+        \ s:matcher_url,
+        \ s:matcher_date,
+        \ s:matcher_word,
+        \]
 endfunction
 
-" }}}2
-function! wiki#link#get_matchers_links() " {{{2
-  return copy(s:matchers_all_links)
+" }}}1
+function! wiki#link#get_matchers_links() " {{{1
+  return [
+        \ s:matcher_wiki,
+        \ s:matcher_md,
+        \ s:matcher_ref_target,
+        \ s:matcher_ref_simple,
+        \ s:matcher_ref,
+        \ s:matcher_url,
+        \]
 endfunction
 
-" }}}2
+" }}}1
 
-function! s:parser_general(link, ...) dict " {{{2
+"
+" Parsers create a proper link of a given type based on general input
+"
+function! s:parser_general(link, ...) dict " {{{1
   return extend(a:link, call('wiki#url#parse',
         \ [matchstr(a:link.full, get(self, 'rx_url', get(self, 'rx')))]
         \ + a:000))
 endfunction
 
-" }}}2
-function! s:parser_date(link, ...) dict " {{{2
+" }}}1
+function! s:parser_date(link, ...) dict " {{{1
   return extend(a:link, call('wiki#url#parse',
         \ ['journal:' . a:link.full] + a:000))
 endfunction
 
-" }}}2
-function! s:parser_word(link, ...) dict " {{{2
+" }}}1
+function! s:parser_word(link, ...) dict " {{{1
   return extend(a:link, {
         \ 'scheme' : '',
         \ 'url' : a:link.full,
         \})
 endfunction
 
-" }}}2
-function! s:parser_ref(link, ...) dict " {{{2
+" }}}1
+function! s:parser_ref(link, ...) dict " {{{1
   let l:id = matchstr(a:link.full, self.rx_id)
   let l:lnum = searchpos('^\[' . l:id . '\]: ', 'nW')[0]
   if l:lnum == 0
@@ -340,13 +357,16 @@ function! s:parser_ref(link, ...) dict " {{{2
   endif
 endfunction
 
-" }}}2
-
-" {{{2 Define the matchers
+" }}}1
 
 " Common url regex
 let s:rx_url = '\<\l\+:\%(\/\/\)\?[^ \t()\[\]|]\+'
 
+"
+" These are the actual matchers. Link matchers are the matcher objects used to
+" parse and create links.
+"
+" {{{1 s:matcher_wiki
 let s:matcher_wiki = {
       \ 'type' : 'wiki',
       \ 'parser' : function('s:parser_general'),
@@ -356,6 +376,8 @@ let s:matcher_wiki = {
       \ 'rx_text' : '\[\[\/\?[^\\\]]\{-}|\zs[^\\\]]\{-}\ze\]\]',
       \}
 
+" }}}1
+" {{{1 s:matcher_md
 let s:matcher_md = {
       \ 'type' : 'md',
       \ 'parser' : function('s:parser_general'),
@@ -365,6 +387,8 @@ let s:matcher_md = {
       \ 'rx_text' : '\[\zs[^\\\[\]]\{-}\ze\]([^\\]\{-})',
       \}
 
+" }}}1
+" {{{1 s:matcher_ref
 let s:matcher_ref = {
       \ 'type' : 'ref',
       \ 'parser' : function('s:parser_ref'),
@@ -380,6 +404,8 @@ let s:matcher_ref = {
       \   . '\][\]\[]\@!',
       \}
 
+" }}}1
+" {{{1 s:matcher_ref_simple
 let s:matcher_ref_simple = {
       \ 'type' : 'ref',
       \ 'parser' : function('s:parser_ref'),
@@ -388,6 +414,8 @@ let s:matcher_ref_simple = {
       \ 'rx_id' : '\[\zs[^\\\[\]]\{-}\ze\]',
       \}
 
+" }}}1
+" {{{1 s:matcher_ref_target
 let s:matcher_ref_target = {
       \ 'type' : 'ref_target',
       \ 'parser' : function('s:parser_general'),
@@ -397,6 +425,8 @@ let s:matcher_ref_target = {
       \ 'rx_text' : '\[\zs[^\\\]]\{-}\ze\]:\s\+' . s:rx_url,
       \}
 
+" }}}1
+" {{{1 s:matcher_url
 let s:matcher_url = {
       \ 'type' : 'url',
       \ 'parser' : function('s:parser_general'),
@@ -404,6 +434,8 @@ let s:matcher_url = {
       \ 'rx'     : s:rx_url,
       \}
 
+" }}}1
+" {{{1 s:matcher_date
 let s:matcher_date = {
       \ 'type' : 'date',
       \ 'parser' : function('s:parser_date'),
@@ -411,6 +443,8 @@ let s:matcher_date = {
       \ 'rx' : '\d\d\d\d-\d\d-\d\d',
       \}
 
+" }}}1
+" {{{1 s:matcher_word
 let s:matcher_word = {
       \ 'type' : 'word',
       \ 'parser' : function('s:parser_word'),
@@ -418,51 +452,6 @@ let s:matcher_word = {
       \ 'rx' : '\<\w\+\>',
       \}
 
-let s:matchers_all_links = [
-      \ s:matcher_wiki,
-      \ s:matcher_md,
-      \ s:matcher_ref_target,
-      \ s:matcher_ref_simple,
-      \ s:matcher_ref,
-      \ s:matcher_url,
-      \]
-
-let s:matchers_all = copy(s:matchers_all_links)
-      \ + [s:matcher_date, s:matcher_word]
-
-" }}}2
-
 " }}}1
-
-"
-" Old code for opening ref type links
-"
-function! s:url_open_ref_tmp(...) dict " {{{1
-"   if !has_key(b:wiki, 'reflinks')
-"     let b:wiki.reflinks = {}
-
-"     try
-"       " Why noautocmd? Because https://github.com/wiki/wiki/issues/121
-"       noautocmd execute 'vimgrep #'
-"         \ . g:wiki.link_matchers.ref_target.rx . '#j %'
-"     catch /^Vim\%((\a\+)\)\=:E480/
-"     endtry
-
-"     for d in getqflist()
-"       let matchline = join(getline(d.lnum, min([d.lnum+1, line('$')])), ' ')
-"       let descr = matchstr(matchline, g:wiki.link_matchers.ref_target.rx_text)
-"       let url = matchstr(matchline, g:wiki.link_matchers.ref_target.rx_url)
-"       if descr != '' && url != ''
-"         let b:wiki.reflinks[descr] = url
-"       endif
-"     endfor
-"   endif
-
-"   if has_key(b:wiki.reflinks, self.url)
-"     call s:url_open_external(b:wiki.reflinks[self.url])
-"   endif
-endfunction
-
-"}}}1
 
 " vim: fdm=marker sw=2
