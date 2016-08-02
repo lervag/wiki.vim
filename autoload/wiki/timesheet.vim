@@ -89,11 +89,30 @@ endfunction
 " }}}1
 function! wiki#timesheet#submit() " {{{1
 python3 <<EOF
-from vim import *
 import sintefpy
+
+from vim import *
+from sintefpy import timesheet
 
 lists = bindeval('s:create_maconomy_lists()')
 print([list(entry) for entry in lists])
+
+# user, pw = sintefpy.credentials.get_credentials()
+# with timesheet.MaconomySession(username='SINTEFGRP\\' + user, password=pw) as ms:
+#     ts = ms.get_timesheet()
+#     ts.change_date(datetime.datetime.now())
+#     ts.open_if()
+#     dates, indices = ts.state.dates()
+#
+#     ts.delete_all_lines()
+#     for key, value in timesheet_tasks.iteritems():
+#         projno, taskno = key.split('/')
+#         lineno = len(ts.state.timesheettable)
+#         ts.insert_line()
+#         hours = [0]*7
+#         hours[indices[0]:indices[1]+1] = value
+#         line = timesheet.TimesheetLine(projno, taskno, value)
+#         ts.fill_line(lineno, line)
 
 EOF
 endfunction
