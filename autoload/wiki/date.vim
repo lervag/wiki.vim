@@ -108,7 +108,8 @@ function! wiki#date#get_month_decomposed(month, year) " {{{1
 
     let l:days_pre  = l:first_monday   > 1 ? l:days[:l:first_monday-2]  : []
     let l:days_post = l:remaining_days > 0 ? l:days[-l:remaining_days:] : []
-    let l:weeks = map(range(l:number_of_weeks), 'l:first_week + v:val')
+    let l:weeks = map(range(l:number_of_weeks),
+          \ 'a:year . ''_w'' . (l:first_week + v:val)')
 
     return l:days_pre + l:weeks + l:days_post
 endfunction

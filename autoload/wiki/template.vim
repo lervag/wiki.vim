@@ -19,11 +19,6 @@ function! wiki#template#monthly_summary(year, month) " {{{1
   let l:parser = s:summary.new()
 
   let l:links = wiki#date#get_month_decomposed(a:month, a:year)
-  for l:link in l:links
-    if l:link =~# '^\d\d$'
-      let l:link = a:year . '_w' . l:link
-    endif
-  endfor
 
   call append(0,
         \ ['# Samandrag frå ' . wiki#date#get_month_name(a:month) . ' ' . a:year]
@@ -85,11 +80,17 @@ function! s:summary.parse_link(link) dict " {{{2
   let l:new_entry = 1
   let l:title = ''
   let l:lines = []
+  let l:lnum = 0
   for l:line in readfile(l:link.path)
+    let l:lnum += 1
+
     "
-    " Ignore everything after title lines
+    " Ignore everything after title lines (except in weekly summaries)
     "
-    if l:line =~# '^\#' | break | endif
+    if l:line =~# '^\#'
+      if l:lnum > 1 | break | endif
+      continue
+    endif
 
     "
     " Empty lines separate entries
