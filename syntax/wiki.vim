@@ -241,9 +241,9 @@ execute 'syntax match wikiTodo /' . wiki#rx#todo() . '/'
 highlight default link wikiTodo Todo
 
 syntax region wikiQuote start=/^>\s\+/ end=/^$/ contains=wikiQuoteChar
-syntax match wikiQuoteChar contained /^>/ conceal cchar= 
-highlight default link wikiQuoteChar Todo
-highlight default link wikiQuote Comment
+syntax match wikiQuoteChar contained /^>/
+highlight default link wikiQuoteChar Comment
+highlight default wikiQuote ctermfg=white guifg=black
 
 syntax match wikiNumber  /\d\+\.\d\+/
 syntax match wikiVersion /\d\+\.\d\+\(\.\d\)\+/
