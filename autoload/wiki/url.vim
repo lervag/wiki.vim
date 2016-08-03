@@ -87,7 +87,8 @@ function! s:url_wiki_open(...) dict " {{{1
 
   " Open wiki file
   if resolve(self.path) !=# resolve(expand('%:p'))
-    if resolve(self.origin) ==# resolve(expand('%:p'))
+    if !empty(self.origin)
+          \ && resolve(self.origin) ==# resolve(expand('%:p'))
       let l:prev_link = [expand('%:p'), getpos('.')]
     elseif &filetype ==# 'wiki'
       let l:prev_link = [self.origin, []]
