@@ -11,7 +11,11 @@ function! wiki#timesheet#show() " {{{1
         \ 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Sum']
 
   let l:projects = []
-  for [l:key, l:vals] in items(l:timesheet)
+  for l:key in s:table_ordered
+    if !has_key(l:timesheet, l:key) | continue | endif
+    let l:vals = l:timesheet[l:key]
+    if type(l:vals) != type({}) | continue | endif
+
     if has_key(l:vals, 'hours')
       call add(l:projects, [l:key] + l:vals.hours + [s:sum(l:vals.hours)])
     endif
@@ -50,6 +54,10 @@ function! wiki#timesheet#show() " {{{1
     endfor
   endif
 
+  echohl ModeMsg
+  echo 'Date:' l:timesheet.date
+  echo printf("Week: %02d%54s\n\n", l:timesheet.week,
+        \ l:timesheet.dates[0] . ' -- ' . l:timesheet.dates[-1])
   echohl Title
   echo call('printf', ['%-20s' . repeat('%7s', len(l:sums) - 1)] + l:titles)
   echohl ModeMsg
@@ -78,77 +86,96 @@ function! wiki#timesheet#show() " {{{1
   echo call('printf', ['%-20s' . repeat('%7.2f', len(l:sums) - 1)] + l:sums)
   echohl ModeMsg
   echo repeat('-', 20 + 7*(len(l:sums) - 1))
-  echohl None
 
-  echo ''
-  if input('Submit to Maconomy? [y/N]') =~# '^y'
-    call wiki#timesheet#submit()
+  let l:reply = input("\nSubmit to Maconomy [y/N]? ")
+  echohl None
+  if l:reply =~# '^y'
+    echo "\nAccessing Maconomy"
+    call wiki#timesheet#submit(l:timesheet)
   endif
 endfunction
 
 " }}}1
-function! wiki#timesheet#submit() " {{{1
+function! wiki#timesheet#submit(...) " {{{1
+  let l:timesheet = a:0 > 0 ? a:1 : s:parse_timesheet_week()
+  let l:lines = s:get_maconomy_lines(l:timesheet)
+
 python3 <<EOF
-import sintefpy
-
 from vim import *
-from sintefpy import timesheet
+import datetime
 
-lists = bindeval('s:create_maconomy_lists()')
-print([list(entry) for entry in lists])
+from sintefpy.credentials import get_credentials
+from sintefpy.maconomy    import MaconomySession
+from sintefpy.timesheet   import Timesheet, TimesheetLine
 
-# user, pw = sintefpy.credentials.get_credentials()
-# with timesheet.MaconomySession(username='SINTEFGRP\\' + user, password=pw) as ms:
-#     ts = ms.get_timesheet()
-#     ts.change_date(datetime.datetime.now())
-#     ts.open_if()
-#     dates, indices = ts.state.dates()
-#
-#     ts.delete_all_lines()
-#     for key, value in timesheet_tasks.iteritems():
-#         projno, taskno = key.split('/')
-#         lineno = len(ts.state.timesheettable)
-#         ts.insert_line()
-#         hours = [0]*7
-#         hours[indices[0]:indices[1]+1] = value
-#         line = timesheet.TimesheetLine(projno, taskno, value)
-#         ts.fill_line(lineno, line)
+lines = eval('l:lines')
 
+user, pw = get_credentials()
+with MaconomySession(username='SINTEFGRP\\' + user, password=pw) as ms:
+    ts = Timesheet(ms)
+    ts.change_date(datetime.datetime.now())
+    ts.open_if()
+    ts.clear_all_lines()
+
+    for p in lines:
+        print('- Submitting: {projname} ({taskname})'.format(**p))
+        lineno = len(ts.timesheettable)
+        ts.insert_line()
+        ts.fill_line(lineno, TimesheetLine(p['projnr'], p['tasknr'], p['hours']))
+
+    ts.submit()
 EOF
 endfunction
 
 " }}}1
 function! wiki#timesheet#get_registered_projects() " {{{1
-  return keys(s:table)
+  return s:table_ordered
 endfunction
 
 " }}}1
 
-function! s:create_maconomy_lists() " {{{1
+function! s:get_maconomy_lines(timesheet) " {{{1
   let l:list = []
-  for [l:key, l:vals] in items(s:parse_timesheet_week())
+  for l:key in s:table_ordered
+    if !has_key(a:timesheet, l:key) | continue | endif
+    let l:vals = l:timesheet[l:key]
+    if type(l:vals) != type({}) | continue | endif
+
     if !has_key(s:table, l:key)
       echo 'Project is not defined in project table:' l:key
       return []
     endif
     let l:info = s:table[l:key]
-    let l:new = [
-            \ s:table[l:key]['number'],
-            \ s:table[l:key]['name'],
-            \]
+    let l:new = {
+          \ 'projnr' : s:table[l:key]['number'],
+          \ 'projname' : s:table[l:key]['name'],
+          \}
 
     if has_key(l:vals, 'hours')
-      if len(l:info.tasks) > 1
-        echo 'Task was not uniquely specified for project:' l:key
-        echo 'Registered tasks are:'
-        for [l:name, l:task] in items(l:info.tasks)
-          echo '-' l:name  '(' . l:task[0] . ')'
-        endfor
-        return []
-      endif
+      if has_key(l:info, 'default')
+        call add(l:list, extend(copy(l:new), {
+              \ 'tasknr' : l:info.tasks[l:info.default],
+              \ 'taskname' : l:info.default,
+              \ 'hours' : l:vals.hours,
+              \ 'notes' : l:vals.note,
+              \}))
+      else
+        if len(l:info.tasks) > 1
+          echo 'Task was not uniquely specified for project:' l:key
+          echo 'Registered tasks are:'
+          for [l:name, l:task] in items(l:info.tasks)
+            echo '-' l:name  '(' . l:task . ')'
+          endfor
+          return []
+        endif
 
-      call add(l:list, l:new + values(l:info.tasks)[0]
-            \ + l:vals.hours + l:vals.note)
+        call add(l:list, extend(copy(l:new), {
+              \ 'tasknr' : values(l:info.tasks)[0],
+              \ 'taskname' : keys(l:info.tasks)[0],
+              \ 'hours' : l:vals.hours,
+              \ 'notes' : l:vals.note,
+              \}))
+      endif
     endif
 
     for l:task in filter(keys(l:vals), 'v:val !~# ''hours\|note''')
@@ -156,12 +183,16 @@ function! s:create_maconomy_lists() " {{{1
         echo 'Task "' . l:task . '" is not registered for project:' l:key
         echo 'Registered tasks are:'
         for [l:name, l:task] in items(l:info.tasks)
-          echo '-' l:name  '(' . l:task[0] . ')'
+          echo '-' l:name  '(' . l:task . ')'
         endfor
         return []
       endif
-      call add(l:list, l:new + l:info.tasks[l:task]
-            \ + l:vals[l:task].hours + l:vals[l:task].note)
+      call add(l:list, extend(copy(l:new), {
+            \ 'tasknr' : l:info.tasks[l:task],
+            \ 'taskname' : l:task,
+            \ 'hours' : l:vals[l:task].hours,
+            \ 'notes' : l:vals[l:task].note,
+            \}))
     endfor
   endfor
 
@@ -172,13 +203,18 @@ endfunction
 
 function! s:parse_timesheet_week() " {{{1
   if expand('%:t:r') =~# '\d\d\d\d-\d\d-\d\d'
-    let l:days = wiki#date#get_week_dates(expand('%:t:r'))
+    let l:date = expand('%:t:r')
+    let l:days = wiki#date#get_week_dates(l:date)
   else
+    let l:date = strftime('%F')
     let l:days = wiki#date#get_week_dates(strftime('%V'), strftime('%Y'))
   endif
 
-
-  let l:timesheet = {}
+  let l:timesheet = {
+        \ 'week' : wiki#date#get_week(l:days[0]),
+        \ 'dates' : l:days,
+        \ 'date' : l:date,
+        \}
   for l:dow in range(7)
     call s:parse_timesheet_day(l:dow+1, l:days[l:dow], l:timesheet)
   endfor
@@ -274,97 +310,97 @@ endfunction
 " {{{1 Table of project information
 
 let s:table = {}
+
+let s:table_ordered = [
+      \ 'Borte',
+      \ 'Diverse',
+      \ 'Leiested',
+      \ 'Tekna',
+      \ 'Sommerjobb',
+      \ '3dmf',
+      \ 'NanoHX',
+      \ 'FerroCool',
+      \ 'RPT',
+      \]
+
+let s:table.Borte = {
+      \ 'number' : '98500100',
+      \ 'name' : 'Fravær/Permisjon',
+      \ 'tasks' : {
+      \   'Omsorg' : 9404,
+      \ }
+      \}
+
 let s:table.Diverse = {
       \ 'number' : '99500121-1',
-      \ 'name' : 'Intern/GT/Adm. og drift',
+      \ 'name' : 'Intern',
       \ 'tasks' : {
-      \   'admin' : [9000, 'Administrasjon'],
+      \   'admin' : 9000,
       \ }
       \}
+
 let s:table.Leiested = {
       \ 'number' : 'L5090023',
-      \ 'name' : 'EN leiested: Linux drift (16L72206)',
+      \ 'name' : 'Leiested (linux drift)',
       \ 'tasks' : {
-      \   'drift' : [9005, 'Drift av leiested'],
+      \   'drift' : 9005,
       \ }
       \}
+
 let s:table.Tekna = {
       \ 'number' : '502000428',
-      \ 'name' : 'Intern - Arbeidstakerorganisasjonene  (10A003)',
+      \ 'name' : 'ATOer',
       \ 'tasks' : {
-      \   'tekna' : [10200, 'TEKNA'],
+      \   'tekna' : 10200,
       \ }
       \}
+
 let s:table.Sommerjobb = {
       \ 'number' : '502001249',
-      \ 'name' : 'ST/E/Sommerjobbprosjektet 2016',
+      \ 'name' : 'Sommerjobbprosjektet 2016',
       \ 'tasks' : {
-      \   'admin' : [1000, 'Administrasjon og QA'],
+      \   'admin' : 1000,
       \ }
       \}
+
 let s:table.3dmf = {
       \ 'number' : '502000610',
-      \ 'name' : 'TE_GT/E/3D multifluid flow (I-SIP)',
+      \ 'name' : '3dmf',
       \ 'tasks' : {
-      \   'modellering' : [1010, 'Modellering'],
+      \   'modellering' : 1010,
       \ }
       \}
+
 let s:table.NanoHX = {
       \ 'number' : '502000504',
-      \ 'name' : 'GT/E/NanoHX',
+      \ 'name' : 'NanoHX',
       \ 'tasks' : {
-      \   'T0' : [1000, 'Task 0: Project Management and QA'],
-      \   'T6' : [1060, 'Task 6: Project development'],
-      \   'T8' : [1110, 'Task 8: Code Maintenance'],
-      \   'T9' : [1120, 'Task 9: Research tasks'],
+      \   'T0' : 1000,
+      \   'T6' : 1060,
+      \   'T8' : 1110,
+      \   'T9' : 1120,
       \  }
       \}
+
 let s:table.FerroCool = {
       \ 'number' : '502001365',
-      \ 'name' : 'GT/FerroCool',
+      \ 'name' : 'FerroCool',
       \ 'tasks' : {
-      \   'T0' : [1000, 'T0: Administrasjon'],
-      \   'T1' : [1010, 'T1: Rigg'],
-      \   'T4' : [1040, 'T4: Applikasjonsstudie'],
+      \   'T0' : 1000,
+      \   'T1' : 1010,
+      \   'T4' : 1040,
       \  }
       \}
+
 let s:table.RPT = {
       \ 'number' : '502001038',
-      \ 'name' : 'GT/KPN/Predict-RPT',
+      \ 'name' : 'Predict-RPT',
+      \ 'default' : 'WP1.1',
       \ 'tasks' : {
-      \   'WP1.1' : [1100, 'WP 1.1: Risk scenario identificatioin'],
+      \   'WP1.1' : 1100,
+      \   'WP2.1' : 1100,
       \  }
       \}
-
-" }}}1
-
-"
-" Better data structure?
-"
-function! s:parse_timesheet_week_new() " {{{1
-  if expand('%:t:r') =~# '\d\d\d\d-\d\d-\d\d'
-    let l:days = wiki#date#get_week_dates(expand('%:t:r'))
-  else
-    let l:days = wiki#date#get_week_dates(strftime('%V'), strftime('%Y'))
-  endif
-
-  "
-  " Create timesheet dictionary
-  "
-  let l:timesheet = {
-        \ 'week' : l:week,
-        \ 'entries' : [],
-        \}
-  for l:dow in range(7)
-    call add(l:timesheet.entries, {
-          \ 'dow' : l:days[l:dow],
-          \ 'date' : l:dow+1,
-          \ 'projects' : s:parse_timesheet_day(l:days[l:dow])
-          \})
-  endfor
-
-  return l:timesheet
-endfunction
 
 " }}}1
 
