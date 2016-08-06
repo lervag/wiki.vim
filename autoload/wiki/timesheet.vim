@@ -89,8 +89,8 @@ function! wiki#timesheet#show() " {{{1
 
   let l:reply = input("\nSubmit to Maconomy [y/N]? ")
   echohl None
+  echon "\n"
   if l:reply =~# '^y'
-    echo "\nAccessing Maconomy"
     call wiki#timesheet#submit(l:timesheet)
   endif
 endfunction
@@ -99,30 +99,18 @@ endfunction
 function! wiki#timesheet#submit(...) " {{{1
   let l:timesheet = a:0 > 0 ? a:1 : s:parse_timesheet_week()
   let l:lines = s:get_maconomy_lines(l:timesheet)
-
-python3 <<EOF
-from vim import *
-import datetime
-
+  python3 <<EOF
+import vim
 from sintefpy.credentials import get_credentials
 from sintefpy.maconomy    import MaconomySession
-from sintefpy.timesheet   import Timesheet, TimesheetLine
-
-lines = eval('l:lines')
+from sintefpy.timesheet   import Timesheet
 
 user, pw = get_credentials()
 with MaconomySession(username='SINTEFGRP\\' + user, password=pw) as ms:
     ts = Timesheet(ms)
-    ts.change_date(datetime.datetime.now())
-    ts.open_if()
-    ts.clear_all_lines()
-
-    for p in lines:
-        print('- Submitting: {projname} ({taskname})'.format(**p))
-        lineno = len(ts.timesheettable)
-        ts.insert_line()
-        ts.fill_line(lineno, TimesheetLine(p['projnr'], p['tasknr'], p['hours']))
-
+    ts.change_date(vim.eval('l:timesheet.date'))
+    ts.open()
+    ts.fill_sheet(vim.eval('l:lines'))
     ts.submit()
 EOF
 endfunction
@@ -138,7 +126,7 @@ function! s:get_maconomy_lines(timesheet) " {{{1
   let l:list = []
   for l:key in s:table_ordered
     if !has_key(a:timesheet, l:key) | continue | endif
-    let l:vals = l:timesheet[l:key]
+    let l:vals = a:timesheet[l:key]
     if type(l:vals) != type({}) | continue | endif
 
     if !has_key(s:table, l:key)
@@ -147,17 +135,17 @@ function! s:get_maconomy_lines(timesheet) " {{{1
     endif
     let l:info = s:table[l:key]
     let l:new = {
-          \ 'projnr' : s:table[l:key]['number'],
+          \ 'projno' : s:table[l:key]['number'],
           \ 'projname' : s:table[l:key]['name'],
           \}
 
     if has_key(l:vals, 'hours')
       if has_key(l:info, 'default')
         call add(l:list, extend(copy(l:new), {
-              \ 'tasknr' : l:info.tasks[l:info.default],
+              \ 'taskno' : l:info.tasks[l:info.default],
               \ 'taskname' : l:info.default,
               \ 'hours' : l:vals.hours,
-              \ 'notes' : l:vals.note,
+              \ 'remarks' : l:vals.note,
               \}))
       else
         if len(l:info.tasks) > 1
@@ -170,10 +158,10 @@ function! s:get_maconomy_lines(timesheet) " {{{1
         endif
 
         call add(l:list, extend(copy(l:new), {
-              \ 'tasknr' : values(l:info.tasks)[0],
+              \ 'taskno' : values(l:info.tasks)[0],
               \ 'taskname' : keys(l:info.tasks)[0],
               \ 'hours' : l:vals.hours,
-              \ 'notes' : l:vals.note,
+              \ 'remarks' : l:vals.note,
               \}))
       endif
     endif
@@ -188,10 +176,10 @@ function! s:get_maconomy_lines(timesheet) " {{{1
         return []
       endif
       call add(l:list, extend(copy(l:new), {
-            \ 'tasknr' : l:info.tasks[l:task],
+            \ 'taskno' : l:info.tasks[l:task],
             \ 'taskname' : l:task,
             \ 'hours' : l:vals[l:task].hours,
-            \ 'notes' : l:vals[l:task].note,
+            \ 'remarks' : l:vals[l:task].note,
             \}))
     endfor
   endfor
@@ -398,7 +386,7 @@ let s:table.RPT = {
       \ 'default' : 'WP1.1',
       \ 'tasks' : {
       \   'WP1.1' : 1100,
-      \   'WP2.1' : 1100,
+      \   'WP2.1' : 1120,
       \  }
       \}
 
