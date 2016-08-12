@@ -92,6 +92,8 @@ function! wiki#timesheet#show() " {{{1
   echon "\n"
   if l:reply =~# '^y'
     call wiki#timesheet#submit(l:timesheet)
+  else
+    redraw!
   endif
 endfunction
 
@@ -102,8 +104,7 @@ function! wiki#timesheet#submit(...) " {{{1
   python3 <<EOF
 import vim
 from sintefpy.credentials import get_credentials
-from sintefpy.maconomy    import MaconomySession
-from sintefpy.timesheet   import Timesheet
+from sintefpy.maconomy import MaconomySession, Timesheet
 
 user, pw = get_credentials()
 with MaconomySession(username='SINTEFGRP\\' + user, password=pw) as ms:
