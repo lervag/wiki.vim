@@ -104,10 +104,10 @@ function! wiki#timesheet#submit(...) " {{{1
   python3 <<EOF
 import vim
 from sintefpy.credentials import get_credentials
-from sintefpy.maconomy import MaconomySession, Timesheet
+from sintefpy.maconomy import Session, Timesheet
 
 user, pw = get_credentials()
-with MaconomySession(username='SINTEFGRP\\' + user, password=pw) as ms:
+with Session(username='SINTEFGRP\\' + user, password=pw) as ms:
     ts = Timesheet(ms)
     ts.change_date(vim.eval('l:timesheet.date'))
     ts.open()
