@@ -301,8 +301,9 @@ endfunction
 let s:table = {}
 
 let s:table_ordered = [
-      \ 'Borte',
       \ 'Diverse',
+      \ 'Borte',
+      \ 'Intern',
       \ 'Leiested',
       \ 'Tekna',
       \ 'Sommerjobb',
@@ -312,6 +313,10 @@ let s:table_ordered = [
       \ 'RPT',
       \]
 
+let s:table.Diverse = {
+      \ 'name' : 'Diverse',
+      \}
+
 let s:table.Borte = {
       \ 'number' : '98500100',
       \ 'name' : 'Fravær/Permisjon',
@@ -320,7 +325,7 @@ let s:table.Borte = {
       \ }
       \}
 
-let s:table.Diverse = {
+let s:table.Intern = {
       \ 'number' : '99500121-1',
       \ 'name' : 'Intern',
       \ 'tasks' : {
