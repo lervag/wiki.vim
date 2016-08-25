@@ -106,13 +106,22 @@ import vim
 from sintefpy.credentials import get_credentials
 from sintefpy.maconomy import Session, Timesheet
 
+print('Connecting to Maconomy')
 user, pw = get_credentials()
 with Session(username='SINTEFGRP\\' + user, password=pw) as ms:
+    print('- Opening timesheet')
     ts = Timesheet(ms)
     ts.change_date(vim.eval('l:timesheet.date'))
     ts.open()
-    ts.fill_sheet(vim.eval('l:lines'))
+    print('- Submitting hours')
+    ts.clear_all_hours()
+    for line in vim.eval('l:lines'):
+        print('  - '
+              + line.get('projname', '--')
+              + ' (' + line.get('taskname', '--') + ')')
+        ts.fill_line(line)
     ts.submit()
+    print('- Finished')
 EOF
 endfunction
 
@@ -135,6 +144,8 @@ function! s:get_maconomy_lines(timesheet) " {{{1
       return []
     endif
     let l:info = s:table[l:key]
+    if !has_key(l:info, 'number') | continue | endif
+
     let l:new = {
           \ 'projno' : s:table[l:key]['number'],
           \ 'projname' : s:table[l:key]['name'],
