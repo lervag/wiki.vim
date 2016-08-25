@@ -307,6 +307,7 @@ let s:table_ordered = [
       \ 'Leiested',
       \ 'Tekna',
       \ 'Sommerjobb',
+      \ 'SommerjobbVL',
       \ '3dmf',
       \ 'NanoHX',
       \ 'FerroCool',
@@ -354,6 +355,14 @@ let s:table.Sommerjobb = {
       \ 'name' : 'Sommerjobbprosjektet 2016',
       \ 'tasks' : {
       \   'admin' : 1000,
+      \ }
+      \}
+
+let s:table.SommerjobbVL = {
+      \ 'number' : '502001249-3',
+      \ 'name' : 'SJP 2016 - Veiledning',
+      \ 'tasks' : {
+      \   'SBS' : 1637,
       \ }
       \}
 
