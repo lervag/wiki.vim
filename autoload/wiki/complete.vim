@@ -4,13 +4,17 @@
 " Email:      karl.yngve@gmail.com
 "
 
+let s:re_complete_trigger = join([
+      \ '\[\[\zs[^\\[\]]*',
+      \ '\[[^]]*\](\zs[^)]*',
+      \ 'journal:\zs\S*',
+      \ ], '\|') . '$'
+
 function! wiki#complete#omnicomplete(findstart, base) " {{{1
   if a:findstart
     let l:line = getline('.')[:col('.')-2]
 
-    return match(l:line,
-          \     '\[\[\zs[^\\[\]]*$'
-          \ . '\|\[.*\](\zs[^)]*$')
+    return match(l:line, s:re_complete_trigger)
   else
     if a:base =~# '#'
       let l:segments = split(a:base, '#', 1)
