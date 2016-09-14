@@ -231,7 +231,7 @@ function! wiki#link#template_word(url, ...) " {{{1
   " Solve trivial cases first
   "
   if len(l:candidates) == 0
-    return wiki#link#template_wiki('/' . a:url)
+    return wiki#link#template_wiki((b:wiki.in_journal ? '/' : '') . a:url)
   elseif len(l:candidates) == 1
     return wiki#link#template_wiki('/' . l:candidates[0], a:url)
   endif
@@ -449,7 +449,7 @@ let s:matcher_word = {
       \ 'type' : 'word',
       \ 'parser' : function('s:parser_word'),
       \ 'toggle' : 'word',
-      \ 'rx' : '\<\w\+\>',
+      \ 'rx' : '\<[0-9A-ZÆØÅa-zæøå]\+\>',
       \}
 
 " }}}1
