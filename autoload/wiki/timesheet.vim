@@ -409,10 +409,14 @@ let s:table.FerroCool = {
 let s:table.RPT = {
       \ 'number' : '502001038',
       \ 'name' : 'Predict-RPT',
-      \ 'default' : 'WP1.1',
       \ 'tasks' : {
       \   'WP1.1' : 1100,
+      \   'WP1.2' : 1110,
       \   'WP2.1' : 1120,
+      \   'WP2.2' : 1130,
+      \   'WP3.1' : 1140,
+      \   'WP3.2' : 1150,
+      \   'SP 4'  : 1160,
       \  }
       \}
 
