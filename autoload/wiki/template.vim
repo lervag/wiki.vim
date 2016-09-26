@@ -54,7 +54,7 @@ let s:summary.projects = [
       \ 'FerroCool 2',
       \ 'RPT',
       \]
-let s:summary.regex_title = join(
+let s:summary.regex_title = '\C' . join(
       \ sort(copy(s:summary.projects), function('s:sort_by_strlen')), '\|')
 
 function! s:summary.new() dict " {{{2
@@ -99,6 +99,9 @@ function! s:summary.parse_link(link) dict " {{{2
     if l:line =~# '^\s*$'
       if !empty(l:lines)
         let l:entries[l:title] = l:lines
+        if index(self.projects, l:title) == -1
+          call add(self.projects, l:title)
+        endif
       endif
       let l:ignore = 0
       let l:new_entry = 1
