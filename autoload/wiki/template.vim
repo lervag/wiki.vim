@@ -47,6 +47,7 @@ let s:summary.projects = [
       \ 'Leiested',
       \ 'Tekna',
       \ 'Sommerjobb-administrasjon',
+      \ 'Infrastruktur 2016',
       \ '3dmf',
       \ 'NanoHX',
       \ 'FerroCool',
@@ -119,11 +120,11 @@ function! s:summary.parse_link(link) dict " {{{2
     " Detect header of entries
     "
     if l:new_entry
-      if l:line =~# self.regex_title
-        let l:new_entry = 0
-        let l:title = matchstr(l:line, self.regex_title)
-        call add(l:lines, l:line)
-      endif
+      let l:new_entry = 0
+      let l:title = l:line =~# self.regex_title
+            \ ? matchstr(l:line, self.regex_title)
+            \ : l:line
+      call add(l:lines, l:line)
       continue
     endif
 
