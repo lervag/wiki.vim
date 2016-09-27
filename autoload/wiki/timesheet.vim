@@ -420,6 +420,14 @@ let s:table.RPT = {
       \  }
       \}
 
+let s:table.NCCS = {
+      \ 'number' : '502001439',
+      \ 'name' : 'NCCS',
+      \ 'tasks' : {
+      \   'Administrasjon' : 1000,
+      \  }
+      \}
+
 " }}}1
 
 " vim: fdm=marker sw=2
