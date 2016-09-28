@@ -361,7 +361,7 @@ let s:table.Leiested = {
       \ 'number' : 'L5090023',
       \ 'name' : 'Leiested (linux drift)',
       \ 'tasks' : {
-      \   'drift' : 9005,
+      \   'Drift' : 9005,
       \ }
       \}
 
