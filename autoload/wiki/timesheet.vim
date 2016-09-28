@@ -7,7 +7,7 @@
 function! wiki#timesheet#show() " {{{1
   let l:timesheet = s:parse_timesheet_week()
 
-  let l:titles = ['Projects',
+  let l:titles = ['Project', 'Task',
         \ 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Sum']
 
   let l:projects = []
@@ -17,11 +17,21 @@ function! wiki#timesheet#show() " {{{1
     if type(l:vals) != type({}) | continue | endif
 
     if has_key(l:vals, 'hours')
-      call add(l:projects, [l:key] + l:vals.hours + [s:sum(l:vals.hours)])
+      let l:tasks = keys(get(s:table[l:key], 'tasks', { '' : 0 }))
+      if len(tasks) > 1
+        let l:task = '**LACKING**'
+      else
+        let l:task = l:tasks[0]
+        if !empty(l:task)
+          let l:task .= '*'
+        endif
+      endif
+      call add(l:projects, [l:key, l:task]
+            \ + l:vals.hours + [s:sum(l:vals.hours)])
     endif
 
     for l:task in filter(keys(l:vals), 'v:val !~# ''hours\|note''')
-      call add(l:projects, [l:key . ' ' . l:task]
+      call add(l:projects, [l:key, l:task]
             \ + l:vals[l:task].hours + [s:sum(l:vals[l:task].hours)])
     endfor
   endfor
@@ -29,7 +39,7 @@ function! wiki#timesheet#show() " {{{1
   let l:sums = ['Sum'] + repeat([0.0], 8)
   for l:proj in l:projects
     for l:i in range(1,8)
-      let l:sums[i] += l:proj[i]
+      let l:sums[i] += l:proj[i+1]
     endfor
   endfor
 
@@ -59,13 +69,14 @@ function! wiki#timesheet#show() " {{{1
   echo printf("Week: %02d%54s\n\n", l:timesheet.week,
         \ l:timesheet.dates[0] . ' -- ' . l:timesheet.dates[-1])
   echohl Title
-  echo call('printf', ['%-20s' . repeat('%7s', len(l:sums) - 1)] + l:titles)
+  echo call('printf', ['%-18s%-18s' . repeat('%7s', len(l:sums) - 1)] + l:titles)
   echohl ModeMsg
-  echo repeat('-', 20 + 7*(len(l:sums) - 1))
+  let l:table_line = repeat('-', 39 + 7*(len(l:sums) - 1))
+  echo l:table_line
   echohl None
   for l:proj in l:projects
     let l:fmt = ''
-    for l:i in range(1, len(l:proj)-1)
+    for l:i in range(2, len(l:proj)-1)
       if l:proj[l:i] == 0.0
         let l:proj[l:i] = ''
         let l:fmt .= '%7s'
@@ -74,18 +85,18 @@ function! wiki#timesheet#show() " {{{1
       endif
     endfor
     echohl ModeMsg
-    echo printf('%-20s', l:proj[0])
-    echohl ModeMsg
+    echo printf('%-18s', l:proj[0])
+    echon printf('%-18s', l:proj[1])
     echohl Number
-    echon call('printf', [l:fmt] + l:proj[1:])
+    echon call('printf', [l:fmt] + l:proj[2:])
     echohl None
   endfor
   echohl ModeMsg
-  echo repeat('-', 20 + 7*(len(l:sums) - 1))
+  echo l:table_line
   echohl Title
-  echo call('printf', ['%-20s' . repeat('%7.2f', len(l:sums) - 1)] + l:sums)
+  echo call('printf', ['%-36s' . repeat('%7.2f', len(l:sums) - 1)] + l:sums)
   echohl ModeMsg
-  echo repeat('-', 20 + 7*(len(l:sums) - 1))
+  echo l:table_line
 
   let l:reply = input("\nSubmit to Maconomy [y/N]? ")
   echohl None
@@ -342,7 +353,7 @@ let s:table.Intern = {
       \ 'number' : '99500121-1',
       \ 'name' : 'Intern',
       \ 'tasks' : {
-      \   'admin' : 9000,
+      \   '' : 9000,
       \ }
       \}
 
@@ -358,7 +369,7 @@ let s:table.Tekna = {
       \ 'number' : '502000428',
       \ 'name' : 'ATOer',
       \ 'tasks' : {
-      \   'tekna' : 10200,
+      \   '' : 10200,
       \ }
       \}
 
@@ -366,7 +377,7 @@ let s:table.Sommerjobb = {
       \ 'number' : '502001249',
       \ 'name' : 'Sommerjobbprosjektet 2016',
       \ 'tasks' : {
-      \   'admin' : 1000,
+      \   '' : 1000,
       \ }
       \}
 
@@ -374,7 +385,7 @@ let s:table.SommerjobbVL = {
       \ 'number' : '502001249-3',
       \ 'name' : 'SJP 2016 - Veiledning',
       \ 'tasks' : {
-      \   'SBS' : 1637,
+      \   'Sondre' : 1637,
       \ }
       \}
 
@@ -382,7 +393,7 @@ let s:table.3dmf = {
       \ 'number' : '502000610',
       \ 'name' : '3dmf',
       \ 'tasks' : {
-      \   'modellering' : 1010,
+      \   'Modellering' : 1010,
       \ }
       \}
 
