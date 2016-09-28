@@ -319,6 +319,7 @@ let s:table_ordered = [
       \ 'Tekna',
       \ 'Sommerjobb',
       \ 'SommerjobbVL',
+      \ 'NCCS',
       \ '3dmf',
       \ 'NanoHX',
       \ 'FerroCool',
