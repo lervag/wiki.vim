@@ -52,7 +52,7 @@ function! wiki#timesheet#show() " {{{1
     call remove(l:sums, 7)
     call remove(l:titles, 7)
     for l:proj in l:projects
-      call remove(l:proj, 7)
+      call remove(l:proj, 8)
     endfor
   endif
 
@@ -60,7 +60,7 @@ function! wiki#timesheet#show() " {{{1
     call remove(l:sums, 6)
     call remove(l:titles, 6)
     for l:proj in l:projects
-      call remove(l:proj, 6)
+      call remove(l:proj, 7)
     endfor
   endif
 
