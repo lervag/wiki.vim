@@ -126,7 +126,7 @@ for [s:group, s:target] in [
   endif
 endfor
 
-highlight default wikiTableSeparator ctermfg=lightgray guifg=#40474d
+highlight default wikiTableSeparator ctermfg=black guifg=#40474d
 highlight default link wikiTableLine wikiTableSeparator
 highlight default link wikiTableFormulaLine wikiTableSeparator
 highlight default link wikiTableFormula Number
