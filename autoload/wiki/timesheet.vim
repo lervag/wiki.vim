@@ -346,6 +346,7 @@ let s:table.Borte = {
       \ 'name' : 'Fravær/Permisjon',
       \ 'tasks' : {
       \   'Omsorg' : 9404,
+      \   'Lege' : 9409,
       \ }
       \}
 
