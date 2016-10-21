@@ -60,6 +60,7 @@ function! wiki#init_buffer() " {{{1
   setlocal nocindent
   setlocal comments =:*\ TODO:,b:*\ [\ ],b:*\ [X],b:*
   setlocal comments+=:-\ TODO:,b:-\ [\ ],b:-\ [X],b:-
+  setlocal comments+=b:>
   let &l:commentstring = '// %s'
   setlocal formatoptions-=o
   setlocal formatoptions+=n
