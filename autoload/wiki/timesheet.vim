@@ -121,7 +121,7 @@ print('Connecting to Maconomy')
 user, pw = get_credentials()
 with Session(username='SINTEFGRP\\' + user, password=pw) as ms:
     print('- Opening timesheet')
-    ts = Timesheet(ms)
+    ts = Timesheet.from_session(ms)
     ts.change_date(vim.eval('l:timesheet.date'))
     ts.open()
     print('- Submitting hours')
