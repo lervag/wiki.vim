@@ -32,7 +32,6 @@ function! wiki#init() " {{{1
   " Warn if wiki path is invalid
   "
   if !isdirectory(g:wiki.root)
-    echomsg 'Please set g:wiki.root to a valid wiki path!'
     return
   endif
 
