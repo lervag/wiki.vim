@@ -114,6 +114,9 @@ function! wiki#timesheet#submit(...) " {{{1
   let l:lines = s:get_maconomy_lines(l:timesheet)
   python3 <<EOF
 import vim
+import sys
+sys.modules['keyring'] = 1
+
 from sintefpy.credentials import get_credentials
 from sintefpy.maconomy import Session, Timesheet
 
