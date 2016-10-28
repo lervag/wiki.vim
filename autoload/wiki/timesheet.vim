@@ -119,7 +119,7 @@ from sintefpy.maconomy import Session, Timesheet
 
 print('Connecting to Maconomy')
 user, pw = get_credentials()
-with Session(username='SINTEFGRP\\' + user, password=pw) as ms:
+with Session(user, password=pw) as ms:
     print('- Opening timesheet')
     ts = Timesheet.from_session(ms)
     ts.change_date(vim.eval('l:timesheet.date'))
