@@ -152,14 +152,22 @@ function! s:url_file_open(...) dict " {{{1
     return
   endif
 
-  if !filereadable(self.path) | return | endif
-
-  if self.path =~# 'pdf$'
-    silent execute '!zathura' self.path '&'
+  if !filereadable(self.path)
+    echom '...'
     return
   endif
 
-  execute 'edit' self.path
+  if self.path =~# 'pdf$'
+    silent execute '!zathura' fnameescape(self.path) '&'
+    return
+  endif
+
+  if self.path =~# 'docx$'
+    silent execute '!libreoffice' fnameescape(self.path) '&'
+    return
+  endif
+
+  execute 'edit' fnameescape(self.path)
 endfunction
 
 "}}}1
