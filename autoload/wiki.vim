@@ -128,7 +128,8 @@ function! s:init_mappings() " {{{1
   "
   " Lists
   "
-  nnoremap <silent><buffer> <c-space> :call wiki#list#toggle_todo()<cr>
+  nnoremap <silent><buffer>       <c-space> :call wiki#list#toggle_todo()<cr>
+  inoremap <silent><buffer><expr> <c-cr>    wiki#list#new_line_bullet()
 
   "
   " Text objects

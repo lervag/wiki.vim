@@ -17,4 +17,25 @@ endfunction
 
 " }}}1
 
+function! wiki#list#new_line_bullet() "{{{1
+  let l:re = '\v^\s*[*-] %(TODO:)?\s*'
+  let l:line = getline('.')
+
+  " Toggle TODO if at start of list item
+  if match(l:line, l:re . '$') >= 0
+    let l:re = '\v^\s*[*-] \zs%(TODO:)?\s*'
+    return repeat("\<bs>", strlen(matchstr(l:line, l:re)))
+          \ . (match(l:line, 'TODO') < 0 ? 'TODO: ' : '')
+  endif
+
+  " Find last used bullet type (including the TODO)
+  let l:lnum = search(l:re, 'bn')
+  let l:bullet = matchstr(getline(l:lnum), l:re)
+
+  " Return new line (unless current line is empty) and the correct bullet
+  return (match(l:line, '^\s*$') >= 0 ? '' : "\<cr>") . "0\<c-d>" . l:bullet
+endfunction
+
+" }}}1
+
 " vim: fdm=marker sw=2
