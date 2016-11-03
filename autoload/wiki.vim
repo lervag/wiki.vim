@@ -178,6 +178,7 @@ let s:file = expand('<sfile>')
 if get(s:, 'reload_guard', 1)
   function! wiki#reload()
     let s:reload_guard = 0
+    let l:foldmethod = &l:foldmethod
 
     " Reload autoload scripts
     for l:file in [s:file]
@@ -202,6 +203,7 @@ if get(s:, 'reload_guard', 1)
       endif
     endif
 
+    let &l:foldmethod = l:foldmethod
     unlet s:reload_guard
   endfunction
 endif
