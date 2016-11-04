@@ -130,9 +130,11 @@ with Session(user, password=pw) as ms:
     print('- Submitting hours')
     ts.clear_all_hours()
     for line in vim.eval('l:lines'):
-        print('  - '
-              + line.get('projname', '--')
-              + ' (' + line.get('taskname', '--') + ')')
+        info = '  - ' + line.get('projname', '--')
+        task = line.get('taskname', '')
+        if task:
+            info += ' [' + task + ']'
+        print(info)
         ts.fill_line(line)
     ts.submit()
     print('- Finished')
