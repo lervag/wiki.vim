@@ -97,7 +97,8 @@ function! s:url_wiki_open(...) dict " {{{1
     execute l:cmd fnameescape(self.path)
 
     if exists('l:prev_link')
-      let b:wiki.prev_link = l:prev_link
+      let b:wiki = extend(get(b:, 'wiki', {}),
+            \ { 'prev_link' : l:prev_link }, 'force')
     endif
   endif
 

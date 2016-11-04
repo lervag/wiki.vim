@@ -70,11 +70,12 @@ function! wiki#init_buffer() " {{{1
     autocmd BufWinEnter *.wiki setlocal conceallevel=2
   augroup END
 
-  let b:wiki = {
+  let b:wiki = extend(get(b:, 'wiki', {}),
+        \ {
         \ 'in_journal' : stridx(
         \   resolve(expand('%:p')),
         \   resolve(g:wiki.journal)) == 0
-        \ }
+        \ })
 
   " TODO
   let g:wiki_bullet_types = { '-':0, '*':0, '+':0 }
