@@ -340,6 +340,7 @@ let s:table_ordered = [
       \ 'NanoHX',
       \ 'FerroCool',
       \ 'RPT',
+      \ 'ELEGANCY',
       \]
 
 let s:table.Diverse = {
@@ -445,6 +446,14 @@ let s:table.NCCS = {
       \ 'name' : 'NCCS',
       \ 'tasks' : {
       \   'Administrasjon' : 1000,
+      \  }
+      \}
+
+let s:table.ELEGANCY = {
+      \ 'number' : '502001175',
+      \ 'name' : 'ELEGANCY',
+      \ 'tasks' : {
+      \   'P2' : 1010,
       \  }
       \}
 
