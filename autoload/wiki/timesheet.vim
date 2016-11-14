@@ -48,21 +48,16 @@ function! wiki#timesheet#show() " {{{1
     return
   endif
 
-  if l:sums[7] == 0.0
-    call remove(l:sums, 7)
-    call remove(l:titles, 7)
-    for l:proj in l:projects
-      call remove(l:proj, 8)
-    endfor
-  endif
-
-  if l:sums[6] == 0.0
-    call remove(l:sums, 6)
-    call remove(l:titles, 6)
-    for l:proj in l:projects
-      call remove(l:proj, 7)
-    endfor
-  endif
+  " Remove Sunday and Saturday if there is nothing registered
+  for l:i in range(8, 7, -1)
+    if l:sums[l:i-1] == 0.0
+      call remove(l:sums, l:i-1)
+      call remove(l:titles, l:i)
+      for l:proj in l:projects
+        call remove(l:proj, l:i)
+      endfor
+    endif
+  endfor
 
   echohl ModeMsg
   echo 'Date:' l:timesheet.date
