@@ -336,6 +336,7 @@ let s:table_ordered = [
       \ 'FerroCool',
       \ 'RPT',
       \ 'ELEGANCY',
+      \ 'Trafo',
       \]
 
 let s:table.Diverse = {
@@ -449,6 +450,14 @@ let s:table.ELEGANCY = {
       \ 'name' : 'ELEGANCY',
       \ 'tasks' : {
       \   'P2' : 1010,
+      \  }
+      \}
+
+let s:table.Trafo = {
+      \ 'number' : '502001282',
+      \ 'name' : 'Trafo',
+      \ 'tasks' : {
+      \   'WP2' : 1020,
       \  }
       \}
 
