@@ -246,10 +246,13 @@ highlight default link wikiQuoteChar Comment
 highlight default wikiQuote ctermfg=white guifg=black
 
 syntax match wikiNumber  /\d\+\.\d\+/
-syntax match wikiVersion /\d\+\.\d\+\(\.\d\)\+/
+syntax match wikiIPNum   /\d\+\(\.\d\+\)\{3}/
+syntax match wikiVersion /v\d\+\(\.\d\+\)*/
+syntax match wikiVersion /\(version\|versjon\) \zs\d\+\(\.\d\+\)*/
 syntax match wikiTime    /\d\d:\d\d/
 syntax match wikiLine    /^\s*-\{4,}\s*$/
 highlight default link wikiNumber  Constant
+highlight default link wikiIPNum   Identifier
 highlight default link wikiVersion Statement
 highlight default link wikiTime    Number
 highlight default link wikiLine Identifier
