@@ -48,11 +48,13 @@ let s:summary.projects = [
       \ 'Tekna',
       \ 'Sommerjobb-administrasjon',
       \ 'Infrastruktur 2016',
+      \ 'ELEGANCY',
       \ '3dmf',
       \ 'NanoHX',
       \ 'FerroCool',
       \ 'FerroCool 2',
       \ 'RPT',
+      \ 'Trafo',
       \]
 let s:summary.regex_title = '\C' . join(
       \ sort(copy(s:summary.projects), function('s:sort_by_strlen')), '\|')

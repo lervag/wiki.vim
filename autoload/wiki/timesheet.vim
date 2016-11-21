@@ -330,12 +330,12 @@ let s:table_ordered = [
       \ 'Tekna',
       \ 'Sommerjobb',
       \ 'SommerjobbVL',
+      \ 'ELEGANCY',
       \ 'NCCS',
       \ '3dmf',
       \ 'NanoHX',
       \ 'FerroCool',
       \ 'RPT',
-      \ 'ELEGANCY',
       \ 'Trafo',
       \]
 
