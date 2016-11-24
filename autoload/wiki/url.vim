@@ -40,6 +40,7 @@ function! wiki#url#parse(string, ...) " {{{1
         \   'journal' : s:url_wiki_parse(l:url),
         \   'file'  : s:url_file_parse(l:url),
         \   'doi'   : s:url_doi_parse(l:url),
+        \   'jira'   : s:url_jira_parse(l:url),
         \ }, l:url.scheme,
         \ { 'open' : function('s:url_external_open') }))
 endfunction
@@ -178,6 +179,17 @@ function! s:url_doi_parse(url) " {{{1
         \ 'scheme' : 'http',
         \ 'stripped' : 'dx.doi.org/' . a:url.stripped,
         \ 'url' : 'http://dx.doi.org/' . a:url.stripped,
+        \ 'open' : function('s:url_external_open'),
+        \}
+endfunction
+
+" }}}1
+
+function! s:url_jira_parse(url) " {{{1
+  return {
+        \ 'scheme' : 'https',
+        \ 'stripped' : 'jira.code.sintef.no/browse/' . a:url.stripped,
+        \ 'url' : 'https://jira.code.sintef.no/browse/' . a:url.stripped,
         \ 'open' : function('s:url_external_open'),
         \}
 endfunction
