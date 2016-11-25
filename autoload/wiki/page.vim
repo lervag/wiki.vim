@@ -79,7 +79,7 @@ function! wiki#page#rename() "{{{1
 
   " Get list of open wiki buffers
   let l:bufs = map(filter(map(filter(range(1, bufnr('$')),
-        \       'bufexists(v:val)'),
+        \       'buflisted(v:val)'),
         \     'fnamemodify(bufname(v:val), '':p'')'),
         \   'v:val =~# ''.wiki$'''),
         \ '[v:val, getbufvar(v:val, ''wiki.prev_link'')]')
@@ -102,7 +102,7 @@ function! wiki#page#rename() "{{{1
             \ { 'origin' : l:old.prev_link })
     else
       let l:url = wiki#url#parse(
-            \ fnamemodify(l:bufname, ':p:h:r'),
+            \ fnamemodify(l:bufname, ':t:r'),
             \ { 'prev_link' : l:prev_link })
     endif
     call l:url.open()
@@ -190,7 +190,7 @@ endfunction
 " }}}1
 
 function! s:rename_update_links(old, new) " {{{1
-  let l:pattern  = '\v\[\[\/?\zs' . a:old . '\ze%(#.*)?%(|.*)?\]\]'
+  let l:pattern  = '\v\[\[\/?\zs' . a:old . '\ze%(#.*)?%(\|.*)?\]\]'
   let l:pattern .= '|\[.*\]\[\zs' . a:old . '\ze%(#.*)?\]'
   let l:pattern .= '|\[.*\]\(\zs' . a:old . '\ze%(#.*)?\)'
   let l:pattern .= '|\[\zs' . a:old . '\ze%(#.*)?\]\[\]'
