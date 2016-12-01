@@ -97,21 +97,22 @@ endfunction
 
 " }}}1
 function! wiki#date#get_month_decomposed(month, year) " {{{1
-    let l:n = wiki#date#get_month_size(a:month, a:year)
-    let l:days = wiki#date#get_month_days(a:month, a:year)
+  let l:n = wiki#date#get_month_size(a:month, a:year)
+  let l:days = wiki#date#get_month_days(a:month, a:year)
 
-    let l:first_monday = (9 - wiki#date#get_day_of_week(l:days[0])) % 7
-    let l:first_week = wiki#date#get_week(l:days[l:first_monday-1])
+  let l:dow = wiki#date#get_day_of_week(l:days[0])
+  let l:first_monday = l:dow == 1 ? 1 : 9 - l:dow
+  let l:first_week = wiki#date#get_week(l:days[l:first_monday-1])
 
-    let l:number_of_weeks = (l:n - l:first_monday + 1)/7
-    let l:remaining_days = l:n - 7*l:number_of_weeks - l:first_monday + 1
+  let l:number_of_weeks = (l:n - l:first_monday + 1)/7
+  let l:remaining_days = l:n - 7*l:number_of_weeks - l:first_monday + 1
 
-    let l:days_pre  = l:first_monday   > 1 ? l:days[:l:first_monday-2]  : []
-    let l:days_post = l:remaining_days > 0 ? l:days[-l:remaining_days:] : []
-    let l:weeks = map(range(l:number_of_weeks),
-          \ 'a:year . ''_w'' . (l:first_week + v:val)')
+  let l:days_pre  = l:first_monday   > 1 ? l:days[:l:first_monday-2]  : []
+  let l:days_post = l:remaining_days > 0 ? l:days[-l:remaining_days:] : []
+  let l:weeks = map(range(l:number_of_weeks),
+        \ 'a:year . ''_w'' . (l:first_week + v:val)')
 
-    return l:days_pre + l:weeks + l:days_post
+  return l:days_pre + l:weeks + l:days_post
 endfunction
 
 " }}}1
