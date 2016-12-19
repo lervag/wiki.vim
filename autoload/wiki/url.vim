@@ -35,14 +35,14 @@ function! wiki#url#parse(string, ...) " {{{1
   endif
 
   " Extend through specific parsers
-  return extend(l:url, get({
-        \   'wiki'  : s:url_wiki_parse(l:url),
-        \   'journal' : s:url_wiki_parse(l:url),
-        \   'file'  : s:url_file_parse(l:url),
-        \   'doi'   : s:url_doi_parse(l:url),
-        \   'jira'   : s:url_jira_parse(l:url),
-        \ }, l:url.scheme,
-        \ { 'open' : function('s:url_external_open') }))
+  if exists('*s:url_' . l:url.scheme . '_parse')
+    return extend(l:url, s:url_{l:url.scheme}_parse(l:url))
+  else
+    return extend(l:url, get({
+          \   'journal' : s:url_wiki_parse(l:url),
+          \ }, l:url.scheme,
+          \ { 'open' : function('s:url_external_open') }))
+  endif
 endfunction
 
 " }}}1
