@@ -196,6 +196,25 @@ endfunction
 
 " }}}1
 
+function! s:url_stash_parse(url) " {{{1
+  let l:res = {}
+  let l:res.project = matchstr(a:url.stripped, '^[A-Z]\+\ze\/')
+  let l:res.repo = matchstr(a:url.stripped, '\/\zs\S*\ze\/')
+  let l:res.prnum = matchstr(a:url.stripped, '\d\+$')
+  let l:res.stripped = 'stash.code.sintef.no'
+        \ . '/projects/' . l:res.project
+        \ . '/repos/' . l:res.repo
+        \ . '/pull-requests/' . l:res.prnum
+        \ . '/overview'
+  let l:res.scheme = 'https'
+  let l:res.url = l:res.scheme . '://' . l:res.stripped
+  let l:res.open = function('s:url_external_open')
+
+  return l:res
+endfunction
+
+" }}}1
+
 function! s:url_external_open(...) dict " {{{1
   call system('xdg-open ' . shellescape(self.url) . '&')
 endfunction
