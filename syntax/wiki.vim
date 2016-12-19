@@ -96,7 +96,7 @@ syntax match wikiTable /^\s*|.\+|\s*$/ transparent contains=@wikiInTable,@Spell
 syntax match wikiTableSeparator /|/ contained
 syntax match wikiTableLine /^\s*[|\-+:]\+\s*$/ contained
 
-syntax match wikiTableFormulaLine /^\/\/ tmf:.*/ contains=wikiTableFormula
+syntax match wikiTableFormulaLine /^\s*\/\/ tmf:.*/ contains=wikiTableFormula
 syntax match wikiTableFormula /^\s*\/\/ tmf:\zs.*/ contained
       \ contains=wikiTableFormulaChars,wikiTableFormulaSyms
 syntax match wikiTableFormulaSyms /[$=():]/ contained
