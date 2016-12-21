@@ -105,7 +105,7 @@ function! wiki#page#rename() "{{{1
             \ fnamemodify(l:bufname, ':t:r'),
             \ { 'prev_link' : l:prev_link })
     endif
-    call l:url.open()
+    silent call l:url.open()
   endfor
 endfunction
 
@@ -192,8 +192,11 @@ endfunction
 function! s:rename_update_links(old, new) " {{{1
   let l:pattern  = '\v\[\[\/?\zs' . a:old . '\ze%(#.*)?%(\|.*)?\]\]'
   let l:pattern .= '|\[.*\]\[\zs' . a:old . '\ze%(#.*)?\]'
-  let l:pattern .= '|\[.*\]\(\zs' . a:old . '\ze%(#.*)?\)'
+  let l:pattern .= '|\[.*\]\(\/?\zs' . a:old . '\ze%(#.*)?\)'
   let l:pattern .= '|\[\zs' . a:old . '\ze%(#.*)?\]\[\]'
+
+  let l:num_files = 0
+  let l:num_links = 0
 
   for l:file in glob(g:wiki.root . '**/*.wiki', 0, 1)
     let l:updates = 0
@@ -201,6 +204,7 @@ function! s:rename_update_links(old, new) " {{{1
     for l:line in readfile(l:file)
       if match(l:line, l:pattern) != -1
         let l:updates = 1
+        let l:num_links += 1
         call add(l:lines, substitute(l:line, l:pattern, a:new, 'g'))
       else
         call add(l:lines, l:line)
@@ -212,8 +216,10 @@ function! s:rename_update_links(old, new) " {{{1
       call rename(l:file, l:file . '#tmp')
       call writefile(l:lines, l:file)
       call delete(l:file . '#tmp')
+      let l:num_files += 1
     endif
   endfor
+  echom printf('Updated %d links in %d files', l:num_links, l:num_files)
 endfunction
 
 " }}}1
