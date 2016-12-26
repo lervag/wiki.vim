@@ -4,41 +4,39 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#graph#show_link_tree() " {{{1
+function! wiki#graph#tree_from_current() " {{{1
   call s:graph.init()
 
-  let l:start = expand('%:t:r')
-  let l:current = l:start
+  "
+  " Define starting point
+  "
+  let l:current = expand('%:t:r')
   let l:tree = { l:current : l:current }
   let l:stack = map(copy(s:graph.nodes[l:current]), '[v:val, [l:current]]')
   let l:visited = []
 
+  "
+  " Generate tree
+  "
   while !empty(l:stack)
-    let [l:current, l:path] = remove(l:stack, 0)
+    let [l:current, l:old_path] = remove(l:stack, 0)
     if index(l:visited, l:current) >= 0 | continue | endif
     let l:visited += [l:current]
 
-    let l:new_path = l:path + [l:current]
-    let l:new = copy(get(s:graph.nodes, l:current, []))
-    call map(l:new, '[v:val, l:new_path]')
+    let l:path = l:old_path + [l:current]
+    let l:new = map(copy(get(s:graph.nodes, l:current, [])), '[v:val, l:path]')
+    let l:stack += l:new
 
     if !has_key(l:tree, l:current)
-      let l:tree[l:current] = join(l:new_path, ' -> ')
+      let l:tree[l:current] = join(l:path, ' / ')
     endif
-
-    let l:stack += l:new
   endwhile
 
-  let l:last = ''
+  "
+  " Print the tree
+  "
   for l:entry in sort(values(l:tree))
-    if match(l:entry, l:last)
-      let l:test = repeat(' ', len(l:last))
-            \ . substitute(l:entry, '^' . l:last, '', '')
-      echom l:test
-    else
-      echom l:entry
-    endif
-    let l:last = l:entry
+    echom l:entry
   endfor
 endfunction
 
