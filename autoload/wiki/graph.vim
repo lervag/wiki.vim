@@ -4,6 +4,31 @@
 " Email:      karl.yngve@gmail.com
 "
 
+function! wiki#graph#find_backlinks() "{{{1
+  call s:graph.init()
+
+  let l:origin = resolve(expand('%:p'))
+  let l:results = []
+  for l:content in deepcopy(values(s:graph.nodes))
+    let l:results += filter(l:content.links, 'v:val.target ==# l:origin')
+  endfor
+
+  for l:link in l:results
+    let l:link.text =
+          \ (!empty(l:link.anchor) ? '[' . l:link.anchor . '] ' : '')
+          \ . l:link.text
+  endfor
+
+  if empty(l:results)
+    echomsg 'wiki: No other file links to this file'
+  else
+    call setloclist(0, l:results, 'r')
+    lopen
+  endif
+endfunction
+
+"}}}1
+
 function! wiki#graph#from_current() " {{{1
   call s:graph.init()
 

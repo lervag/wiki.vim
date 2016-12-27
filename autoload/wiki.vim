@@ -104,7 +104,6 @@ function! s:init_mappings() " {{{1
   " General wiki mappings
   "
   nnoremap <silent><buffer> <leader>wt :call wiki#page#create_toc()<cr>
-  nnoremap <silent><buffer> <leader>wb :call wiki#get_backlinks()<cr>
   nnoremap <silent><buffer> <leader>wd :call wiki#page#delete()<cr>
   nnoremap <silent><buffer> <leader>wr :call wiki#page#rename()<cr>
   nnoremap <silent><buffer> <leader>wh :call wiki#timesheet#show()<cr>
@@ -135,6 +134,7 @@ function! s:init_mappings() " {{{1
   "
   " Graphs
   "
+  nnoremap <silent><buffer> <leader>wb :call wiki#graph#find_backlinks()<cr>
   nnoremap <silent><buffer> <leader>wg :call wiki#graph#from_current()<cr>
   nnoremap <silent><buffer> <leader>wG :call wiki#graph#to_current()<cr>
 
@@ -216,36 +216,5 @@ if get(s:, 'reload_guard', 1)
 endif
 
 " }}}1
-function! wiki#get_backlinks() "{{{1
-  let l:origin = expand('%:p')
-  let l:locs = []
-
-  for l:file in globpath(g:wiki.root, '**/*.wiki', 0, 1)
-    if resolve(l:file) ==# resolve(l:origin) | continue | endif
-    echon "\rwiki: Scanning " . fnamemodify(l:file, ':t')
-
-    for l:link in wiki#link#get_all(l:file)
-      if get(l:link, 'scheme', '') !=# 'wiki' | continue | endif
-      if resolve(l:link.path) ==# resolve(l:origin)
-        call add(l:locs, {
-              \ 'filename' : l:file,
-              \ 'text' : empty(l:link.anchor) ? '' : 'Anchor: ' . l:link.anchor,
-              \ 'lnum' : l:link.lnum,
-              \ 'col' : l:link.c1
-              \})
-      endif
-    endfor
-  endfor
-  echon "\rwiki: Scanning completed" . repeat(' ', 40)
-
-  if empty(l:locs)
-    echomsg 'wiki: No other file links to this file'
-  else
-    call setloclist(0, l:locs, 'r')
-    lopen
-  endif
-endfunction
-
-"}}}1
 
 " vim: fdm=marker sw=2
