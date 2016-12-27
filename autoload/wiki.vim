@@ -133,6 +133,12 @@ function! s:init_mappings() " {{{1
   inoremap <silent><buffer><expr> <c-cr>    wiki#list#new_line_bullet()
 
   "
+  " Graphs
+  "
+  nnoremap <silent><buffer> <leader>wg :call wiki#graph#from_current()<cr>
+  nnoremap <silent><buffer> <leader>wG :call wiki#graph#to_current()<cr>
+
+  "
   " Text objects
   "
   onoremap <silent><buffer> al :call wiki#text_obj#link(0)<cr>

@@ -4,31 +4,31 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#graph#tree_from_current() " {{{1
+function! wiki#graph#from_current() " {{{1
   call s:graph.init()
 
   "
   " Define starting point
   "
-  let l:current = expand('%:t:r')
-  let l:tree = { l:current : l:current }
-  let l:stack = map(copy(s:graph.nodes[l:current]), '[v:val, [l:current]]')
+  let l:stack = [[expand('%:t:r'), []]]
+  let l:tree = {}
   let l:visited = []
 
   "
   " Generate tree
   "
   while !empty(l:stack)
-    let [l:current, l:old_path] = remove(l:stack, 0)
-    if index(l:visited, l:current) >= 0 | continue | endif
-    let l:visited += [l:current]
+    let [l:node, l:path] = remove(l:stack, 0)
+    if index(l:visited, l:node) >= 0 | continue | endif
+    let l:visited += [l:node]
 
-    let l:path = l:old_path + [l:current]
-    let l:new = map(copy(get(s:graph.nodes, l:current, [])), '[v:val, l:path]')
-    let l:stack += l:new
+    let l:targets = uniq(map(s:graph.get_links_from(l:node),
+          \ 'fnamemodify(v:val.target, '':t:r'')'))
+    let l:new_path = l:path + [l:node]
+    let l:stack += map(l:targets, '[v:val, l:new_path]')
 
-    if !has_key(l:tree, l:current)
-      let l:tree[l:current] = join(l:path, ' / ')
+    if !has_key(l:tree, l:node)
+      let l:tree[l:node] = join(l:new_path, ' / ')
     endif
   endwhile
 
@@ -41,13 +41,43 @@ function! wiki#graph#tree_from_current() " {{{1
 endfunction
 
 " }}}1
+function! wiki#graph#to_current() "{{{1
+  call s:graph.init()
+
+  let l:stack = [[expand('%:t:r'), []]]
+  let l:visited = []
+  let l:tree = {}
+
+  while !empty(l:stack)
+    let [l:node, l:path] = remove(l:stack, 0)
+    if index(l:visited, l:node) >= 0 | continue | endif
+    let l:visited += [l:node]
+
+    let l:new_path = l:path + [l:node]
+    let l:stack += map(filter(keys(s:graph.nodes),
+          \   's:graph.has_link(v:val, l:node)'),
+          \ '[v:val, l:new_path]')
+
+    if !has_key(l:tree, l:node)
+      let l:tree[l:node] = join(l:new_path, ' / ')
+    endif
+  endwhile
+
+  "
+  " Print the tree
+  "
+  for l:entry in sort(values(l:tree))
+    echom l:entry
+  endfor
+endfunction
+
+"}}}1
 
 
 let s:graph = get(s:, 'graph', {})
 
 function! s:graph.init() dict " {{{1
   if has_key(self, 'initialized') | return | endif
-  let self.initialized = 1
   let self.nodes = {}
 
   let l:files = globpath(g:wiki.root, '**/*.wiki', 0, 1)
@@ -57,14 +87,48 @@ function! s:graph.init() dict " {{{1
     let l:node = fnamemodify(l:file, ':t:r')
     echon "\r" . printf("wiki: Scanning (%d/%d): %s", l:i, l:n, l:node)
 
-    let l:targets = filter(wiki#link#get_all(l:file),
-          \   'get(v:val, ''scheme'', '''') ==# ''wiki''')
-    call uniq(map(l:targets,
-          \ 'fnamemodify(get(v:val, ''path'', ''test''), '':t:r'')'))
+    if has_key(self.nodes, l:node)
+      echoerr "Not implemented!"
+    endif
 
-    let self.nodes[l:node] = l:targets
+    let self.nodes[l:node] = {
+          \ 'path' : resolve(l:file),
+          \ 'links' : [],
+          \}
+
+    for l:link in filter(wiki#link#get_all(l:file),
+          \ 'get(v:val, ''scheme'', '''') ==# ''wiki''')
+      call add(self.nodes[l:node].links, {
+            \ 'text' : get(l:link, 'text'),
+            \ 'target' : resolve(l:link.path),
+            \ 'anchor' : l:link.anchor,
+            \ 'filename' : l:file,
+            \ 'lnum' : l:link.lnum,
+            \ 'col' : l:link.c1
+            \})
+     endfor
+
     let l:i += 1
   endfor
+
+  let self.initialized = 1
+endfunction
+
+" }}}1
+function! s:graph.has_link(from, to) dict " {{{1
+  let l:target = get(get(self.nodes, a:to, {}), 'path')
+  let l:links = get(get(self.nodes, a:from, {}), 'links', [])
+
+  for l:link in l:links
+    if l:link.target ==# l:target | return 1 | endif
+  endfor
+
+  return 0
+endfunction
+
+" }}}1
+function! s:graph.get_links_from(node) dict " {{{1
+  return deepcopy(get(get(self.nodes, a:node, {}), 'links', []))
 endfunction
 
 " }}}1
