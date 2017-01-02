@@ -49,7 +49,7 @@ function! wiki#date#get_week_dates(...) " {{{1
           \ split(systemlist('date +"%V %u" -d ' . l:date_first)[0], ' ')
 
     let l:first_monday = (9 - l:dow) % 7
-    let l:first_week = (l:first_week % 53) + (l:first_monday > 1)
+    let l:first_week = (l:first_week % 52) + (l:first_monday > 1)
     let l:ndays = 7*(l:week - l:first_week + 1) - (l:dow - 1)
 
     return map(range(l:ndays, l:ndays+6),
