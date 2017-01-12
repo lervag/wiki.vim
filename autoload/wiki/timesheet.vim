@@ -381,18 +381,19 @@ let s:table.Tekna = {
       \}
 
 let s:table.Sommerjobb = {
-      \ 'number' : '502001249',
-      \ 'name' : 'Sommerjobbprosjektet 2016',
+      \ 'number' : '502001561',
+      \ 'name' : 'Sommerjobbprosjektet 2017',
       \ 'tasks' : {
-      \   '' : 1000,
+      \   'T0' : 1000,
+      \   'T1' : 1010,
+      \   'T2' : 1020,
       \ }
       \}
 
 let s:table.SommerjobbVL = {
-      \ 'number' : '502001249-3',
-      \ 'name' : 'SJP 2016 - Veiledning',
+      \ 'number' : '502001561-X',
+      \ 'name' : 'SJP 2017 - Veiledning',
       \ 'tasks' : {
-      \   'Sondre' : 1637,
       \ }
       \}
 
@@ -460,6 +461,14 @@ let s:table.Trafo = {
       \ 'name' : 'Trafo',
       \ 'tasks' : {
       \   'WP2' : 1020,
+      \  }
+      \}
+
+let s:table.HYVA = {
+      \ 'number' : '502001546',
+      \ 'name' : 'HYVA',
+      \ 'tasks' : {
+      \   '' : 1020,
       \  }
       \}
 
