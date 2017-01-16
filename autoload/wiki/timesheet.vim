@@ -390,6 +390,14 @@ let s:table.Sommerjobb = {
       \ }
       \}
 
+let s:table.SommerjobbPR = {
+      \ 'number' : '502001561-1',
+      \ 'name' : 'SJP 2017 - PR',
+      \ 'tasks' : {
+      \   'Eureka' : 1002,
+      \ }
+      \}
+
 let s:table.SommerjobbVL = {
       \ 'number' : '502001561-X',
       \ 'name' : 'SJP 2017 - Veiledning',
