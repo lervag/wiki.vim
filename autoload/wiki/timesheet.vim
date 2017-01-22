@@ -329,7 +329,7 @@ let s:table_ordered = [
       \ 'Leiested',
       \ 'Tekna',
       \ 'Sommerjobb',
-      \ 'SommerjobbVL',
+      \ 'SommerjobbPR',
       \ 'ELEGANCY',
       \ 'NCCS',
       \ '3dmf',
@@ -337,6 +337,7 @@ let s:table_ordered = [
       \ 'FerroCool',
       \ 'RPT',
       \ 'Trafo',
+      \ 'HYVA',
       \]
 
 let s:table.Diverse = {
