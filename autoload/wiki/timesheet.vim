@@ -356,6 +356,7 @@ let s:table.Borte = {
       \   'Sjuk' : 9402,
       \   'Sjuke born' : 9406,
       \   'Ferie' : 9413,
+      \   'Annet' : 9411,
       \ }
       \}
 
