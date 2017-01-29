@@ -107,6 +107,8 @@ endfunction
 function! wiki#timesheet#submit(...) " {{{1
   let l:timesheet = a:0 > 0 ? a:1 : s:parse_timesheet_week()
   let l:lines = s:get_maconomy_lines(l:timesheet)
+  if empty(l:lines) | return | endif
+
   python3 <<EOF
 import vim
 import sys
