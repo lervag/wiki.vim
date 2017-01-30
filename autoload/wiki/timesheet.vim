@@ -113,6 +113,7 @@ function! wiki#timesheet#submit(...) " {{{1
 import vim
 import sys
 sys.modules['keyring'] = 1
+sys.setrecursionlimit(2000)
 
 from sintefpy.credentials import get_credentials
 from sintefpy.maconomy import Session, Timesheet
