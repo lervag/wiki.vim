@@ -142,17 +142,17 @@ function! s:init_mappings() " {{{1
   " Text objects
   "
   onoremap <silent><buffer> al :call wiki#text_obj#link(0)<cr>
-  xnoremap <silent><buffer> al :call wiki#text_obj#link(0)<cr>
+  xnoremap <silent><buffer> al :<c-u>call wiki#text_obj#link(0)<cr>
   onoremap <silent><buffer> il :call wiki#text_obj#link(1)<cr>
-  xnoremap <silent><buffer> il :call wiki#text_obj#link(1)<cr>
+  xnoremap <silent><buffer> il :<c-u>call wiki#text_obj#link(1)<cr>
   onoremap <silent><buffer> at :call wiki#text_obj#link_text(0)<cr>
-  xnoremap <silent><buffer> at :call wiki#text_obj#link_text(0)<cr>
+  xnoremap <silent><buffer> at :<c-u>call wiki#text_obj#link_text(0)<cr>
   onoremap <silent><buffer> it :call wiki#text_obj#link_text(1)<cr>
-  xnoremap <silent><buffer> it :call wiki#text_obj#link_text(1)<cr>
+  xnoremap <silent><buffer> it :<c-u>call wiki#text_obj#link_text(1)<cr>
   onoremap <silent><buffer> ac :call wiki#text_obj#code(0)<cr>
-  xnoremap <silent><buffer> ac :call wiki#text_obj#code(0)<cr>
+  xnoremap <silent><buffer> ac :<c-u>call wiki#text_obj#code(0)<cr>
   onoremap <silent><buffer> ic :call wiki#text_obj#code(1)<cr>
-  xnoremap <silent><buffer> ic :call wiki#text_obj#code(1)<cr>
+  xnoremap <silent><buffer> ic :<c-u>call wiki#text_obj#code(1)<cr>
 endfunction
 
 " }}}1
@@ -200,7 +200,7 @@ if get(s:, 'reload_guard', 1)
     endif
 
     " Reload ftplugin and syntax
-    if &filetype == 'wiki'
+    if &filetype ==# 'wiki'
       unlet b:did_ftplugin
       runtime ftplugin/wiki.vim
 
