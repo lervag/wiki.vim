@@ -130,7 +130,7 @@ function! wiki#link#toggle_visual() " {{{1
         \ 'scheme' : '',
         \ 'lnum' : line('.'),
         \ 'c1' : getpos("'<")[2],
-        \ 'c2' : getpos("'>")[2],
+        \ 'c2' : s:handle_mb_chars(getpos("'>")[2]),
         \ 'toggle' : function('wiki#link#template_word'),
         \})
 endfunction
@@ -165,6 +165,8 @@ function! s:matchstr_at_cursor(regex) " {{{1
   let l:c1 = searchpos(a:regex, 'ncb',  l:lnum)[1]
   let l:c2 = searchpos(a:regex, 'nce',  l:lnum)[1]
   if l:c1 == 0 || l:c2 == 0 | return {} | endif
+
+  let l:c2 = s:handle_mb_chars(l:c2)
 
   let l:c1e = searchpos(a:regex, 'ncbe', l:lnum)[1]
   if l:c1e > l:c1 && l:c1e < col('.') | return {} | endif
@@ -451,6 +453,27 @@ let s:matcher_word = {
       \ 'toggle' : 'word',
       \ 'rx' : '\<[0-9A-ZÆØÅa-zæøå]\+\>',
       \}
+
+" }}}1
+
+"
+" Utility functions
+"
+function! s:handle_mb_chars(cnum) " {{{1
+  "
+  " Handle multibyte characters
+  "
+
+  if a:cnum <= 0 | return a:cnum | endif
+
+  let l:char = getline('.')[a:cnum-1 : a:cnum]
+
+  if strlen(l:char) == 2
+    return a:cnum + 1
+  else
+    return a:cnum
+  endif
+endfunction
 
 " }}}1
 
