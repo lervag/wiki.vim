@@ -222,7 +222,7 @@ execute 'syntax match wikiItalicT'
       \ 'contained contains=@Spell'
 syntax match wikiItalicConceal /_/ contained conceal
 
-highlight default wikiBold term=bold cterm=bold gui=bold
+highlight default wikiBold term=bold cterm=bold ctermfg=black gui=bold
 highlight default wikiItalic term=italic cterm=italic gui=italic
 
 " }}}1
@@ -243,7 +243,7 @@ highlight default link wikiTodo Todo
 syntax region wikiQuote start=/^>\s\+/ end=/^$/ contains=wikiQuoteChar
 syntax match wikiQuoteChar contained /^>/
 highlight default link wikiQuoteChar Comment
-highlight default wikiQuote ctermfg=white guifg=black
+highlight default link wikiQuote Conceal
 
 syntax match wikiNumber  /\d\+\.\d\+/
 syntax match wikiIPNum   /\d\+\(\.\d\+\)\{3}/
