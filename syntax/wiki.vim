@@ -197,7 +197,7 @@ unlet s:ignored
 syntax match wikiList /^\s*[-*]\s\+/
 syntax match wikiList /::\%(\s\|$\)/
 syntax match wikiListTodo /^\s*[-*] \[ \]/
-syntax match wikiListTodoDone /^\s*[-*] \[[xX]\]/ contains=@wikiLink,@Spell
+syntax match wikiListTodoDone /^\s*[-*] \[[xX]\]/ contains=@Spell
 
 highlight default link wikiList Identifier
 highlight default link wikiListTodo wikiList
