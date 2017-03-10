@@ -196,12 +196,16 @@ unlet s:ignored
 
 syntax match wikiList /^\s*[-*]\s\+/
 syntax match wikiList /::\%(\s\|$\)/
-syntax match wikiListTodo /^\s*[-*] \[ \]/
-syntax match wikiListTodoDone /^\s*[-*] \[[xX]\]/ contains=@Spell
+syntax match wikiListTodo /^\s*[-*] \[ \]/ contains=wikiList
+syntax match wikiListTodoPartial /^\s*[-*] \[[.o]\]/ contains=wikiList
+syntax match wikiListTodoDone /^\s*[-*] \[[xX]\]/ contains=wikiList
 
 highlight default link wikiList Identifier
-highlight default link wikiListTodo wikiList
+highlight default link wikiListTodo Comment
 highlight default link wikiListTodoDone Comment
+highlight default link wikiListTodoPartial Comment
+highlight wikiListTodo cterm=bold gui=bold
+highlight wikiListTodoPartial cterm=none gui=none
 
 " }}}1
 " {{{1 Formatting
