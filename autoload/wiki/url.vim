@@ -164,7 +164,7 @@ function! s:url_file_open(...) dict " {{{1
     return
   endif
 
-  if self.path =~# 'docx$'
+  if self.path =~# '\v(docx|xls)$'
     silent execute '!libreoffice' fnameescape(self.path) '&'
     return
   endif
