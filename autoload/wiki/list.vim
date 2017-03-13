@@ -4,10 +4,16 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#list#toggle_todo() "{{{1
+function! wiki#list#toggle() "{{{1
   let l:line = getline('.')
   if match(l:line, '^\s*[*-] TODO:') >= 0
     let l:line = substitute(l:line, '^\s*[*-] \zsTODO:\s*\ze', '', '')
+    call setline('.', l:line)
+  elseif match(l:line, '^\s*[*-] \[x\]') >= 0
+    let l:line = substitute(l:line, '^\s*[*-] \[\zsx\ze\]', ' ', '')
+    call setline('.', l:line)
+  elseif match(l:line, '^\s*[*-] \[ \]') >= 0
+    let l:line = substitute(l:line, '^\s*[*-] \[\zs \ze\]', 'x', '')
     call setline('.', l:line)
   elseif match(l:line, '^\s*[*-] \%(TODO:\)\@!') >= 0
     let l:parts = split(l:line, '^\s*[*-] \zs\s*\ze')
