@@ -20,8 +20,8 @@ endfunction
 function! wiki#rx#surrounded(word, chars) " {{{1
   return '\%(^\|\s\|[[:punct:]]\)\@<='
         \ . escape(a:chars, '*')
-        \ . a:word
-        \ . escape(join(reverse(split(a:chars, '\zs')), ''), '*')
+        \ . '\zs' . a:word . '\ze'
+        \ . escape(join(reverse(split(a:chars, '')), ''), '*')
         \ . '\%([[:punct:]]\|\s\|$\)\@='
 endfunction
 
