@@ -68,8 +68,8 @@ function! s:get_anchors(filename) " {{{1
       else
         let current_complete_anchor = ''
         for l in range(level-1)
-          if anchor_level[l] != ''
-            let current_complete_anchor .= anchor_level[l].'#'
+          if !empty(anchor_level[l])
+            let current_complete_anchor .= anchor_level[l] . '#'
           endif
         endfor
         let current_complete_anchor .= header
@@ -84,10 +84,10 @@ function! s:get_anchors(filename) " {{{1
     while 1
       let l:count += 1
       let l:text = matchstr(line, wiki#rx#bold(), 0, l:count)
-      if l:text == '' | break | endif
+      if empty(l:text) | break | endif
 
       call add(anchors, l:text)
-      if current_complete_anchor != ''
+      if !empty(current_complete_anchor)
         call add(anchors, current_complete_anchor . '#' . l:text)
       endif
     endwhile
@@ -115,7 +115,7 @@ function! s:relpath(dir, file) "{{{1
     let result += [segment]
   endfor
   let result_path = join(result, '/')
-  if a:file =~ '\m/$'
+  if a:file =~# '\m/$'
     let result_path .= '/'
   endif
   return result_path
