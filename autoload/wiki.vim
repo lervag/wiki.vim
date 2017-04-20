@@ -8,36 +8,21 @@
 " Init functions
 "
 function! wiki#init() " {{{1
-  "
-  " Require minimum configuration
-  "
-  if !exists('g:wiki') || !exists('g:wiki.root')
-    echomsg 'Please define g:wiki.root!'
-    return
-  endif
-
-  "
   " Only load the plugin once
-  "
   if get(g:wiki, 'loaded', 0) | return | endif
   let g:wiki.loaded = 1
 
-  "
   " Ensure absolute path
-  "
   let g:wiki.root = fnamemodify(g:wiki.root, ':p')
   let g:wiki.journal = g:wiki.root . 'journal/'
 
-  "
   " Warn if wiki path is invalid
-  "
   if !isdirectory(g:wiki.root)
+    echoerr 'Please define a valid g:wiki.root!'
     return
   endif
 
-  "
   " Define mappings
-  "
   nnoremap <silent> <leader>ww         :call wiki#goto_index()<cr>
   nnoremap <silent> <leader>wx         :call wiki#reload()<cr>
   nnoremap <silent> <leader>w<leader>w :call wiki#journal#make_note()<cr>

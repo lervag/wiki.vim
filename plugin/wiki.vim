@@ -4,6 +4,8 @@
 " Email:      karl.yngve@gmail.com
 "
 
-call wiki#init()
+if exists('g:wiki')
+  call wiki#init()
+endif
 
 " vim: fdm=marker sw=2
