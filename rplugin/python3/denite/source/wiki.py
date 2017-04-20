@@ -12,6 +12,7 @@ class Source(Base):
 
         self.name = 'wiki'
         self.kind = 'file'
+        self.matchers = ['matcher_substring']
 
     def gather_candidates(self, context):
         """Gather wiki file candidates"""
