@@ -19,8 +19,8 @@ function! wiki#timesheet#show() abort " {{{1
     endfor
   endfor
 
-  let l:title_frmt = '%-30s%-6s' . repeat('%7s', len(l:table.sums) - 2)
-  let l:line = repeat('-', 39 + 7*(len(l:table.sums) - 2))
+  let l:title_frmt = '%-30s%-10s' . repeat('%6s', len(l:table.sums) - 2)
+  let l:line = repeat('-', 41 + 6*(len(l:table.sums) - 2))
 
   echohl ModeMsg
   echo printf("Week: %02d (%s)\n\n", l:timesheet.week,
@@ -31,16 +31,16 @@ function! wiki#timesheet#show() abort " {{{1
   echo l:line
   for l:row in l:table.rows
     echohl ModeMsg
-    echo printf('%-30s%-6s', l:row[0], l:row[1])
+    echo printf('%-30S%-10s', l:row[0], l:row[1])
     echohl Number
 
     let l:fmt = ''
     for l:i in range(2, len(l:row)-1)
       if l:row[l:i] == 0.0
         let l:row[l:i] = ''
-        let l:fmt .= '%7s'
+        let l:fmt .= '%6s'
       else
-        let l:fmt .= '%7.2f'
+        let l:fmt .= '%6.2f'
       endif
     endfor
     echon call('printf', [l:fmt] + l:row[2:])
