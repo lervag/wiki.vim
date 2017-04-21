@@ -54,7 +54,7 @@ function! s:url_wiki_parse(url) " {{{1
 
   " Extract anchor
   let l:anchors = split(a:url.stripped, '#', 1)
-  let l:url.anchor = len(l:anchors) > 1 && l:anchors[-1] != ''
+  let l:url.anchor = len(l:anchors) > 1 && !empty(l:anchors[-1])
         \ ? join(l:anchors[1:], '#') : ''
 
   " Extract filename
@@ -115,6 +115,7 @@ endfunction
 "}}}1
 function! s:url_wiki_open_anchor() dict " {{{1
   let l:old_pos = getpos('.')
+  call setpos("''", l:old_pos)
   call cursor(1, 1)
 
   for l:part in split(self.anchor, '#', 0)
