@@ -17,7 +17,7 @@ function! wiki#list#toggle() "{{{1
     call setline('.', l:line)
   elseif match(l:line, '^\s*[*-] \%(TODO:\)\@!') >= 0
     let l:parts = split(l:line, '^\s*[*-] \zs\s*\ze')
-    call setline('.', l:parts[0] . 'TODO: ' . l:parts[1])
+    call setline('.', l:parts[0] . 'TODO: ' . get(l:parts, 1, ''))
   endif
 endfunction
 
