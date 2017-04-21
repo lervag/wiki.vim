@@ -87,7 +87,8 @@ function! s:url_wiki_open(...) dict " {{{1
   endif
 
   " Open wiki file
-  if resolve(self.path) !=# resolve(expand('%:p'))
+  let l:same_file = resolve(self.path) ==# resolve(expand('%:p'))
+  if !l:same_file
     if !empty(self.origin)
           \ && resolve(self.origin) ==# resolve(expand('%:p'))
       let l:prev_link = [expand('%:p'), getpos('.')]
@@ -105,6 +106,11 @@ function! s:url_wiki_open(...) dict " {{{1
 
   " Go to anchor
   if !empty(self.anchor)
+    " Manually add position to jumplist (necessary if we in same file)
+    if l:same_file
+      normal! m'
+    endif
+
     call self.open_anchor()
   endif
 
@@ -115,7 +121,6 @@ endfunction
 "}}}1
 function! s:url_wiki_open_anchor() dict " {{{1
   let l:old_pos = getpos('.')
-  call setpos("''", l:old_pos)
   call cursor(1, 1)
 
   for l:part in split(self.anchor, '#', 0)
