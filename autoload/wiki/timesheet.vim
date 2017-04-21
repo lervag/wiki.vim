@@ -40,7 +40,7 @@ function! wiki#timesheet#show() abort " {{{1
         let l:row[l:i] = ''
         let l:fmt .= '%6s'
       else
-        let l:fmt .= '%6.2f'
+        let l:fmt .= '%6.1f'
       endif
     endfor
     echon call('printf', [l:fmt] + l:row[2:])
