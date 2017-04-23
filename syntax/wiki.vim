@@ -85,7 +85,7 @@ highlight default link wikiLinkWiki Underlined
 highlight default link wikiLinkMd Underlined
 highlight default link wikiLinkRef Underlined
 highlight default link wikiLinkRefTarget Underlined
-highlight default      wikiLinkDate guifg=blue
+highlight default link wikiLinkDate MoreMsg
 
 unlet s:group s:rx s:contained
 
