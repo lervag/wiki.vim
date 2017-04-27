@@ -11,7 +11,7 @@ function! wiki#link#get_at_cursor() " {{{1
       "
       " Get link text
       "
-      let l:match = matchstrpos(l:link.full, get(l:m, 'rx_text', ''))
+      let l:match = s:matchstrpos(l:link.full, get(l:m, 'rx_text', ''))
       let l:link.text = l:match[0]
       if !empty(l:link.text)
         let l:link.text_c1 = l:link.c1 + l:match[1]
@@ -22,7 +22,7 @@ function! wiki#link#get_at_cursor() " {{{1
       " Get link url position (if available)
       "
       if has_key(l:m, 'rx_url')
-        let l:match = matchstrpos(l:link.full, l:m.rx_url)
+        let l:match = s:matchstrpos(l:link.full, l:m.rx_url)
         if !empty(l:match[0])
           let l:link.url_c1 = l:link.c1 + l:match[1]
           let l:link.url_c2 = l:link.c1 + l:match[2] - 1
@@ -31,6 +31,7 @@ function! wiki#link#get_at_cursor() " {{{1
 
       let l:link.type = l:m.type
       let l:link.toggle = function('wiki#link#template_' . l:m.toggle)
+      echom l:link.type
       return l:m.parser(l:link)
     endif
   endfor
@@ -82,6 +83,24 @@ function! wiki#link#get_all(...) "{{{1
 endfunction
 
 "}}}1
+
+function! s:matchstrpos(...) " {{{1
+  if exists('*matchstrpos')
+    return call('matchstrpos', a:000)
+  else
+    let [l:expr, l:pat] = a:000[:1]
+
+    let l:pos = match(l:expr, l:pat)
+    if l:pos < 0
+      return ['', -1, -1]
+    else
+      let l:match = matchstr(l:expr, l:pat)
+      return [l:match, l:pos, l:pos+strlen(l:match)]
+    endif
+  endif
+endfunction
+
+" }}}1
 
 function! wiki#link#open(...) "{{{1
   let l:link = wiki#link#get_at_cursor()
