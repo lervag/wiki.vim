@@ -156,6 +156,7 @@ function! s:timesheet.parse_day(dow) abort dict " {{{1
       break
     endif
   endfor
+  if l:lnum_start == 0 | return | endif
 
   for l:lnum in range(l:lnum_start, l:lnum_end-1)
     if l:lines[l:lnum] =~# '^\s*$'
@@ -164,6 +165,7 @@ function! s:timesheet.parse_day(dow) abort dict " {{{1
     endif
   endfor
 
+  echo l:lnum_start l:lnum_end
   for l:line in l:lines[l:lnum_start : l:lnum_end]
     let l:parts = split(l:line, '\s*|\s*')
 
@@ -209,14 +211,15 @@ function! s:timesheet.add(info, dow) abort dict " {{{1
           \}
   endif
 
-  if !has_key(self.data[a:info.project].tasks, a:info.taskname)
-    let self.data[a:info.project].tasks[a:info.taskname] = {
+  let l:name = empty(a:info.taskname) ? '_' : a:info.taskname
+  if !has_key(self.data[a:info.project].tasks, l:name)
+    let self.data[a:info.project].tasks[l:name] = {
           \ 'taskno' : get(a:info, 'taskno'),
           \}
   endif
 
   " For easier access
-  let l:t = self.data[a:info.project].tasks[a:info.taskname]
+  let l:t = self.data[a:info.project].tasks[l:name]
 
   if !has_key(l:t, 'hours')
     let l:t.hours = repeat([0.0], 7)
@@ -341,7 +344,7 @@ let s:table.Intern = {
       \ 'number' : '99500121-1',
       \ 'name' : 'Intern',
       \ 'tasks' : {
-      \   '' : 9000,
+      \   '_' : 9000,
       \ }
       \}
 
@@ -357,7 +360,7 @@ let s:table.Tekna = {
       \ 'number' : '502000428',
       \ 'name' : 'ATOer',
       \ 'tasks' : {
-      \   '' : 10200,
+      \   '_' : 10200,
       \ }
       \}
 
@@ -458,7 +461,7 @@ let s:table.HYVA = {
       \ 'number' : '502001546',
       \ 'name' : 'HYVA',
       \ 'tasks' : {
-      \   '' : 1020,
+      \   '_' : 1020,
       \  }
       \}
 
