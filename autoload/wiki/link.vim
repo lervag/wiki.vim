@@ -31,13 +31,30 @@ function! wiki#link#get_at_cursor() " {{{1
 
       let l:link.type = l:m.type
       let l:link.toggle = function('wiki#link#template_' . l:m.toggle)
-      echom l:link.type
       return l:m.parser(l:link)
     endif
   endfor
 
   return {}
 endfunction
+
+function! s:matchstrpos(...) " {{{2
+  if exists('*matchstrpos')
+    return call('matchstrpos', a:000)
+  else
+    let [l:expr, l:pat] = a:000[:1]
+
+    let l:pos = match(l:expr, l:pat)
+    if l:pos < 0
+      return ['', -1, -1]
+    else
+      let l:match = matchstr(l:expr, l:pat)
+      return [l:match, l:pos, l:pos+strlen(l:match)]
+    endif
+  endif
+endfunction
+
+" }}}2
 
 " }}}1
 function! wiki#link#get_all(...) "{{{1
@@ -84,29 +101,11 @@ endfunction
 
 "}}}1
 
-function! s:matchstrpos(...) " {{{1
-  if exists('*matchstrpos')
-    return call('matchstrpos', a:000)
-  else
-    let [l:expr, l:pat] = a:000[:1]
-
-    let l:pos = match(l:expr, l:pat)
-    if l:pos < 0
-      return ['', -1, -1]
-    else
-      let l:match = matchstr(l:expr, l:pat)
-      return [l:match, l:pos, l:pos+strlen(l:match)]
-    endif
-  endif
-endfunction
-
-" }}}1
-
 function! wiki#link#open(...) "{{{1
   let l:link = wiki#link#get_at_cursor()
 
   try
-    call call(l:link.open, a:000)
+    call call(l:link.open, a:000, l:link)
   catch
     call wiki#link#toggle(l:link)
   endtry
