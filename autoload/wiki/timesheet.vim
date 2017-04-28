@@ -19,14 +19,15 @@ function! wiki#timesheet#show() abort " {{{1
     endfor
   endfor
 
-  let l:title_frmt = '%-30s%-10s' . repeat('%6s', len(l:table.sums) - 2)
+  let l:frmt_title = '%-30s%-10s' . repeat('%6s', len(l:table.sums) - 2)
+  let l:frmt_sums = '%-30s%-10s' . repeat('%6.1f', len(l:table.sums) - 2)
   let l:line = repeat('-', 41 + 6*(len(l:table.sums) - 2))
 
   echohl ModeMsg
   echo printf("Week: %02d (%s)\n\n", l:timesheet.week,
         \ l:timesheet.dates[0] . ' -- ' . l:timesheet.dates[-1])
   echohl Title
-  echo call('printf', [l:title_frmt] + l:table.titles)
+  echo call('printf', [l:frmt_title] + l:table.titles)
   echohl ModeMsg
   echo l:line
   for l:row in l:table.rows
@@ -34,21 +35,21 @@ function! wiki#timesheet#show() abort " {{{1
     echo printf('%-30S%-10s', l:row[0], l:row[1])
     echohl Number
 
-    let l:fmt = ''
+    let l:frmt_row = ''
     for l:i in range(2, len(l:row)-1)
       if l:row[l:i] == 0.0
         let l:row[l:i] = ''
-        let l:fmt .= '%6s'
+        let l:frmt_row .= '%6s'
       else
-        let l:fmt .= '%6.1f'
+        let l:frmt_row .= '%6.1f'
       endif
     endfor
-    echon call('printf', [l:fmt] + l:row[2:])
+    echon call('printf', [l:frmt_row] + l:row[2:])
   endfor
   echohl ModeMsg
   echo l:line
   echohl Title
-  echo call('printf', [l:title_frmt] + l:table.sums)
+  echo call('printf', [l:frmt_sums] + l:table.sums)
   echohl ModeMsg
   echo l:line
 
@@ -165,7 +166,6 @@ function! s:timesheet.parse_day(dow) abort dict " {{{1
     endif
   endfor
 
-  echo l:lnum_start l:lnum_end
   for l:line in l:lines[l:lnum_start : l:lnum_end]
     let l:parts = split(l:line, '\s*|\s*')
 
@@ -239,6 +239,9 @@ function! s:timesheet.tableize() abort dict " {{{1
   let l:table.rows = []
   for l:p in self.data_ordered
     for [l:name, l:t] in items(l:p.tasks)
+      if l:name ==# '_'
+        let l:name = ''
+      endif
       call add(l:table.rows,
             \ [l:p.projname, l:name] + l:t.hours + [s:sum(l:t.hours)])
     endfor
