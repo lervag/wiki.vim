@@ -139,11 +139,9 @@ endfunction
 
 " }}}1
 function! wiki#link#toggle_visual() " {{{1
-  "
-  " Note: This function assumes that it is called from visual mode.
-  "
+  normal! gv"wy
   call wiki#link#toggle({
-        \ 'url' : getreg('*'),
+        \ 'url' : getreg('w'),
         \ 'text' : '',
         \ 'scheme' : '',
         \ 'lnum' : line('.'),

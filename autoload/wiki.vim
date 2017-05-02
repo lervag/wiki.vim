@@ -107,7 +107,7 @@ function! s:init_mappings() " {{{1
   "
   nnoremap <silent><buffer> <cr>       :call wiki#link#open()<cr>
   nnoremap <silent><buffer> <c-cr>     :call wiki#link#open('vsplit')<cr>
-  vnoremap <silent><buffer> <cr>       :<c-u>call wiki#link#toggle_visual()<cr>
+  xnoremap <silent><buffer> <cr>       :<c-u>call wiki#link#toggle_visual()<cr>
   nnoremap <silent><buffer> gl         :set opfunc=wiki#link#toggle_operator<cr>g@
 
   "
