@@ -86,9 +86,9 @@ function! s:get_anchors(filename) " {{{1
       let l:text = matchstr(line, wiki#rx#bold(), 0, l:count)
       if empty(l:text) | break | endif
 
-      call add(anchors, l:text)
+      call add(anchors, l:text[1:-2])
       if !empty(current_complete_anchor)
-        call add(anchors, current_complete_anchor . '#' . l:text)
+        call add(anchors, current_complete_anchor . '#' . l:text[1:-2])
       endif
     endwhile
   endfor

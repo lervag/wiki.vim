@@ -19,9 +19,11 @@ endfunction
 " }}}1
 function! wiki#rx#surrounded(word, chars) " {{{1
   return '\%(^\|\s\|[[:punct:]]\)\@<='
+        \ . '\zs'
         \ . escape(a:chars, '*')
-        \ . '\zs' . a:word . '\ze'
+        \ . a:word
         \ . escape(join(reverse(split(a:chars, '')), ''), '*')
+        \ . '\ze'
         \ . '\%([[:punct:]]\|\s\|$\)\@='
 endfunction
 
