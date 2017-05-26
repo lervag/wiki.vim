@@ -448,7 +448,7 @@ let s:table.ELEGANCY = {
       \ 'number' : '502001618',
       \ 'name' : 'ELEGANCY',
       \ 'tasks' : {
-      \   'T2' : 1040,
+      \   'PF' : 1040,
       \  }
       \}
 
