@@ -445,10 +445,10 @@ let s:table.NCCS = {
       \}
 
 let s:table.ELEGANCY = {
-      \ 'number' : '502001175',
+      \ 'number' : '502001618',
       \ 'name' : 'ELEGANCY',
       \ 'tasks' : {
-      \   'P2' : 1010,
+      \   'T2' : 1040,
       \  }
       \}
 
