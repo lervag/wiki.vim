@@ -388,9 +388,11 @@ let s:table.SommerjobbPR = {
       \}
 
 let s:table.SommerjobbVL = {
-      \ 'number' : '502001561-X',
+      \ 'number' : '502001561-5',
       \ 'name' : 'SJP 2017 - Veiledning',
       \ 'tasks' : {
+      \   'Eirik' : 1040,
+      \   'Kaia' : 1050,
       \ }
       \}
 
