@@ -170,6 +170,11 @@ function! s:url_file_open(...) dict " {{{1
     return
   endif
 
+  if self.path =~# 'png$'
+    silent execute '!feh -.' fnameescape(self.path) '&'
+    return
+  endif
+
   if self.path =~# '\v(docx|xls)$'
     silent execute '!libreoffice' fnameescape(self.path) '&'
     return
