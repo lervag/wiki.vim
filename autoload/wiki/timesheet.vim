@@ -321,7 +321,6 @@ let s:table_ordered = [
       \ 'SommerjobbPR',
       \ 'ELEGANCY',
       \ 'NCCS',
-      \ '3dmf',
       \ 'NanoHX',
       \ 'FerroCool',
       \ 'RPT',
@@ -393,14 +392,6 @@ let s:table.SommerjobbVL = {
       \ 'tasks' : {
       \   'Eirik' : 1040,
       \   'Kaia' : 1050,
-      \ }
-      \}
-
-let s:table.3dmf = {
-      \ 'number' : '502000610',
-      \ 'name' : '3dmf',
-      \ 'tasks' : {
-      \   'Modellering' : 1010,
       \ }
       \}
 
