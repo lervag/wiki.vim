@@ -208,15 +208,24 @@ endfunction
 " }}}1
 
 function! s:url_stash_parse(url) " {{{1
+  let l:parts = split(a:url.stripped, '/')
+
   let l:res = {}
-  let l:res.project = matchstr(a:url.stripped, '^[A-Z]\+\ze\/')
-  let l:res.repo = matchstr(a:url.stripped, '\/\zs\S*\ze\/')
-  let l:res.prnum = matchstr(a:url.stripped, '\d\+$')
-  let l:res.stripped = 'stash.code.sintef.no'
-        \ . '/projects/' . l:res.project
-        \ . '/repos/' . l:res.repo
-        \ . '/pull-requests/' . l:res.prnum
-        \ . '/overview'
+  let l:res.project = l:parts[0]
+  let l:res.repo = l:parts[1]
+  if len(l:parts) > 2
+    let l:res.prnum = matchstr(a:url.stripped, '\d\+$')
+    let l:res.stripped = 'stash.code.sintef.no'
+          \ . '/projects/' . l:res.project
+          \ . '/repos/' . l:res.repo
+          \ . '/pull-requests/' . l:res.prnum
+          \ . '/overview'
+  else
+    let l:res.stripped = 'stash.code.sintef.no'
+          \ . '/projects/' . l:res.project
+          \ . '/repos/' . l:res.repo
+          \ . '/browse'
+  endif
   let l:res.scheme = 'https'
   let l:res.url = l:res.scheme . '://' . l:res.stripped
   let l:res.open = function('s:url_external_open')
