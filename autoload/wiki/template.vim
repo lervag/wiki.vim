@@ -29,42 +29,18 @@ endfunction
 
 " }}}1
 
-" {{{1 Summary parser
-
-function! s:sort_by_strlen(str1, str2) " {{{2
-  return strlen(a:str1) > strlen(a:str2)
-        \ ? -1
-        \ : strlen(a:str1) == strlen(a:str2)
-        \   ? 0
-        \   : 1
-endfunction
-
-" }}}2
 
 let s:summary = {}
-let s:summary.projects = [
-      \ 'Diverse',
-      \ 'Leiested',
-      \ 'Tekna',
-      \ 'Sommerjobb-administrasjon',
-      \ 'Infrastruktur 2016',
-      \ 'ELEGANCY',
-      \ '3dmf',
-      \ 'NanoHX',
-      \ 'FerroCool',
-      \ 'FerroCool 2',
-      \ 'RPT',
-      \ 'Trafo',
-      \]
-let s:summary.regex_title = '\C' . join(
-      \ sort(copy(s:summary.projects), function('s:sort_by_strlen')), '\|')
-
-function! s:summary.new() dict " {{{2
-  return deepcopy(self)
+function! s:summary.new() dict " {{{1
+  let l:summary = deepcopy(self)
+  let l:summary.projects = get(g:wiki, 'projects', [])
+  let l:summary.regex_title = '\C' . join(
+        \ sort(copy(l:summary.projects), function('s:sort_by_strlen')), '\|')
+  return l:summary
 endfunction
 
-" }}}2
-function! s:summary.parse(links) dict " {{{2
+" }}}1
+function! s:summary.parse(links) dict " {{{1
   let self.links = map(filter(copy(a:links),
         \   'filereadable(v:val . ''.wiki'')'),
         \ '''journal:'' . v:val')
@@ -75,8 +51,8 @@ function! s:summary.parse(links) dict " {{{2
   return [''] + self.links + self.lines
 endfunction
 
-" }}}2
-function! s:summary.parse_link(link) dict " {{{2
+" }}}1
+function! s:summary.parse_link(link) dict " {{{1
   let l:link = wiki#url#parse(a:link)
 
   let l:entries = {}
@@ -87,17 +63,13 @@ function! s:summary.parse_link(link) dict " {{{2
   for l:line in readfile(l:link.path)
     let l:lnum += 1
 
-    "
     " Ignore everything after title lines (except in weekly summaries)
-    "
     if l:line =~# '^\#'
       if l:lnum > 1 | break | endif
       continue
     endif
 
-    "
     " Empty lines separate entries
-    "
     if l:line =~# '^\s*$'
       if !empty(l:lines)
         let l:entries[l:title] = l:lines
@@ -112,18 +84,14 @@ function! s:summary.parse_link(link) dict " {{{2
       continue
     endif
 
-    "
     " Ignore time tables
-    "
     if l:line =~# '^\*Timeoversikt\|^\s*|-\+'
       let l:ignore = 1
     endif
 
     if l:ignore | continue | endif
 
-    "
     " Detect header of entries
-    "
     if l:new_entry
       let l:new_entry = 0
       let l:title = l:line =~# self.regex_title
@@ -146,8 +114,8 @@ function! s:summary.parse_link(link) dict " {{{2
   return l:entries
 endfunction
 
-" }}}2
-function! s:summary.combine_entries() dict " {{{2
+" }}}1
+function! s:summary.combine_entries() dict " {{{1
   let l:lines = []
   for l:project in self.projects
     let l:first = 1
@@ -166,7 +134,16 @@ function! s:summary.combine_entries() dict " {{{2
   return l:lines
 endfunction
 
-" }}}2
+" }}}1
+
+
+function! s:sort_by_strlen(str1, str2) " {{{1
+  return strlen(a:str1) > strlen(a:str2)
+        \ ? -1
+        \ : strlen(a:str1) == strlen(a:str2)
+        \   ? 0
+        \   : 1
+endfunction
 
 " }}}1
 
