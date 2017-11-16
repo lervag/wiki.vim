@@ -1,14 +1,11 @@
-if exists("s:did_ftdetect") | finish | endif
-let s:did_ftdetect = 1
-
 augroup filetypedetect
   autocmd BufRead,BufNewFile *.wiki call s:set_filetype()
 augroup END
 
-function! s:set_filetype() " {{{1
-  if expand('%:p') =~# 'documents\/wiki'
+function! s:set_filetype()
+  let l:fileroot = strpart(expand('%:p'), 0, strlen(g:wiki.root))
+
+  if l:fileroot ==# g:wiki.root
     set filetype=wiki
   endif
 endfunction
-
-" }}}1
