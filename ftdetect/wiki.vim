@@ -3,9 +3,10 @@ augroup filetypedetect
 augroup END
 
 function! s:set_filetype()
-  let l:fileroot = strpart(expand('%:p'), 0, strlen(g:wiki.root))
+  let l:wikiroot = resolve(g:wiki.root)
+  let l:fileroot = strpart(resolve(expand('%:p')), 0, strlen(l:wikiroot))
 
-  if l:fileroot ==# g:wiki.root
+  if l:fileroot ==# l:wikiroot
     set filetype=wiki
   endif
 endfunction
