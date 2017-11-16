@@ -4,7 +4,7 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#url#parse(string, ...) " {{{1
+function! wiki#url#parse(string, ...) abort " {{{1
   "
   " The following is a description of a typical url object
   "
@@ -35,19 +35,21 @@ function! wiki#url#parse(string, ...) " {{{1
   endif
 
   " Extend through specific parsers
-  if exists('*s:url_' . l:url.scheme . '_parse')
-    return extend(l:url, s:url_{l:url.scheme}_parse(l:url))
+  if exists('*s:url_parser_' . l:url.scheme)
+    return extend(l:url, s:url_parser_{l:url.scheme}(l:url))
   else
-    return extend(l:url, get({
-          \   'journal' : s:url_wiki_parse(l:url),
-          \ }, l:url.scheme,
-          \ { 'open' : function('s:url_external_open') }))
+    return extend(l:url, s:url_parser_generic(l:url))
   endif
 endfunction
 
 " }}}1
 
-function! s:url_wiki_parse(url) " {{{1
+function! s:url_parser_generic(url) " {{{1
+  return { 'open' : function('s:url_external_open') }
+endfunction
+
+" }}}1
+function! s:url_parser_wiki(url) " {{{1
   let l:url = {}
   let l:url.open = function('s:url_wiki_open')
   let l:url.open_anchor = function('s:url_wiki_open_anchor')
@@ -76,6 +78,76 @@ function! s:url_wiki_parse(url) " {{{1
 endfunction
 
 " }}}1
+function! s:url_parser_journal(url) " {{{1
+  return s:url_parser_wiki(a:url)
+endfunction
+
+" }}}1
+function! s:url_parser_file(url) " {{{1
+  if a:url.stripped[0] ==# '/'
+    let l:path = a:url.stripped
+  elseif a:url.stripped =~# '\~\w*\/'
+    let l:path = simplify(fnamemodify(a:url.stripped, ':p'))
+  else
+    let l:path = simplify(
+          \ fnamemodify(a:url.origin, ':p:h') . '/' . a:url.stripped)
+  endif
+
+  return {
+        \ 'open' : function('s:url_file_open'),
+        \ 'path' : l:path,
+        \}
+endfunction
+
+" }}}1
+function! s:url_parser_doi(url) " {{{1
+  return {
+        \ 'scheme' : 'http',
+        \ 'stripped' : 'dx.doi.org/' . a:url.stripped,
+        \ 'url' : 'http://dx.doi.org/' . a:url.stripped,
+        \ 'open' : function('s:url_external_open'),
+        \}
+endfunction
+
+" }}}1
+function! s:url_parser_jira(url) " {{{1
+  return {
+        \ 'scheme' : 'https',
+        \ 'stripped' : 'jira.code.sintef.no/browse/' . a:url.stripped,
+        \ 'url' : 'https://jira.code.sintef.no/browse/' . a:url.stripped,
+        \ 'open' : function('s:url_external_open'),
+        \}
+endfunction
+
+" }}}1
+function! s:url_parser_stash(url) " {{{1
+  let l:parts = split(a:url.stripped, '/')
+
+  let l:res = {}
+  let l:res.project = l:parts[0]
+  let l:res.repo = l:parts[1]
+  if len(l:parts) > 2
+    let l:res.prnum = matchstr(a:url.stripped, '\d\+$')
+    let l:res.stripped = 'stash.code.sintef.no'
+          \ . '/projects/' . l:res.project
+          \ . '/repos/' . l:res.repo
+          \ . '/pull-requests/' . l:res.prnum
+          \ . '/overview'
+  else
+    let l:res.stripped = 'stash.code.sintef.no'
+          \ . '/projects/' . l:res.project
+          \ . '/repos/' . l:res.repo
+          \ . '/browse'
+  endif
+  let l:res.scheme = 'https'
+  let l:res.url = l:res.scheme . '://' . l:res.stripped
+  let l:res.open = function('s:url_external_open')
+
+  return l:res
+endfunction
+
+" }}}1
+
 function! s:url_wiki_open(...) dict " {{{1
   let l:cmd = a:0 > 0 ? a:1 : 'edit'
 
@@ -136,24 +208,11 @@ function! s:url_wiki_open_anchor() dict " {{{1
 endfunction
 
 " }}}1
-
-function! s:url_file_parse(url) " {{{1
-  if a:url.stripped[0] ==# '/'
-    let l:path = a:url.stripped
-  elseif a:url.stripped =~# '\~\w*\/'
-    let l:path = simplify(fnamemodify(a:url.stripped, ':p'))
-  else
-    let l:path = simplify(
-          \ fnamemodify(a:url.origin, ':p:h') . '/' . a:url.stripped)
-  endif
-
-  return {
-        \ 'open' : function('s:url_file_open'),
-        \ 'path' : l:path,
-        \}
+function! s:url_external_open(...) dict " {{{1
+  call system('xdg-open ' . shellescape(self.url) . '&')
 endfunction
 
-" }}}1
+"}}}1
 function! s:url_file_open(...) dict " {{{1
   if isdirectory(self.path)
     execute 'Unite file:' . self.path
@@ -184,62 +243,5 @@ function! s:url_file_open(...) dict " {{{1
 endfunction
 
 "}}}1
-
-function! s:url_doi_parse(url) " {{{1
-  return {
-        \ 'scheme' : 'http',
-        \ 'stripped' : 'dx.doi.org/' . a:url.stripped,
-        \ 'url' : 'http://dx.doi.org/' . a:url.stripped,
-        \ 'open' : function('s:url_external_open'),
-        \}
-endfunction
-
-" }}}1
-
-function! s:url_jira_parse(url) " {{{1
-  return {
-        \ 'scheme' : 'https',
-        \ 'stripped' : 'jira.code.sintef.no/browse/' . a:url.stripped,
-        \ 'url' : 'https://jira.code.sintef.no/browse/' . a:url.stripped,
-        \ 'open' : function('s:url_external_open'),
-        \}
-endfunction
-
-" }}}1
-
-function! s:url_stash_parse(url) " {{{1
-  let l:parts = split(a:url.stripped, '/')
-
-  let l:res = {}
-  let l:res.project = l:parts[0]
-  let l:res.repo = l:parts[1]
-  if len(l:parts) > 2
-    let l:res.prnum = matchstr(a:url.stripped, '\d\+$')
-    let l:res.stripped = 'stash.code.sintef.no'
-          \ . '/projects/' . l:res.project
-          \ . '/repos/' . l:res.repo
-          \ . '/pull-requests/' . l:res.prnum
-          \ . '/overview'
-  else
-    let l:res.stripped = 'stash.code.sintef.no'
-          \ . '/projects/' . l:res.project
-          \ . '/repos/' . l:res.repo
-          \ . '/browse'
-  endif
-  let l:res.scheme = 'https'
-  let l:res.url = l:res.scheme . '://' . l:res.stripped
-  let l:res.open = function('s:url_external_open')
-
-  return l:res
-endfunction
-
-" }}}1
-
-function! s:url_external_open(...) dict " {{{1
-  call system('xdg-open ' . shellescape(self.url) . '&')
-endfunction
-
-"}}}1
-
 
 " vim: fdm=marker sw=2
