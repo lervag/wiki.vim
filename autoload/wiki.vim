@@ -91,7 +91,6 @@ function! s:init_mappings() " {{{1
   nnoremap <silent><buffer> <leader>wt :call wiki#page#create_toc()<cr>
   nnoremap <silent><buffer> <leader>wd :call wiki#page#delete()<cr>
   nnoremap <silent><buffer> <leader>wr :call wiki#page#rename()<cr>
-  nnoremap <silent><buffer> <leader>wh :call wiki#timesheet#show()<cr>
   nnoremap <silent><buffer> <leader>wf :call wiki#link#toggle()<cr>
   nnoremap <silent><buffer> <leader>wc :call wiki#u#run_code_snippet()<cr>
 
