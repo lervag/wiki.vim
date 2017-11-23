@@ -1,14 +1,11 @@
-" wiki
+" A simple wiki plugin for Vim
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
+" License:    MIT license
 "
 
-"
-" Init functions
-"
 function! wiki#init() " {{{1
-  " Only load the plugin once
   if get(g:wiki, 'loaded', 0) | return | endif
   let g:wiki.loaded = 1
 
@@ -22,10 +19,7 @@ function! wiki#init() " {{{1
     return
   endif
 
-  " Define mappings
-  nnoremap <silent> <leader>ww         :call wiki#goto_index()<cr>
-  nnoremap <silent> <leader>wx         :call wiki#reload()<cr>
-  nnoremap <silent> <leader>w<leader>w :call wiki#journal#make_note()<cr>
+  call s:init_mappings_global()
 endfunction
 
 " }}}1
@@ -67,98 +61,12 @@ function! wiki#init_buffer() " {{{1
   let g:wiki_number_types = ['1.']
   let g:wiki_list_markers = ['-', '*', '+', '1.']
 
-  call s:init_mappings()
+  call s:init_mappings_buffer()
   call s:init_prefill()
 endfunction
 
 " }}}1
 
-function! s:init_mappings() " {{{1
-  "
-  " Journal specific mappings
-  "
-  if b:wiki.in_journal
-    nnoremap <silent><buffer> <c-j> :<c-u>call wiki#journal#go(-v:count1)<cr>
-    nnoremap <silent><buffer> <c-k> :<c-u>call wiki#journal#go(v:count1)<cr>
-    nnoremap <silent><buffer> <leader>wk :call wiki#journal#copy_note()<cr>
-    nnoremap <silent><buffer> <leader>wu :call wiki#journal#go_to_week()<cr>
-    nnoremap <silent><buffer> <leader>wm :call wiki#journal#go_to_month()<cr>
-  endif
-
-  "
-  " General wiki mappings
-  "
-  nnoremap <silent><buffer> <leader>wt :call wiki#page#create_toc()<cr>
-  nnoremap <silent><buffer> <leader>wd :call wiki#page#delete()<cr>
-  nnoremap <silent><buffer> <leader>wr :call wiki#page#rename()<cr>
-  nnoremap <silent><buffer> <leader>wf :call wiki#link#toggle()<cr>
-  nnoremap <silent><buffer> <leader>wc :call wiki#u#run_code_snippet()<cr>
-
-  "
-  " Navigation
-  "
-  nnoremap <silent><buffer> <tab>      :call wiki#nav#next_link()<cr>
-  nnoremap <silent><buffer> <s-tab>    :call wiki#nav#prev_link()<cr>
-  nnoremap <silent><buffer> <bs>       :call wiki#nav#return()<cr>
-
-  "
-  " Open / toggle
-  "
-  nnoremap <silent><buffer> <cr>       :call wiki#link#open()<cr>
-  nnoremap <silent><buffer> <c-cr>     :call wiki#link#open('vsplit')<cr>
-  xnoremap <silent><buffer> <cr>       :<c-u>call wiki#link#toggle_visual()<cr>
-  nnoremap <silent><buffer> gl         :set opfunc=wiki#link#toggle_operator<cr>g@
-
-  "
-  " Lists
-  "
-  nnoremap <silent><buffer>       <c-s> :call wiki#list#toggle()<cr>
-  inoremap <silent><buffer><expr> <c-s> wiki#list#new_line_bullet()
-
-  "
-  " Graphs
-  "
-  nnoremap <silent><buffer> <leader>wb :call wiki#graph#find_backlinks()<cr>
-  nnoremap <silent><buffer> <leader>wg :call wiki#graph#from_current()<cr>
-  nnoremap <silent><buffer> <leader>wG :call wiki#graph#to_current()<cr>
-
-  "
-  " Text objects
-  "
-  onoremap <silent><buffer> al :call wiki#text_obj#link(0)<cr>
-  xnoremap <silent><buffer> al :<c-u>call wiki#text_obj#link(0)<cr>
-  onoremap <silent><buffer> il :call wiki#text_obj#link(1)<cr>
-  xnoremap <silent><buffer> il :<c-u>call wiki#text_obj#link(1)<cr>
-  onoremap <silent><buffer> at :call wiki#text_obj#link_text(0)<cr>
-  xnoremap <silent><buffer> at :<c-u>call wiki#text_obj#link_text(0)<cr>
-  onoremap <silent><buffer> it :call wiki#text_obj#link_text(1)<cr>
-  xnoremap <silent><buffer> it :<c-u>call wiki#text_obj#link_text(1)<cr>
-  onoremap <silent><buffer> ac :call wiki#text_obj#code(0)<cr>
-  xnoremap <silent><buffer> ac :<c-u>call wiki#text_obj#code(0)<cr>
-  onoremap <silent><buffer> ic :call wiki#text_obj#code(1)<cr>
-  xnoremap <silent><buffer> ic :<c-u>call wiki#text_obj#code(1)<cr>
-endfunction
-
-" }}}1
-function! s:init_prefill() " {{{1
-  if filereadable(expand('%')) | return | endif
-
-  let l:match = matchlist(expand('%:t:r'), '^\(\d\d\d\d\)_\(\w\)\(\d\d\)$')
-  if empty(l:match) | return | endif
-  let [l:year, l:type, l:number] = l:match[1:3]
-
-  if l:type ==# 'w'
-    call wiki#template#weekly_summary(l:year, l:number)
-  elseif l:type ==# 'm'
-    call wiki#template#monthly_summary(l:year, l:number)
-  endif
-endfunction
-
-" }}}1
-
-"
-" Miscellaneous
-"
 function! wiki#goto_index() " {{{1
   call wiki#url#parse('wiki:/index').open()
 endfunction
@@ -198,6 +106,82 @@ if get(s:, 'reload_guard', 1)
     unlet s:reload_guard
   endfunction
 endif
+
+" }}}1
+
+
+function! s:init_mappings_global() " {{{1
+  nnoremap <silent> <leader>ww         :call wiki#goto_index()<cr>
+  nnoremap <silent> <leader>wx         :call wiki#reload()<cr>
+  nnoremap <silent> <leader>w<leader>w :call wiki#journal#make_note()<cr>
+endfunction
+
+" }}}1
+function! s:init_mappings_buffer() " {{{1
+  if b:wiki.in_journal
+    nnoremap <silent><buffer> <c-j> :<c-u>call wiki#journal#go(-v:count1)<cr>
+    nnoremap <silent><buffer> <c-k> :<c-u>call wiki#journal#go(v:count1)<cr>
+    nnoremap <silent><buffer> <leader>wk :call wiki#journal#copy_note()<cr>
+    nnoremap <silent><buffer> <leader>wu :call wiki#journal#go_to_week()<cr>
+    nnoremap <silent><buffer> <leader>wm :call wiki#journal#go_to_month()<cr>
+  endif
+
+  " General wiki mappings
+  nnoremap <silent><buffer> <leader>wt :call wiki#page#create_toc()<cr>
+  nnoremap <silent><buffer> <leader>wd :call wiki#page#delete()<cr>
+  nnoremap <silent><buffer> <leader>wr :call wiki#page#rename()<cr>
+  nnoremap <silent><buffer> <leader>wf :call wiki#link#toggle()<cr>
+  nnoremap <silent><buffer> <leader>wc :call wiki#u#run_code_snippet()<cr>
+
+  " Navigation
+  nnoremap <silent><buffer> <tab>      :call wiki#nav#next_link()<cr>
+  nnoremap <silent><buffer> <s-tab>    :call wiki#nav#prev_link()<cr>
+  nnoremap <silent><buffer> <bs>       :call wiki#nav#return()<cr>
+
+  " Open / toggle
+  nnoremap <silent><buffer> <cr>       :call wiki#link#open()<cr>
+  nnoremap <silent><buffer> <c-cr>     :call wiki#link#open('vsplit')<cr>
+  xnoremap <silent><buffer> <cr>       :<c-u>call wiki#link#toggle_visual()<cr>
+  nnoremap <silent><buffer> gl         :set opfunc=wiki#link#toggle_operator<cr>g@
+
+  " Lists
+  nnoremap <silent><buffer>       <c-s> :call wiki#list#toggle()<cr>
+  inoremap <silent><buffer><expr> <c-s> wiki#list#new_line_bullet()
+
+  " Graphs
+  nnoremap <silent><buffer> <leader>wb :call wiki#graph#find_backlinks()<cr>
+  nnoremap <silent><buffer> <leader>wg :call wiki#graph#from_current()<cr>
+  nnoremap <silent><buffer> <leader>wG :call wiki#graph#to_current()<cr>
+
+  " Text objects
+  onoremap <silent><buffer> al :call wiki#text_obj#link(0)<cr>
+  xnoremap <silent><buffer> al :<c-u>call wiki#text_obj#link(0)<cr>
+  onoremap <silent><buffer> il :call wiki#text_obj#link(1)<cr>
+  xnoremap <silent><buffer> il :<c-u>call wiki#text_obj#link(1)<cr>
+  onoremap <silent><buffer> at :call wiki#text_obj#link_text(0)<cr>
+  xnoremap <silent><buffer> at :<c-u>call wiki#text_obj#link_text(0)<cr>
+  onoremap <silent><buffer> it :call wiki#text_obj#link_text(1)<cr>
+  xnoremap <silent><buffer> it :<c-u>call wiki#text_obj#link_text(1)<cr>
+  onoremap <silent><buffer> ac :call wiki#text_obj#code(0)<cr>
+  xnoremap <silent><buffer> ac :<c-u>call wiki#text_obj#code(0)<cr>
+  onoremap <silent><buffer> ic :call wiki#text_obj#code(1)<cr>
+  xnoremap <silent><buffer> ic :<c-u>call wiki#text_obj#code(1)<cr>
+endfunction
+
+" }}}1
+function! s:init_prefill() " {{{1
+  if filereadable(expand('%')) | return | endif
+
+  let l:match = matchlist(expand('%:t:r'), '^\(\d\d\d\d\)_\(\w\)\(\d\d\)$')
+  if empty(l:match) | return | endif
+  let [l:year, l:type, l:number] = l:match[1:3]
+
+  if l:type ==# 'w'
+    call wiki#template#weekly_summary(l:year, l:number)
+  elseif l:type ==# 'm'
+    call wiki#template#monthly_summary(l:year, l:number)
+  endif
+endfunction
 
 " }}}1
 

@@ -1,0 +1,159 @@
+*wiki.txt*    A simple wiki plugin for Vim
+*wiki*
+
+Author:  Karl Yngve Lervåg <karl.yngve@gmail.com>
+License: MIT license {{{
+
+  Copyright (c) 2016 Karl Yngve Lervåg
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+
+}}}
+
+==============================================================================
+CONTENTS                                                        *wiki-contents*
+
+  Introduction                                     |wiki-introduction|
+  Mappings                                         |wiki-mappings|
+  .. Global mappings                               |wiki-mappings-global|
+  .. Local mappings                                |wiki-mappings-local|
+  .. Text objects                                  |wiki-mappings-text-obj|
+  .. Journal mappings                              |wiki-mappings-journal|
+
+==============================================================================
+INTRODUCTION                                                *wiki-introduction*
+
+This plugin is a hard fork of vimwiki where most things are very much
+simplified. It has the following features:
+
+- Filetype plugin for wiki entries with syntax highlighting (syntax is
+  relatively standard Markdown syntax)
+- Convenient set of mappings for accessing and navigating the wiki
+- Well implemented link handler system that supports various different kinds
+  of links
+
+NOTE: The plugin is designed for personal use, and as such, it is NOT written
+      with a lot of options and similar for customization.  I have not adhered
+      to conventions for writing plugins and I am breaking a lot of "rules".
+      This might change with future development, but I don't think I have the
+      time to do it in the near future.
+
+==============================================================================
+MAPPINGS                                                        *wiki-mappings*
+
+------------------------------------------------------------------------------
+Global mappings~
+                                                         *wiki-mappings-global*
+
+These mappings are always available.
+
+<leader>ww
+  Go to wiki index.
+
+<leader>wx
+  Reload the wiki plugin. Mostly useful for plugin development.
+
+<leader>w<leader>w
+  Go to todays journal entry.
+
+------------------------------------------------------------------------------
+Local mappings~
+                                                          *wiki-mappings-local*
+
+These mappings are available in all wiki entries.
+
+<leader>wt
+  Create/Update table of contents.
+
+<leader>wd
+  Delete entry.
+
+<leader>wr
+  Rename entry.
+
+<leader>wf
+  Toggle link.
+
+<leader>wc
+  Run code snippet (does not currently work properly).
+
+<tab> / <s-tab>
+  Go to next/previous link.
+
+<bs>
+  Go back to previous page.
+
+<cr>
+  Open/follow link.
+
+<c-cr>
+  Open/follow link in a |vsplit|.
+
+<cr> (visual mode)
+  Visual mode toggle link.
+
+gl
+  Operator for toggling a link.
+
+<c-s> (normal and insert mode)
+  Toggle list entry.
+
+<leader>wb
+  Find backlinks to current page.
+
+<leader>wg
+  Show link graph from current page.
+
+<leader>wG
+  Show link graph to current page.
+
+------------------------------------------------------------------------------
+Text objects~
+                                                       *wiki-mappings-text-obj*
+
+al / il
+  Link url.
+
+at / it
+  Link text.
+
+ac / ic
+  Code block.
+
+------------------------------------------------------------------------------
+Journal mappings~
+                                                        *wiki-mappings-journal*
+
+These mappings are available inside journal entries.
+
+<c-j> / <c-k>
+  Go to previous/next day/week/month.
+
+<leader>wk
+  Copy current entry to next work day (unless entry for next workday already
+  exists).
+
+<leader>wu
+  Go to week summary.
+
+<leader>wm
+  Go to month summary.
+
+==============================================================================
+ vim:tw=78:ts=8:ft=help:norl:
