@@ -12,39 +12,8 @@ a list of available features. For complete documentation, please confer the
 
 * [Quick Start](#quick-start)
 * [Features](#features)
+* [TODO](#todo)
 * [Acknowledgements](#acknowledgements)
-
-## TODO
-
-This plugin was initially a personal project that I never really intended to
-share. After having used it for quite some time, I have realized that it might
-be useful to more people. However, there is a lot of work to be done to make
-this plugin more community friendly.
-
-This is a list of TODO items that anyone may follow up on. I am very willing to
-accept [contributions](CONTRIBUTING.md), both as issues describing problems or
-as pull requests for implementing bug fixes or missing features.
-
-- [ ] Write list of "low hanging fruits" for contributions
-- [ ] Documentation
-  - [ ] Vim docs
-    - [ ] Document the Markdown syntax, including links and similar
-    - [ ] Document each of the currently implemented features
-  - [x] README
-    - [x] Write a list of implemented features
-- [ ] Features
-  - [ ] General improvements
-    - [ ] Add commands for the various features
-    - [ ] Convert current mappings to `<plug>` type mappings and add options to
-    allow full customization of mappings
-  - [ ] New features
-    - [ ] Add automatic detection of a wiki (e.g. based on root level
-    `index.wiki` file)
-      This will make the `g:wiki.root` setting unnecessary. Wiki links should
-      always be internal to the current wiki, but one could make links to
-      external wikis by linking to the absolute path of the external wiki.
-- [x] Add ISSUE_TEMPLATE.md
-- [x] Add CONTRIBUTING.md
 
 # Quick Start
 
@@ -106,6 +75,38 @@ documentation](https://github.com/lervag/wiki/blob/master/doc/wiki.txt).
 - Folds
 - Third-party support
   - unite and denite sources
+
+# TODO
+
+This plugin was initially a personal project that I never really intended to
+share. After having used it for quite some time, I have realized that it might
+be useful to more people. However, there is a lot of work to be done to make
+this plugin more community friendly.
+
+This is a list of TODO items that anyone may follow up on. I am very willing to
+accept [contributions](CONTRIBUTING.md), both as issues describing problems or
+as pull requests for implementing bug fixes or missing features.
+
+- [ ] Write list of "low hanging fruits" for contributions
+- [ ] Documentation
+  - [ ] Vim docs
+    - [ ] Document the Markdown syntax, including links and similar
+    - [ ] Document each of the currently implemented features
+  - [x] README
+    - [x] Write a list of implemented features
+- [ ] Features
+  - [ ] General improvements
+    - [ ] Add commands for the various features
+    - [ ] Convert current mappings to `<plug>` type mappings and add options to
+    allow full customization of mappings
+  - [ ] New features
+    - [ ] Add automatic detection of a wiki (e.g. based on root level
+    `index.wiki` file)
+      This will make the `g:wiki.root` setting unnecessary. Wiki links should
+      always be internal to the current wiki, but one could make links to
+      external wikis by linking to the absolute path of the external wiki.
+- [x] Add ISSUE_TEMPLATE.md
+- [x] Add CONTRIBUTING.md
 
 # Acknowledgements
 
