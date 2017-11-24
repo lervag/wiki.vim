@@ -214,16 +214,6 @@ endfunction
 
 "}}}1
 function! s:url_file_open(...) dict " {{{1
-  if isdirectory(self.path)
-    execute 'Unite file:' . self.path
-    return
-  endif
-
-  if !filereadable(self.path)
-    echom '...'
-    return
-  endif
-
   if self.path =~# 'pdf$'
     silent execute '!zathura' fnameescape(self.path) '&'
     return
