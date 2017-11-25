@@ -1,8 +1,8 @@
 # Introduction
 
 This is a [Vim](http://www.vim.org/) plugin for writing and maintaining
-a personal wiki in Markdown syntax. It is based on [vimwiki](vimwiki/vimwiki),
-but written mostly from scratch.
+a personal wiki in Markdown syntax. It is based on
+[vimwiki](https://github.com/vimwiki/vimwiki), but written mostly from scratch.
 
 This README file contains basic information on how to get started, as well as
 a list of available features. For complete documentation, please confer the
@@ -101,17 +101,18 @@ as pull requests for implementing bug fixes or missing features.
     allow full customization of mappings
   - [ ] New features
     - [ ] Add automatic detection of a wiki (e.g. based on root level
-    `index.wiki` file)
+      `index.wiki` file)  
       This will make the `g:wiki.root` setting unnecessary. Wiki links should
       always be internal to the current wiki, but one could make links to
       external wikis by linking to the absolute path of the external wiki.
-    - [ ] `vimwiki` like TODO list toggles (cf. #1)
+    - [ ] [vimwiki](https://github.com/vimwiki/vimwiki) like TODO list toggles
+      (cf. [#1](../../issues/1))
 - [x] Add ISSUE_TEMPLATE.md
 - [x] Add CONTRIBUTING.md
 
 # Acknowledgements
 
-Without [vimwiki](vimwiki/vimwiki), thus plugin would never have existed. So my
-thanks go to the smart people that developed and maintains `vimwiki`, both for
-the inspiration and for the ideas.
+Without [vimwiki](https://github.com/vimwiki/vimwiki), thus plugin would never
+have existed. So my thanks go to the smart people that developed and maintains
+`vimwiki`, both for the inspiration and for the ideas.
 
