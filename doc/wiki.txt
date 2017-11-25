@@ -29,7 +29,10 @@ License: MIT license {{{
 ==============================================================================
 CONTENTS                                                        *wiki-contents*
 
-  Introduction                                     |wiki-introduction|
+  Introduction                                     |wiki-intro|
+  .. Requirements                                  |wiki-intro-requirements|
+  .. Features                                      |wiki-intro-features|
+  Syntax highlighting                              |wiki-syntax|  
   Mappings                                         |wiki-mappings|
   .. Global mappings                               |wiki-mappings-global|
   .. Local mappings                                |wiki-mappings-local|
@@ -37,22 +40,140 @@ CONTENTS                                                        *wiki-contents*
   .. Journal mappings                              |wiki-mappings-journal|
 
 ==============================================================================
-INTRODUCTION                                                *wiki-introduction*
+INTRODUCTION                                                       *wiki-intro*
 
-This plugin is a hard fork of vimwiki where most things are very much
-simplified. It has the following features:
+This is a Vim plugin for writing and maintaining a personal wiki in Markdown
+syntax. It is based on vimwiki [0], but written mostly from scratch.
 
-- Filetype plugin for wiki entries with syntax highlighting (syntax is
-  relatively standard Markdown syntax)
-- Convenient set of mappings for accessing and navigating the wiki
-- Well implemented link handler system that supports various different kinds
-  of links
+------------------------------------------------------------------------------
+Requirements~
+                                                      *wiki-intro-requirements*
 
-NOTE: The plugin is designed for personal use, and as such, it is NOT written
-      with a lot of options and similar for customization.  I have not adhered
-      to conventions for writing plugins and I am breaking a lot of "rules".
-      This might change with future development, but I don't think I have the
-      time to do it in the near future.
+This plugin is mainly developed on and for Linux. Some or most of the features
+should still work on Windows and OSX, but currently there are no guaranties.
+
+The following is a list of external tools that are used for some of the
+features:
+
+- `date`
+- `xdg-open`
+
+------------------------------------------------------------------------------
+Features~
+                                                          *wiki-intro-features*
+
+- Syntax highlighting for `.wiki` files (only within the personal wiki)
+- Completion of wiki links and link anchors
+- Mappings
+  - Global mappings for accessing the wiki
+  - Local mappings for
+    - Navigation (follow links, go back, etc)
+    - Renaming pages (will also update links in other pages)
+    - Creating a table of contents
+    - Toggling links
+    - Toggling lists (marking as done/undone or add/remove TODO)
+    - Running code snippets (Note: This needs work)
+    - Viewing wiki link graphs
+- Support for journal entries
+  - Navigating the journal back and forth with `<c-j>` and `<c-k>`
+  - Support for parsing journal entries in order to make weekly and monthly
+  summaries. The parsed result needs manual editing for good results.
+- Text objects
+  - `il al` Link url
+  - `it at` Link text
+  - `ic ac` Code blocks
+- Folds
+- Third-party support
+  - unite and denite sources
+
+==============================================================================
+SYNTAX HIGHLIGHTING                                               *wiki-syntax*
+
+This plugin supports a relatively standard type of simple Markdown syntax.
+
+------------------------------------------------------------------------------
+Common elements~
+                                                           *wiki-syntax-common*  
+
+The following listing shows the set of common syntax elements that are
+currently supported: >
+
+  # Level 1 headings
+
+  ## Level 2 headings
+
+  Supports up to 6 levels.
+
+  Supports:
+  - *bold text*
+  - _italic text_
+  - `inline code`
+  - math: $f(x) = 1$
+
+  Tables like this are supported:
+  |-----+-----------|
+  | ID  | Value     |
+  |-----+-----------|
+  | 1   | Entry 1   |
+  | 2   | Entry 2   |
+  | ... | Entry ... |
+  | 12  | Entry 12  |
+  |-----+-----------|
+
+  List bullets are either - or *. One can also create check lists like this:
+
+  - [ ] List item 1
+  - [.] List item 2
+  - [o] List item 3
+  - [x] List item 4
+
+  > Blocks of text like this are highlighted as quotes even if
+  they don't start with the initial quote symbol.
+
+------------------------------------------------------------------------------
+Links~
+                                                            *wiki-syntax-links*  
+
+The following listing shows some examples of links.  Links with descriptions
+support concealing to show only the description text. >
+
+  [[Link]]
+  [[Link|With description]]
+
+  [Description](Link)
+
+  Inline numbered links like this is also supported [0]. The link is supplied
+  below.
+
+  [0]: Link
+<
+In the above listing, the `Link` is either a wiki link, i.e. the basename of
+a file in the wiki, or an URL. URLs will also be highlighted directly. Some
+examples of supported URL types: >
+
+  journal:2013-04-05
+  http://www.google.com
+  doi:10.1002%2Fandp.19053220607
+  file:/path/to/file
+
+------------------------------------------------------------------------------
+Code blocks~
+                                                             *wiki-syntax-code*    
+
+Code blocks are blocks like the following: >
+
+  ```sh
+  ls ~
+  echo "hello world"
+  ```
+
+If the code block has a language specifier, then the block will be highlighted
+accordingly.
+
+Note: The file is parsed when opened for code blocks, and only the languages
+      detected are highlighted. Thus, if one adds a new code block with a new
+      language, one may need to reload the file to get the appropriate
+      highlighting.
 
 ==============================================================================
 MAPPINGS                                                        *wiki-mappings*
