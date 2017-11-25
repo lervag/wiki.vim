@@ -112,7 +112,7 @@ for [s:group, s:target] in [
       \ ['wikiBoldT', 'wikiBold'],
       \ ['wikiItalicT', 'wikiItalic'],
       \ ['wikiCodeT', 'wikiCode'],
-      \ ['wikiEqInT', 'wikiEqIn'],
+      \ ['wikiEqT', 'WikiEq'],
       \ ['wikiLinkUrlT', 'wikiLinkUrl'],
       \ ['wikiLinkWikiT', 'wikiLinkWiki'],
       \ ['wikiLinkRefT', 'wikiLinkRef'],
@@ -237,7 +237,7 @@ syntax match wikiEq  /\$[^$`]\+\$/ contains=wikiEqConceal
 syntax match wikiEqT /\$[^$`]\+\$/ contained
 syntax match wikiEqConceal /\$/ contained conceal
 
-highlight default link wikiEqIn Number
+highlight default link WikiEq Number
 
 " }}}1
 " {{{1 Miscellaneous
