@@ -105,6 +105,7 @@ as pull requests for implementing bug fixes or missing features.
       This will make the `g:wiki.root` setting unnecessary. Wiki links should
       always be internal to the current wiki, but one could make links to
       external wikis by linking to the absolute path of the external wiki.
+    - [ ] `vimwiki` like TODO list toggles (cf. #1)
 - [x] Add ISSUE_TEMPLATE.md
 - [x] Add CONTRIBUTING.md
 
