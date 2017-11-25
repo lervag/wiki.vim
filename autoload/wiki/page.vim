@@ -1,7 +1,8 @@
-" wiki
+" A simple wiki plugin for Vim
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
+" License:    MIT license
 "
 
 function! wiki#page#delete() "{{{1
@@ -17,7 +18,7 @@ function! wiki#page#delete() "{{{1
   endtry
 
   call wiki#nav#return()
-  execute 'bdelete! ' . escape(l:filename, " ")
+  execute 'bdelete! ' . escape(l:filename, ' ')
 endfunction
 
 "}}}1

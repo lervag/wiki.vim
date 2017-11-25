@@ -1,7 +1,8 @@
-" wiki
+" A simple wiki plugin for Vim
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
+" License:    MIT license
 "
 
 function! wiki#graph#find_backlinks() "{{{1
@@ -110,10 +111,10 @@ function! s:graph.init() dict " {{{1
   let l:i = 1
   for l:file in l:files
     let l:node = fnamemodify(l:file, ':t:r')
-    echon "\r" . printf("wiki: Scanning (%d/%d): %s", l:i, l:n, l:node)
+    echon "\r" . printf('wiki: Scanning (%d/%d): %s', l:i, l:n, l:node)
 
     if has_key(self.nodes, l:node)
-      echoerr "Not implemented!"
+      echoerr 'Not implemented!'
     endif
 
     let self.nodes[l:node] = {

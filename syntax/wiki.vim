@@ -1,7 +1,8 @@
-" wiki
+" A simple wiki plugin for Vim
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
+" License:    MIT license
 "
 
 if exists('b:current_syntax') | finish | endif

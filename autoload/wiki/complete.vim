@@ -1,14 +1,9 @@
-" wiki
+" A simple wiki plugin for Vim
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
+" License:    MIT license
 "
-
-let s:re_complete_trigger = join([
-      \ '\[\[\zs[^\\[\]]*',
-      \ '\[[^]]*\](\zs[^)]*',
-      \ 'journal:\zs\S*',
-      \ ], '\|') . '$'
 
 function! wiki#complete#omnicomplete(findstart, base) " {{{1
   if a:findstart
@@ -42,6 +37,12 @@ function! wiki#complete#omnicomplete(findstart, base) " {{{1
 endfunction
 
 " }}}1
+
+let s:re_complete_trigger = join([
+      \ '\[\[\zs[^\\[\]]*',
+      \ '\[[^]]*\](\zs[^)]*',
+      \ 'journal:\zs\S*',
+      \ ], '\|') . '$'
 
 function! s:get_anchors(filename) " {{{1
   if !filereadable(a:filename)
