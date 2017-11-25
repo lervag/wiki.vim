@@ -88,9 +88,9 @@ accept [contributions](CONTRIBUTING.md), both as issues describing problems or
 as pull requests for implementing bug fixes or missing features.
 
 - [ ] Write list of "low hanging fruits" for contributions
-- [ ] Documentation
-  - [ ] Vim docs
-    - [ ] Document the Markdown syntax, including links and similar
+- [o] Documentation
+  - [o] Vim docs
+    - [x] Document the Markdown syntax, including links and similar
     - [ ] Document each of the currently implemented features
   - [x] README
     - [x] Write a list of implemented features
@@ -98,15 +98,18 @@ as pull requests for implementing bug fixes or missing features.
   - [ ] General improvements
     - [ ] Add commands for the various features
     - [ ] Convert current mappings to `<plug>` type mappings and add options to
-    allow full customization of mappings
+          allow full customization of mappings
   - [ ] New features
+    - [ ] Allow custom url types and remove the personal variants that are not
+          useful to others
     - [ ] Add automatic detection of a wiki (e.g. based on root level
-      `index.wiki` file)  
-      This will make the `g:wiki.root` setting unnecessary. Wiki links should
-      always be internal to the current wiki, but one could make links to
-      external wikis by linking to the absolute path of the external wiki.
+          `index.wiki` file)  
+          This will make the `g:wiki.root` setting unnecessary. Wiki links
+          should always be internal to the current wiki, but one could make
+          links to external wikis by linking to the absolute path of the
+          external wiki.
     - [ ] [vimwiki](https://github.com/vimwiki/vimwiki) like TODO list toggles
-      (cf. [#1](../../issues/1))
+          (cf. [#1](../../issues/1))
 - [x] Add ISSUE_TEMPLATE.md
 - [x] Add CONTRIBUTING.md
 
