@@ -88,8 +88,8 @@ accept [contributions](CONTRIBUTING.md), both as issues describing problems or
 as pull requests for implementing bug fixes or missing features.
 
 - [ ] Write list of "low hanging fruits" for contributions
-- [o] Documentation
-  - [o] Vim docs
+- [ ] Documentation
+  - [ ] Vim docs
     - [x] Document the Markdown syntax, including links and similar
     - [ ] Document each of the currently implemented features
   - [x] README
