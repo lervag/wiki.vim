@@ -110,6 +110,7 @@ as pull requests for implementing bug fixes or missing features.
           external wiki.
     - [ ] [vimwiki](https://github.com/vimwiki/vimwiki) like TODO list toggles
           (cf. [#1](../../issues/1))
+    - [ ] Allow journal entries per week/months (cf. [#2](../../issues/1))
 - [x] Add ISSUE_TEMPLATE.md
 - [x] Add CONTRIBUTING.md
 
