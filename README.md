@@ -88,12 +88,6 @@ accept [contributions](CONTRIBUTING.md), both as issues describing problems or
 as pull requests for implementing bug fixes or missing features.
 
 - [ ] Write list of "low hanging fruits" for contributions
-- [ ] Documentation
-  - [ ] Vim docs
-    - [x] Document the Markdown syntax, including links and similar
-    - [ ] Document each of the currently implemented features
-  - [x] README
-    - [x] Write a list of implemented features
 - [ ] Features
   - [ ] General improvements
     - [ ] Add commands for the various features
@@ -111,6 +105,12 @@ as pull requests for implementing bug fixes or missing features.
     - [ ] [vimwiki](https://github.com/vimwiki/vimwiki) like TODO list toggles
           (cf. [#1](../../issues/1))
     - [ ] Allow journal entries per week/months (cf. [#2](../../issues/1))
+- [x] Documentation
+  - [x] Vim docs
+    - [x] Document the Markdown syntax, including links and similar
+    - [x] Document each of the currently implemented features
+  - [x] README
+    - [x] Write a list of implemented features
 - [x] Add ISSUE_TEMPLATE.md
 - [x] Add CONTRIBUTING.md
 

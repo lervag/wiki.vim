@@ -30,14 +30,26 @@ License: MIT license {{{
 CONTENTS                                                        *wiki-contents*
 
   Introduction                                     |wiki-intro|
-  .. Requirements                                  |wiki-intro-requirements|
-  .. Features                                      |wiki-intro-features|
-  Syntax highlighting                              |wiki-syntax|  
+    Requirements                                   |wiki-intro-requirements|
+    Features                                       |wiki-intro-features|
+  Configuration                                    |wiki-config|
+  Links                                            |wiki-links|
+    Link URLs                                      |wiki-links-urls|
+    Markdown links                                 |wiki-links-markdown|
+    Wiki links                                     |wiki-links-wiki|
+    Reference links                                |wiki-links-reference|
+  Lists                                            |wiki-lists|
   Mappings                                         |wiki-mappings|
-  .. Global mappings                               |wiki-mappings-global|
-  .. Local mappings                                |wiki-mappings-local|
-  .. Text objects                                  |wiki-mappings-text-obj|
-  .. Journal mappings                              |wiki-mappings-journal|
+    Global mappings                                |wiki-mappings-global|
+    Local mappings                                 |wiki-mappings-local|
+    Text objects                                   |wiki-mappings-text-obj|
+    Journal mappings                               |wiki-mappings-journal|
+  Completion                                       |wiki-completion|
+  Folding                                          |wiki-folding|
+  Syntax highlighting                              |wiki-syntax|  
+    Common elements                                |wiki-syntax-common|  
+    Links                                          |wiki-syntax-links|  
+    Code blocks                                    |wiki-syntax-code|  
 
 ==============================================================================
 INTRODUCTION                                                       *wiki-intro*
@@ -82,98 +94,157 @@ Features~
   - `il al` Link url
   - `it at` Link text
   - `ic ac` Code blocks
-- Folds
+- Folding
 - Third-party support
   - unite and denite sources
 
 ==============================================================================
-SYNTAX HIGHLIGHTING                                               *wiki-syntax*
+CONFIGURATION                                                     *wiki-config*
 
-This plugin supports a relatively standard type of simple Markdown syntax.
+*g:wiki*
+  A dictionary that sets most of the common options for the wiki.
 
-------------------------------------------------------------------------------
-Common elements~
-                                                           *wiki-syntax-common*  
+    *g:wiki.root*
+      The root path to the wiki files.
 
-The following listing shows the set of common syntax elements that are
-currently supported: >
+    *g:wiki.journal*
+      Default: `g:wiki.root . '/journal'`
 
-  # Level 1 headings
+==============================================================================
+LINKS                                                              *wiki-links*
 
-  ## Level 2 headings
+Links are one of the most essential features of a wiki, and as such, requires
+particular attention.  A link is a structure that consists of an URL (see
+|wiki-links-urls|) and a possibly empty description.  Links are highlighted as
+described in |wiki-syntax-links|.  Any link may be activated with the mapping
+`<cr>` or `<c-cr>`, where the latter will open the link in a split (if it is
+an internal link).  One may use `<bs>` to navigate back after following
+a link.
 
-  Supports up to 6 levels.
+These are the link formats that are currently supported:
 
-  Supports:
-  - *bold text*
-  - _italic text_
-  - `inline code`
-  - math: $f(x) = 1$
-
-  Tables like this are supported:
-  |-----+-----------|
-  | ID  | Value     |
-  |-----+-----------|
-  | 1   | Entry 1   |
-  | 2   | Entry 2   |
-  | ... | Entry ... |
-  | 12  | Entry 12  |
-  |-----+-----------|
-
-  List bullets are either - or *. One can also create check lists like this:
-
-  - [ ] List item 1
-  - [.] List item 2
-  - [o] List item 3
-  - [x] List item 4
-
-  > Blocks of text like this are highlighted as quotes even if
-  they don't start with the initial quote symbol.
+- Link URLs                          |wiki-links-url|
+    `http://www.example.com`
+    `wiki:index`
+    `journal:2013-04-05`
+    `doi:10.1002%2Fandp.19053220607`
+- Markdown links                     |wiki-links-markdown|
+    `[Description](Link)`
+- Wiki links                         |wiki-links-wiki|
+    `[[Link]]`
+    `[[Link|Description]]`
+- Reference links                    |wiki-links-reference|
+    `[Target]`
+    `[Description][Target]`
 
 ------------------------------------------------------------------------------
-Links~
-                                                            *wiki-syntax-links*  
+Link URLs~
+                                                              *wiki-links-urls*
 
-The following listing shows some examples of links.  Links with descriptions
-support concealing to show only the description text. >
+An URL, which is short for Uniform Resource Locator, has the general format
 
-  [[Link]]
-  [[Link|With description]]
+  `[scheme:]address`
 
-  [Description](Link)
+The `scheme` specifies which kind of link it is.  If no handle is specified,
+it is assumed that the address is an internal wiki link, i.e. the `wiki` scheme
+is assumed.
 
-  Inline numbered links like this is also supported [0]. The link is supplied
-  below.
+The following schemes are supported:
 
-  [0]: Link
+  wiki~
+  journal~
+    Links to an internal wiki page.  The address can be both relative and
+    absolute.  Absolute addresses are relative to |g:wiki.root|.  Further, the
+    addresses may include anchors to specific sections of the wiki entry.
+    Some examples might be enlightening: >
+
+      wiki:index
+
+      If the address has whitespace, we need to use a full link style, for
+      instance:
+
+      [[wiki:index#section 1]]
+
+      Also, to link to a journal entry, one may use:
+      journal:2014-03-02
+
+      For convenience, an ISO date will also work as a journal link.
 <
-In the above listing, the `Link` is either a wiki link, i.e. the basename of
-a file in the wiki, or an URL. URLs will also be highlighted directly. Some
-examples of supported URL types: >
+  file~
+    Links to a file on the system and opens it.  Currently uses a specialized
+    opener that works well for me, but will probably need to be updated for
+    the community.  Should allow user customization.
 
-  journal:2013-04-05
-  http://www.google.com
-  doi:10.1002%2Fandp.19053220607
-  file:/path/to/file
+  doi~
+    Will use the `generic` scheme handler on an expanded URL of the form
+    `http://dx.doi.org/<address>`, where `<address>` is the link address.
+
+  generic~
+    If the scheme is not recognized, the link is opened with the system
+    handler, which is `xdg-open` on Linux.  Currently, only Linux is supported
+    here.  This will work quite well on standard Linux distributions, e.g. for
+    opening `http` and `https` URLs.
 
 ------------------------------------------------------------------------------
-Code blocks~
-                                                             *wiki-syntax-code*    
+Markdown links~
+                                                          *wiki-links-markdown*
 
-Code blocks are blocks like the following: >
+Markdown links are one of the standard type of links, and the look like this: >
 
-  ```sh
-  ls ~
-  echo "hello world"
-  ```
+  [Description](url)
 
-If the code block has a language specifier, then the block will be highlighted
-accordingly.
+One may toggle between markdown style links and wiki style links with the
+`<leader>wf` mapping.
 
-Note: The file is parsed when opened for code blocks, and only the languages
-      detected are highlighted. Thus, if one adds a new code block with a new
-      language, one may need to reload the file to get the appropriate
-      highlighting.
+------------------------------------------------------------------------------
+Wiki links~
+                                                              *wiki-links-wiki*
+
+Wiki links are similar in style to the standard Mediawiki links.  This is the
+main syntax for creating internal wiki links.  The description part is
+optional.  Examples: >
+
+    [[Link]]
+    [[Link|Description]]
+
+Any non-link words may be turned into a wiki link with the `<cr>` mapping.
+One may also use visual mode to turn a selection into a wiki link, or one may
+use the `gl` operator.
+
+The `<leader>wf` mapping can be used to add a description to a wiki link or to
+toggle it to a markdown style link.
+
+------------------------------------------------------------------------------
+Reference links~
+                                                         *wiki-links-reference*
+
+Reference style links are slightly different.  They consist of up to three
+parts: An optional `description`, a `target` and a `link.`  The syntax is best
+explained through an example: >
+
+  The most simple form, and perhaps the most useful one, is to add a simple
+  reference like this [1].
+
+  One may also add a [description][target].
+  
+  The target may consist of both words and numbers, e.g. [like this][Ref 3].
+  [Description][Target]
+
+  [1]: Link 1
+  [Target]: Link 2
+  [Ref 3]: Link 3
+
+Reference style links may be opened with `<cr>` both on the reference location
+and on the link line.
+
+==============================================================================
+LISTS                                                              *wiki-lists*
+
+It is common to write lists inside wikis, and so there is some support for
+working with lists:
+
+- Use `<c-s>` in both insert and normal mode to toggle a TODO at the beginning
+  of the list item, or to toggle the checkbox if it is present.
 
 ==============================================================================
 MAPPINGS                                                        *wiki-mappings*
@@ -275,6 +346,111 @@ These mappings are available inside journal entries.
 
 <leader>wm
   Go to month summary.
+
+==============================================================================
+COMPLETION                                                    *wiki-completion*
+
+This plugin provides an |omni-complete| function that completes internal link
+targets, including anchors.  This should work both for markdown and wiki
+style links (see |wiki-links|).
+
+==============================================================================
+FOLDING                                                          *wiki-folding*
+
+The plugin provides a simple folding function that folds according to section
+depth.
+
+==============================================================================
+SYNTAX HIGHLIGHTING                                               *wiki-syntax*
+
+This plugin supports a relatively standard type of simple Markdown syntax.
+
+------------------------------------------------------------------------------
+Common elements~
+                                                           *wiki-syntax-common*  
+
+The following listing shows the set of common syntax elements that are
+currently supported: >
+
+  # Level 1 headings
+
+  ## Level 2 headings
+
+  Text formatting and math:
+  - *bold text*
+  - _italic text_
+  - `inline code`
+  - $f(x) = 1$
+
+  Tables:
+  |-----+-----------|
+  | ID  | Value     |
+  |-----+-----------|
+  | 1   | Entry 1   |
+  | 2   | Entry 2   |
+  | ... | Entry ... |
+  | 12  | Entry 12  |
+  |-----+-----------|
+
+  Check lists:
+  - [ ] List item 1
+  - [.] List item 2
+  - [o] List item 3
+  - [x] List item 4
+
+  Quotes:
+  > Blocks of text like this are highlighted as quotes.
+  > Continued line of quote.
+
+  > Blocks of text like this are highlighted as quotes even if
+  the continued lines do not start with the initial quote symbol.
+
+------------------------------------------------------------------------------
+Links~
+                                                            *wiki-syntax-links*  
+
+First, see |wiki-links| for a more general description of links.  Note that
+a link in general consists of an url and a description, although the
+description may be ignored.  The links will be highlighted and the |+conceal|
+feature is used to only display the descriptions if they are present.
+
+The following listing shows some examples of links. >
+
+  [[Link]]
+  [[Link|With description]]
+
+  [Description](Link)
+
+  Inline numbered links like this is also supported [0]. The link is supplied
+  below.
+
+  [0]: Link
+<
+URLs are also highlighted directly, e.g.: >
+
+  journal:2013-04-05
+  http://www.google.com
+  doi:10.1002%2Fandp.19053220607
+  file:/path/to/file
+
+------------------------------------------------------------------------------
+Code blocks~
+                                                             *wiki-syntax-code*    
+
+Code blocks are blocks like the following: >
+
+  ```sh
+  ls ~
+  echo "hello world"
+  ```
+
+If the code block has a language specifier, then the block will be highlighted
+accordingly.
+
+Note: The file is parsed when opened for code blocks, and only the languages
+      detected are highlighted. Thus, if one adds a new code block with a new
+      language, one may need to reload the file to get the appropriate
+      highlighting.
 
 ==============================================================================
  vim:tw=78:ts=8:ft=help:norl:
