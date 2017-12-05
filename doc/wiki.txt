@@ -110,6 +110,23 @@ CONFIGURATION                                                     *wiki-config*
     *g:wiki.journal*
       Default: `g:wiki.root . '/journal'`
 
+*g:wiki_file_open*
+  Name of a function or a |FuncRef| for a function that should be used to open
+  a file url (|wiki-links-urls|). The function should give a non-zero return
+  value if it opens the url. If not, the plugin falls back to opening the url
+  with Vim. An example: >
+
+    let g:wiki_file_open = 'WikiFileOpen'
+
+    function! WikiFileOpen(...) abort dict
+      if self.path =~# 'pdf$'
+        silent execute '!zathura' fnameescape(self.path) '&'
+        return 1
+      endif
+
+      return 0
+    endfunction
+
 ==============================================================================
 LINKS                                                              *wiki-links*
 
@@ -171,9 +188,8 @@ The following schemes are supported:
       For convenience, an ISO date will also work as a journal link.
 <
   file~
-    Links to a file on the system and opens it.  Currently uses a specialized
-    opener that works well for me, but will probably need to be updated for
-    the community.  Should allow user customization.
+    Links to a file on the system and opens it.  This can be customized with
+    |g:wiki_file_open|, but falls back to opening the file with Vim.
 
   doi~
     Will use the `generic` scheme handler on an expanded URL of the form
@@ -184,6 +200,10 @@ The following schemes are supported:
     handler, which is `xdg-open` on Linux.  Currently, only Linux is supported
     here.  This will work quite well on standard Linux distributions, e.g. for
     opening `http` and `https` URLs.
+
+Schemes are defined in `autoload/wiki/url/{scheme}.vim`, which means it is
+relatively easy to define new custom schemes. See the generic scheme for
+a simple example of how this is implemented.
 
 ------------------------------------------------------------------------------
 Markdown links~
