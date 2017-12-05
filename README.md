@@ -94,7 +94,7 @@ as pull requests for implementing bug fixes or missing features.
     - [ ] Convert current mappings to `<plug>` type mappings and add options to
           allow full customization of mappings
   - [ ] New features
-    - [ ] Allow custom url types and remove the personal variants that are not
+    - [x] Allow custom url types and remove the personal variants that are not
           useful to others
     - [ ] Add automatic detection of a wiki (e.g. based on root level
           `index.wiki` file)  
