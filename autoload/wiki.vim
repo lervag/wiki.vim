@@ -153,11 +153,11 @@ function! s:init_buffer_commands() " {{{1
   command! -buffer WikiPageToc            call wiki#page#create_toc()
 
   if b:wiki.in_journal
-    command! -buffer -count WikiJournalPrev       call wiki#journal#go(-<count>)
-    command! -buffer -count WikiJournalNext       call wiki#journal#go(<count>)
-    command! -buffer        WikiJournalCopyToNext call wiki#journal#copy_note()
-    command! -buffer        WikiJournalToWeek     call wiki#journal#go_to_week()
-    command! -buffer        WikiJournalToMonth    call wiki#journal#go_to_month()
+    command! -buffer -count=1 WikiJournalPrev       call wiki#journal#go(-<count>)
+    command! -buffer -count=1 WikiJournalNext       call wiki#journal#go(<count>)
+    command! -buffer          WikiJournalCopyToNext call wiki#journal#copy_note()
+    command! -buffer          WikiJournalToWeek     call wiki#journal#go_to_week()
+    command! -buffer          WikiJournalToMonth    call wiki#journal#go_to_month()
   endif
 endfunction
 
@@ -239,7 +239,7 @@ function! s:init_buffer_mappings() " {{{1
           \}
 
     if b:wiki.in_journal
-      call extend(l:defaults, {
+      call extend(l:mappings, {
             \ '<plug>(wiki-journal-prev)' : '<c-j>',
             \ '<plug>(wiki-journal-next)' : '<c-k>',
             \ '<plug>(wiki-journal-copy-tonext)' : '<leader>wk',
