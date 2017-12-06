@@ -19,7 +19,8 @@ function! wiki#init() " {{{1
     return
   endif
 
-  call s:init_mappings_global()
+  call s:init_global_commands()
+  call s:init_global_mappings()
 endfunction
 
 " }}}1
@@ -61,7 +62,8 @@ function! wiki#init_buffer() " {{{1
   let g:wiki_number_types = ['1.']
   let g:wiki_list_markers = ['-', '*', '+', '1.']
 
-  call s:init_mappings_buffer()
+  call s:init_buffer_commands()
+  call s:init_buffer_mappings()
   call s:init_prefill()
 endfunction
 
@@ -110,65 +112,170 @@ endif
 " }}}1
 
 
-function! s:init_mappings_global() " {{{1
-  nnoremap <silent> <leader>ww         :call wiki#goto_index()<cr>
-  nnoremap <silent> <leader>wx         :call wiki#reload()<cr>
-  nnoremap <silent> <leader>w<leader>w :call wiki#journal#make_note()<cr>
+function! s:init_global_commands() " {{{1
+  command! WikiIndex   call wiki#goto_index()
+  command! WikiReload  call wiki#reload()
+  command! WikiJournal call wiki#journal#make_note()
 endfunction
 
 " }}}1
-function! s:init_mappings_buffer() " {{{1
+function! s:init_global_mappings() " {{{1
+  nnoremap <silent> <plug>(wiki-index)   :WikiIndex<cr>
+  nnoremap <silent> <plug>(wiki-journal) :WikiJournal<cr>
+  nnoremap <silent> <plug>(wiki-reload)  :WikiReload<cr>
+
+  let l:mappings = get(g:, 'wiki_mappings_use_defaults', 1)
+        \ ? {
+        \ '<plug>(wiki-index)' : '<leader>ww',
+        \ '<plug>(wiki-journal)' : '<leader>w<leader>w',
+        \ '<plug>(wiki-reload)' : '<leader>wx',
+        \} : {}
+  call extend(l:mappings, get(g:, 'wiki_mappings_global', {}))
+
+  call s:init_mappings_from_dict(l:mappings, '')
+endfunction
+
+" }}}1
+function! s:init_buffer_commands() " {{{1
+  command! -buffer WikiCodeRun            call wiki#u#run_code_snippet()
+  command! -buffer WikiGraphFindBacklinks call wiki#graph#find_backlinks()
+  command! -buffer WikiGraphIn            call wiki#graph#to_current()
+  command! -buffer WikiGraphOut           call wiki#graph#from_current()
+  command! -buffer WikiLinkNext           call wiki#nav#next_link()
+  command! -buffer WikiLinkOpen           call wiki#link#open()
+  command! -buffer WikiLinkOpenSplit      call wiki#link#open('vsplit')
+  command! -buffer WikiLinkPrev           call wiki#nav#prev_link()
+  command! -buffer WikiLinkReturn         call wiki#nav#return()
+  command! -buffer WikiLinkToggle         call wiki#link#toggle()
+  command! -buffer WikiListTottle         call wiki#list#toggle()
+  command! -buffer WikiPageDelete         call wiki#page#delete()
+  command! -buffer WikiPageRename         call wiki#page#rename()
+  command! -buffer WikiPageToc            call wiki#page#create_toc()
+
   if b:wiki.in_journal
-    nnoremap <silent><buffer> <c-j> :<c-u>call wiki#journal#go(-v:count1)<cr>
-    nnoremap <silent><buffer> <c-k> :<c-u>call wiki#journal#go(v:count1)<cr>
-    nnoremap <silent><buffer> <leader>wk :call wiki#journal#copy_note()<cr>
-    nnoremap <silent><buffer> <leader>wu :call wiki#journal#go_to_week()<cr>
-    nnoremap <silent><buffer> <leader>wm :call wiki#journal#go_to_month()<cr>
+    command! -buffer -count WikiJournalPrev       call wiki#journal#go(-<count>)
+    command! -buffer -count WikiJournalNext       call wiki#journal#go(<count>)
+    command! -buffer        WikiJournalCopyToNext call wiki#journal#copy_note()
+    command! -buffer        WikiJournalToWeek     call wiki#journal#go_to_week()
+    command! -buffer        WikiJournalToMonth    call wiki#journal#go_to_month()
+  endif
+endfunction
+
+" }}}1
+function! s:init_buffer_mappings() " {{{1
+  nnoremap <buffer> <plug>(wiki-code-run)             :WikiCodeRun<cr>
+  nnoremap <buffer> <plug>(wiki-graph-find-backlinks) :WikiGraphFindBacklinks<cr>
+  nnoremap <buffer> <plug>(wiki-graph-in)             :WikiGraphIn<cr>
+  nnoremap <buffer> <plug>(wiki-graph-out)            :WikiGraphOut<cr>
+  nnoremap <buffer> <plug>(wiki-link-next)            :WikiLinkNext<cr>
+  nnoremap <buffer> <plug>(wiki-link-open)            :WikiLinkOpen<cr>
+  nnoremap <buffer> <plug>(wiki-link-open-split)      :WikiLinkOpenSplit<cr>
+  nnoremap <buffer> <plug>(wiki-link-prev)            :WikiLinkPrev<cr>
+  nnoremap <buffer> <plug>(wiki-link-return)          :WikiLinkReturn<cr>
+  nnoremap <buffer> <plug>(wiki-link-toggle)          :WikiLinkToggle<cr>
+  nnoremap <buffer> <plug>(wiki-list-tottle)          :WikiListTottle<cr>
+  nnoremap <buffer> <plug>(wiki-page-delete)          :WikiPageDelete<cr>
+  nnoremap <buffer> <plug>(wiki-page-rename)          :WikiPageRename<cr>
+  nnoremap <buffer> <plug>(wiki-page-toc)             :WikiPageToc<cr>
+
+  inoremap <buffer><expr> <plug>(wiki-list-toggle)          wiki#list#new_line_bullet()
+  xnoremap <buffer>       <plug>(wiki-link-toggle-visual)   :<c-u>call wiki#link#toggle_visual()<cr>
+  nnoremap <buffer>       <plug>(wiki-link-toggle-operator) :set opfunc=wiki#link#toggle_operator<cr>g@
+
+  onoremap <buffer> <plug>(wiki-al) :call wiki#text_obj#link(0)<cr>
+  xnoremap <buffer> <plug>(wiki-al) :<c-u>call wiki#text_obj#link(0)<cr>
+  onoremap <buffer> <plug>(wiki-il) :call wiki#text_obj#link(1)<cr>
+  xnoremap <buffer> <plug>(wiki-il) :<c-u>call wiki#text_obj#link(1)<cr>
+  onoremap <buffer> <plug>(wiki-at) :call wiki#text_obj#link_text(0)<cr>
+  xnoremap <buffer> <plug>(wiki-at) :<c-u>call wiki#text_obj#link_text(0)<cr>
+  onoremap <buffer> <plug>(wiki-it) :call wiki#text_obj#link_text(1)<cr>
+  xnoremap <buffer> <plug>(wiki-it) :<c-u>call wiki#text_obj#link_text(1)<cr>
+  onoremap <buffer> <plug>(wiki-ac) :call wiki#text_obj#code(0)<cr>
+  xnoremap <buffer> <plug>(wiki-ac) :<c-u>call wiki#text_obj#code(0)<cr>
+  onoremap <buffer> <plug>(wiki-ic) :call wiki#text_obj#code(1)<cr>
+  xnoremap <buffer> <plug>(wiki-ic) :<c-u>call wiki#text_obj#code(1)<cr>
+
+  if b:wiki.in_journal
+    nnoremap <buffer> <plug>(wiki-journal-prev)        :WikiJournalPrev<cr>
+    nnoremap <buffer> <plug>(wiki-journal-next)        :WikiJournalNext<cr>
+    nnoremap <buffer> <plug>(wiki-journal-copy-tonext) :WikiJournalCopyToNext<cr>
+    nnoremap <buffer> <plug>(wiki-journal-toweek)      :WikiJournalToWeek<cr>
+    nnoremap <buffer> <plug>(wiki-journal-tomonth)     :WikiJournalToMonth<cr>
   endif
 
-  " General wiki mappings
-  nnoremap <silent><buffer> <leader>wt :call wiki#page#create_toc()<cr>
-  nnoremap <silent><buffer> <leader>wd :call wiki#page#delete()<cr>
-  nnoremap <silent><buffer> <leader>wr :call wiki#page#rename()<cr>
-  nnoremap <silent><buffer> <leader>wf :call wiki#link#toggle()<cr>
-  nnoremap <silent><buffer> <leader>wc :call wiki#u#run_code_snippet()<cr>
 
-  " Navigation
-  nnoremap <silent><buffer> <tab>      :call wiki#nav#next_link()<cr>
-  nnoremap <silent><buffer> <s-tab>    :call wiki#nav#prev_link()<cr>
-  nnoremap <silent><buffer> <bs>       :call wiki#nav#return()<cr>
+  let l:mappings = {}
+  if get(g:, 'wiki_mappings_use_defaults', 1)
+    let l:mappings = {
+          \ '<plug>(wiki-code-run)' : '<leader>wc',
+          \ '<plug>(wiki-graph-find-backlinks)' : '<leader>wb',
+          \ '<plug>(wiki-graph-in)' : '<leader>wg',
+          \ '<plug>(wiki-graph-out)' : '<leader>wG',
+          \ '<plug>(wiki-link-next)' : '<tab>',
+          \ '<plug>(wiki-link-open)' : '<cr>',
+          \ '<plug>(wiki-link-open-split)' : '<c-cr>',
+          \ '<plug>(wiki-link-prev)' : '<s-tab>',
+          \ '<plug>(wiki-link-return)' : '<bs>',
+          \ '<plug>(wiki-link-toggle)' : '<leader>wf',
+          \ '<plug>(wiki-link-toggle-operator)' : 'gl',
+          \ '<plug>(wiki-list-toggle)' : '<c-s>',
+          \ '<plug>(wiki-page-delete)' : '<leader>wd',
+          \ '<plug>(wiki-page-rename)' : '<leader>wr',
+          \ '<plug>(wiki-page-toc)' : '<leader>wt',
+          \ 'i_<plug>(wiki-list-toggle)' : '<c-s>',
+          \ 'x_<plug>(wiki-link-toggle-visual)' : '<cr>',
+          \ 'o_<plug>(wiki-al)' : 'al',
+          \ 'x_<plug>(wiki-al)' : 'al',
+          \ 'o_<plug>(wiki-il)' : 'il',
+          \ 'x_<plug>(wiki-il)' : 'il',
+          \ 'o_<plug>(wiki-at)' : 'at',
+          \ 'x_<plug>(wiki-at)' : 'at',
+          \ 'o_<plug>(wiki-it)' : 'it',
+          \ 'x_<plug>(wiki-it)' : 'it',
+          \ 'o_<plug>(wiki-ac)' : 'ac',
+          \ 'x_<plug>(wiki-ac)' : 'ac',
+          \ 'o_<plug>(wiki-ic)' : 'ic',
+          \ 'x_<plug>(wiki-ic)' : 'ic',
+          \}
 
-  " Open / toggle
-  nnoremap <silent><buffer> <cr>       :call wiki#link#open()<cr>
-  nnoremap <silent><buffer> <c-cr>     :call wiki#link#open('vsplit')<cr>
-  xnoremap <silent><buffer> <cr>       :<c-u>call wiki#link#toggle_visual()<cr>
-  nnoremap <silent><buffer> gl         :set opfunc=wiki#link#toggle_operator<cr>g@
+    if b:wiki.in_journal
+      call extend(l:defaults, {
+            \ '<plug>(wiki-journal-prev)' : '<c-j>',
+            \ '<plug>(wiki-journal-next)' : '<c-k>',
+            \ '<plug>(wiki-journal-copy-tonext)' : '<leader>wk',
+            \ '<plug>(wiki-journal-toweek)' : '<leader>wu',
+            \ '<plug>(wiki-journal-tomonth)' : '<leader>wm',
+            \})
+    endif
+  endif
 
-  " Lists
-  nnoremap <silent><buffer>       <c-s> :call wiki#list#toggle()<cr>
-  inoremap <silent><buffer><expr> <c-s> wiki#list#new_line_bullet()
+  call extend(l:mappings, get(g:, 'wiki_mappings_local', {}))
 
-  " Graphs
-  nnoremap <silent><buffer> <leader>wb :call wiki#graph#find_backlinks()<cr>
-  nnoremap <silent><buffer> <leader>wg :call wiki#graph#from_current()<cr>
-  nnoremap <silent><buffer> <leader>wG :call wiki#graph#to_current()<cr>
-
-  " Text objects
-  onoremap <silent><buffer> al :call wiki#text_obj#link(0)<cr>
-  xnoremap <silent><buffer> al :<c-u>call wiki#text_obj#link(0)<cr>
-  onoremap <silent><buffer> il :call wiki#text_obj#link(1)<cr>
-  xnoremap <silent><buffer> il :<c-u>call wiki#text_obj#link(1)<cr>
-  onoremap <silent><buffer> at :call wiki#text_obj#link_text(0)<cr>
-  xnoremap <silent><buffer> at :<c-u>call wiki#text_obj#link_text(0)<cr>
-  onoremap <silent><buffer> it :call wiki#text_obj#link_text(1)<cr>
-  xnoremap <silent><buffer> it :<c-u>call wiki#text_obj#link_text(1)<cr>
-  onoremap <silent><buffer> ac :call wiki#text_obj#code(0)<cr>
-  xnoremap <silent><buffer> ac :<c-u>call wiki#text_obj#code(0)<cr>
-  onoremap <silent><buffer> ic :call wiki#text_obj#code(1)<cr>
-  xnoremap <silent><buffer> ic :<c-u>call wiki#text_obj#code(1)<cr>
+  call s:init_mappings_from_dict(l:mappings, '<buffer>')
 endfunction
 
 " }}}1
+
+function! s:init_mappings_from_dict(dict, arg) " {{{1
+  for [l:rhs, l:lhs] in items(a:dict)
+    if l:rhs[0] !=# '<'
+      let l:mode = l:rhs[0]
+      let l:rhs = l:rhs[2:]
+    else
+      let l:mode = 'n'
+    endif
+
+    if hasmapto(l:rhs, l:mode)
+      echo l:rhs 'is already mapped!'
+      continue
+    endif
+
+    execute l:mode . 'map <silent>' . a:arg l:lhs l:rhs
+  endfor
+endfunction
+  
+  " }}}1
+
 function! s:init_prefill() " {{{1
   if filereadable(expand('%')) | return | endif
 

@@ -90,8 +90,9 @@ as pull requests for implementing bug fixes or missing features.
 - [ ] Write list of "low hanging fruits" for contributions
 - [ ] Features
   - [ ] General improvements
-    - [ ] Add commands for the various features
-    - [ ] Convert current mappings to `<plug>` type mappings and add options to
+    - [ ] Document the commands and `<plug>` mappings
+    - [x] Add commands for the various features
+    - [x] Convert current mappings to `<plug>` type mappings and add options to
           allow full customization of mappings
   - [ ] New features
     - [x] Allow custom url types and remove the personal variants that are not

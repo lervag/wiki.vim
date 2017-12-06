@@ -102,13 +102,37 @@ Features~
 CONFIGURATION                                                     *wiki-config*
 
 *g:wiki*
-  A dictionary that sets most of the common options for the wiki.
+  A dictionary for configuring the wiki specific settings.
 
     *g:wiki.root*
       The root path to the wiki files.
 
     *g:wiki.journal*
       Default: `g:wiki.root . '/journal'`
+
+*g:wiki_mappings_use_defaults*
+  Whether or not to use default mappings (see |wiki-mappings-default|). If
+  this is set to 0, then only custom mappings will be applied. Custom mappings
+  may either be specified explicitly or through |g:wiki_mappings_global| and
+  |g:wiki_mappings_local|.
+
+  Default: 1
+
+*g:wiki_mappings_global*
+*g:wiki_mappings_local*
+  These options allow one to customize global and buffer local mappings
+  through dictionaries where the keys are the right-hand sides and the values
+  are the desired mappings, e.g.: >
+
+    let g:wiki_mappings_global = {
+        \ '<plug>(wiki-reload)' : ',wx',
+        \}
+<
+  This example will keep the default maps (unless disabled), except for
+  `<plug>(wiki-reload)`, which will be mapped to `,wx`. The available `<plug>`
+  mappings are listed in |wiki-mappings|.
+
+  Default: Undefined
 
 *g:wiki_file_open*
   Name of a function or a |FuncRef| for a function that should be used to open
