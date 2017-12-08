@@ -173,7 +173,7 @@ function! s:init_buffer_mappings() " {{{1
   nnoremap <buffer> <plug>(wiki-link-prev)            :WikiLinkPrev<cr>
   nnoremap <buffer> <plug>(wiki-link-return)          :WikiLinkReturn<cr>
   nnoremap <buffer> <plug>(wiki-link-toggle)          :WikiLinkToggle<cr>
-  nnoremap <buffer> <plug>(wiki-list-tottle)          :WikiListTottle<cr>
+  nnoremap <buffer> <plug>(wiki-list-toggle)          :WikiListTottle<cr>
   nnoremap <buffer> <plug>(wiki-page-delete)          :WikiPageDelete<cr>
   nnoremap <buffer> <plug>(wiki-page-rename)          :WikiPageRename<cr>
   nnoremap <buffer> <plug>(wiki-page-toc)             :WikiPageToc<cr>
