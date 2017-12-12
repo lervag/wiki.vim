@@ -41,7 +41,7 @@ This outlines the basic steps necessary to get started:
 2. Add the following to your `vimrc` file:
 
    ```vim
-   let g:wiki = { 'root' : '~/documents/wiki' }
+   let g:wiki_root = '~/documents/wiki'
    ```
 
 3. Now you can open the index file (that is, `index.wiki`) with `<leader>ww`

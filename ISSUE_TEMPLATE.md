@@ -35,6 +35,6 @@ let &rtp  = '~/.vim/bundle/wiki,' . &rtp
 filetype plugin indent on
 syntax enable
 
-let g:wiki = { 'root' : '/path/to/minimal-working-example-wiki' }
+let g:wiki_root = '/path/to/minimal-working-example-wiki'
 ```
 

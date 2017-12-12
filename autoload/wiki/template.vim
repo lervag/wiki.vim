@@ -34,7 +34,7 @@ endfunction
 let s:summary = {}
 function! s:summary.new() dict " {{{1
   let l:summary = deepcopy(self)
-  let l:summary.projects = get(g:wiki, 'projects', [])
+  let l:summary.projects = get(g:, 'wiki_projects', [])
   let l:summary.regex_title = '\C' . join(
         \ sort(copy(l:summary.projects), function('s:sort_by_strlen')), '\|')
   return l:summary
