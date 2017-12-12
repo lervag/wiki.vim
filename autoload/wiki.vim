@@ -6,19 +6,7 @@
 "
 
 function! wiki#init() " {{{1
-  if get(g:wiki, 'loaded', 0) | return | endif
-  let g:wiki.loaded = 1
-
-  " Ensure absolute path
-  let g:wiki.root = fnamemodify(g:wiki.root, ':p')
-  let g:wiki.journal = g:wiki.root . 'journal/'
-
-  " Warn if wiki path is invalid
-  if !isdirectory(g:wiki.root)
-    echoerr 'Please define a valid g:wiki.root!'
-    return
-  endif
-
+  call s:init_global_options()
   call s:init_global_commands()
   call s:init_global_mappings()
 endfunction
@@ -54,13 +42,8 @@ function! wiki#init_buffer() " {{{1
         \ {
         \ 'in_journal' : stridx(
         \   resolve(expand('%:p')),
-        \   resolve(g:wiki.journal)) == 0
+        \   resolve(printf('%s/%s', wiki#get_root(), g:wiki_journal))) == 0
         \ })
-
-  " TODO
-  let g:wiki_bullet_types = { '-':0, '*':0, '+':0 }
-  let g:wiki_number_types = ['1.']
-  let g:wiki_list_markers = ['-', '*', '+', '1.']
 
   call s:init_buffer_commands()
   call s:init_buffer_mappings()
@@ -111,6 +94,24 @@ endif
 
 " }}}1
 
+function! wiki#get_root() " {{{1
+  if exists('b:wiki.root') | return b:wiki.root | endif
+
+  let l:root = fnamemodify(get(g:, 'wiki_root', ''), ':p')
+  if !isdirectory(l:root)
+    echoerr 'Please set g:wiki_root!'
+    return ''
+  endif
+
+  if exists('b:wiki')
+    let b:wiki.root = l:root
+  endif
+
+  return l:root
+endfunction
+
+" }}}1
+
 
 function! s:init_global_commands() " {{{1
   command! WikiIndex   call wiki#goto_index()
@@ -133,6 +134,16 @@ function! s:init_global_mappings() " {{{1
   call extend(l:mappings, get(g:, 'wiki_mappings_global', {}))
 
   call s:init_mappings_from_dict(l:mappings, '')
+endfunction
+
+" }}}1
+function! s:init_global_options() " {{{1
+  let g:wiki_journal = 'journal'
+
+  " TODO
+  let g:wiki_bullet_types = { '-':0, '*':0, '+':0 }
+  let g:wiki_number_types = ['1.']
+  let g:wiki_list_markers = ['-', '*', '+', '1.']
 endfunction
 
 " }}}1

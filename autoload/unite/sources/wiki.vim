@@ -12,7 +12,7 @@ let s:wiki = {
       \}
 
 function! s:wiki.gather_candidates(args, context)
-  return map(globpath(g:wiki.root, '**/*.wiki', 0, 1),
+  return map(globpath(wiki#get_root(), '**/*.wiki', 0, 1),
         \'{
         \ "word": substitute(fnamemodify(v:val, ":p:r"),
         \                    "^.*documents\/wiki\/", "", ""),

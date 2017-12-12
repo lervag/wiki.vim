@@ -99,10 +99,6 @@ as pull requests for implementing bug fixes or missing features.
           useful to others
     - [ ] Add automatic detection of a wiki (e.g. based on root level
           `index.wiki` file)  
-          This will make the `g:wiki.root` setting unnecessary. Wiki links
-          should always be internal to the current wiki, but one could make
-          links to external wikis by linking to the absolute path of the
-          external wiki.
     - [ ] [vimwiki](https://github.com/vimwiki/vimwiki) like TODO list toggles
           (cf. [#1](../../issues/1))
     - [ ] Allow journal entries per week/months (cf. [#2](../../issues/1))

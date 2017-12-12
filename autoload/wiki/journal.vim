@@ -14,7 +14,8 @@ endfunction
 function! wiki#journal#copy_note() " {{{1
   let l:next_day = wiki#date#get_next_weekday(expand('%:t:r'))
 
-  let l:next_entry = g:wiki.journal . l:next_day . '.wiki'
+  let l:next_entry = printf('%s/%s/%s.wiki',
+        \ wiki#get_root(), g:wiki_journal, l:next_day)
   if !filereadable(l:next_entry)
     execute 'write' l:next_entry
   endif
@@ -73,7 +74,8 @@ endfunction
 
 " }}}1
 function! s:get_links_generic(rx, fmt) " {{{1
-  let l:links = filter(map(glob(g:wiki.journal . '*.wiki', 0, 1),
+  let l:globpat = printf('%s/%s/*.wiki', wiki#get_root(), g:wiki_journal)
+  let l:links = filter(map(glob(l:glob_pat, 0, 1),
         \   'fnamemodify(v:val, '':t:r'')'),
         \ 'v:val =~# a:rx')
 

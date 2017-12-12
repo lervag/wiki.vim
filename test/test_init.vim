@@ -2,16 +2,14 @@ source init.vim
 
 try
   set filetype=wiki
-  call wiki#test#error(expand('<sfile>'), 'Did not require g:wiki!')
-catch /E121/
 endtry
 
 try
-  let g:wiki = {}
-  let g:wiki.root = fnamemodify(expand('<cfile>'), ':p:h')
-  set filetype=wiki
-catch /E121/
-  call wiki#test#error(expand('<sfile>'), 'The wiki should have been initialized')
+  let g:wiki_root = fnamemodify(expand('<cfile>'), ':p:h') . '/example'
+  silent call wiki#goto_index()
+  if &filetype !=# 'wiki'
+    call wiki#test#error(expand('<sfile>'), 'The example index should have been initialized.')
+  endif
 endtry
 
 call wiki#test#quit()

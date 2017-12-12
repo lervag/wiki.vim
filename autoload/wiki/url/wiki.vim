@@ -19,14 +19,9 @@ function! wiki#url#wiki#parse(url) abort " {{{1
         \ : fnamemodify(a:url.origin, ':p:t:r')) . '.wiki'
 
   " Extract path
-  if a:url.scheme ==# 'journal'
-    let l:url.scheme = 'wiki'
-    let l:url.path = g:wiki.journal . l:fname
-  else
-    let l:url.path = l:fname[0] ==# '/'
-          \ ? g:wiki.root . strpart(l:fname, 1)
-          \ : fnamemodify(a:url.origin, ':p:h') . '/' . l:fname
-  endif
+  let l:url.path = l:fname[0] ==# '/'
+        \ ? wiki#get_root() . strpart(l:fname, 1)
+        \ : fnamemodify(a:url.origin, ':p:h') . '/' . l:fname
 
   return l:url
 endfunction

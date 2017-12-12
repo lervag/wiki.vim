@@ -242,7 +242,8 @@ function! wiki#link#template_word(url, ...) " {{{1
   "
   " Next try at wiki root
   "
-  if filereadable(g:wiki.root . a:url . '.wiki')
+  let l:root = wiki#get_root()
+  if filereadable(l:root . a:url . '.wiki')
     return wiki#link#template_wiki('/' . a:url)
   endif
 
@@ -250,7 +251,7 @@ function! wiki#link#template_word(url, ...) " {{{1
   " Finally we see if there are completable candidates
   "
   let l:candidates = map(
-        \ glob(g:wiki.root . a:url . '*.wiki', 0, 1),
+        \ glob(l:root . a:url . '*.wiki', 0, 1),
         \ 'fnamemodify(v:val, '':t:r'')')
 
   "

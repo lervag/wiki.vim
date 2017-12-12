@@ -23,7 +23,7 @@ function! wiki#complete#omnicomplete(findstart, base) " {{{1
             \   'l:segments[0] . ''#'' . v:val')
     else
       if a:base[0] ==# '/'
-        let l:cwd = resolve(g:wiki.root)
+        let l:cwd = resolve(wiki#get_root())
         let l:cands = map(globpath(l:cwd, '**/*.wiki', 0, 1),
               \ '''/'' . s:relpath(l:cwd, fnamemodify(v:val, '':r''))')
       else

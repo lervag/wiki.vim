@@ -5,8 +5,9 @@
 " License:    MIT license
 "
 
-if exists('g:wiki')
-  call wiki#init()
-endif
+if exists('g:wiki_loaded') | finish | endif
+let g:wiki_loaded = 1
+
+call wiki#init()
 
 " vim: fdm=marker sw=2

@@ -106,7 +106,7 @@ function! s:graph.init() dict " {{{1
   if has_key(self, 'initialized') | return | endif
   let self.nodes = {}
 
-  let l:files = globpath(g:wiki.root, '**/*.wiki', 0, 1)
+  let l:files = globpath(wiki#get_root(), '**/*.wiki', 0, 1)
   let l:n = len(l:files)
   let l:i = 1
   for l:file in l:files

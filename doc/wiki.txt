@@ -101,14 +101,16 @@ Features~
 ==============================================================================
 CONFIGURATION                                                     *wiki-config*
 
-*g:wiki*
-  A dictionary for configuring the wiki specific settings.
+*g:wiki_root*
+  The root path for the main wiki, i.e. the wiki that is opened with the
+  `<leader>ww` mapping.
 
-    *g:wiki.root*
-      The root path to the wiki files.
+  Default: ''
 
-    *g:wiki.journal*
-      Default: `g:wiki.root . '/journal'`
+*g:wiki_journal*
+  The name of the diary or journal sub folder.
+
+  Default: `'journal'`
 
 *g:wiki_mappings_use_defaults*
   Whether or not to use default mappings (see |wiki-mappings-default|). If
@@ -195,7 +197,7 @@ The following schemes are supported:
   wiki~
   journal~
     Links to an internal wiki page.  The address can be both relative and
-    absolute.  Absolute addresses are relative to |g:wiki.root|.  Further, the
+    absolute.  Absolute addresses are relative to the wiki root.  Further, the
     addresses may include anchors to specific sections of the wiki entry.
     Some examples might be enlightening: >
 
