@@ -75,7 +75,7 @@ endfunction
 " }}}1
 function! s:get_links_generic(rx, fmt) " {{{1
   let l:globpat = printf('%s/%s/*.wiki', wiki#get_root(), g:wiki_journal)
-  let l:links = filter(map(glob(l:glob_pat, 0, 1),
+  let l:links = filter(map(glob(l:globpat, 0, 1),
         \   'fnamemodify(v:val, '':t:r'')'),
         \ 'v:val =~# a:rx')
 
