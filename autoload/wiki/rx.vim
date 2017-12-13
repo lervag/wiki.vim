@@ -8,7 +8,7 @@
 "
 " Generated regexes
 "
-function! wiki#rx#link() " {{{1
+function! wiki#rx#link() abort " {{{1
   if !exists('s:rx.link')
     let s:rx.link = join(
         \ map(wiki#link#get_matchers_links(), 'v:val.rx'), '\|')
@@ -18,7 +18,7 @@ function! wiki#rx#link() " {{{1
 endfunction
 
 " }}}1
-function! wiki#rx#surrounded(word, chars) " {{{1
+function! wiki#rx#surrounded(word, chars) abort " {{{1
   return '\%(^\|\s\|[[:punct:]]\)\@<='
         \ . '\zs'
         \ . escape(a:chars, '*')
@@ -33,62 +33,62 @@ endfunction
 "
 " Common getters
 "
-function! wiki#rx#word() " {{{1
+function! wiki#rx#word() abort " {{{1
   return s:rx.word
 endfunction
 
 " }}}1
-function! wiki#rx#pre_beg() " {{{1
+function! wiki#rx#pre_beg() abort " {{{1
   return s:rx.pre_beg
 endfunction
 
 " }}}1
-function! wiki#rx#pre_end() " {{{1
+function! wiki#rx#pre_end() abort " {{{1
   return s:rx.pre_end
 endfunction
 
 " }}}1
-function! wiki#rx#super() " {{{1
+function! wiki#rx#super() abort " {{{1
   return s:rx.super
 endfunction
 
 " }}}1
-function! wiki#rx#sub() " {{{1
+function! wiki#rx#sub() abort " {{{1
   return s:rx.sub
 endfunction
 
 " }}}1
-function! wiki#rx#list_define() " {{{1
+function! wiki#rx#list_define() abort " {{{1
   return s:rx.list_define
 endfunction
 
 " }}}1
-function! wiki#rx#comment() " {{{1
+function! wiki#rx#comment() abort " {{{1
   return s:rx.comment
 endfunction
 
 " }}}1
-function! wiki#rx#todo() " {{{1
+function! wiki#rx#todo() abort " {{{1
   return s:rx.todo
 endfunction
 
 " }}}1
-function! wiki#rx#header() " {{{1
+function! wiki#rx#header() abort " {{{1
   return s:rx.header
 endfunction
 
 " }}}1
-function! wiki#rx#header_items() " {{{1
+function! wiki#rx#header_items() abort " {{{1
   return s:rx.header_items
 endfunction
 
 " }}}1
-function! wiki#rx#bold() " {{{1
+function! wiki#rx#bold() abort " {{{1
   return s:rx.bold
 endfunction
 
 " }}}1
-function! wiki#rx#italic() " {{{1
+function! wiki#rx#italic() abort " {{{1
   return s:rx.italic
 endfunction
 

@@ -5,7 +5,7 @@
 " License:    MIT license
 "
 
-function! wiki#graph#find_backlinks() "{{{1
+function! wiki#graph#find_backlinks() abort "{{{1
   call s:graph.init()
 
   let l:origin = resolve(expand('%:p'))
@@ -30,7 +30,7 @@ endfunction
 
 "}}}1
 
-function! wiki#graph#from_current() " {{{1
+function! wiki#graph#from_current() abort " {{{1
   call s:graph.init()
 
   "
@@ -67,7 +67,7 @@ function! wiki#graph#from_current() " {{{1
 endfunction
 
 " }}}1
-function! wiki#graph#to_current() "{{{1
+function! wiki#graph#to_current() abort "{{{1
   call s:graph.init()
 
   let l:stack = [[expand('%:t:r'), []]]
@@ -102,7 +102,7 @@ endfunction
 
 let s:graph = get(s:, 'graph', {})
 
-function! s:graph.init() dict " {{{1
+function! s:graph.init() abort dict " {{{1
   if has_key(self, 'initialized') | return | endif
   let self.nodes = {}
 
@@ -141,7 +141,7 @@ function! s:graph.init() dict " {{{1
 endfunction
 
 " }}}1
-function! s:graph.has_link(from, to) dict " {{{1
+function! s:graph.has_link(from, to) abort dict " {{{1
   let l:target = get(get(self.nodes, a:to, {}), 'path')
   let l:links = get(get(self.nodes, a:from, {}), 'links', [])
 
@@ -153,7 +153,7 @@ function! s:graph.has_link(from, to) dict " {{{1
 endfunction
 
 " }}}1
-function! s:graph.get_links_from(node) dict " {{{1
+function! s:graph.get_links_from(node) abort dict " {{{1
   return deepcopy(get(get(self.nodes, a:node, {}), 'links', []))
 endfunction
 

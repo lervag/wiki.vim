@@ -5,7 +5,7 @@
 " License:    MIT license
 "
 
-function! wiki#template#weekly_summary(year, week) " {{{1
+function! wiki#template#weekly_summary(year, week) abort " {{{1
   let l:parser = s:summary.new()
 
   call append(0,
@@ -16,7 +16,7 @@ function! wiki#template#weekly_summary(year, week) " {{{1
 endfunction
 
 " }}}1
-function! wiki#template#monthly_summary(year, month) " {{{1
+function! wiki#template#monthly_summary(year, month) abort " {{{1
   let l:parser = s:summary.new()
 
   let l:links = wiki#date#get_month_decomposed(a:month, a:year)
@@ -32,7 +32,7 @@ endfunction
 
 
 let s:summary = {}
-function! s:summary.new() dict " {{{1
+function! s:summary.new() abort dict " {{{1
   let l:summary = deepcopy(self)
   let l:summary.projects = get(g:, 'wiki_projects', [])
   let l:summary.regex_title = '\C' . join(
@@ -41,7 +41,7 @@ function! s:summary.new() dict " {{{1
 endfunction
 
 " }}}1
-function! s:summary.parse(links) dict " {{{1
+function! s:summary.parse(links) abort dict " {{{1
   let self.links = map(filter(copy(a:links),
         \   'filereadable(v:val . ''.wiki'')'),
         \ '''journal:'' . v:val')
@@ -53,7 +53,7 @@ function! s:summary.parse(links) dict " {{{1
 endfunction
 
 " }}}1
-function! s:summary.parse_link(link) dict " {{{1
+function! s:summary.parse_link(link) abort dict " {{{1
   let l:link = wiki#url#parse(a:link)
 
   let l:entries = {}
@@ -116,7 +116,7 @@ function! s:summary.parse_link(link) dict " {{{1
 endfunction
 
 " }}}1
-function! s:summary.combine_entries() dict " {{{1
+function! s:summary.combine_entries() abort dict " {{{1
   let l:lines = []
   for l:project in self.projects
     let l:first = 1
@@ -138,7 +138,7 @@ endfunction
 " }}}1
 
 
-function! s:sort_by_strlen(str1, str2) " {{{1
+function! s:sort_by_strlen(str1, str2) abort " {{{1
   return strlen(a:str1) > strlen(a:str2)
         \ ? -1
         \ : strlen(a:str1) == strlen(a:str2)

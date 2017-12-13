@@ -5,7 +5,7 @@
 " License:    MIT license
 "
 
-function! s:url_parser_doi(url) " {{{1
+function! s:url_parser_doi(url) abort " {{{1
   let l:url = {
         \ 'scheme' : 'http',
         \ 'stripped' : 'dx.doi.org/' . a:url.stripped,

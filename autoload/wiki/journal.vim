@@ -5,13 +5,13 @@
 " License:    MIT license
 "
 
-function! wiki#journal#make_note(...) " {{{1
+function! wiki#journal#make_note(...) abort " {{{1
   let l:date = (a:0 > 0 ? a:1 : strftime('%Y-%m-%d'))
   call wiki#url#parse('journal:' . l:date).open()
 endfunction
 
 " }}}1
-function! wiki#journal#copy_note() " {{{1
+function! wiki#journal#copy_note() abort " {{{1
   let l:next_day = wiki#date#get_next_weekday(expand('%:t:r'))
 
   let l:next_entry = printf('%s/%s/%s.wiki',
@@ -24,7 +24,7 @@ function! wiki#journal#copy_note() " {{{1
 endfunction
 
 " }}}1
-function! wiki#journal#go(step) " {{{1
+function! wiki#journal#go(step) abort " {{{1
   let l:links = s:get_links()
   let l:index = index(l:links, expand('%:t:r'))
   let l:target = l:index + a:step
@@ -37,7 +37,7 @@ function! wiki#journal#go(step) " {{{1
 endfunction
 
 " }}}1
-function! wiki#journal#go_to_week() " {{{1
+function! wiki#journal#go_to_week() abort " {{{1
   let l:date = expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
         \ ? expand('%:r')
         \ : strftime('%F')
@@ -46,7 +46,7 @@ function! wiki#journal#go_to_week() " {{{1
 endfunction
 
 " }}}1
-function! wiki#journal#go_to_month() " {{{1
+function! wiki#journal#go_to_month() abort " {{{1
   let l:date = expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
         \ ? expand('%:r')
         \ : strftime('%F')
@@ -55,7 +55,7 @@ endfunction
 
 " }}}1
 
-function! s:get_links() " {{{1
+function! s:get_links() abort " {{{1
   let l:current = expand('%:t:r')
   let l:regex_days = '\d\{4}-\d\d-\d\d'
   let l:regex_weeks = '\d\{4}_w\d\d'
@@ -73,7 +73,7 @@ function! s:get_links() " {{{1
 endfunction
 
 " }}}1
-function! s:get_links_generic(rx, fmt) " {{{1
+function! s:get_links_generic(rx, fmt) abort " {{{1
   let l:globpat = printf('%s/%s/*.wiki', wiki#get_root(), g:wiki_journal)
   let l:links = filter(map(glob(l:globpat, 0, 1),
         \   'fnamemodify(v:val, '':t:r'')'),

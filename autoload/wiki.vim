@@ -5,14 +5,14 @@
 " License:    MIT license
 "
 
-function! wiki#init() " {{{1
+function! wiki#init() abort " {{{1
   call s:init_global_options()
   call s:init_global_commands()
   call s:init_global_mappings()
 endfunction
 
 " }}}1
-function! wiki#init_buffer() " {{{1
+function! wiki#init_buffer() abort " {{{1
   setlocal nolisp
   setlocal nomodeline
   setlocal nowrap
@@ -52,7 +52,7 @@ endfunction
 
 " }}}1
 
-function! wiki#goto_index() " {{{1
+function! wiki#goto_index() abort " {{{1
   call wiki#url#parse('wiki:/index').open()
 endfunction
 
@@ -60,7 +60,7 @@ endfunction
 " {{{1 function! wiki#reload()
 let s:file = expand('<sfile>')
 if get(s:, 'reload_guard', 1)
-  function! wiki#reload()
+  function! wiki#reload() abort
     let s:reload_guard = 0
     let l:foldmethod = &l:foldmethod
 
@@ -94,7 +94,7 @@ endif
 
 " }}}1
 
-function! wiki#get_root() " {{{1
+function! wiki#get_root() abort " {{{1
   if exists('b:wiki.root') | return b:wiki.root | endif
 
   let l:root = fnamemodify(get(g:, 'wiki_root', ''), ':p')
@@ -113,14 +113,14 @@ endfunction
 " }}}1
 
 
-function! s:init_global_commands() " {{{1
+function! s:init_global_commands() abort " {{{1
   command! WikiIndex   call wiki#goto_index()
   command! WikiReload  call wiki#reload()
   command! WikiJournal call wiki#journal#make_note()
 endfunction
 
 " }}}1
-function! s:init_global_mappings() " {{{1
+function! s:init_global_mappings() abort " {{{1
   nnoremap <silent> <plug>(wiki-index)   :WikiIndex<cr>
   nnoremap <silent> <plug>(wiki-journal) :WikiJournal<cr>
   nnoremap <silent> <plug>(wiki-reload)  :WikiReload<cr>
@@ -137,7 +137,7 @@ function! s:init_global_mappings() " {{{1
 endfunction
 
 " }}}1
-function! s:init_global_options() " {{{1
+function! s:init_global_options() abort " {{{1
   let g:wiki_journal = 'journal'
 
   " TODO
@@ -147,7 +147,7 @@ function! s:init_global_options() " {{{1
 endfunction
 
 " }}}1
-function! s:init_buffer_commands() " {{{1
+function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiCodeRun            call wiki#u#run_code_snippet()
   command! -buffer WikiGraphFindBacklinks call wiki#graph#find_backlinks()
   command! -buffer WikiGraphIn            call wiki#graph#to_current()
@@ -173,7 +173,7 @@ function! s:init_buffer_commands() " {{{1
 endfunction
 
 " }}}1
-function! s:init_buffer_mappings() " {{{1
+function! s:init_buffer_mappings() abort " {{{1
   nnoremap <buffer> <plug>(wiki-code-run)             :WikiCodeRun<cr>
   nnoremap <buffer> <plug>(wiki-graph-find-backlinks) :WikiGraphFindBacklinks<cr>
   nnoremap <buffer> <plug>(wiki-graph-in)             :WikiGraphIn<cr>
@@ -267,7 +267,7 @@ endfunction
 
 " }}}1
 
-function! s:init_mappings_from_dict(dict, arg) " {{{1
+function! s:init_mappings_from_dict(dict, arg) abort " {{{1
   for [l:rhs, l:lhs] in items(a:dict)
     if l:rhs[0] !=# '<'
       let l:mode = l:rhs[0]
@@ -287,7 +287,7 @@ endfunction
   
   " }}}1
 
-function! s:init_prefill() " {{{1
+function! s:init_prefill() abort " {{{1
   if filereadable(expand('%')) | return | endif
 
   let l:match = matchlist(expand('%:t:r'), '^\(\d\d\d\d\)_\(\w\)\(\d\d\)$')

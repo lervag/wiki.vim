@@ -5,7 +5,7 @@
 " License:    MIT license
 "
 
-function! wiki#text_obj#link(is_inner) " {{{1
+function! wiki#text_obj#link(is_inner) abort " {{{1
   let l:link = wiki#link#get_at_cursor()
   if empty(l:link) | return | endif
 
@@ -23,7 +23,7 @@ function! wiki#text_obj#link(is_inner) " {{{1
 endfunction
 
 " }}}1
-function! wiki#text_obj#link_text(is_inner, ...) " {{{1
+function! wiki#text_obj#link_text(is_inner, ...) abort " {{{1
   let l:link = wiki#link#get_at_cursor()
   if empty(l:link) | return | endif
   if empty(l:link.text) | return | endif
@@ -39,7 +39,7 @@ function! wiki#text_obj#link_text(is_inner, ...) " {{{1
 endfunction
 
 " }}}1
-function! wiki#text_obj#code(is_inner) " {{{1
+function! wiki#text_obj#code(is_inner) abort " {{{1
   if !wiki#u#is_code(line('.')) | return | endif
 
   let l:lnum1 = line('.')

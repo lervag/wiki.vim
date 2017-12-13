@@ -8,12 +8,12 @@
 "
 " Get info for given date
 "
-function! wiki#date#get_week(date) " {{{1
+function! wiki#date#get_week(date) abort " {{{1
   return systemlist('date +%W -d ' . a:date)[0]
 endfunction
 
 " }}}1
-function! wiki#date#get_day_of_week(date) " {{{1
+function! wiki#date#get_day_of_week(date) abort " {{{1
   return systemlist('date +%u -d ' . a:date)[0]
 endfunction
 
@@ -22,7 +22,7 @@ endfunction
 "
 " More complex parsers
 "
-function! wiki#date#get_next_weekday(date) " {{{1
+function! wiki#date#get_next_weekday(date) abort " {{{1
   let l:day = systemlist('date +%F -d "' . a:date . ' +1 day"')[0]
   while wiki#date#get_day_of_week(l:day) > 5
     let l:day = systemlist('date +%F -d "' . l:day . ' +1 day"')[0]
@@ -31,7 +31,7 @@ function! wiki#date#get_next_weekday(date) " {{{1
 endfunction
 
 " }}}1
-function! wiki#date#get_week_dates(...) " {{{1
+function! wiki#date#get_week_dates(...) abort " {{{1
   "
   " Argument: Either a single date string, or a week number and a year
   "
@@ -62,7 +62,7 @@ function! wiki#date#get_week_dates(...) " {{{1
 endfunction
 
 " }}}1
-function! wiki#date#get_month_name(month) " {{{1
+function! wiki#date#get_month_name(month) abort " {{{1
   return get([
         \ 'januar',
         \ 'februar',
@@ -80,7 +80,7 @@ function! wiki#date#get_month_name(month) " {{{1
 endfunction
 
 " }}}1
-function! wiki#date#get_month_size(month, year) " {{{1
+function! wiki#date#get_month_size(month, year) abort " {{{1
   let l:days_in_month = (a:year % 4 == 0)
         \               && (    (a:year % 100 != 0)
         \                   || ((a:year % 100 == 0) && (a:year % 400 == 0)))
@@ -91,13 +91,13 @@ function! wiki#date#get_month_size(month, year) " {{{1
 endfunction
 
 " }}}1
-function! wiki#date#get_month_days(month, year) " {{{1
+function! wiki#date#get_month_days(month, year) abort " {{{1
   return map(range(1, wiki#date#get_month_size(a:month, a:year)),
         \ 'printf(''%4d-%02d-%02d'', a:year, a:month, v:val)')
 endfunction
 
 " }}}1
-function! wiki#date#get_month_decomposed(month, year) " {{{1
+function! wiki#date#get_month_decomposed(month, year) abort " {{{1
   let l:n = wiki#date#get_month_size(a:month, a:year)
   let l:days = wiki#date#get_month_days(a:month, a:year)
 

@@ -5,14 +5,14 @@
 " License:    MIT license
 "
 
-function! wiki#test#init() " {{{1
+function! wiki#test#init() abort " {{{1
   set noswapfile
   let v:errors = []
   nnoremap q :qall!<cr>
 endfunction
 
 " }}}1
-function! wiki#test#quit() " {{{1
+function! wiki#test#quit() abort " {{{1
   if !empty(v:errors)
     for l:error in v:errors
       verbose echo l:error . ' (' . v:progname . ')'
@@ -31,7 +31,7 @@ endfunction
 
 " }}}1
 
-function! wiki#test#error(fname, msg) " {{{1
+function! wiki#test#error(fname, msg) abort " {{{1
   call add(v:errors, fnamemodify(a:fname, ':t') . ': ' . a:msg)
 endfunction
 

@@ -5,7 +5,7 @@
 " License:    MIT license
 "
 
-function! wiki#list#toggle() "{{{1
+function! wiki#list#toggle() abort "{{{1
   let l:line = getline('.')
   if match(l:line, '^\s*[*-] TODO:') >= 0
     let l:line = substitute(l:line, '^\s*[*-] \zsTODO:\s*\ze', '', '')
@@ -24,7 +24,7 @@ endfunction
 
 " }}}1
 
-function! wiki#list#new_line_bullet() "{{{1
+function! wiki#list#new_line_bullet() abort "{{{1
   let l:re = '\v^\s*[*-] %(TODO:)?\s*'
   let l:line = getline('.')
 

@@ -5,7 +5,7 @@
 " License:    MIT license
 "
 
-function! wiki#page#delete() "{{{1
+function! wiki#page#delete() abort "{{{1
   let l:input_response = input('Delete "' . expand('%') . '" [y]es/[N]o? ')
   if l:input_response !~? '^y' | return | endif
 
@@ -22,7 +22,7 @@ function! wiki#page#delete() "{{{1
 endfunction
 
 "}}}1
-function! wiki#page#rename() "{{{1
+function! wiki#page#rename() abort "{{{1
   " Check if current file exists
   if !filereadable(expand('%:p'))
     echom 'wiki Error: Cannot rename "' . expand('%:p')
@@ -111,7 +111,7 @@ function! wiki#page#rename() "{{{1
 endfunction
 
 " }}}1
-function! wiki#page#create_toc() " {{{1
+function! wiki#page#create_toc() abort " {{{1
   let l:winsave = winsaveview()
   let l:start = 1
   let l:entries = []
@@ -190,7 +190,7 @@ endfunction
 
 " }}}1
 
-function! s:rename_update_links(old, new) " {{{1
+function! s:rename_update_links(old, new) abort " {{{1
   let l:pattern  = '\v\[\[\/?\zs' . a:old . '\ze%(#.*)?%(\|.*)?\]\]'
   let l:pattern .= '|\[.*\]\[\zs' . a:old . '\ze%(#.*)?\]'
   let l:pattern .= '|\[.*\]\(\/?\zs' . a:old . '\ze%(#.*)?\)'

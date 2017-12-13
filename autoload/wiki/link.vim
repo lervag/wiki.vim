@@ -5,7 +5,7 @@
 " License:    MIT license
 "
 
-function! wiki#link#get_at_cursor() " {{{1
+function! wiki#link#get_at_cursor() abort " {{{1
   for l:m in wiki#link#get_matchers_all()
     let l:link = s:matchstr_at_cursor(l:m.rx)
     if !empty(l:link)
@@ -39,7 +39,7 @@ function! wiki#link#get_at_cursor() " {{{1
   return {}
 endfunction
 
-function! s:matchstrpos(...) " {{{2
+function! s:matchstrpos(...) abort " {{{2
   if exists('*matchstrpos')
     return call('matchstrpos', a:000)
   else
@@ -58,7 +58,7 @@ endfunction
 " }}}2
 
 " }}}1
-function! wiki#link#get_all(...) "{{{1
+function! wiki#link#get_all(...) abort "{{{1
   let l:file = a:0 > 0 ? a:1 : expand('%')
   if !filereadable(l:file) | return [] | endif
 
@@ -102,7 +102,7 @@ endfunction
 
 "}}}1
 
-function! wiki#link#open(...) "{{{1
+function! wiki#link#open(...) abort "{{{1
   let l:link = wiki#link#get_at_cursor()
 
   try
@@ -113,7 +113,7 @@ function! wiki#link#open(...) "{{{1
 endfunction
 
 " }}}1
-function! wiki#link#toggle(...) " {{{1
+function! wiki#link#toggle(...) abort " {{{1
   let l:link = a:0 > 0 ? a:1 : wiki#link#get_at_cursor()
   if empty(l:link) | return | endif
 
@@ -139,7 +139,7 @@ function! wiki#link#toggle(...) " {{{1
 endfunction
 
 " }}}1
-function! wiki#link#toggle_visual() " {{{1
+function! wiki#link#toggle_visual() abort " {{{1
   normal! gv"wy
   call wiki#link#toggle({
         \ 'url' : getreg('w'),
@@ -153,7 +153,7 @@ function! wiki#link#toggle_visual() " {{{1
 endfunction
 
 " }}}1
-function! wiki#link#toggle_operator(type, ...) " {{{1
+function! wiki#link#toggle_operator(type, ...) abort " {{{1
   "
   " Note: This function assumes that it is called as an operator.
   "
@@ -177,7 +177,7 @@ endfunction
 
 " }}}1
 
-function! s:matchstr_at_cursor(regex) " {{{1
+function! s:matchstr_at_cursor(regex) abort " {{{1
   let l:lnum = line('.')
   let l:c1 = searchpos(a:regex, 'ncb',  l:lnum)[1]
   let l:c2 = searchpos(a:regex, 'nce',  l:lnum)[1]
@@ -197,7 +197,7 @@ function! s:matchstr_at_cursor(regex) " {{{1
 endfunction
 
 "}}}1
-function! s:handle_multibyte(cnum) " {{{1
+function! s:handle_multibyte(cnum) abort " {{{1
   if a:cnum <= 0 | return a:cnum | endif
   let l:char = getline('.')[a:cnum-1 : a:cnum]
   return a:cnum + (strchars(l:char) == 1)
@@ -208,7 +208,7 @@ endfunction
 "
 " Templates translate url and possibly text into an appropriate link
 "
-function! wiki#link#template_wiki(url, ...) " {{{1
+function! wiki#link#template_wiki(url, ...) abort " {{{1
   let l:text = a:0 > 0 ? a:1 : ''
   return empty(l:text)
         \ ? '[[' . a:url . ']]'
@@ -216,7 +216,7 @@ function! wiki#link#template_wiki(url, ...) " {{{1
 endfunction
 
 " }}}1
-function! wiki#link#template_md(url, ...) " {{{1
+function! wiki#link#template_md(url, ...) abort " {{{1
   let l:text = a:0 > 0 ? a:1 : ''
   if empty(l:text)
     let l:text = input('Link text: ')
@@ -225,7 +225,7 @@ function! wiki#link#template_md(url, ...) " {{{1
 endfunction
 
 " }}}1
-function! wiki#link#template_word(url, ...) " {{{1
+function! wiki#link#template_word(url, ...) abort " {{{1
   "
   " This template returns a wiki template for the provided word(s). It does
   " a smart search for likely candidates and if there is no unique match, it
@@ -294,12 +294,12 @@ function! wiki#link#template_word(url, ...) " {{{1
 endfunction
 
 " }}}1
-function! wiki#link#template_ref(...) " {{{1
+function! wiki#link#template_ref(...) abort " {{{1
   return call('wiki#link#template_wiki', a:000)
 endfunction
 
 " }}}1
-function! wiki#link#template_ref_target(url, ...) " {{{1
+function! wiki#link#template_ref_target(url, ...) abort " {{{1
   let l:id = a:0 > 0 ? a:1 : ''
   if empty(l:id)
     let l:id = input('Input id: ')
@@ -312,17 +312,17 @@ endfunction
 "
 " Methods to get matchers
 "
-function! wiki#link#get_matcher(name) " {{{1
+function! wiki#link#get_matcher(name) abort " {{{1
   return s:matcher_{a:name}
 endfunction
 
 " }}}1
-function! wiki#link#get_matcher_opt(name, opt) " {{{1
+function! wiki#link#get_matcher_opt(name, opt) abort " {{{1
   return escape(s:matcher_{a:name}[a:opt], '')
 endfunction
 
 " }}}1
-function! wiki#link#get_matchers_all() " {{{1
+function! wiki#link#get_matchers_all() abort " {{{1
   return [
         \ s:matcher_wiki,
         \ s:matcher_md,
@@ -336,7 +336,7 @@ function! wiki#link#get_matchers_all() " {{{1
 endfunction
 
 " }}}1
-function! wiki#link#get_matchers_links() " {{{1
+function! wiki#link#get_matchers_links() abort " {{{1
   return [
         \ s:matcher_wiki,
         \ s:matcher_md,
@@ -352,20 +352,20 @@ endfunction
 "
 " Parsers create a proper link of a given type based on general input
 "
-function! s:parser_general(link, ...) dict " {{{1
+function! s:parser_general(link, ...) abort dict " {{{1
   return extend(a:link, call('wiki#url#parse',
         \ [matchstr(a:link.full, get(self, 'rx_url', get(self, 'rx')))]
         \ + a:000))
 endfunction
 
 " }}}1
-function! s:parser_date(link, ...) dict " {{{1
+function! s:parser_date(link, ...) abort dict " {{{1
   return extend(a:link, call('wiki#url#parse',
         \ ['journal:' . a:link.full] + a:000))
 endfunction
 
 " }}}1
-function! s:parser_word(link, ...) dict " {{{1
+function! s:parser_word(link, ...) abort dict " {{{1
   return extend(a:link, {
         \ 'scheme' : '',
         \ 'url' : a:link.full,
@@ -373,7 +373,7 @@ function! s:parser_word(link, ...) dict " {{{1
 endfunction
 
 " }}}1
-function! s:parser_ref(link, ...) dict " {{{1
+function! s:parser_ref(link, ...) abort dict " {{{1
   let l:id = matchstr(a:link.full, self.rx_id)
   let l:lnum = searchpos('^\[' . l:id . '\]: ', 'nW')[0]
   if l:lnum == 0

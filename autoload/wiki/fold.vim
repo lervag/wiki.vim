@@ -5,7 +5,7 @@
 " License:    MIT license
 "
 
-function! wiki#fold#level(lnum) " {{{1
+function! wiki#fold#level(lnum) abort " {{{1
   let l:line = getline(a:lnum)
 
   if wiki#u#is_code(a:lnum)
@@ -22,7 +22,7 @@ function! wiki#fold#level(lnum) " {{{1
 endfunction
 
 " }}}1
-function! wiki#fold#text() " {{{1
+function! wiki#fold#text() abort " {{{1
   let l:line = getline(v:foldstart)
   let l:text = substitute(l:line, '^\s*', repeat(' ',indent(v:foldstart)), '')
   return l:text
