@@ -95,17 +95,28 @@ endif
 " }}}1
 
 function! wiki#get_root() abort " {{{1
+  " The root is cached for the current buffer
   if exists('b:wiki.root') | return b:wiki.root | endif
 
-  let l:root = fnamemodify(get(g:, 'wiki_root', ''), ':p')
-  if !isdirectory(l:root)
-    echoerr 'Please set g:wiki_root!'
-    return ''
+  " Search directory tree for an 'index.wiki' file
+  let l:root = get(
+        \ map(findfile('index.wiki', '.;', -1), 'fnamemodify(v:val, '':p:h'')'),
+        \ -1, '')
+
+  " Try globally specified wiki
+  if empty(l:root)
+    let l:root = get(g:, 'wiki_root', '')
+    if !empty(l:root)
+      let l:root = fnamemodify(l:root, ':p')
+      if !isdirectory(l:root)
+        echoerr 'Please set g:wiki_root!'
+        return ''
+      endif
+    endif
   endif
 
-  if exists('b:wiki')
-    let b:wiki.root = l:root
-  endif
+  " Cache the found root
+  let b:wiki = extend(get(b:, 'wiki', {}), { 'root' : l:root })
 
   return l:root
 endfunction

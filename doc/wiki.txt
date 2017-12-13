@@ -57,6 +57,12 @@ INTRODUCTION                                                       *wiki-intro*
 This is a Vim plugin for writing and maintaining a personal wiki in Markdown
 syntax. It is based on vimwiki [0], but written mostly from scratch.
 
+The plugin will activate for any `.wiki` file as long as a top-level `index.wiki`
+file is found. That is, any directory tree that contains an `index.wiki` will
+be recognized as a wiki by this plugin. In addition, one may specify a main
+wiki with the |g:wiki_root| option. This allows convenient mappings and
+commands for opening the main wiki from anywhere.
+
 ------------------------------------------------------------------------------
 Requirements~
                                                       *wiki-intro-requirements*
@@ -74,10 +80,10 @@ features:
 Features~
                                                           *wiki-intro-features*
 
-- Syntax highlighting for `.wiki` files (only within the personal wiki)
+- Syntax highlighting for `.wiki` files (within the recognized wiki projects)
 - Completion of wiki links and link anchors
 - Mappings
-  - Global mappings for accessing the wiki
+  - Global mappings for accessing a specified wiki
   - Local mappings for
     - Navigation (follow links, go back, etc)
     - Renaming pages (will also update links in other pages)
@@ -89,7 +95,7 @@ Features~
 - Support for journal entries
   - Navigating the journal back and forth with `<c-j>` and `<c-k>`
   - Support for parsing journal entries in order to make weekly and monthly
-  summaries. The parsed result needs manual editing for good results.
+    summaries. The parsed result needs manual editing for good results.
 - Text objects
   - `il al` Link url
   - `it at` Link text
@@ -111,6 +117,12 @@ CONFIGURATION                                                     *wiki-config*
   The name of the diary or journal sub folder.
 
   Default: `'journal'`
+
+*g:wiki_projects*
+  List of project names (or regexes) used to collect journal entries when
+  creating weekly or monthly summaries.
+
+  Default: []
 
 *g:wiki_mappings_use_defaults*
   Whether or not to use default mappings (see |wiki-mappings-default|). If
