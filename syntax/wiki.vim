@@ -153,6 +153,7 @@ syntax match wikiPreStartName /\w\+/ contained
 let s:ignored = {
       \ 'sh' : ['shCommandSub'] ,
       \ 'pandoc' : ['pandocDelimitedCodeBlock', 'pandocNoFormatted'] ,
+      \ 'ruby' : ['rubyString'] ,
       \}
 
 for s:ft in map(
