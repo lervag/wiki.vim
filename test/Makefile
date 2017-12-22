@@ -4,6 +4,8 @@ tests := $(wildcard test_*.vim)
 
 .PHONY: $(tests)
 
+all: $(tests)
+
 $(tests):
 	@echo "Test: $@"
 	@nvim -u $@

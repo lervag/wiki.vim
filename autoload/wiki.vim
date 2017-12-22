@@ -150,11 +150,6 @@ endfunction
 " }}}1
 function! s:init_global_options() abort " {{{1
   let g:wiki_journal = 'journal'
-
-  " TODO
-  let g:wiki_bullet_types = { '-':0, '*':0, '+':0 }
-  let g:wiki_number_types = ['1.']
-  let g:wiki_list_markers = ['-', '*', '+', '1.']
 endfunction
 
 " }}}1
