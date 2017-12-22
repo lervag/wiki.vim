@@ -89,11 +89,6 @@ as pull requests for implementing bug fixes or missing features.
 
 - [ ] Write list of "low hanging fruits" for contributions
 - [ ] Features
-  - [ ] General improvements
-    - [ ] Document the commands and `<plug>` mappings
-    - [x] Add commands for the various features
-    - [x] Convert current mappings to `<plug>` type mappings and add options to
-          allow full customization of mappings
   - [ ] New features
     - [x] Allow custom url types and remove the personal variants that are not
           useful to others
@@ -103,6 +98,11 @@ as pull requests for implementing bug fixes or missing features.
           (cf. [#1](../../issues/1))
     - [ ] Allow journal entries per week/months (cf. [#2](../../issues/1))
     - [ ] Improve the "execute code section" feature
+  - [x] General improvements
+    - [x] Document the commands and `<plug>` mappings
+    - [x] Add commands for the various features
+    - [x] Convert current mappings to `<plug>` type mappings and add options to
+          allow full customization of mappings
 - [x] Documentation
   - [x] Vim docs
     - [x] Document the Markdown syntax, including links and similar

@@ -33,17 +33,16 @@ CONTENTS                                                        *wiki-contents*
     Requirements                                   |wiki-intro-requirements|
     Features                                       |wiki-intro-features|
   Configuration                                    |wiki-config|
+  Mappings                                         |wiki-mappings|
+    Text objects                                   |wiki-mappings-text-obj|
+    Journal mappings                               |wiki-mappings-default|
+  Commands                                         |wiki-commands|
   Links                                            |wiki-links|
     Link URLs                                      |wiki-links-urls|
     Markdown links                                 |wiki-links-markdown|
     Wiki links                                     |wiki-links-wiki|
     Reference links                                |wiki-links-reference|
   Lists                                            |wiki-lists|
-  Mappings                                         |wiki-mappings|
-    Global mappings                                |wiki-mappings-global|
-    Local mappings                                 |wiki-mappings-local|
-    Text objects                                   |wiki-mappings-text-obj|
-    Journal mappings                               |wiki-mappings-journal|
   Completion                                       |wiki-completion|
   Folding                                          |wiki-folding|
   Syntax highlighting                              |wiki-syntax|  
@@ -164,6 +163,170 @@ CONFIGURATION                                                     *wiki-config*
 
       return 0
     endfunction
+
+==============================================================================
+COMMANDS                                                        *wiki-commands*
+
+The following is a list of commands that are available in the wiki. Most of
+the commands are also available as mappings of the form `<plug>(wiki-[name])`.
+
+*<plug>(wiki-index)*
+*WikiIndex*
+  Go to wiki index. When not inside a wiki page, the index is specified by the
+  option |g:wiki_root|.
+
+*<plug>(wiki-journal)*
+*WikiJournal*
+  Go to todays journal entry.
+
+*<plug>(wiki-reload)*
+*WikiReload*
+  Reload the wiki plugin. Mostly useful for plugin development.
+
+*<plug>(wiki-code-run)*
+*WikiCodeRun*
+  Run current code snippet (this does not currently work properly).
+
+*<plug>(wiki-graph-find-backlinks)*
+*WikiGraphFindBacklinks*
+  Find backlinks to current page.
+
+*<plug>(wiki-graph-in)*
+*WikiGraphIn*
+  Show link graph to current page.
+
+*<plug>(wiki-graph-out)*
+*WikiGraphOut*
+  Show link graph from current page.
+
+*<plug>(wiki-link-next)*
+*WikiLinkNext*
+  Go to next link.
+
+*<plug>(wiki-link-prev)*
+*WikiLinkPrev*
+  Go to previous link.
+
+*<plug>(wiki-link-open)*
+*WikiLinkOpen*
+  Open/follow link.
+
+*<plug>(wiki-link-open-split)*
+*WikiLinkOpenSplit*
+  Open/follow link in a |vsplit|.
+
+*<plug>(wiki-link-return)*
+*WikiLinkReturn*
+  Go back to previous page.
+
+*<plug>(wiki-link-toggle)*
+*<plug>(wiki-link-toggle-visual)*    |xmap|
+*<plug>(wiki-link-toggle-operator)*  |map-operator|
+*WikiLinkToggle*
+  Toggle wiki link.
+
+*<plug>(wiki-list-toggle)*
+*WikiListTottle*
+  Toggle a list item. Map works in both normal and insert mode.
+
+*<plug>(wiki-page-delete)*
+*WikiPageDelete*
+  Delete wiki page.
+
+*<plug>(wiki-page-rename)*
+*WikiPageRename*
+  Rename wiki page (will update all links to the page).
+
+*<plug>(wiki-page-toc)*
+*WikiPageToc*
+  Create/Update table of contents.
+
+*<plug>(wiki-journal-next)*
+*WikiJournalNext*
+  Go to next day/week/month.
+
+*<plug>(wiki-journal-prev)*
+*WikiJournalPrev*
+  Go to previous day/week/month.
+
+*<plug>(wiki-journal-copy-tonext)*
+*WikiJournalCopyToNext*
+  Copy current entry to next work day (unless the entry for next workday
+  already exists).
+
+*<plug>(wiki-journal-toweek)*
+*WikiJournalToWeek*
+  Go to week summary.
+
+*<plug>(wiki-journal-tomonth)*
+*WikiJournalToMonth*
+  Go to month summary.
+
+==============================================================================
+MAPPINGS                                                        *wiki-mappings*
+
+Here we describe the mappings provided by the wiki plugin, as well as the
+default maps. Note that most of the mappings are also available as commands.
+These mappings are described in |wiki-commands|.
+
+------------------------------------------------------------------------------
+Text objects~
+                                                       *wiki-mappings-text-obj*
+
+The following mappings are available as visual mode and operator mode
+mappings, i.e. |xmap| and |omap|.
+
+*<plug>(wiki-al)*
+*<plug>(wiki-il)*
+  Text object for link urls.
+
+*<plug>(wiki-at)*
+*<plug>(wiki-it)*
+  Text object for link texts.
+
+*<plug>(wiki-ac)*
+*<plug>(wiki-ic)*
+  Text object for code blocks.
+
+------------------------------------------------------------------------------
+Default mappings~
+                                                        *wiki-mappings-default*
+
+This is a list of default mappings. For a more detailed description of each
+mapping, read the documentation of the `<plug>(wiki-[name])` form of the
+mapping. The mode specifier is a single letter which indicates which mode the
+mapping is valid in. See e.g. |nmap|, |imap|, |omap| or |xmap| for more
+information about the different modes.
+
+  ---------------------------------------------------------------------~
+   MODE  LHS                 RHS~
+  ---------------------------------------------------------------------~
+   `n`     <leader>ww          |<plug>(wiki-index)|               [GLOBAL]
+   `n`     <leader>w<leader>w  |<plug>(wiki-journal)|             [GLOBAL]
+   `n`     <leader>wx          |<plug>(wiki-reload)|              [GLOBAL]
+   `n`     <leader>wc          |<plug>(wiki-code-run)|
+   `n`     <leader>wb          |<plug>(wiki-graph-find-backlinks)|
+   `n`     <leader>wg          |<plug>(wiki-graph-in)|
+   `n`     <leader>wG          |<plug>(wiki-graph-out)|
+   `n`     <leader>wf          |<plug>(wiki-link-toggle)|
+   `n`     <leader>wd          |<plug>(wiki-page-delete)|
+   `n`     <leader>wr          |<plug>(wiki-page-rename)|
+   `n`     <leader>wt          |<plug>(wiki-page-toc)|
+   `n`     <tab>               |<plug>(wiki-link-next)|
+   `n`     <cr>                |<plug>(wiki-link-open)|
+   `n`     <c-cr>              |<plug>(wiki-link-open-split)|
+   `n`     <s-tab>             |<plug>(wiki-link-prev)|
+   `n`     <bs>                |<plug>(wiki-link-return)|
+   `n`     gl                  |<plug>(wiki-link-toggle-operator)|
+   `ni`    <c-s>               |<plug>(wiki-list-toggle)|
+   `x`     <cr>                |<plug>(wiki-link-toggle-visual)|
+   `ox`    al                  |<plug>(wiki-al)|
+   `ox`    il                  |<plug>(wiki-il)|
+   `ox`    at                  |<plug>(wiki-at)|
+   `ox`    it                  |<plug>(wiki-it)|
+   `ox`    ac                  |<plug>(wiki-ac)|
+   `ox`    ic                  |<plug>(wiki-ic)|
+  ---------------------------------------------------------------------~
 
 ==============================================================================
 LINKS                                                              *wiki-links*
@@ -303,107 +466,6 @@ working with lists:
 
 - Use `<c-s>` in both insert and normal mode to toggle a TODO at the beginning
   of the list item, or to toggle the checkbox if it is present.
-
-==============================================================================
-MAPPINGS                                                        *wiki-mappings*
-
-------------------------------------------------------------------------------
-Global mappings~
-                                                         *wiki-mappings-global*
-
-These mappings are always available.
-
-<leader>ww
-  Go to wiki index.
-
-<leader>wx
-  Reload the wiki plugin. Mostly useful for plugin development.
-
-<leader>w<leader>w
-  Go to todays journal entry.
-
-------------------------------------------------------------------------------
-Local mappings~
-                                                          *wiki-mappings-local*
-
-These mappings are available in all wiki entries.
-
-<leader>wt
-  Create/Update table of contents.
-
-<leader>wd
-  Delete entry.
-
-<leader>wr
-  Rename entry.
-
-<leader>wf
-  Toggle link.
-
-<leader>wc
-  Run code snippet (does not currently work properly).
-
-<tab> / <s-tab>
-  Go to next/previous link.
-
-<bs>
-  Go back to previous page.
-
-<cr>
-  Open/follow link.
-
-<c-cr>
-  Open/follow link in a |vsplit|.
-
-<cr> (visual mode)
-  Visual mode toggle link.
-
-gl
-  Operator for toggling a link.
-
-<c-s> (normal and insert mode)
-  Toggle list entry.
-
-<leader>wb
-  Find backlinks to current page.
-
-<leader>wg
-  Show link graph from current page.
-
-<leader>wG
-  Show link graph to current page.
-
-------------------------------------------------------------------------------
-Text objects~
-                                                       *wiki-mappings-text-obj*
-
-al / il
-  Link url.
-
-at / it
-  Link text.
-
-ac / ic
-  Code block.
-
-------------------------------------------------------------------------------
-Journal mappings~
-                                                        *wiki-mappings-journal*
-
-These mappings are available inside journal entries.
-
-<c-j> / <c-k>
-  Go to previous/next day/week/month.
-
-<leader>wk
-  Copy current entry to next work day (unless entry for next workday already
-  exists).
-
-<leader>wu
-  Go to week summary.
-
-<leader>wm
-  Go to month summary.
 
 ==============================================================================
 COMPLETION                                                    *wiki-completion*
