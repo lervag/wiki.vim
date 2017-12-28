@@ -283,7 +283,6 @@ function! s:init_mappings_from_dict(dict, arg) abort " {{{1
     endif
 
     if hasmapto(l:rhs, l:mode)
-      echo l:rhs 'is already mapped!'
       continue
     endif
 

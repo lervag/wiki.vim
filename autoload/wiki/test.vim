@@ -36,5 +36,14 @@ function! wiki#test#error(fname, msg) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#test#append(msg) abort " {{{1
+  if type(a:msg) == type([])
+    call extend(v:errors, a:msg)
+  else
+    call add(v:errors, a:msg)
+  endif
+endfunction
+
+" }}}1
 
 " vim: fdm=marker sw=2

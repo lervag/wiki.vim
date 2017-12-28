@@ -1,9 +1,13 @@
 # List examples
 
 - [ ] First entry
-  - [ ] Depth two
-  - [ ] Depth three
+  - [x] Depth two 1
+  - [ ] Depth two 2
+    - Depth three (non checkbox entry)
+    - [ ] Depth three 1
+    - [x] Depth three 2
+  - [x] Depth two 3
 - [ ] Second entry
-  - [ ] Depth two
-  - [ ] Depth three
+  - [ ] Depth two 1
+  - [ ] Depth two 2
 
