@@ -98,7 +98,8 @@ as pull requests for implementing bug fixes or missing features.
           (cf. [#1](../../issues/1))
     - [ ] Allow journal entries per week/months (cf. [#2](../../issues/1))
     - [ ] Improve the "execute code section" feature
-  - [x] General improvements
+  - [ ] General improvements
+    - [ ] Find a better way then `g:wiki_projects`
     - [x] Document the commands and `<plug>` mappings
     - [x] Add commands for the various features
     - [x] Convert current mappings to `<plug>` type mappings and add options to
