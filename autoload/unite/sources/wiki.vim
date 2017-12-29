@@ -26,7 +26,13 @@ function! s:open_focus.func(candidate) abort dict
   call unite#take_action('open', a:candidate)
   normal! zMzvzz
 endfunction
-call unite#custom_action('file', 'open_focus', s:open_focus)
 
-let &cpo = s:save_cpo
-unlet s:save_cpo
+try
+  call unite#custom_action('file', 'open_focus', s:open_focus)
+catch
+endtry
+
+if exists('s:save_cpo')
+  let &cpo = s:save_cpo
+  unlet s:save_cpo
+endif
