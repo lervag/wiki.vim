@@ -66,7 +66,7 @@ if get(s:, 'reload_guard', 1)
 
     " Reload autoload scripts
     for l:file in [s:file]
-          \ + split(globpath(fnamemodify(s:file, ':r'), '*.vim'), '\n')
+          \ + split(globpath(fnamemodify(s:file, ':h'), '**/*.vim'), '\n')
       execute 'source' l:file
     endfor
 
@@ -85,6 +85,10 @@ if get(s:, 'reload_guard', 1)
         unlet b:current_syntax
         runtime syntax/wiki.vim
       endif
+    endif
+
+    if exists('#User#WikiReloadPost')
+      doautocmd <nomodeline> User WikiReloadPost
     endif
 
     let &l:foldmethod = l:foldmethod
