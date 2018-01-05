@@ -9,5 +9,3 @@ if exists('g:wiki_loaded') | finish | endif
 let g:wiki_loaded = 1
 
 call wiki#init()
-
-" vim: fdm=marker sw=2

@@ -113,5 +113,3 @@ let s:rx.italic = wiki#rx#surrounded(
       \ '[^_`[:space:]]\%([^_`]*[^_`[:space:]]\)\?', '_')
 
 " }}}1
-
-" vim: fdm=marker sw=2

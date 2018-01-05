@@ -33,5 +33,3 @@ function! wiki#url#file#parse(url) abort " {{{1
 endfunction
 
 " }}}1
-
-" vim: fdm=marker sw=2

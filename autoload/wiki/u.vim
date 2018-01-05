@@ -65,5 +65,3 @@ function! wiki#u#run_code_snippet() abort " {{{1
 endfunction
 
 " }}}1
-
-" vim: fdm=marker sw=2

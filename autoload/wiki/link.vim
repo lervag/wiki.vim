@@ -480,5 +480,3 @@ let s:matcher_word = {
       \}
 
 " }}}1
-
-" vim: fdm=marker sw=2

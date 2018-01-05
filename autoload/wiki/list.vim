@@ -272,5 +272,3 @@ function! s:list_checkbox.toggle_current() abort dict "{{{1
 endfunction
 
 " }}}1
-
-" vim: fdm=marker sw=2

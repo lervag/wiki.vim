@@ -30,5 +30,3 @@ function! wiki#nav#return() abort "{{{1
 endfunction
 
 " }}}1
-
-" vim: fdm=marker sw=2

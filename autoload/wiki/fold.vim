@@ -29,5 +29,3 @@ function! wiki#fold#text() abort " {{{1
 endfunction
 
 " }}}1
-
-" vim: fdm=marker sw=2

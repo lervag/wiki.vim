@@ -264,5 +264,3 @@ highlight default link wikiTime    Number
 highlight default link wikiLine Identifier
 
 " }}}1
-
-" vim: fdm=marker sw=2
