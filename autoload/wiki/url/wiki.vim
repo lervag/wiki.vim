@@ -16,12 +16,14 @@ function! wiki#url#wiki#parse(url) abort " {{{1
   " Extract filename
   let l:fname = (!empty(l:anchors[0])
         \ ? l:anchors[0]
+        \   . (l:anchors[0] =~# '/$' ? 'index' : '')
         \ : fnamemodify(a:url.origin, ':p:t:r')) . '.wiki'
 
   " Extract path
   let l:url.path = l:fname[0] ==# '/'
         \ ? wiki#get_root() . l:fname
         \ : fnamemodify(a:url.origin, ':p:h') . '/' . l:fname
+  let l:url.dir = fnamemodify(l:url.path, ':p:h')
 
   return l:url
 endfunction
@@ -35,8 +37,7 @@ function! s:parser.open(...) abort dict " {{{1
   " Check if dir exists
   let l:dir = fnamemodify(self.path, ':p:h')
   if !isdirectory(l:dir)
-    echom 'wiki Error: Unable to edit in non-existent directory:' l:dir
-    return
+    call mkdir(l:dir, 'p')
   endif
 
   " Open wiki file
