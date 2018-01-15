@@ -48,10 +48,11 @@ function! wiki#date#get_week_dates(...) abort " {{{1
 
     let [l:first_week, l:dow] =
           \ split(systemlist('date +"%V %u" -d ' . l:date_first)[0], ' ')
+    if l:first_week > 1
+      let l:first_week = 0
+    endif
 
-    let l:first_monday = (9 - l:dow) % 7
-    let l:first_week = (l:first_week % 52) + (l:first_monday > 1)
-    let l:ndays = (7*(l:week - l:first_week + 1) - (l:dow - 1)) % 7
+    let l:ndays = 7*(l:week - l:first_week) - (l:dow - 1)
 
     return map(range(l:ndays, l:ndays+6),
           \ 'systemlist(''date +%F -d "'
