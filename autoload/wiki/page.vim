@@ -151,8 +151,10 @@ function! wiki#page#create_toc() abort " {{{1
   "
   " Delete TOC if it exists
   "
+  let l:header = '# Innhald'
   for l:lnum in range(1, line('$'))
-    if getline(l:lnum) =~# '^\s*#[^#]\+Innhald'
+    if getline(l:lnum) =~# '\v^(#+ Innhald|\*Innhald\*)$'
+      let l:header = getline(l:lnum)
       let l:start = l:lnum
       let l:end = l:start + (getline(l:lnum+1) =~# '^\s*$' ? 2 : 1)
       while l:end <= line('$') && getline(l:end) =~# '^\s*- '
@@ -171,7 +173,8 @@ function! wiki#page#create_toc() abort " {{{1
   "
   " Add updated TOC
   "
-  call append(l:start - 1, '# Innhald')
+  echom l:header
+  call append(l:start - 1, l:header)
   let l:length = len(l:entries)
   for l:i in range(l:length)
     call append(l:start + l:i, l:entries[l:i])
@@ -179,7 +182,9 @@ function! wiki#page#create_toc() abort " {{{1
   if getline(l:start + l:length + 1) !=# ''
     call append(l:start + l:length, '')
   endif
-  call append(l:start, '')
+  if l:header =~# '^#'
+    call append(l:start, '')
+  endif
 
   "
   " Restore syntax and view
