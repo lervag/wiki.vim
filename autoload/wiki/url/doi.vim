@@ -5,14 +5,14 @@
 " License:    MIT license
 "
 
-function! s:url_parser_doi(url) abort " {{{1
+function! wiki#url#doi#parse(url) abort " {{{1
   let l:url = {
         \ 'scheme' : 'http',
         \ 'stripped' : 'dx.doi.org/' . a:url.stripped,
         \ 'url' : 'http://dx.doi.org/' . a:url.stripped,
         \}
 
-  return extend(l:url, wiki#url#generic#parse(l:res))
+  return extend(l:url, wiki#url#generic#parse(l:url))
 endfunction
 
 " }}}1
