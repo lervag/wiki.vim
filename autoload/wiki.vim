@@ -234,7 +234,7 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-graph-out)' : '<leader>wG',
           \ '<plug>(wiki-link-next)' : '<tab>',
           \ '<plug>(wiki-link-open)' : '<cr>',
-          \ '<plug>(wiki-link-open-split)' : '<c-cr>',
+          \ '<plug>(wiki-link-open-split)' : '<c-w><cr>',
           \ '<plug>(wiki-link-prev)' : '<s-tab>',
           \ '<plug>(wiki-link-return)' : '<bs>',
           \ '<plug>(wiki-link-toggle)' : '<leader>wf',
