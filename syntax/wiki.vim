@@ -145,8 +145,16 @@ syntax match wikiCode /`[^`]\+`/ contains=wikiCodeConceal,@NoSpell
 syntax match wikiCodeConceal contained /`/ conceal
 syntax match wikiCodeT /`[^`]\+`/ contained
 
+syntax region wikiPre start=/^\s*```\s*/ end=/```\s*$/ contains=@NoSpell
+syntax match wikiPreStart /^\s*```\w\+/ contained contains=wikiPreStartName
+syntax match wikiPreEnd /^\s*```\s*$/ contained
+syntax match wikiPreStartName /\w\+/ contained
+
 let s:ignored = {
-      \ 'make' : ['makeIdent'] ,
+      \ 'sh' : ['shCommandSub'],
+      \ 'pandoc' : ['pandocDelimitedCodeBlock', 'pandocNoFormatted'],
+      \ 'ruby' : ['rubyString'],
+      \ 'make' : ['makeBString','makeIdent'],
       \}
 
 for s:ft in map(
@@ -173,17 +181,10 @@ for s:ft in map(
   let &iskeyword = s:iskeyword
 
   execute 'syntax region' s:group
-        \ 'start=/\_./ end=/```\s*$/'
-        \ 'contained keepend transparent'
-        \ 'contains=wikiPreEnd,@NoSpell,' . s:cluster
+        \ 'start=/^\s*```' . s:ft . '/ end=/```\s*$/'
+        \ 'keepend transparent'
+        \ 'contains=wikiPreStart,wikiPreEnd,@NoSpell,' . s:cluster
 endfor
-
-syntax region wikiPre start=/^\s*```\s*/ end=/```\s*$/ contains=@NoSpell
-syntax match wikiPreStart /^\s*```\ze\w\+/
-      \ nextgroup=wikiPreStartName
-syntax match wikiPreStartName contained /\w\+$/
-      \ skipnl nextgroup=wikiPre.*
-syntax match wikiPreEnd /^\s*```\s*$/ contained
 
 highlight default link wikiCode PreProc
 highlight default link wikiPre PreProc
