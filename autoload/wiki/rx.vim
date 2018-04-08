@@ -73,6 +73,11 @@ function! wiki#rx#todo() abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#rx#done() abort " {{{1
+  return s:rx.done
+endfunction
+
+" }}}1
 function! wiki#rx#header() abort " {{{1
   return s:rx.header
 endfunction
@@ -104,7 +109,8 @@ let s:rx.super = '\^[^^`]\+\^'
 let s:rx.sub = ',,[^,`]\+,,'
 let s:rx.list_define = '::\%(\s\|$\)'
 let s:rx.comment = '^\s*%%.*$'
-let s:rx.todo = '\C\%(TODO\|DONE\|STARTED\|FIXME\|FIXED\):\?'
+let s:rx.todo = '\C\%(TODO\|STARTED\|FIXME\):\?'
+let s:rx.done = '\C\%(OK\|DONE\|FIXED\):\?'
 let s:rx.header = '^#\{1,6}\s*[^#].*'
 let s:rx.header_items = '^\(#\{1,6}\)\s*\([^#].*\)\s*$'
 let s:rx.bold = wiki#rx#surrounded(

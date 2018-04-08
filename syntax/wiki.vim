@@ -247,6 +247,9 @@ highlight default link WikiEq Number
 execute 'syntax match wikiTodo /' . wiki#rx#todo() . '/'
 highlight default link wikiTodo Todo
 
+execute 'syntax match wikiDone /' . wiki#rx#done() . '/'
+highlight default link wikiDone Statement
+
 syntax region wikiQuote start=/^>\s\+/ end=/^$/ contains=wikiQuoteChar
 syntax match wikiQuoteChar contained /^>/
 highlight default link wikiQuoteChar Comment
