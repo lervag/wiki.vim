@@ -251,7 +251,7 @@ function! wiki#link#template_word(url, ...) abort " {{{1
   " Finally we see if there are completable candidates
   "
   let l:candidates = map(
-        \ glob(l:root . a:url . '*.wiki', 0, 1),
+        \ glob(l:root . '/' . a:url . '*.wiki', 0, 1),
         \ 'fnamemodify(v:val, '':t:r'')')
 
   "
