@@ -276,8 +276,9 @@ function! wiki#link#template_word(url, ...) abort " {{{1
     for l:i in range(len(l:candidates))
       let l:echo .= '[' . (l:i + 1) . '] ' . l:candidates[l:i] . "\n"
     endfor
-    echo l:echo . '[n] New page at wiki root: ' . a:url
-    let l:choice = input('Choice: ')
+    echo l:echo . printf('[n] %s (new page at wiki root)', a:url)
+    let l:choice = input('Choice (empty cancels): ')
+    if empty(l:choice) | return a:url | endif
 
     if l:choice ==# 'n'
       return wiki#link#template_wiki('/' . a:url)
