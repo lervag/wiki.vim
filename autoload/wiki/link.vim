@@ -209,7 +209,10 @@ endfunction
 " Templates translate url and possibly text into an appropriate link
 "
 function! wiki#link#template_wiki(url, ...) abort " {{{1
-  let l:text = a:0 > 0 ? a:1 : ''
+  let l:text = a:0 > 0
+        \ ? a:1 ==# a:url[1:] ? '' : a:1
+        \ : ''
+
   return empty(l:text)
         \ ? '[[' . a:url . ']]'
         \ : '[[' . a:url . '|' . l:text . ']]'
