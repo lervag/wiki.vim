@@ -68,7 +68,7 @@ endfor
 syntax match wikiLinkUrlConceal
       \ `\%(///\=[^/ \t]\+/\)\zs\S\+\ze\%([/#?]\w\|\S\{15}\)`
       \ cchar=~ contained transparent contains=NONE conceal
-syntax match wikiLinkWikiConceal /\[\[\/\?\%([^\\\]]\{-}|\)\?/
+syntax match wikiLinkWikiConceal /\[\[\%(\/\|#\)\?\%([^\\\]]\{-}|\)\?/
       \ contained transparent contains=NONE conceal
 syntax match wikiLinkWikiConceal /\]\]/
       \ contained transparent contains=NONE conceal
