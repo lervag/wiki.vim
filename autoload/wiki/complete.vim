@@ -7,20 +7,31 @@
 
 function! wiki#complete#omnicomplete(findstart, base) " {{{1
   if a:findstart
+    let s:ctx = {}
     let l:line = getline('.')[:col('.')-2]
+    let l:cnum = match(l:line, s:re_complete_trigger)
+    if l:cnum < 0 | return -1 | endif
 
-    return match(l:line, s:re_complete_trigger)
+    let l:base = l:line[l:cnum:]
+    if l:base =~# '#'
+      let l:split = split(l:base, '#', 1)
+      let s:ctx.url = l:split[0]
+      let s:ctx.pre_anch = l:split[1:-2]
+      let l:cnum += strlen(join(l:split[:-2], '#')) + 1
+    endif
+
+    return l:cnum
   else
-    if a:base =~# '#'
-      let l:segments = split(a:base, '#', 1)
-      let l:base = join(l:segments[1:], '#')
-      let l:url = wiki#url#parse(
-            \ empty(l:segments[0]) ? expand('%:t:r') : l:segments[0])
-
-      return map(
-            \   filter(s:get_anchors(l:url.path),
-            \     'v:val =~# ''^'' . wiki#u#escape(l:base)'),
-            \   'l:segments[0] . ''#'' . v:val')
+    if !empty(s:ctx)
+      let l:url = wiki#url#parse(empty(s:ctx.url) ? expand('%:t:r') : s:ctx.url)
+      let l:pre_base = join(s:ctx.pre_anch, '#')
+      if !empty(l:pre_base)
+        let l:pre_base .= '#'
+      endif
+      let l:cnum = strlen(l:pre_base)
+      let l:anchors = filter(s:get_anchors(l:url.path),
+            \ 'v:val =~# ''^'' . wiki#u#escape(l:pre_base) . ''[^#]*$''')
+      return map(l:anchors, 'strpart(v:val, l:cnum)')
     else
       if a:base[0] ==# '/'
         let l:cwd = resolve(wiki#get_root())
@@ -52,20 +63,26 @@ function! s:get_anchors(filename) " {{{1
   let anchor_level = ['', '', '', '', '', '', '']
   let anchors = []
   let current_complete_anchor = ''
+  let preblock = 0
   for line in readfile(a:filename)
+    " Ignore fenced code blocks
+    if line =~# '^\s*```'
+      let l:preblock += 1
+    endif
+    if l:preblock % 2 | continue | endif
 
-    " collect headers
+    " Collect headers
     let h_match = matchlist(line, wiki#rx#header_items())
     if !empty(h_match)
       let header = h_match[2]
       let level = len(h_match[1])
-      call add(anchors, header)
       let anchor_level[level-1] = header
       for l in range(level, 6)
         let anchor_level[l] = ''
       endfor
       if level == 1
         let current_complete_anchor = header
+        call add(anchors, header)
       else
         let current_complete_anchor = ''
         for l in range(level-1)
@@ -76,6 +93,7 @@ function! s:get_anchors(filename) " {{{1
         let current_complete_anchor .= header
         call add(anchors, current_complete_anchor)
       endif
+      continue
     endif
 
     "
@@ -87,7 +105,6 @@ function! s:get_anchors(filename) " {{{1
       let l:text = matchstr(line, wiki#rx#bold(), 0, l:count)
       if empty(l:text) | break | endif
 
-      call add(anchors, l:text[1:-2])
       if !empty(current_complete_anchor)
         call add(anchors, current_complete_anchor . '#' . l:text[1:-2])
       endif
