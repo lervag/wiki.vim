@@ -24,12 +24,9 @@ function! wiki#complete#omnicomplete(findstart, base) " {{{1
   else
     if !empty(s:ctx)
       let l:url = wiki#url#parse(empty(s:ctx.url) ? expand('%:t:r') : s:ctx.url)
-      let l:pre_base = join(s:ctx.pre_anch, '#')
-      if !empty(l:pre_base)
-        let l:pre_base .= '#'
-      endif
+      let l:pre_base = join(s:ctx.pre_anch, '#') . '#'
       let l:cnum = strlen(l:pre_base)
-      let l:anchors = filter(s:get_anchors(l:url.path),
+      let l:anchors = filter(wiki#page#get_anchors(l:url),
             \ 'v:val =~# ''^'' . wiki#u#escape(l:pre_base) . ''[^#]*$''')
       return map(l:anchors, 'strpart(v:val, l:cnum)')
     else
@@ -55,66 +52,6 @@ let s:re_complete_trigger = join([
       \ 'journal:\zs\S*',
       \ ], '\|') . '$'
 
-function! s:get_anchors(filename) " {{{1
-  if !filereadable(a:filename)
-    return []
-  endif
-
-  let anchor_level = ['', '', '', '', '', '', '']
-  let anchors = []
-  let current_complete_anchor = ''
-  let preblock = 0
-  for line in readfile(a:filename)
-    " Ignore fenced code blocks
-    if line =~# '^\s*```'
-      let l:preblock += 1
-    endif
-    if l:preblock % 2 | continue | endif
-
-    " Collect headers
-    let h_match = matchlist(line, wiki#rx#header_items())
-    if !empty(h_match)
-      let header = h_match[2]
-      let level = len(h_match[1])
-      let anchor_level[level-1] = header
-      for l in range(level, 6)
-        let anchor_level[l] = ''
-      endfor
-      if level == 1
-        let current_complete_anchor = header
-        call add(anchors, header)
-      else
-        let current_complete_anchor = ''
-        for l in range(level-1)
-          if !empty(anchor_level[l])
-            let current_complete_anchor .= anchor_level[l] . '#'
-          endif
-        endfor
-        let current_complete_anchor .= header
-        call add(anchors, current_complete_anchor)
-      endif
-      continue
-    endif
-
-    "
-    " Collect bold text (there can be several in one line)
-    "
-    let l:count = 0
-    while 1
-      let l:count += 1
-      let l:text = matchstr(line, wiki#rx#bold(), 0, l:count)
-      if empty(l:text) | break | endif
-
-      if !empty(current_complete_anchor)
-        call add(anchors, current_complete_anchor . '#' . l:text[1:-2])
-      endif
-    endwhile
-  endfor
-
-  return anchors
-endfunction
-
-" }}}1
 function! s:relpath(dir, file) "{{{1
   let result = []
   let dir = split(a:dir, '/')

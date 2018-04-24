@@ -194,6 +194,49 @@ function! wiki#page#create_toc() abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#page#get_anchors(...) " {{{1
+  let l:filename = s:get_anchors_argument(a:000)
+  if !filereadable(l:filename) | return [] | endif
+
+  let anchor_level = ['', '', '', '', '', '', '']
+  let anchors = []
+  let current_section = ''
+  let preblock = 0
+  for line in readfile(l:filename)
+    " Ignore fenced code blocks
+    if line =~# '^\s*```'
+      let l:preblock += 1
+    endif
+    if l:preblock % 2 | continue | endif
+
+    " Parse headers
+    let h_match = matchlist(line, wiki#rx#header_items())
+    if !empty(h_match)
+      let lvl = len(h_match[1]) - 1
+      let anchor_level[lvl] = h_match[2]
+
+      let current_section = '#' . join(anchor_level[:lvl], '#')
+      call add(anchors, current_section)
+
+      continue
+    endif
+
+    " Parse bolded text (there can be several in one line)
+    let cnt = 0
+    while 1
+      let cnt += 1
+      let text = matchstr(line, wiki#rx#bold(), 0, cnt)
+      if empty(text) | break | endif
+
+      call add(anchors, current_section . '#' . text[1:-2])
+    endwhile
+  endfor
+
+  return anchors
+endfunction
+
+" }}}1
+
 
 function! s:rename_update_links(old, new) abort " {{{1
   let l:pattern  = '\v\[\[\/?\zs' . a:old . '\ze%(#.*)?%(\|.*)?\]\]'
@@ -230,3 +273,27 @@ endfunction
 
 " }}}1
 
+function! s:get_anchors_argument(input) " {{{1
+  let l:current = expand('%:p')
+  let l:arg = get(a:input, 0, '')
+
+  if empty(l:arg)
+    return l:current
+  endif
+
+  if type(l:arg) == type({})
+    return get(l:arg, 'path', l:current)
+  endif
+
+  if type(l:arg) != type('')
+    return expand('%:p')
+  endif
+
+  if filereadable(l:arg)
+    return l:arg
+  else
+    return get(wiki#url#parse(l:arg), 'path', l:current)
+  endif
+endfunction
+
+" }}}1
