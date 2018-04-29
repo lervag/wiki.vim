@@ -35,7 +35,8 @@ function! wiki#complete#omnicomplete(findstart, base) " {{{1
   else
     if s:ctx.is_anchor
       let l:url = wiki#url#parse(empty(s:ctx.url) ? expand('%:t:r') : s:ctx.url)
-      let l:pre_base = join(s:ctx.pre_anch, '#') . '#'
+      let l:pre_base = '#'
+            \ . (empty(s:ctx.pre_anch) ? '' : join(s:ctx.pre_anch, '#') . '#')
       let l:cnum = strlen(l:pre_base)
       let l:anchors = filter(wiki#page#get_anchors(l:url),
             \ 'v:val =~# ''^'' . wiki#u#escape(l:pre_base) . ''[^#]*$''')
