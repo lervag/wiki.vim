@@ -54,6 +54,43 @@ function! wiki#journal#go_to_month() abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#journal#make_index() " {{{1
+  let l:regex_days = '\d\{4}-\d\d-\d\d'
+  let l:entries = s:get_links_generic(l:regex_days, '%Y-%m-%d')
+
+  let l:sorted_entries = {}
+  for entry in entries
+    let [year, month, day] = split(entry, '-')
+    if has_key(sorted_entries, year)
+      let year_dict = sorted_entries[year]
+      if has_key(year_dict, month)
+        call add(year_dict[month], entry)
+      else
+        let year_dict[month] = [entry]
+      endif
+    else
+      let sorted_entries[year] = {month:[entry]}
+    endif
+  endfor
+
+  for year in reverse(sort(keys(sorted_entries)))
+    let l:month_dict = sorted_entries[year]
+    put ='# ' . year
+    put =''
+    for [month, entries] in items(month_dict)
+      let l:mname = wiki#date#get_month_name(month)
+      let l:mname = toupper(mname[0]) . mname[1:strlen(mname)]
+      put ='## ' . mname
+      put =''
+      for entry in entries
+        put ='- [' . entry . '](' . entry . ')'
+      endfor
+      put =''
+    endfor
+  endfor
+endfunction
+
+" }}}1
 
 function! s:get_links() abort " {{{1
   let l:current = expand('%:t:r')
