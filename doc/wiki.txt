@@ -241,6 +241,10 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *WikiPageToc*
   Create/Update table of contents.
 
+*<plug>(wiki-journal-index)*
+*WikiJournalIndex*
+  Insert a sorted list of links to all journal pages below the cursor
+
 *<plug>(wiki-journal-next)*
 *WikiJournalNext*
   Go to next day/week/month.
