@@ -83,7 +83,7 @@ function! wiki#journal#make_index() " {{{1
       put ='## ' . mname
       put =''
       for entry in entries
-        put ='- [' . entry . '](' . entry . ')'
+        put ='- [' . entry . '](journal:' . entry . ')'
       endfor
       put =''
     endfor

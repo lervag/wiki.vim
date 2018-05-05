@@ -172,6 +172,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiPageDelete         call wiki#page#delete()
   command! -buffer WikiPageRename         call wiki#page#rename()
   command! -buffer WikiPageToc            call wiki#page#create_toc()
+  command! -buffer WikiJournalIndex       call wiki#journal#make_index()
 
   if b:wiki.in_journal
     command! -buffer -count=1 WikiJournalPrev       call wiki#journal#go(-<count>)
@@ -198,6 +199,7 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <buffer> <plug>(wiki-page-delete)          :WikiPageDelete<cr>
   nnoremap <buffer> <plug>(wiki-page-rename)          :WikiPageRename<cr>
   nnoremap <buffer> <plug>(wiki-page-toc)             :WikiPageToc<cr>
+  nnoremap <buffer> <plug>(wiki-journal-index)        :WikiJournalIndex<cr>
 
   inoremap <buffer><expr> <plug>(wiki-list-toggle)          wiki#list#new_line_bullet()
   xnoremap <buffer>       <plug>(wiki-link-toggle-visual)   :<c-u>call wiki#link#toggle_visual()<cr>
