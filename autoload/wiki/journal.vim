@@ -54,7 +54,7 @@ function! wiki#journal#go_to_month() abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#journal#make_index() " {{{1
+function! wiki#journal#make_index(use_md_links) " {{{1
   let l:regex_days = '\d\{4}-\d\d-\d\d'
   let l:entries = s:get_links_generic(l:regex_days, '%Y-%m-%d')
 
@@ -83,7 +83,11 @@ function! wiki#journal#make_index() " {{{1
       put ='## ' . mname
       put =''
       for entry in entries
-        put ='- [' . entry . '](journal:' . entry . ')'
+        if a:use_md_links
+          put ='- [' . entry . '](journal:' . entry . ')'
+        else
+          put ='- [[journal:' . entry . '\|' . entry . ']]'
+        endif
       endfor
       put =''
     endfor
