@@ -246,7 +246,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   Insert a sorted list of links to all journal pages below the cursor using
   wiki style links
 
-*<plug>(wiki-journal-index)*
+*<plug>(wiki-journal-index-md)*
 *WikiJournalIndex!*
   Insert a sorted list of links to all journal pages below the cursor using
   markdown style links
