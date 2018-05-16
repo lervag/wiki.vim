@@ -6,7 +6,9 @@
 "
 
 function! wiki#journal#make_note(...) abort " {{{1
-  let l:date = (a:0 > 0 ? a:1 : strftime('%Y-%m-%d'))
+  let l:date = a:0 > 0
+      \ ? a:1
+      \ : strftime(get(g:, 'wiki_journal_format', '%Y-%m-%d'))
   call wiki#url#parse('journal:' . l:date).open()
 endfunction
 
