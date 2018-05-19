@@ -27,7 +27,7 @@ provide a minimal vimrc file, e.g.
 
 ```vim
 set nocompatible
-let &rtp  = '~/.vim/bundle/wiki,' . &rtp
+let &rtp  = '~/.vim/bundle/wiki.vim,' . &rtp
 
 " Load other plugins, if necessary
 " let &rtp = '~/path/to/other/plugin,' . &rtp

@@ -6,7 +6,7 @@ a personal wiki in Markdown syntax. It is based on
 
 This README file contains basic information on how to get started, as well as
 a list of available features. For complete documentation, please confer the
-[full documentation](https://github.com/lervag/wiki/blob/master/doc/wiki.txt).
+[full documentation](https://github.com/lervag/wiki.vim/blob/master/doc/wiki.txt).
 
 ## Table of contents
 
@@ -23,7 +23,7 @@ If you use [vim-plug](https://github.com/junegunn/vim-plug), then add the
 following line to your `vimrc` file:
 
 ```vim
-Plug 'lervag/wiki'
+Plug 'lervag/wiki.vim'
 ```
 
 Or use some other plugin manager:
@@ -48,7 +48,7 @@ This outlines the basic steps necessary to get started:
    and start to add your notes as desired.
 
 For more details, see the [full
-documentation](https://github.com/lervag/wiki/blob/master/doc/wiki.txt).
+documentation](https://github.com/lervag/wiki.vim/blob/master/doc/wiki.txt).
 
 # Features
 
