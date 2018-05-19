@@ -53,11 +53,12 @@ function! wiki#list#print(item) abort "{{{1
         \ '  lnum: ' . get(a:item, 'lnum'),
         \ '  indent: ' . a:item.indent,
         \ '  type: ' . a:item.type,
-        \ '  checked: ' . get(a:item, 'checked', '-'),
-        \ '  toggled: ' . get(a:item, 'toggled', '-'),
+        \ '  checked: ' . get(a:item, 'checked', 'REMOVE'),
+        \ '  state: ' . get(a:item, 'state', 'REMOVE'),
+        \ '  states: ' . string(get(a:item, 'states', 'REMOVE')),
         \ '  children: ' . len(a:item.children),
         \]
-  return l:lines
+  return filter(l:lines, 'v:val !~# ''REMOVE''')
 endfunction
 
 " }}}1
@@ -161,7 +162,7 @@ function! s:get_list_range() abort " {{{1
   " Get end of list
   "
   let [l:end, l:cnum] = searchpos(
-        \ '^\($\|[^ ' . s:re_list_markers . ']\)', 'Wn')
+        \ '^\($\|[^ ' . s:re_list_markers . ']\)\|\%$', 'Wn')
   if l:end > 0
     call setpos('.', [0, l:end, l:cnum, 0])
     let l:end = search(s:re_list_start, 'Wbcn')
@@ -181,26 +182,32 @@ endfunction
 
 let s:list_todo = {
       \ 'type' : 'todo',
-      \ 'toggled' : 0,
+      \ 'state' : 0,
+      \ 'states' : get(g:, 'wiki_list_todo', ['TODO', 'DONE']),
       \}
 function! s:list_todo.init(item) abort dict "{{{1
   let l:new = deepcopy(self)
   unlet l:new.init
   call extend(a:item, l:new)
 
-  let a:item.toggled = match(a:item.text, s:re_list_start . 'TODO:') >= 0
+  let a:item.state = index(self.states, matchstr(a:item.text,
+        \ s:re_list_start . '\zs' . join(self.states, '\|') . '\ze:'))
 endfunction
 
 " }}}1
 function! s:list_todo.toggle() abort dict "{{{1
   let l:line = getline(self.lnum)
-  if self.toggled
-    let l:line = substitute(l:line, s:re_list_start . '\zsTODO:\s*\ze', '', '')
-  else
-    let l:parts = split(l:line, s:re_list_start . '\zs\s*\ze')
-    let l:line = l:parts[0] . 'TODO: ' . get(l:parts, 1, '')
-  endif
-  let self.toggled = !self.toggled
+
+  let l:re_old = s:re_list_start . '\zs'
+        \ . (self.state < 0 ? '' : self.states[self.state] . ':')
+        \ . '\s*\ze'
+
+  let self.state = ((self.state + 2) % (len(self.states) + 1)) - 1
+
+  let l:line = substitute(l:line, l:re_old,
+        \ self.state >= 0 ? self.states[self.state] . ': ' : '',
+        \ '')
+
   call setline(self.lnum, l:line)
 endfunction
 
