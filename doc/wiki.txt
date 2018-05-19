@@ -45,10 +45,10 @@ CONTENTS                                                        *wiki-contents*
   Lists                                            |wiki-lists|
   Completion                                       |wiki-completion|
   Folding                                          |wiki-folding|
-  Syntax highlighting                              |wiki-syntax|  
-    Common elements                                |wiki-syntax-common|  
-    Links                                          |wiki-syntax-links|  
-    Code blocks                                    |wiki-syntax-code|  
+  Syntax highlighting                              |wiki-syntax|
+    Common elements                                |wiki-syntax-common|
+    Links                                          |wiki-syntax-links|
+    Code blocks                                    |wiki-syntax-code|
 
 ==============================================================================
 INTRODUCTION                                                       *wiki-intro*
@@ -457,7 +457,7 @@ explained through an example: >
   reference like this [1].
 
   One may also add a [description][target].
-  
+
   The target may consist of both words and numbers, e.g. [like this][Ref 3].
   [Description][Target]
 
@@ -497,7 +497,7 @@ This plugin supports a relatively standard type of simple Markdown syntax.
 
 ------------------------------------------------------------------------------
 Common elements~
-                                                           *wiki-syntax-common*  
+                                                           *wiki-syntax-common*
 
 The following listing shows the set of common syntax elements that are
 currently supported: >
@@ -537,7 +537,7 @@ currently supported: >
 
 ------------------------------------------------------------------------------
 Links~
-                                                            *wiki-syntax-links*  
+                                                            *wiki-syntax-links*
 
 First, see |wiki-links| for a more general description of links.  Note that
 a link in general consists of an url and a description, although the
@@ -565,7 +565,7 @@ URLs are also highlighted directly, e.g.: >
 
 ------------------------------------------------------------------------------
 Code blocks~
-                                                             *wiki-syntax-code*    
+                                                             *wiki-syntax-code*
 
 Code blocks are blocks like the following: >
 
