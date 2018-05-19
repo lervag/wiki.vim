@@ -183,7 +183,7 @@ endfunction
 let s:list_todo = {
       \ 'type' : 'todo',
       \ 'state' : 0,
-      \ 'states' : get(g:, 'wiki_list_todo', ['TODO', 'DONE']),
+      \ 'states' : get(g:, 'wiki_list_todos', ['TODO', 'DONE']),
       \}
 function! s:list_todo.init(item) abort dict "{{{1
   let l:new = deepcopy(self)

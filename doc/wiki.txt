@@ -147,6 +147,12 @@ CONFIGURATION                                                     *wiki-config*
 
   Default: Undefined
 
+*g:wiki_list_todos*
+  A list of TODO toggles that may be toggled with |<plug>(wiki-list-toggle)|,
+  which is by default mapped to `<c-s>`.
+
+  Default: `['TODO', 'DONE']`
+
 *g:wiki_file_open*
   Name of a function or a |FuncRef| for a function that should be used to open
   a file url (|wiki-links-urls|). The function should give a non-zero return

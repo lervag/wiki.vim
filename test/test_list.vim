@@ -1,6 +1,6 @@
 source init.vim
 
-let g:wiki_list_todo = ['TODO', 'INPROGRESS', 'DONE']
+let g:wiki_list_todos = ['TODO', 'INPROGRESS', 'DONE']
 
 silent edit example/lists.wiki
 
