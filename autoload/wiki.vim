@@ -112,6 +112,9 @@ function! wiki#get_root() abort " {{{1
     let l:root = get(g:, 'wiki_root', '')
     if !empty(l:root)
       let l:root = fnamemodify(l:root, ':p')
+      if l:root[-1:-1] ==# '/'
+        let l:root = l:root[:-2]
+      endif
       if !isdirectory(l:root)
         echoerr 'Please set g:wiki_root!'
         return ''
