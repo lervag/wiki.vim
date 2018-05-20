@@ -21,7 +21,7 @@ function! wiki#url#wiki#parse(url) abort " {{{1
 
   " Extract path
   let l:url.path = l:fname[0] ==# '/'
-        \ ? wiki#get_root() . l:fname
+        \ ? wiki#get_root() . l:fname[1:]
         \ : fnamemodify(a:url.origin, ':p:h') . '/' . l:fname
   let l:url.dir = fnamemodify(l:url.path, ':p:h')
 
