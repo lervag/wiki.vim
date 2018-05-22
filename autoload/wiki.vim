@@ -175,7 +175,8 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiListTottle         call wiki#list#toggle()
   command! -buffer WikiPageDelete         call wiki#page#delete()
   command! -buffer WikiPageRename         call wiki#page#rename()
-  command! -buffer WikiPageToc            call wiki#page#create_toc()
+  command! -buffer WikiPageToc            call wiki#page#create_toc(0)
+  command! -buffer WikiPageTocLocal       call wiki#page#create_toc(1)
 
   if b:wiki.in_journal
     command! -buffer -count=1 WikiJournalPrev       call wiki#journal#go(-<count>)
@@ -204,6 +205,7 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <buffer> <plug>(wiki-page-delete)          :WikiPageDelete<cr>
   nnoremap <buffer> <plug>(wiki-page-rename)          :WikiPageRename<cr>
   nnoremap <buffer> <plug>(wiki-page-toc)             :WikiPageToc<cr>
+  nnoremap <buffer> <plug>(wiki-page-toc-local)       :WikiPageTocLocal<cr>
 
   inoremap <buffer><expr> <plug>(wiki-list-toggle)          wiki#list#new_line_bullet()
   xnoremap <buffer>       <plug>(wiki-link-toggle-visual)   :<c-u>call wiki#link#toggle_visual()<cr>
@@ -249,6 +251,7 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-page-delete)' : '<leader>wd',
           \ '<plug>(wiki-page-rename)' : '<leader>wr',
           \ '<plug>(wiki-page-toc)' : '<leader>wt',
+          \ '<plug>(wiki-page-toc-local)' : '<leader>wT',
           \ 'i_<plug>(wiki-list-toggle)' : '<c-s>',
           \ 'x_<plug>(wiki-link-toggle-visual)' : '<cr>',
           \ 'o_<plug>(wiki-al)' : 'al',

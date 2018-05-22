@@ -153,6 +153,11 @@ CONFIGURATION                                                     *wiki-config*
 
   Default: `['TODO', 'DONE']`
 
+*g:wiki_toc_title*
+  The title of TOC listings.
+
+  Default: `'Contents'`
+
 *g:wiki_file_open*
   Name of a function or a |FuncRef| for a function that should be used to open
   a file url (|wiki-links-urls|). The function should give a non-zero return
@@ -247,6 +252,10 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *WikiPageToc*
   Create/Update table of contents.
 
+*<plug>(wiki-page-toc-local)*
+*WikiPageTocLocal*
+  Create/Update table of contents (section local variant).
+
 *<plug>(wiki-journal-index)*
 *WikiJournalIndex*
   Insert a sorted list of links to all journal pages below the cursor using
@@ -328,6 +337,7 @@ information about the different modes.
    `n`     <leader>wd          |<plug>(wiki-page-delete)|
    `n`     <leader>wr          |<plug>(wiki-page-rename)|
    `n`     <leader>wt          |<plug>(wiki-page-toc)|
+   `n`     <leader>wT          |<plug>(wiki-page-toc-local)|
    `n`     <tab>               |<plug>(wiki-link-next)|
    `n`     <cr>                |<plug>(wiki-link-open)|
    `n`     <c-cr>              |<plug>(wiki-link-open-split)|

@@ -111,14 +111,86 @@ function! wiki#page#rename() abort "{{{1
 endfunction
 
 " }}}1
-function! wiki#page#create_toc() abort " {{{1
+function! wiki#page#create_toc(local) abort " {{{1
+  let l:entries = wiki#page#gather_toc_entries(a:local)
+  if empty(l:entries) | return | endif
+
+  if a:local
+    let l:level = l:entries[0].level + 1
+    let l:lnum_top = l:entries[0].lnum
+    if empty(l:entries) | return | endif
+    let l:entries = l:entries[1:]
+    let l:lnum_bottom = l:entries[0].lnum
+  else
+    let l:level = 1
+    let l:lnum_top = 1
+    let l:lnum_bottom = get(get(l:entries, 1, {}), 'lnum', line('$'))
+  endif
+
+  let l:start = max([l:entries[0].lnum, 0])
+  let l:title = get(g:, 'wiki_toc_title', 'Contents')
+  let l:header = '*' . l:title . '*'
+  let l:re = '\v^(' . repeat('#', l:level) . ' ' . l:title . '|\*' . l:title . '\*)$'
+
+  " Save the window view and syntax setting and disable syntax (makes things
+  " much faster)
   let l:winsave = winsaveview()
-  let l:start = 1
-  let l:entries = []
-  let l:anchor_stack = []
+  let l:syntax = &l:syntax
+  setlocal syntax=off
 
   "
-  " Create toc entries
+  " Delete TOC if it exists
+  "
+  for l:lnum in range(l:lnum_top, l:lnum_bottom)
+    if getline(l:lnum) =~# l:re
+      let l:header = getline(l:lnum)
+      let l:start = l:lnum
+      let l:end = l:start + (getline(l:lnum+1) =~# '^\s*$' ? 2 : 1)
+      while l:end <= l:lnum_bottom && getline(l:end) =~# '^\s*- '
+        let l:end += 1
+      endwhile
+
+      let l:foldenable = &l:foldenable
+      setlocal nofoldenable
+      silent execute printf('%d,%ddelete _', l:start, l:end - 1)
+      let &l:foldenable = l:foldenable
+
+      break
+    endif
+  endfor
+
+  "
+  " Add updated TOC
+  "
+  call append(l:start - 1, l:header)
+  let l:length = len(l:entries)
+  for l:i in range(l:length)
+    call append(l:start + l:i, l:entries[l:i].header)
+  endfor
+  if getline(l:start + l:length + 1) !=# ''
+    call append(l:start + l:length, '')
+  endif
+  if l:header =~# '^#'
+    call append(l:start, '')
+  endif
+
+  "
+  " Restore syntax and view
+  "
+  let &l:syntax = l:syntax
+  call winrestview(l:winsave)
+endfunction
+
+" }}}1
+function! wiki#page#gather_toc_entries(local) abort " {{{1
+  let l:start = 1
+  let l:entry = {}
+  let l:entries = []
+  let l:anchor_stack = []
+  let l:lnum_current = line('.')
+
+  "
+  " Gather toc entries
   "
   for l:lnum in range(1, line('$'))
     if wiki#u#is_code(l:lnum) | continue | endif
@@ -140,57 +212,42 @@ function! wiki#page#create_toc() abort " {{{1
     call add(l:anchor_stack, l:header)
     let l:anchor = '#' . join(l:anchor_stack, '#')
 
-    " Add current entry
-    call add(l:entries, repeat(' ', shiftwidth()*(l:level-1)) . '- '
-          \ . wiki#link#template_wiki(l:anchor, l:header))
-  endfor
+    " Start local boundary container
+    if !exists('l:local') && l:lnum >= l:lnum_current
+      let l:local = {}
+      let l:local.level = get(l:entry, 'level')
+      let l:local.lnum = get(l:entry, 'lnum')
+      let l:local.nstart = len(l:entries) - 1
+    endif
 
-  let l:syntax = &l:syntax
-  setlocal syntax=off
+    " Add the new entry
+    let l:entry = {
+          \ 'lnum' : l:lnum,
+          \ 'level' : l:level,
+          \ 'header' : repeat(' ', shiftwidth()*(l:level-1))
+          \            . '- ' . wiki#link#template_wiki(l:anchor, l:header),
+          \}
+    call add(l:entries, l:entry)
 
-  "
-  " Delete TOC if it exists
-  "
-  let l:header = '# Innhald'
-  for l:lnum in range(1, line('$'))
-    if getline(l:lnum) =~# '\v^(#+ Innhald|\*Innhald\*)$'
-      let l:header = getline(l:lnum)
-      let l:start = l:lnum
-      let l:end = l:start + (getline(l:lnum+1) =~# '^\s*$' ? 2 : 1)
-      while l:end <= line('$') && getline(l:end) =~# '^\s*- '
-        let l:end += 1
-      endwhile
-
-      let l:foldenable = &l:foldenable
-      setlocal nofoldenable
-      silent execute printf('%d,%ddelete _', l:start, l:end - 1)
-      let &l:foldenable = l:foldenable
-
-      break
+    " Set local boundaries
+    if exists('l:local') && !get(l:local, 'done') && l:level <= l:local.level
+      let l:local.done = 1
+      let l:local.nend = len(l:entries) - 2
     endif
   endfor
 
-  "
-  " Add updated TOC
-  "
-  echom l:header
-  call append(l:start - 1, l:header)
-  let l:length = len(l:entries)
-  for l:i in range(l:length)
-    call append(l:start + l:i, l:entries[l:i])
-  endfor
-  if getline(l:start + l:length + 1) !=# ''
-    call append(l:start + l:length, '')
-  endif
-  if l:header =~# '^#'
-    call append(l:start, '')
+  if !has_key(l:local, 'done')
+    let l:local.nend = len(l:entries) - 1
   endif
 
-  "
-  " Restore syntax and view
-  "
-  let &l:syntax = l:syntax
-  call winrestview(l:winsave)
+  if a:local
+    let l:entries = l:entries[l:local.nstart : l:local.nend]
+    for l:entry in l:entries
+      let l:entry.header = strpart(l:entry.header, 2*l:local.level)
+    endfor
+  endif
+
+  return l:entries
 endfunction
 
 " }}}1
@@ -237,7 +294,6 @@ endfunction
 
 " }}}1
 
-
 function! s:rename_update_links(old, new) abort " {{{1
   let l:pattern  = '\v\[\[\/?\zs' . a:old . '\ze%(#.*)?%(\|.*)?\]\]'
   let l:pattern .= '|\[.*\]\[\zs' . a:old . '\ze%(#.*)?\]'
@@ -273,7 +329,7 @@ endfunction
 
 " }}}1
 
-function! s:get_anchors_argument(input) " {{{1
+function! s:get_anchors_argument(input) abort " {{{1
   let l:current = expand('%:p')
   let l:arg = get(a:input, 0, '')
 
