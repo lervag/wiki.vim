@@ -154,7 +154,8 @@ let s:ignored = {
       \ 'sh' : ['shCommandSub'],
       \ 'pandoc' : ['pandocDelimitedCodeBlock', 'pandocNoFormatted'],
       \ 'ruby' : ['rubyString'],
-      \ 'make' : ['makeBString','makeIdent'],
+      \ 'make' : ['makeBString', 'makeIdent'],
+      \ 'resolv' : ['resolvError'],
       \}
 
 for s:ft in map(
