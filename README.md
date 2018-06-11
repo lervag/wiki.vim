@@ -93,13 +93,13 @@ as pull requests for implementing bug fixes or missing features.
     - [x] Allow custom url types and remove the personal variants that are not
           useful to others
     - [x] Add automatic detection of a wiki (e.g. based on root level
-          `index.wiki` file)  
+          `index.wiki` file)
     - [ ] [vimwiki](https://github.com/vimwiki/vimwiki) like TODO list toggles
           (cf. [#1](../../issues/1))
     - [ ] Allow journal entries per week/months (cf. [#2](../../issues/1))
     - [ ] Improve the "execute code section" feature
-  - [ ] General improvements
-    - [ ] Find a better way then `g:wiki_projects`
+  - [x] General improvements
+    - [x] Find a better way than `g:wiki_projects`
     - [x] Document the commands and `<plug>` mappings
     - [x] Add commands for the various features
     - [x] Convert current mappings to `<plug>` type mappings and add options to

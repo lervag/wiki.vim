@@ -117,12 +117,6 @@ CONFIGURATION                                                     *wiki-config*
 
   Default: `'journal'`
 
-*g:wiki_projects*
-  List of project names (or regexes) used to collect journal entries when
-  creating weekly or monthly summaries.
-
-  Default: []
-
 *g:wiki_mappings_use_defaults*
   Whether or not to use default mappings (see |wiki-mappings-default|). If
   this is set to 0, then only custom mappings will be applied. Custom mappings
