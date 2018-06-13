@@ -56,10 +56,8 @@ function! wiki#list#organize(...) abort "{{{1
   let [l:root, l:current] = wiki#list#get()
   if empty(l:current) | return | endif
 
-  let l:entries = {}
-  for l:e in l:current.parent.children
-    PP l:e.text
-  endfor
+  let l:res = s:uniq_recurse(l:current.parent.children)
+  PP l:res
 
   if a:0 > 0
     call setpos('.', l:save_pos)
@@ -79,6 +77,36 @@ function! wiki#list#print(item) abort "{{{1
         \ '  children: ' . len(a:item.children),
         \]
   return filter(l:lines, 'v:val !~# ''REMOVE''')
+endfunction
+
+" }}}1
+
+function! s:uniq_recurse(items) abort "{{{1
+  let l:num = 0
+  let l:uniq = []
+  for l:e in a:items
+    let l:found = 0
+    for l:u in l:uniq
+      if l:u.text ==# l:e.text
+        call extend(l:u.children, l:e.children)
+        let l:found = 1
+        break
+      endif
+    endfor
+
+    if !l:found
+      call add(l:uniq, {
+            \ 'text' : l:e.text,
+            \ 'children' : l:e.children,
+            \})
+    endif
+  endfor
+
+  for l:u in l:uniq
+    let l:u.children = s:uniq_recurse(l:u.children)
+  endfor
+
+  return l:uniq
 endfunction
 
 " }}}1
@@ -122,6 +150,7 @@ function! s:get_list_connect(items) abort " {{{1
   for l:item in a:items
     let l:prev.next = l:item
     let l:item.prev = l:prev
+    let l:item.lnum_prev = get(l:prev, 'lnum', -1)
 
     while l:item.indent <= l:prev.indent
       let l:prev = l:prev.parent
@@ -129,9 +158,14 @@ function! s:get_list_connect(items) abort " {{{1
 
     call add(l:prev.children, l:item)
     let l:item.parent = l:prev
+    let l:item.lnum_parent = get(l:prev, 'lnum', -1)
     let l:item.children = []
 
     let l:prev = l:item
+  endfor
+
+  for l:item in a:items
+    let l:item.nchildren = len(l:item.children)
   endfor
 
   return l:root
@@ -140,22 +174,12 @@ endfunction
 " }}}1
 function! s:get_list_items() abort " {{{1
   let l:items = []
+
   for l:lnum in s:get_list_range()
     let l:line = getline(l:lnum)
-    if l:line !~# s:re_list_start | continue | endif
-
-    let l:item = {}
-    let l:item.lnum = l:lnum
-    let l:item.text = l:line
-    let l:item.indent = indent(l:lnum)
-
-    if match(l:line, s:re_list_start . s:re_list_checkbox) >= 0
-      call s:list_checkbox.init(l:item)
-    else
-      call s:list_todo.init(l:item)
+    if l:line =~# s:re_list_start
+      call add(l:items, s:list_item.new(l:lnum, l:line))
     endif
-
-    call add(l:items, l:item)
   endfor
 
   return l:items
@@ -166,9 +190,7 @@ function! s:get_list_range() abort " {{{1
   let l:save_pos = getcurpos()
   let l:cur = l:save_pos[1]
 
-  "
   " Get start of list
-  "
   let [l:lnum, l:cnum] = searchpos(
         \ '^\($\|[^ ' . s:re_list_markers . ']\)', 'Wbcn')
   if l:lnum == 0
@@ -178,9 +200,7 @@ function! s:get_list_range() abort " {{{1
   call setpos('.', [0, l:lnum, l:cnum, 0])
   let l:start = search(s:re_list_start, 'W')
 
-  "
   " Get end of list
-  "
   let [l:end, l:cnum] = searchpos(
         \ '^\($\|[^ ' . s:re_list_markers . ']\)\|\%$', 'Wn')
   if l:end > 0
@@ -191,11 +211,43 @@ function! s:get_list_range() abort " {{{1
     let l:end = l:start - 1
   endif
 
-  "
   " Return range of list lines
-  "
   call setpos('.', l:save_pos)
   return range(l:start, l:end)
+endfunction
+
+" }}}1
+
+let s:list_item = {}
+function! s:list_item.new(lnum, line) abort dict " {{{1
+  let l:new = deepcopy(self)
+  unlet! l:new.new
+
+  let l:new.lnum = a:lnum
+  let l:new.text = a:line
+  let l:new.indent = indent(a:lnum)
+
+  if match(a:line, s:re_list_start . s:re_list_checkbox) >= 0
+    call s:list_checkbox.init(l:new)
+  else
+    call s:list_todo.init(l:new)
+  endif
+
+  return l:new
+endfunction
+
+" }}}1
+function! s:list_item.printable() abort dict " {{{1
+  let l:copy = deepcopy(self)
+
+  unlet! l:copy.next
+  unlet! l:copy.prev
+  unlet! l:copy.children
+  unlet! l:copy.parent
+  unlet! l:copy.printable
+  unlet! l:copy.toggle
+
+  return l:copy
 endfunction
 
 " }}}1
