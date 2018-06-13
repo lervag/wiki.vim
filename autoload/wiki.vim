@@ -173,6 +173,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiLinkReturn         call wiki#nav#return()
   command! -buffer WikiLinkToggle         call wiki#link#toggle()
   command! -buffer WikiListToggle         call wiki#list#toggle()
+  command! -buffer WikiListOrganize       call wiki#list#organize()
   command! -buffer WikiPageDelete         call wiki#page#delete()
   command! -buffer WikiPageRename         call wiki#page#rename()
   command! -buffer WikiPageToc            call wiki#page#create_toc(0)
@@ -202,6 +203,7 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <buffer> <plug>(wiki-link-return)          :WikiLinkReturn<cr>
   nnoremap <buffer> <plug>(wiki-link-toggle)          :WikiLinkToggle<cr>
   nnoremap <buffer> <plug>(wiki-list-toggle)          :WikiListToggle<cr>
+  nnoremap <buffer> <plug>(wiki-list-organize)        :WikiListOrganize<cr>
   nnoremap <buffer> <plug>(wiki-page-delete)          :WikiPageDelete<cr>
   nnoremap <buffer> <plug>(wiki-page-rename)          :WikiPageRename<cr>
   nnoremap <buffer> <plug>(wiki-page-toc)             :WikiPageToc<cr>
@@ -248,6 +250,7 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-link-toggle)' : '<leader>wf',
           \ '<plug>(wiki-link-toggle-operator)' : 'gl',
           \ '<plug>(wiki-list-toggle)' : '<c-s>',
+          \ '<plug>(wiki-list-organize)' : '<leader>wa',
           \ '<plug>(wiki-page-delete)' : '<leader>wd',
           \ '<plug>(wiki-page-rename)' : '<leader>wr',
           \ '<plug>(wiki-page-toc)' : '<leader>wt',

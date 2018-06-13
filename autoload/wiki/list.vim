@@ -47,6 +47,26 @@ function! wiki#list#toggle(...) abort "{{{1
 endfunction
 
 " }}}1
+function! wiki#list#organize(...) abort "{{{1
+  if a:0 > 0
+    let l:save_pos = getcurpos()
+    call setpos('.', [0, a:1, 1, 0])
+  endif
+
+  let [l:root, l:current] = wiki#list#get()
+  if empty(l:current) | return | endif
+
+  let l:entries = {}
+  for l:e in l:current.parent.children
+    PP l:e.text
+  endfor
+
+  if a:0 > 0
+    call setpos('.', l:save_pos)
+  endif
+endfunction
+
+" }}}1
 function! wiki#list#print(item) abort "{{{1
   let l:lines = [
         \ 'List item: "' . get(a:item, 'text', '') . '"',
