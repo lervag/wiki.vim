@@ -231,7 +231,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   Toggle wiki link.
 
 *<plug>(wiki-list-toggle)*
-*WikiListTottle*
+*WikiListToggle*
   Toggle a list item. Map works in both normal and insert mode.
 
 *<plug>(wiki-page-delete)*
