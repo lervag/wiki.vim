@@ -1,5 +1,5 @@
 
-Liste
+List
 - First entry
   - Depth two 1
   - Depth two 2
@@ -11,11 +11,14 @@ Liste
     - Extra
 - First entry
   - Depth two 1
+    - Yes
   - Depth two 2
-    - Depth three (non checkbox entry)
-    - Depth three 1
+    - Depth three
+    - Depth three 4
     - Depth three 2
-  - Depth two 3
+  - What?
 - Second entry
   - Depth two 1
   - Depth two 2
+    asdasd
+

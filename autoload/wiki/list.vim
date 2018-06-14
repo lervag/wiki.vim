@@ -47,21 +47,30 @@ function! wiki#list#toggle(...) abort "{{{1
 endfunction
 
 " }}}1
-function! wiki#list#organize(...) abort "{{{1
+function! wiki#list#uniq(...) abort "{{{1
+  let l:save_pos = getcurpos()
+
   if a:0 > 0
-    let l:save_pos = getcurpos()
     call setpos('.', [0, a:1, 1, 0])
   endif
 
   let [l:root, l:current] = wiki#list#get()
   if empty(l:current) | return | endif
 
-  let l:res = s:uniq_recurse(l:current.parent.children)
-  PP l:res
+  let l:list_parsed = s:uniq_parse(l:current.parent.children)
+  let l:list_new = s:uniq_to_text(l:list_parsed)
 
-  if a:0 > 0
-    call setpos('.', l:save_pos)
-  endif
+  let l:last = l:current.parent.children[-1]
+  while !empty(l:last.children)
+    let l:last = l:last.children[-1]
+  endwhile
+  let l:start = l:current.parent.children[0].lnum
+  let l:end = l:last.next.lnum - 1
+
+  silent execute printf('%d,%ddelete _', l:start, l:end)
+  call append(l:start-1, l:list_new)
+
+  call setpos('.', l:save_pos)
 endfunction
 
 " }}}1
@@ -77,36 +86,6 @@ function! wiki#list#print(item) abort "{{{1
         \ '  children: ' . len(a:item.children),
         \]
   return filter(l:lines, 'v:val !~# ''REMOVE''')
-endfunction
-
-" }}}1
-
-function! s:uniq_recurse(items) abort "{{{1
-  let l:num = 0
-  let l:uniq = []
-  for l:e in a:items
-    let l:found = 0
-    for l:u in l:uniq
-      if l:u.text ==# l:e.text
-        call extend(l:u.children, l:e.children)
-        let l:found = 1
-        break
-      endif
-    endfor
-
-    if !l:found
-      call add(l:uniq, {
-            \ 'text' : l:e.text,
-            \ 'children' : l:e.children,
-            \})
-    endif
-  endfor
-
-  for l:u in l:uniq
-    let l:u.children = s:uniq_recurse(l:u.children)
-  endfor
-
-  return l:uniq
 endfunction
 
 " }}}1
@@ -138,17 +117,18 @@ let s:re_list_checkbox = '\[[ x]\]'
 let s:re_list_checkbox_checked = '\[x\]'
 
 function! s:get_list_connect(items) abort " {{{1
-  let l:root = {}
+  let l:root = deepcopy(s:list_item)
+  unlet l:root.new
   let l:root.type = 'root'
   let l:root.next = {}
   let l:root.children = []
   if empty(a:items) | return l:root | endif
-
   let l:root.indent = a:items[0].indent - 2
-  let l:prev = l:root
 
+  let l:prev = l:root
   for l:item in a:items
     let l:prev.next = l:item
+    let l:prev.lnum_next = get(l:item, 'lnum', -1)
     let l:item.prev = l:prev
     let l:item.lnum_prev = get(l:prev, 'lnum', -1)
 
@@ -164,9 +144,28 @@ function! s:get_list_connect(items) abort " {{{1
     let l:prev = l:item
   endfor
 
+  let l:root.nchildren = len(l:root.children)
   for l:item in a:items
     let l:item.nchildren = len(l:item.children)
   endfor
+
+  let l:tail = deepcopy(s:list_item)
+  unlet l:tail.new
+  let l:tail.type = 'tail'
+  let l:tail.next = {}
+  let l:tail.prev = l:prev
+  let l:tail.lnum_prev = get(l:prev, 'lnum', -1)
+  let l:lnum = l:tail.lnum_prev + 1
+  let l:tail.lnum = line('$')
+  while l:lnum <= l:tail.lnum
+    if empty(getline(l:lnum))
+      let l:tail.lnum = l:lnum
+      break
+    endif
+    let l:lnum += 1
+  endwhile
+  let l:prev.next = l:tail
+  let l:prev.lnum_next = l:tail.lnum
 
   return l:root
 endfunction
@@ -241,11 +240,17 @@ function! s:list_item.printable() abort dict " {{{1
   let l:copy = deepcopy(self)
 
   unlet! l:copy.next
-  unlet! l:copy.prev
   unlet! l:copy.children
-  unlet! l:copy.parent
   unlet! l:copy.printable
-  unlet! l:copy.toggle
+  if has_key(l:copy, 'prev')
+    unlet! l:copy.prev
+  endif
+  if has_key(l:copy, 'parent')
+    unlet! l:copy.parent
+  endif
+  if has_key(l:copy, 'toggle')
+    unlet! l:copy.toggle
+  endif
 
   return l:copy
 endfunction
@@ -348,6 +353,51 @@ function! s:list_checkbox.toggle_current() abort dict "{{{1
     let self.checked = 1
   endif
   call setline(self.lnum, l:line)
+endfunction
+
+" }}}1
+
+function! s:uniq_parse(items) abort "{{{1
+  let l:uniq = []
+
+  for l:e in a:items
+    let l:found = 0
+    for l:u in l:uniq
+      if l:u.text ==# l:e.text
+        call extend(l:u.children, l:e.children)
+        let l:found = 1
+        break
+      endif
+    endfor
+
+    if !l:found
+      call add(l:uniq, {
+            \ 'text' : l:e.text,
+            \ 'children' : l:e.children,
+            \})
+    endif
+  endfor
+
+  for l:u in l:uniq
+    let l:u.children = s:uniq_parse(l:u.children)
+  endfor
+
+  return l:uniq
+endfunction
+
+" }}}1
+function! s:uniq_to_text(tree) abort "{{{1
+  let l:text = []
+
+  for l:leaf in a:tree
+    call add(l:text, l:leaf.text)
+
+    if !empty(l:leaf.children)
+      call extend(l:text, s:uniq_to_text(l:leaf.children))
+    endif
+  endfor
+
+  return l:text
 endfunction
 
 " }}}1
