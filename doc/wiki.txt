@@ -234,6 +234,14 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *WikiListToggle*
   Toggle a list item. Map works in both normal and insert mode.
 
+*<plug>(wiki-list-uniq)*
+*WikiListUniq*
+  Parse the current list and remove repeated entries recursively.
+
+*<plug>(wiki-list-uniq-local)*
+*WikiListUniqLocal*
+  Similar to |WikiListUniq|, but only within the current list depth.
+
 *<plug>(wiki-page-delete)*
 *WikiPageDelete*
   Delete wiki page.
@@ -332,6 +340,8 @@ information about the different modes.
    `n`     <leader>wr          |<plug>(wiki-page-rename)|
    `n`     <leader>wt          |<plug>(wiki-page-toc)|
    `n`     <leader>wT          |<plug>(wiki-page-toc-local)|
+   `n`     <leader>wu          |<plug>(wiki-list-uniq)|
+   `n`     <leader>wU          |<plug>(wiki-list-uniq-local)|
    `n`     <tab>               |<plug>(wiki-link-next)|
    `n`     <cr>                |<plug>(wiki-link-open)|
    `n`     <c-cr>              |<plug>(wiki-link-open-split)|
