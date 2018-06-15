@@ -10,17 +10,9 @@ function! wiki#list#get(...) abort "{{{1
     let l:save_pos = getcurpos()
     call setpos('.', [0, a:1, 1, 0])
   endif
-  let l:root = s:get_list_connect(s:get_list_items())
 
-  if empty(l:root.next) | return [l:root, {}] | endif
-
-  let l:lnum = line('.')
-  let l:current = l:root.next
-  while l:current.lnum < l:lnum
-    if !has_key(l:current, 'next') | break | endif
-    if l:current.next.lnum > l:lnum | break | endif
-    let l:current = l:current.next
-  endwhile
+  let l:root = wiki#list#item#parse_tree()
+  let l:current = wiki#list#item#get_current(l:root)
 
   if a:0 > 0
     call setpos('.', l:save_pos)
@@ -31,65 +23,40 @@ endfunction
 
 " }}}1
 function! wiki#list#toggle(...) abort "{{{1
-  if a:0 > 0
-    let l:save_pos = getcurpos()
-    call setpos('.', [0, a:1, 1, 0])
-  endif
-
-  let [l:root, l:current] = wiki#list#get()
+  let [l:root, l:current] = a:0 > 0
+        \ ? wiki#list#get(a:1)
+        \ : wiki#list#get()
   if empty(l:current) | return | endif
 
   call l:current.toggle()
-
-  if a:0 > 0
-    call setpos('.', l:save_pos)
-  endif
 endfunction
 
 " }}}1
-function! wiki#list#uniq(...) abort "{{{1
-  let l:save_pos = getcurpos()
-
-  if a:0 > 0
-    call setpos('.', [0, a:1, 1, 0])
-  endif
-
-  let [l:root, l:current] = wiki#list#get()
+function! wiki#list#uniq(local, ...) abort "{{{1
+  let [l:root, l:current] = a:0 > 0
+        \ ? wiki#list#get(a:1)
+        \ : wiki#list#get()
   if empty(l:current) | return | endif
 
-  let l:list_parsed = s:uniq_parse(l:current.parent.children)
+  let l:parent = a:local ? l:current.parent : l:root
+
+  let l:list_parsed = s:uniq_parse(l:parent.children)
   let l:list_new = s:uniq_to_text(l:list_parsed)
 
-  let l:last = l:current.parent.children[-1]
+  let l:last = l:parent.children[-1]
   while !empty(l:last.children)
     let l:last = l:last.children[-1]
   endwhile
-  let l:start = l:current.parent.children[0].lnum
-  let l:end = l:last.next.lnum - 1
+  let l:start = l:parent.children[0].lnum_start
+  let l:end = l:last.lnum_end
 
+  let l:save_pos = getcurpos()
   silent execute printf('%d,%ddelete _', l:start, l:end)
   call append(l:start-1, l:list_new)
-
   call setpos('.', l:save_pos)
 endfunction
 
 " }}}1
-function! wiki#list#print(item) abort "{{{1
-  let l:lines = [
-        \ 'List item: "' . get(a:item, 'text', '') . '"',
-        \ '  lnum: ' . get(a:item, 'lnum'),
-        \ '  indent: ' . a:item.indent,
-        \ '  type: ' . a:item.type,
-        \ '  checked: ' . get(a:item, 'checked', 'REMOVE'),
-        \ '  state: ' . get(a:item, 'state', 'REMOVE'),
-        \ '  states: ' . string(get(a:item, 'states', 'REMOVE')),
-        \ '  children: ' . len(a:item.children),
-        \]
-  return filter(l:lines, 'v:val !~# ''REMOVE''')
-endfunction
-
-" }}}1
-
 function! wiki#list#new_line_bullet() abort "{{{1
   let l:re = '\v^\s*[*-] %(TODO:)?\s*'
   let l:line = getline('.')
@@ -111,259 +78,13 @@ endfunction
 
 " }}}1
 
-let s:re_list_markers = '*-'
-let s:re_list_start = '^\s*\zs[' . s:re_list_markers . ']\(\s\|$\)'
-let s:re_list_checkbox = '\[[ x]\]'
-let s:re_list_checkbox_checked = '\[x\]'
-
-function! s:get_list_connect(items) abort " {{{1
-  let l:root = deepcopy(s:list_item)
-  unlet l:root.new
-  let l:root.type = 'root'
-  let l:root.next = {}
-  let l:root.children = []
-  if empty(a:items) | return l:root | endif
-  let l:root.indent = a:items[0].indent - 2
-
-  let l:prev = l:root
-  for l:item in a:items
-    let l:prev.next = l:item
-    let l:prev.lnum_next = get(l:item, 'lnum', -1)
-    let l:item.prev = l:prev
-    let l:item.lnum_prev = get(l:prev, 'lnum', -1)
-
-    while l:item.indent <= l:prev.indent
-      let l:prev = l:prev.parent
-    endwhile
-
-    call add(l:prev.children, l:item)
-    let l:item.parent = l:prev
-    let l:item.lnum_parent = get(l:prev, 'lnum', -1)
-    let l:item.children = []
-
-    let l:prev = l:item
-  endfor
-
-  let l:root.nchildren = len(l:root.children)
-  for l:item in a:items
-    let l:item.nchildren = len(l:item.children)
-  endfor
-
-  let l:tail = deepcopy(s:list_item)
-  unlet l:tail.new
-  let l:tail.type = 'tail'
-  let l:tail.next = {}
-  let l:tail.prev = l:prev
-  let l:tail.lnum_prev = get(l:prev, 'lnum', -1)
-  let l:lnum = l:tail.lnum_prev + 1
-  let l:tail.lnum = line('$')
-  while l:lnum <= l:tail.lnum
-    if empty(getline(l:lnum))
-      let l:tail.lnum = l:lnum
-      break
-    endif
-    let l:lnum += 1
-  endwhile
-  let l:prev.next = l:tail
-  let l:prev.lnum_next = l:tail.lnum
-
-  return l:root
-endfunction
-
-" }}}1
-function! s:get_list_items() abort " {{{1
-  let l:items = []
-
-  for l:lnum in s:get_list_range()
-    let l:line = getline(l:lnum)
-    if l:line =~# s:re_list_start
-      call add(l:items, s:list_item.new(l:lnum, l:line))
-    endif
-  endfor
-
-  return l:items
-endfunction
-
-" }}}1
-function! s:get_list_range() abort " {{{1
-  let l:save_pos = getcurpos()
-  let l:cur = l:save_pos[1]
-
-  " Get start of list
-  let [l:lnum, l:cnum] = searchpos(
-        \ '^\($\|[^ ' . s:re_list_markers . ']\)', 'Wbcn')
-  if l:lnum == 0
-    let [l:lnum, l:cnum] = [1, 1]
-  endif
-
-  call setpos('.', [0, l:lnum, l:cnum, 0])
-  let l:start = search(s:re_list_start, 'W')
-
-  " Get end of list
-  let [l:end, l:cnum] = searchpos(
-        \ '^\($\|[^ ' . s:re_list_markers . ']\)\|\%$', 'Wn')
-  if l:end > 0
-    call setpos('.', [0, l:end, l:cnum, 0])
-    let l:end = search(s:re_list_start, 'Wbcn')
-  endif
-  if l:end < l:cur
-    let l:end = l:start - 1
-  endif
-
-  " Return range of list lines
-  call setpos('.', l:save_pos)
-  return range(l:start, l:end)
-endfunction
-
-" }}}1
-
-let s:list_item = {}
-function! s:list_item.new(lnum, line) abort dict " {{{1
-  let l:new = deepcopy(self)
-  unlet! l:new.new
-
-  let l:new.lnum = a:lnum
-  let l:new.text = a:line
-  let l:new.indent = indent(a:lnum)
-
-  if match(a:line, s:re_list_start . s:re_list_checkbox) >= 0
-    call s:list_checkbox.init(l:new)
-  else
-    call s:list_todo.init(l:new)
-  endif
-
-  return l:new
-endfunction
-
-" }}}1
-function! s:list_item.printable() abort dict " {{{1
-  let l:copy = deepcopy(self)
-
-  unlet! l:copy.next
-  unlet! l:copy.children
-  unlet! l:copy.printable
-  if has_key(l:copy, 'prev')
-    unlet! l:copy.prev
-  endif
-  if has_key(l:copy, 'parent')
-    unlet! l:copy.parent
-  endif
-  if has_key(l:copy, 'toggle')
-    unlet! l:copy.toggle
-  endif
-
-  return l:copy
-endfunction
-
-" }}}1
-
-let s:list_todo = {
-      \ 'type' : 'todo',
-      \ 'state' : 0,
-      \ 'states' : get(g:, 'wiki_list_todos', ['TODO', 'DONE']),
-      \}
-function! s:list_todo.init(item) abort dict "{{{1
-  let l:new = deepcopy(self)
-  unlet l:new.init
-  call extend(a:item, l:new)
-
-  let a:item.state = index(self.states, matchstr(a:item.text,
-        \ s:re_list_start . '\zs' . join(self.states, '\|') . '\ze:'))
-endfunction
-
-" }}}1
-function! s:list_todo.toggle() abort dict "{{{1
-  let l:line = getline(self.lnum)
-
-  let l:re_old = s:re_list_start . '\zs'
-        \ . (self.state < 0 ? '' : self.states[self.state] . ':')
-        \ . '\s*\ze'
-
-  let self.state = ((self.state + 2) % (len(self.states) + 1)) - 1
-
-  let l:line = substitute(l:line, l:re_old,
-        \ self.state >= 0 ? self.states[self.state] . ': ' : '',
-        \ '')
-
-  call setline(self.lnum, l:line)
-endfunction
-
-" }}}1
-
-let s:list_checkbox = {
-      \ 'type' : 'checkbox',
-      \ 'checked' : 0,
-      \}
-function! s:list_checkbox.init(item) abort dict "{{{1
-  let l:new = deepcopy(self)
-  unlet l:new.init
-  call extend(a:item, l:new)
-
-  let a:item.checked = match(a:item.text,
-        \ s:re_list_start . s:re_list_checkbox_checked) >= 0
-endfunction
-
-" }}}1
-function! s:list_checkbox.toggle() abort dict "{{{1
-  call self.toggle_current()
-  call self.toggle_children(self.checked)
-  call self.toggle_parents(self.checked)
-endfunction
-
-" }}}1
-function! s:list_checkbox.toggle_children(status) abort dict "{{{1
-  for l:child in filter(self.children, 'v:val.type ==# ''checkbox''')
-    if l:child.checked != a:status
-      call l:child.toggle_current()
-    endif
-    call l:child.toggle_children(a:status)
-  endfor
-endfunction
-
-" }}}1
-function! s:list_checkbox.toggle_parents(status) abort dict "{{{1
-  let l:parent = self.parent
-  if l:parent.type !=# 'checkbox' | return | endif
-
-  let l:children_checked = 1
-  for l:item in l:parent.children
-    if !get(l:item, 'checked', 1)
-      let l:children_checked = 0
-      break
-    endif
-  endfor
-
-  if (a:status && !l:parent.checked && l:children_checked)
-        \ || (!a:status && l:parent.checked)
-    call l:parent.toggle_current()
-  endif
-
-  call l:parent.toggle_parents(a:status)
-endfunction
-
-" }}}1
-function! s:list_checkbox.toggle_current() abort dict "{{{1
-  if self.checked
-    let l:line = substitute(getline(self.lnum),
-          \ s:re_list_start . '\[\zsx\ze\]', ' ', '')
-    let self.checked = 0
-  else
-    let l:line = substitute(getline(self.lnum),
-          \ s:re_list_start . '\[\zs \ze\]', 'x', '')
-    let self.checked = 1
-  endif
-  call setline(self.lnum, l:line)
-endfunction
-
-" }}}1
-
 function! s:uniq_parse(items) abort "{{{1
   let l:uniq = []
 
   for l:e in a:items
     let l:found = 0
     for l:u in l:uniq
-      if l:u.text ==# l:e.text
+      if join(l:u.text) ==# join(l:e.text)
         call extend(l:u.children, l:e.children)
         let l:found = 1
         break
@@ -390,7 +111,7 @@ function! s:uniq_to_text(tree) abort "{{{1
   let l:text = []
 
   for l:leaf in a:tree
-    call add(l:text, l:leaf.text)
+    call extend(l:text, l:leaf.text)
 
     if !empty(l:leaf.children)
       call extend(l:text, s:uniq_to_text(l:leaf.children))
