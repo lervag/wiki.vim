@@ -340,8 +340,8 @@ information about the different modes.
    `n`     <leader>wr          |<plug>(wiki-page-rename)|
    `n`     <leader>wt          |<plug>(wiki-page-toc)|
    `n`     <leader>wT          |<plug>(wiki-page-toc-local)|
-   `n`     <leader>wu          |<plug>(wiki-list-uniq)|
-   `n`     <leader>wU          |<plug>(wiki-list-uniq-local)|
+   `n`     <leader>wlu         |<plug>(wiki-list-uniq)|
+   `n`     <leader>wlU         |<plug>(wiki-list-uniq-local)|
    `n`     <tab>               |<plug>(wiki-link-next)|
    `n`     <cr>                |<plug>(wiki-link-open)|
    `n`     <c-cr>              |<plug>(wiki-link-open-split)|
