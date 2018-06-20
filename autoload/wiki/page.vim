@@ -251,7 +251,7 @@ function! wiki#page#gather_toc_entries(local) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#page#get_anchors(...) " {{{1
+function! wiki#page#get_anchors(...) abort " {{{1
   let l:filename = s:get_anchors_argument(a:000)
   if !filereadable(l:filename) | return [] | endif
 
@@ -290,6 +290,41 @@ function! wiki#page#get_anchors(...) " {{{1
   endfor
 
   return anchors
+endfunction
+
+" }}}1
+function! wiki#page#print(line1, line2) abort " {{{1
+  let l:lines = getline(a:line1, a:line2)
+
+  let l:wiki_link_rx = '\[\[#\?\([^\\|\]]\{-}\)\]\]'
+  call map(l:lines, 'substitute(v:val, l:wiki_link_rx, ''\1'', ''g'')')
+
+  let l:wiki_link_text_rx = '\[\[[^\]]\{-}|\([^\]]\{-}\)\]\]'
+  call map(l:lines, 'substitute(v:val, l:wiki_link_text_rx, ''\1'', ''g'')')
+
+  let l:tmp_wiki = tempname()
+  let l:tmp_pdf = l:tmp_wiki . '.pdf'
+  call writefile(l:lines, l:tmp_wiki)
+  call system(['pandoc', '-f', 'gfm', '-o', l:tmp_pdf, l:tmp_wiki])
+  call delete(l:tmp_wiki)
+
+  echohl ModeMsg
+  let l:reply = input('View file [y/N]? ')
+  echohl None
+  echon "\n"
+  if l:reply =~# '^y'
+    call system('mupdf ' . l:tmp_pdf)
+  endif
+
+  echohl ModeMsg
+  let l:reply = input('Export file [y/N]? ')
+  echohl None
+  echon "\n"
+  if l:reply =~# '^y'
+    call rename(l:tmp_pdf, expand(input('File name: ')))
+  else
+    call delete(l:tmp_pdf)
+  endif
 endfunction
 
 " }}}1
