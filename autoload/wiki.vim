@@ -135,6 +135,8 @@ function! s:init_global_commands() abort " {{{1
   command! WikiIndex   call wiki#goto_index()
   command! WikiReload  call wiki#reload()
   command! WikiJournal call wiki#journal#make_note()
+
+  command! CtrlPWiki   call ctrlp#init(ctrlp#wiki#id())
 endfunction
 
 " }}}1
