@@ -74,7 +74,9 @@ documentation](https://github.com/lervag/wiki.vim/blob/master/doc/wiki.txt).
   - `ic ac` Code blocks
 - Folds
 - Third-party support
-  - unite and denite sources
+  - [CtrlP](https://github.com/ctrlpvim/ctrlp.vim): `CtrlPWiki` command
+  - Sources for [unite](https://github.com/Shougo/unite.vim) and
+  [denite](https://github.com/Shougo/denite.nvim)
 
 # TODO
 

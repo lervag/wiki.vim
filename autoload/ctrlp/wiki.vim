@@ -14,21 +14,21 @@ function! ctrlp#wiki#id()
 endfunction
 
 function! ctrlp#wiki#init()
-  let l:root = wiki#get_root()
+  let s:root = wiki#get_root()
 
   let l:files = systemlist(printf(
         \ (type(g:ctrlp_user_command) == type('')
         \  ? g:ctrlp_user_command
         \  : get(g:ctrlp_user_command, -1)),
-        \ l:root))
+        \ s:root))
 
   call filter(l:files, 'v:val =~# ''wiki$''')
   let l:files = map(l:files,
-        \ 'strpart(fnamemodify(v:val, '':r''), len(l:root)+1)')
+        \ 'strpart(fnamemodify(v:val, '':r''), len(s:root)+1)')
 
   return sort(l:files)
 endfunction
 
 function! ctrlp#wiki#accept(md, path)
-  execute 'edit' a:path . '.wiki'
+  execute 'edit' s:root . '/' . a:path . '.wiki'
 endfunction

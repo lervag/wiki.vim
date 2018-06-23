@@ -101,7 +101,8 @@ Features~
   - `ic ac` Code blocks
 - Folding
 - Third-party support
-  - unite and denite sources
+  - |CtrlP|: |CtrlPWiki| command
+  - Sources for |unite| and |denite|
 
 ==============================================================================
 CONFIGURATION                                                     *wiki-config*
@@ -288,6 +289,10 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *<plug>(wiki-journal-tomonth)*
 *WikiJournalToMonth*
   Go to month summary.
+
+*CtrlPWiki*
+  Open |CtrlP| in find file mode for wiki files in current wiki or in the main
+  wiki defined by |g:wiki_root|.
 
 ==============================================================================
 MAPPINGS                                                        *wiki-mappings*
