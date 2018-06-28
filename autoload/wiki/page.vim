@@ -313,7 +313,7 @@ function! wiki#page#print(line1, line2) abort " {{{1
   echohl None
   echon "\n"
   if l:reply =~# '^y'
-    call system('mupdf ' . l:tmp_pdf)
+    call system(g:wiki_pdf_viewer . ' ' . l:tmp_pdf)
   endif
 
   echohl ModeMsg

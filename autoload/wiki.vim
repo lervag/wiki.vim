@@ -158,7 +158,11 @@ endfunction
 
 " }}}1
 function! s:init_global_options() abort " {{{1
-  let g:wiki_journal = 'journal'
+  let g:wiki_journal = get(g:, 'wiki_journal', 'journal')
+  let g:wiki_pdf_viewer = get(g:, 'wiki_pdf_viewer', get({
+        \ 'linux' : 'xdg-open',
+        \ 'mac'   : 'open',
+        \}, wiki#u#get_os(), ''))
 endfunction
 
 " }}}1

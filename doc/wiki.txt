@@ -170,6 +170,11 @@ CONFIGURATION                                                     *wiki-config*
       return 0
     endfunction
 
+*g:wiki_pdf_viewer*
+  The PDF viewer that is used by |WikiPrint|.
+
+  Default: `xdg-open` on Linux and `open` on OSX.
+
 ==============================================================================
 COMMANDS                                                        *wiki-commands*
 
@@ -290,6 +295,15 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *WikiJournalToMonth*
   Go to month summary.
 
+*<plug>(wiki-print)*
+*WikiPrint*
+  Converts the current wiki page or the selected text to a PDF. Then either
+  preview it (see |g:wiki_pdf_viewer|) or export it to a desired name relative
+  to `$HOME`.
+
+  Note: This feature requires `pandoc` (https://pandoc.org/) to build the PDF
+        files.
+
 *CtrlPWiki*
   Open |CtrlP| in find file mode for wiki files in current wiki or in the main
   wiki defined by |g:wiki_root|.
@@ -345,6 +359,8 @@ information about the different modes.
    `n`     <leader>wr          |<plug>(wiki-page-rename)|
    `n`     <leader>wt          |<plug>(wiki-page-toc)|
    `n`     <leader>wT          |<plug>(wiki-page-toc-local)|
+   `n`     <leader>wp          |<plug>(wiki-print)|
+   `x`     <leader>wp          |<plug>(wiki-print)|
    `n`     <leader>wlu         |<plug>(wiki-list-uniq)|
    `n`     <leader>wlU         |<plug>(wiki-list-uniq-local)|
    `n`     <tab>               |<plug>(wiki-link-next)|
