@@ -30,5 +30,5 @@ function! ctrlp#wiki#init()
 endfunction
 
 function! ctrlp#wiki#accept(md, path)
-  execute 'edit' s:root . '/' . a:path . '.wiki'
+  call ctrlp#acceptfile(a:md, s:root . '/' . a:path . '.wiki')
 endfunction
