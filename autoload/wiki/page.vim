@@ -186,6 +186,7 @@ function! wiki#page#gather_toc_entries(local) abort " {{{1
   let l:start = 1
   let l:entry = {}
   let l:entries = []
+  let l:local = {}
   let l:anchor_stack = []
   let l:lnum_current = line('.')
 
@@ -213,8 +214,7 @@ function! wiki#page#gather_toc_entries(local) abort " {{{1
     let l:anchor = '#' . join(l:anchor_stack, '#')
 
     " Start local boundary container
-    if !exists('l:local') && l:lnum >= l:lnum_current
-      let l:local = {}
+    if empty(l:local) && l:lnum >= l:lnum_current
       let l:local.level = get(l:entry, 'level')
       let l:local.lnum = get(l:entry, 'lnum')
       let l:local.nstart = len(l:entries) - 1
@@ -230,7 +230,7 @@ function! wiki#page#gather_toc_entries(local) abort " {{{1
     call add(l:entries, l:entry)
 
     " Set local boundaries
-    if exists('l:local') && !get(l:local, 'done') && l:level <= l:local.level
+    if !empty(l:local) && !get(l:local, 'done') && l:level <= l:local.level
       let l:local.done = 1
       let l:local.nend = len(l:entries) - 2
     endif
