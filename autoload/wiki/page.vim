@@ -118,7 +118,7 @@ function! wiki#page#create_toc(local) abort " {{{1
   if a:local
     let l:level = l:entries[0].level + 1
     let l:lnum_top = l:entries[0].lnum
-    if empty(l:entries) | return | endif
+    if len(l:entries) <= 1 | return | endif
     let l:entries = l:entries[1:]
     let l:lnum_bottom = l:entries[0].lnum
   else
