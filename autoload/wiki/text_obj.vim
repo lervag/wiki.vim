@@ -5,9 +5,14 @@
 " License:    MIT license
 "
 
-function! wiki#text_obj#link(is_inner) abort " {{{1
+function! wiki#text_obj#link(is_inner, vmode) abort " {{{1
   let l:link = wiki#link#get_at_cursor()
-  if empty(l:link) | return | endif
+  if empty(l:link)
+    if a:vmode
+      normal! gv
+    endif
+    return
+  endif
 
   if a:is_inner && has_key(l:link, 'url_c1')
     let l:c1 = l:link.url_c1
@@ -23,10 +28,14 @@ function! wiki#text_obj#link(is_inner) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#text_obj#link_text(is_inner, ...) abort " {{{1
+function! wiki#text_obj#link_text(is_inner, vmode) abort " {{{1
   let l:link = wiki#link#get_at_cursor()
-  if empty(l:link) | return | endif
-  if empty(l:link.text) | return | endif
+  if empty(l:link) || empty(l:link.text)
+    if a:vmode
+      normal! gv
+    endif
+    return
+  endif
 
   let l:c1 = l:link.text_c1
   if !a:is_inner && l:link.type ==# 'wiki'
@@ -39,8 +48,13 @@ function! wiki#text_obj#link_text(is_inner, ...) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#text_obj#code(is_inner) abort " {{{1
-  if !wiki#u#is_code(line('.')) | return | endif
+function! wiki#text_obj#code(is_inner, vmode) abort " {{{1
+  if !wiki#u#is_code(line('.'))
+    if a:vmode
+      normal! gv
+    endif
+    return
+  endif
 
   let l:lnum1 = line('.')
   while 1

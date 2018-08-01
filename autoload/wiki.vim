@@ -224,18 +224,18 @@ function! s:init_buffer_mappings() abort " {{{1
   xnoremap <buffer>       <plug>(wiki-link-toggle-visual)   :<c-u>call wiki#link#toggle_visual()<cr>
   nnoremap <buffer>       <plug>(wiki-link-toggle-operator) :set opfunc=wiki#link#toggle_operator<cr>g@
 
-  onoremap <buffer> <plug>(wiki-au) :call wiki#text_obj#link(0)<cr>
-  xnoremap <buffer> <plug>(wiki-au) :<c-u>call wiki#text_obj#link(0)<cr>
-  onoremap <buffer> <plug>(wiki-iu) :call wiki#text_obj#link(1)<cr>
-  xnoremap <buffer> <plug>(wiki-iu) :<c-u>call wiki#text_obj#link(1)<cr>
-  onoremap <buffer> <plug>(wiki-at) :call wiki#text_obj#link_text(0)<cr>
-  xnoremap <buffer> <plug>(wiki-at) :<c-u>call wiki#text_obj#link_text(0)<cr>
-  onoremap <buffer> <plug>(wiki-it) :call wiki#text_obj#link_text(1)<cr>
-  xnoremap <buffer> <plug>(wiki-it) :<c-u>call wiki#text_obj#link_text(1)<cr>
-  onoremap <buffer> <plug>(wiki-ac) :call wiki#text_obj#code(0)<cr>
-  xnoremap <buffer> <plug>(wiki-ac) :<c-u>call wiki#text_obj#code(0)<cr>
-  onoremap <buffer> <plug>(wiki-ic) :call wiki#text_obj#code(1)<cr>
-  xnoremap <buffer> <plug>(wiki-ic) :<c-u>call wiki#text_obj#code(1)<cr>
+  onoremap <buffer> <plug>(wiki-au) :call wiki#text_obj#link(0, 0)<cr>
+  xnoremap <buffer> <plug>(wiki-au) :<c-u>call wiki#text_obj#link(0, 1)<cr>
+  onoremap <buffer> <plug>(wiki-iu) :call wiki#text_obj#link(1, 0)<cr>
+  xnoremap <buffer> <plug>(wiki-iu) :<c-u>call wiki#text_obj#link(1, 1)<cr>
+  onoremap <buffer> <plug>(wiki-at) :call wiki#text_obj#link_text(0, 0)<cr>
+  xnoremap <buffer> <plug>(wiki-at) :<c-u>call wiki#text_obj#link_text(0, 1)<cr>
+  onoremap <buffer> <plug>(wiki-it) :call wiki#text_obj#link_text(1, 0)<cr>
+  xnoremap <buffer> <plug>(wiki-it) :<c-u>call wiki#text_obj#link_text(1, 1)<cr>
+  onoremap <buffer> <plug>(wiki-ac) :call wiki#text_obj#code(0, 0)<cr>
+  xnoremap <buffer> <plug>(wiki-ac) :<c-u>call wiki#text_obj#code(0, 1)<cr>
+  onoremap <buffer> <plug>(wiki-ic) :call wiki#text_obj#code(1, 0)<cr>
+  xnoremap <buffer> <plug>(wiki-ic) :<c-u>call wiki#text_obj#code(1, 1)<cr>
   onoremap <buffer> <plug>(wiki-al) :call wiki#text_obj#list_element(0, 0)<cr>
   xnoremap <buffer> <plug>(wiki-al) :<c-u>call wiki#text_obj#list_element(0, 1)<cr>
   onoremap <buffer> <plug>(wiki-il) :call wiki#text_obj#list_element(1, 0)<cr>
