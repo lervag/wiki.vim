@@ -42,6 +42,10 @@ function! s:parse_list_to_items() abort " {{{1
   let l:start = search(s:re_list_start, 'W')
   call setpos('.', l:save_pos)
 
+  if l:start == 0 || l:start > l:cur
+    return []
+  endif
+
   " Get end of list
   let l:end = search('^$', 'Wn')
   if l:end == 0

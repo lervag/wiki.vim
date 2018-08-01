@@ -322,8 +322,8 @@ Text objects~
 The following mappings are available as visual mode and operator mode
 mappings, i.e. |xmap| and |omap|.
 
-*<plug>(wiki-al)*
-*<plug>(wiki-il)*
+*<plug>(wiki-au)*
+*<plug>(wiki-iu)*
   Text object for link urls.
 
 *<plug>(wiki-at)*
@@ -333,6 +333,12 @@ mappings, i.e. |xmap| and |omap|.
 *<plug>(wiki-ac)*
 *<plug>(wiki-ic)*
   Text object for code blocks.
+
+*<plug>(wiki-al)*
+*<plug>(wiki-il)*
+  Text object for list items. The inner object is the current list item
+  including children, the outer object is the parent list item including all
+  its children.
 
 ------------------------------------------------------------------------------
 Default mappings~
@@ -371,12 +377,14 @@ information about the different modes.
    `n`     gl                  |<plug>(wiki-link-toggle-operator)|
    `ni`    <c-s>               |<plug>(wiki-list-toggle)|
    `x`     <cr>                |<plug>(wiki-link-toggle-visual)|
-   `ox`    al                  |<plug>(wiki-al)|
-   `ox`    il                  |<plug>(wiki-il)|
+   `ox`    au                  |<plug>(wiki-au)|
+   `ox`    iu                  |<plug>(wiki-iu)|
    `ox`    at                  |<plug>(wiki-at)|
    `ox`    it                  |<plug>(wiki-it)|
    `ox`    ac                  |<plug>(wiki-ac)|
    `ox`    ic                  |<plug>(wiki-ic)|
+   `ox`    al                  |<plug>(wiki-al)|
+   `ox`    il                  |<plug>(wiki-il)|
   ---------------------------------------------------------------------~
 
 ==============================================================================

@@ -224,10 +224,10 @@ function! s:init_buffer_mappings() abort " {{{1
   xnoremap <buffer>       <plug>(wiki-link-toggle-visual)   :<c-u>call wiki#link#toggle_visual()<cr>
   nnoremap <buffer>       <plug>(wiki-link-toggle-operator) :set opfunc=wiki#link#toggle_operator<cr>g@
 
-  onoremap <buffer> <plug>(wiki-al) :call wiki#text_obj#link(0)<cr>
-  xnoremap <buffer> <plug>(wiki-al) :<c-u>call wiki#text_obj#link(0)<cr>
-  onoremap <buffer> <plug>(wiki-il) :call wiki#text_obj#link(1)<cr>
-  xnoremap <buffer> <plug>(wiki-il) :<c-u>call wiki#text_obj#link(1)<cr>
+  onoremap <buffer> <plug>(wiki-au) :call wiki#text_obj#link(0)<cr>
+  xnoremap <buffer> <plug>(wiki-au) :<c-u>call wiki#text_obj#link(0)<cr>
+  onoremap <buffer> <plug>(wiki-iu) :call wiki#text_obj#link(1)<cr>
+  xnoremap <buffer> <plug>(wiki-iu) :<c-u>call wiki#text_obj#link(1)<cr>
   onoremap <buffer> <plug>(wiki-at) :call wiki#text_obj#link_text(0)<cr>
   xnoremap <buffer> <plug>(wiki-at) :<c-u>call wiki#text_obj#link_text(0)<cr>
   onoremap <buffer> <plug>(wiki-it) :call wiki#text_obj#link_text(1)<cr>
@@ -236,6 +236,10 @@ function! s:init_buffer_mappings() abort " {{{1
   xnoremap <buffer> <plug>(wiki-ac) :<c-u>call wiki#text_obj#code(0)<cr>
   onoremap <buffer> <plug>(wiki-ic) :call wiki#text_obj#code(1)<cr>
   xnoremap <buffer> <plug>(wiki-ic) :<c-u>call wiki#text_obj#code(1)<cr>
+  onoremap <buffer> <plug>(wiki-al) :call wiki#text_obj#list_element(0, 0)<cr>
+  xnoremap <buffer> <plug>(wiki-al) :<c-u>call wiki#text_obj#list_element(0, 1)<cr>
+  onoremap <buffer> <plug>(wiki-il) :call wiki#text_obj#list_element(1, 0)<cr>
+  xnoremap <buffer> <plug>(wiki-il) :<c-u>call wiki#text_obj#list_element(1, 1)<cr>
 
   if b:wiki.in_journal
     nnoremap <buffer> <plug>(wiki-journal-prev)        :WikiJournalPrev<cr>
@@ -271,10 +275,10 @@ function! s:init_buffer_mappings() abort " {{{1
           \ 'x_<plug>(wiki-print)' : '<leader>wp',
           \ 'i_<plug>(wiki-list-toggle)' : '<c-s>',
           \ 'x_<plug>(wiki-link-toggle-visual)' : '<cr>',
-          \ 'o_<plug>(wiki-al)' : 'al',
-          \ 'x_<plug>(wiki-al)' : 'al',
-          \ 'o_<plug>(wiki-il)' : 'il',
-          \ 'x_<plug>(wiki-il)' : 'il',
+          \ 'o_<plug>(wiki-au)' : 'au',
+          \ 'x_<plug>(wiki-au)' : 'au',
+          \ 'o_<plug>(wiki-iu)' : 'iu',
+          \ 'x_<plug>(wiki-iu)' : 'iu',
           \ 'o_<plug>(wiki-at)' : 'at',
           \ 'x_<plug>(wiki-at)' : 'at',
           \ 'o_<plug>(wiki-it)' : 'it',
@@ -283,6 +287,10 @@ function! s:init_buffer_mappings() abort " {{{1
           \ 'x_<plug>(wiki-ac)' : 'ac',
           \ 'o_<plug>(wiki-ic)' : 'ic',
           \ 'x_<plug>(wiki-ic)' : 'ic',
+          \ 'o_<plug>(wiki-al)' : 'al',
+          \ 'x_<plug>(wiki-al)' : 'al',
+          \ 'o_<plug>(wiki-il)' : 'il',
+          \ 'x_<plug>(wiki-il)' : 'il',
           \}
 
     if b:wiki.in_journal

@@ -65,4 +65,30 @@ function! wiki#text_obj#code(is_inner) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#text_obj#list_element(is_inner, vmode) abort " {{{1
+  let [l:root, l:current] = wiki#list#get()
+  if empty(l:current)
+    if a:vmode
+      normal! gv
+    endif
+    return
+  endif
 
+  if a:is_inner
+    let l:lnum1 = l:current.lnum_start
+    let l:lnum2 = l:current.nchildren > 0
+          \ ? l:current.children[-1].lnum_end
+          \ : l:current.lnum_end
+  else
+    let l:lnum1 = l:current.parent.type == 'root'
+          \ ? l:current.parent.children[0].lnum_start
+          \ : l:current.parent.lnum_start
+    let l:lnum2 = l:current.parent.children[-1].lnum_end
+  endif
+
+  call cursor(l:lnum1, 1)
+  normal! V
+  call cursor(l:lnum2, strlen(getline(l:lnum2)))
+endfunction
+
+" }}}1

@@ -69,9 +69,10 @@ documentation](https://github.com/lervag/wiki.vim/blob/master/doc/wiki.txt).
   - Support for parsing journal entries in order to make weekly and monthly
   summaries. The parsed result needs manual editing for good results.
 - Text objects
-  - `il al` Link url
+  - `iu au` Link url
   - `it at` Link text
   - `ic ac` Code blocks
+  - `il al` List items
 - Folds
 - Third-party support
   - [CtrlP](https://github.com/ctrlpvim/ctrlp.vim): `CtrlPWiki` command
