@@ -87,6 +87,7 @@ function! s:parse_items_to_tree(items) abort " {{{1
     let l:prev = l:current
   endfor
 
+  let l:root.lnum_start = l:root.next.lnum_start
   let l:root.nchildren = len(l:root.children)
   for l:item in a:items
     let l:item.nchildren = len(l:item.children)
@@ -152,6 +153,13 @@ function! s:item.to_string() abort dict "{{{1
         \ '  children: ' . len(self.children),
         \]
   return filter(l:lines, 'v:val !~# ''REMOVE''')
+endfunction
+
+" }}}1
+function! s:item.lnum_end_children() abort dict "{{{1
+  return self.nchildren > 0
+        \ ? self.children[-1].lnum_end_children()
+        \ : self.lnum_end
 endfunction
 
 " }}}1

@@ -90,14 +90,10 @@ function! wiki#text_obj#list_element(is_inner, vmode) abort " {{{1
 
   if a:is_inner
     let l:lnum1 = l:current.lnum_start
-    let l:lnum2 = l:current.nchildren > 0
-          \ ? l:current.children[-1].lnum_end
-          \ : l:current.lnum_end
+    let l:lnum2 = l:current.lnum_end_children()
   else
-    let l:lnum1 = l:current.parent.type == 'root'
-          \ ? l:current.parent.children[0].lnum_start
-          \ : l:current.parent.lnum_start
-    let l:lnum2 = l:current.parent.children[-1].lnum_end
+    let l:lnum1 = l:current.parent.lnum_start
+    let l:lnum2 = l:current.parent.lnum_end_children()
   endif
 
   call cursor(l:lnum1, 1)
