@@ -106,12 +106,14 @@ function! s:graph.init() abort dict " {{{1
   if has_key(self, 'initialized') | return | endif
   let self.nodes = {}
 
+  echohl ModeMsg
+  echo 'wiki: Scanning graph ... '
+  echohl NONE
   let l:files = globpath(wiki#get_root(), '**/*.wiki', 0, 1)
   let l:n = len(l:files)
   let l:i = 1
   for l:file in l:files
     let l:node = fnamemodify(l:file, ':t:r')
-    echon "\r" . printf('wiki: Scanning (%d/%d): %s', l:i, l:n, l:node)
 
     if has_key(self.nodes, l:node)
       echoerr 'Not implemented!'
@@ -136,6 +138,10 @@ function! s:graph.init() abort dict " {{{1
 
     let l:i += 1
   endfor
+  echohl ModeMSG
+  echon 'DONE'
+  echohl NONE
+  sleep 100m
 
   let self.initialized = 1
 endfunction
