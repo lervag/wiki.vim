@@ -69,7 +69,10 @@ function! s:parser.open(...) abort dict " {{{1
   endif
 
   " Focus
-  normal! zMzvzz
+  if &foldenable
+    normal! zMzv
+  endif
+  normal! zz
 endfunction
 
 "}}}1
