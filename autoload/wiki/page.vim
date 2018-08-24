@@ -240,14 +240,17 @@ function! wiki#page#gather_toc_entries(local) abort " {{{1
     let l:local.nend = len(l:entries) - 1
   endif
 
+  let l:depth = get(g:, 'wiki_toc_depth', 6)
+
   if a:local
     let l:entries = l:entries[l:local.nstart : l:local.nend]
     for l:entry in l:entries
       let l:entry.header = strpart(l:entry.header, 2*l:local.level)
     endfor
+    let l:depth += l:entries[0].level - 1
   endif
 
-  return l:entries
+  return filter(l:entries, 'v:val.level <= l:depth')
 endfunction
 
 " }}}1
@@ -317,11 +320,23 @@ function! wiki#page#print(line1, line2) abort " {{{1
   endif
 
   echohl ModeMsg
+  let l:reply = input('Print file [y/N]? ')
+  echohl None
+  echon "\n"
+  if l:reply =~# '^y'
+    call system('lp ' . l:tmp_pdf)
+  endif
+
+  echohl ModeMsg
   let l:reply = input('Export file [y/N]? ')
   echohl None
   echon "\n"
   if l:reply =~# '^y'
-    call rename(l:tmp_pdf, expand(input('File name: ')))
+    let l:newname = expand(input('File name: '))
+    if l:newname[0] !=# '/'
+      let l:newname = expand('~/') . l:newname
+    endif
+    call rename(l:tmp_pdf, l:newname)
   else
     call delete(l:tmp_pdf)
   endif
