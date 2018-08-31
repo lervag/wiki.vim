@@ -156,6 +156,7 @@ let s:ignored = {
       \ 'ruby' : ['rubyString'],
       \ 'make' : ['makeBString', 'makeIdent'],
       \ 'resolv' : ['resolvError'],
+      \ 'python' : ['pythonFString'],
       \}
 
 for s:ft in map(
