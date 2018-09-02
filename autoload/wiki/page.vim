@@ -247,7 +247,7 @@ function! wiki#page#gather_toc_entries(local) abort " {{{1
     for l:entry in l:entries
       let l:entry.header = strpart(l:entry.header, 2*l:local.level)
     endfor
-    let l:depth += l:entries[0].level - 1
+    let l:depth += l:entries[0].level
   endif
 
   return filter(l:entries, 'v:val.level <= l:depth')
