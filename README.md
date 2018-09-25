@@ -90,31 +90,17 @@ This is a list of TODO items that anyone may follow up on. I am very willing to
 accept [contributions](CONTRIBUTING.md), both as issues describing problems or
 as pull requests for implementing bug fixes or missing features.
 
-- [ ] Write list of "low hanging fruits" for contributions
 - [ ] Features
   - [ ] New features
-    - [x] Allow custom url types and remove the personal variants that are not
-          useful to others
-    - [x] Add automatic detection of a wiki (e.g. based on root level
-          `index.wiki` file)
     - [ ] [vimwiki](https://github.com/vimwiki/vimwiki) like TODO list toggles
           (cf. [#1](../../issues/1))
     - [ ] Allow journal entries per week/months (cf. [#2](../../issues/1))
     - [ ] Improve the "execute code section" feature
-  - [x] General improvements
-    - [x] Find a better way than `g:wiki_projects`
-    - [x] Document the commands and `<plug>` mappings
-    - [x] Add commands for the various features
-    - [x] Convert current mappings to `<plug>` type mappings and add options to
-          allow full customization of mappings
-- [x] Documentation
-  - [x] Vim docs
-    - [x] Document the Markdown syntax, including links and similar
-    - [x] Document each of the currently implemented features
-  - [x] README
-    - [x] Write a list of implemented features
-- [x] Add ISSUE_TEMPLATE.md
-- [x] Add CONTRIBUTING.md
+
+# Related projects
+
+- [vimwiki](https://github.com/vimwiki/vimwiki)
+- [vim-waikiki](https://github.com/fcpg/vim-waikiki)
 
 # Acknowledgements
 
