@@ -25,8 +25,8 @@ function! wiki#init_buffer() abort " {{{1
   setlocal autoindent
   setlocal nosmartindent
   setlocal nocindent
-  setlocal comments =f:*\ TODO:,fb:*\ [\ ],fb:*\ [x],fb:*
-  setlocal comments+=f:-\ TODO:,fb:-\ [\ ],fb:-\ [x],fb:-
+  setlocal comments =fb:*,f:*\ TODO:,b:*\ [\ ],b:*\ [x]
+  setlocal comments+=fb:-,f:-\ TODO:,b:-\ [\ ],b:-\ [x]
   setlocal comments+=nb:>
   let &l:commentstring = '// %s'
   setlocal formatoptions-=o
