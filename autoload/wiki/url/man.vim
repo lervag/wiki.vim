@@ -12,7 +12,11 @@ function! wiki#url#man#parse(url) abort " {{{1
     execute 'edit' fnameescape(self.path)
   endfunction
 
-  let l:url.path = 'man://' . matchstr(a:url.url, 'man:\(\/\/\)\?\zs.*')
+  let l:url.path = 'man://' . matchstr(a:url.url, 'man:\(\/\/\)\?\zs[^-]*')
+  let l:section = matchstr(a:url.url, '-\zs\d$')
+  if !empty(l:section)
+    let l:url.path .= '(' . l:section . ')'
+  endif
 
   return l:url
 endfunction
