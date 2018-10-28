@@ -6,7 +6,9 @@ a personal wiki. The plugin was initially based on
 scratch and is based on a more "do one thing and do it well" philosophy.
 
 Note: `wiki.vim` is _not_ a filetype plugin. It is designed so that it may be used
-      along with filetype plugins, e.g. for dedicated Markdown plugins.
+      along with filetype plugins, e.g. for dedicated Markdown plugins. One may
+      also use [wiki-ft.vim](https://github.com/lervag/wiki-ft.vim) for simple
+      syntax highlighting and folding of `.wiki` files, if desired.
 
 This README file contains basic information on how to get started, as well as
 a list of available features. For more details, please confer the
@@ -86,8 +88,8 @@ This is a list of TODO items that anyone may follow up on. I am very willing to
 accept [contributions](CONTRIBUTING.md), both as issues describing problems or
 as pull requests for implementing bug fixes or missing features.
 
-- [ ] Implement `WikiEnable`
-- [ ] Implement `g:wiki_filetypes`
+- [x] Implement `WikiEnable`
+- [x] Implement `g:wiki_filetypes`
 - [ ] Allow to choose the default type of link
 - [ ] [vimwiki](https://github.com/vimwiki/vimwiki) like TODO list toggles
       (cf. [#1](../../issues/1))
