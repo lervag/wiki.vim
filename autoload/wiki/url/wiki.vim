@@ -85,7 +85,7 @@ function! s:parser.open(...) abort dict " {{{1
       normal! zMzv
     endif
   endif
-  normal! zz
+  normal! zt
 endfunction
 
 "}}}1
@@ -94,6 +94,7 @@ function! s:parser.open_anchor() abort dict " {{{1
   call cursor(1, 1)
 
   for l:part in split(self.anchor, '#', 0)
+    let l:part = substitute(l:part, '[- ]', '[- ]', 'g')
     let l:header = '^#\{1,6}\s*' . l:part . '\s*$'
     let l:bold = wiki#rx#surrounded(l:part, '*')
 

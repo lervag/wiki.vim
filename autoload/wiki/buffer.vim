@@ -19,6 +19,7 @@ function! wiki#buffer#init() abort " {{{1
   let b:wiki.root = wiki#buffer#get_root()
   let b:wiki.root_journal = printf('%s/%s', b:wiki.root, g:wiki_journal)
   let b:wiki.extension = expand('%:e')
+  let b:wiki.index_name = 'index'
   let b:wiki.in_journal = stridx(resolve(expand('%:p')),
         \ b:wiki.root_journal) == 0
 
