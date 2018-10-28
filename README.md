@@ -19,6 +19,7 @@ a list of available features. For more details, please confer the
 * [Quick Start](#quick-start)
 * [Features](#features)
 * [TODO](#todo)
+* [Related projects](#related-projects)
 * [Acknowledgements](#acknowledgements)
 
 # Quick Start
@@ -81,6 +82,7 @@ This outlines the basic steps to get started:
   - [CtrlP](https://github.com/ctrlpvim/ctrlp.vim): `CtrlPWiki` command
   - [unite](https://github.com/Shougo/unite.vim)
   - [denite](https://github.com/Shougo/denite.nvim)
+  - [ncm2](https://github.com/ncm2/ncm2): SubscopeDetector for nested completion
 
 # TODO
 
