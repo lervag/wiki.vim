@@ -14,7 +14,7 @@ function! ctrlp#wiki#id()
 endfunction
 
 function! ctrlp#wiki#init()
-  let s:root = wiki#buffer#get_root()
+  let s:root = wiki#get_root()
 
   let l:files = systemlist(printf(
         \ (type(g:ctrlp_user_command) == type('')

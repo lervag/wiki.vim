@@ -16,10 +16,10 @@ function! wiki#buffer#init() abort " {{{1
 
   " Initialize the b:wiki state
   let b:wiki = {}
-  let b:wiki.root = wiki#buffer#get_root()
+  let b:wiki.root = wiki#get_root()
   let b:wiki.root_journal = printf('%s/%s', b:wiki.root, g:wiki_journal)
   let b:wiki.extension = expand('%:e')
-  let b:wiki.index_name = 'index'
+  let b:wiki.index_name = g:wiki_index_name
   let b:wiki.in_journal = stridx(resolve(expand('%:p')),
         \ b:wiki.root_journal) == 0
 
@@ -27,39 +27,6 @@ function! wiki#buffer#init() abort " {{{1
   call s:init_buffer_mappings()
 
   call s:apply_template()
-endfunction
-
-" }}}1
-function! wiki#buffer#get_root() abort " {{{1
-  " If the root has been specified already, then simply return it
-  if exists('b:wiki.root') | return b:wiki.root | endif
-
-  " Search directory tree for an 'index.EXT' file
-  for l:ext in g:wiki_filetypes
-    let l:root = get(
-          \ map(
-          \   findfile('index.' . l:ext, '.;', -1),
-          \   'fnamemodify(v:val, '':p:h'')'),
-          \ -1, '')
-    if !empty(l:root) | break | endif
-  endfor
-
-  " Try globally specified wiki
-  if empty(l:root)
-    let l:root = get(g:, 'wiki_root', '')
-    if !empty(l:root)
-      let l:root = fnamemodify(l:root, ':p')
-      if l:root[-1:-1] ==# '/'
-        let l:root = l:root[:-2]
-      endif
-      if !isdirectory(l:root)
-        echoerr 'Please set g:wiki_root!'
-        return ''
-      endif
-    endif
-  endif
-
-  return resolve(l:root)
 endfunction
 
 " }}}1

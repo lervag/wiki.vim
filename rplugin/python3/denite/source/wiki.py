@@ -19,7 +19,7 @@ class Source(Base):
         ext = self.vim.eval(
             "exists('b:wiki') ? b:wiki.extension : g:wiki_filetypes[0]")
         files = self.vim.eval(
-            'globpath(wiki#buffer#get_root(), "**/*.' + ext + '", 0, 1)')
+            'globpath(wiki#get_root(), "**/*.' + ext + '", 0, 1)')
 
         return [{
             'word': split('\.?wiki\/?', x)[1],

@@ -15,6 +15,8 @@ let g:wiki_pdf_viewer = get(g:, 'wiki_pdf_viewer', get({
       \ 'mac'   : 'open',
       \}, wiki#init#get_os(), ''))
 let g:wiki_filetypes = get(g:, 'wiki_filetypes', ['wiki'])
+let g:wiki_index_name = get(g:, 'wiki_index_name', 'index')
+let g:wiki_root = get(g:, 'wiki_root', '')
 
 " Initialize global commands
 command! WikiEnable  call wiki#buffer#init()
