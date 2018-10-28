@@ -2,7 +2,7 @@ source init.vim
 
 let g:wiki_list_todos = ['TODO', 'INPROGRESS', 'DONE']
 
-silent edit example/lists.wiki
+silent edit ex1/lists.wiki
 
 "
 " Checkbox lists

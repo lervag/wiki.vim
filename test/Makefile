@@ -7,6 +7,5 @@ tests := $(wildcard test_*.vim)
 all: $(tests)
 
 $(tests):
-	@echo "Test: $@"
-	@nvim -u $@
+	nvim -u $@
 	@vim -n -u NONE -e -s -c "source $@" 2>&1
