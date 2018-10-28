@@ -25,7 +25,7 @@ function! wiki#nav#return() abort "{{{1
     execute ':e ' . substitute(l:file, '\s', '\\\0', 'g')
     call setpos('.', l:pos)
   else
-    silent! pop!
+    silent! execute "normal! \<c-o>"
   endif
 endfunction
 
