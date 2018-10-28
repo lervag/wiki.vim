@@ -13,15 +13,24 @@ function! wiki#url#wiki#parse(url) abort " {{{1
   let l:url.anchor = len(l:anchors) > 1 && !empty(l:anchors[-1])
         \ ? join(l:anchors[1:], '#') : ''
 
-  " Extract filename
-  let l:fname = (!empty(l:anchors[0])
-        \ ? l:anchors[0]
-        \   . (l:anchors[0] =~# '/$' ? 'index' : '')
-        \ : fnamemodify(a:url.origin, ':p:t:r')) . '.wiki'
+  " Parse the file path relative to wiki root
+  if empty(l:anchors[0])
+    let l:fname = fnamemodify(a:url.origin, ':p:t:r')
+  else
+    let l:fname = l:anchors[0]
+          \ . (l:anchors[0] =~# '/$' ? b:wiki.index_name : '')
+  endif
 
-  " Extract path
+  " Determine the proper extension (if necessary)
+  if empty(fnamemodify(l:fname, ':e'))
+    let l:fname .= '.' . (exists('b:wiki.extension')
+          \ ? b:wiki.extension
+          \ : g:wiki_filetypes[0])
+  endif
+
+  " Extract the full path
   let l:url.path = l:fname[0] ==# '/'
-        \ ? wiki#get_root() . l:fname
+        \ ? wiki#buffer#get_root() . '/' . l:fname
         \ : fnamemodify(a:url.origin, ':p:h') . '/' . l:fname
   let l:url.dir = fnamemodify(l:url.path, ':p:h')
 
@@ -70,7 +79,11 @@ function! s:parser.open(...) abort dict " {{{1
 
   " Focus
   if &foldenable
-    normal! zMzv
+    if l:same_file
+      normal! zv
+    else
+      normal! zMzv
+    endif
   endif
   normal! zz
 endfunction
