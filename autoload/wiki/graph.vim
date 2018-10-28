@@ -109,7 +109,7 @@ function! s:graph.init() abort dict " {{{1
   echohl ModeMsg
   echo 'wiki: Scanning graph ... '
   echohl NONE
-  let l:files = globpath(wiki#get_root(), '**/*.wiki', 0, 1)
+  let l:files = globpath(b:wiki.root, '**/*.' . b:wiki.extension, 0, 1)
   let l:n = len(l:files)
   let l:i = 1
   for l:file in l:files

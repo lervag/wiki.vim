@@ -16,7 +16,11 @@ class Source(Base):
 
     def gather_candidates(self, context):
         """Gather wiki file candidates"""
-        files = self.vim.eval('globpath(wiki#get_root(), "**/*.wiki", 0, 1)')
+        ext = self.vim.eval(
+            "exists('b:wiki') ? b:wiki.extension : g:wiki_filetypes[0]")
+        files = self.vim.eval(
+            'globpath(wiki#buffer#get_root(), "**/*.' + ext + '", 0, 1)')
+
         return [{
             'word': split('\.?wiki\/?', x)[1],
             'action__path': x,

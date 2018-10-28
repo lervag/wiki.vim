@@ -1,0 +1,226 @@
+" A simple wiki plugin for Vim
+"
+" Maintainer: Karl Yngve Lervåg
+" Email:      karl.yngve@gmail.com
+" License:    MIT license
+"
+
+function! wiki#buffer#init() abort " {{{1
+  " Convenience: Set completion function
+  setlocal omnifunc=wiki#complete#omnicomplete
+
+  " Convenience: Set 'comments' option for list
+  setlocal comments+=fb:*,f:*\ TODO:,b:*\ [\ ],b:*\ [x]
+  setlocal comments+=fb:-,f:-\ TODO:,b:-\ [\ ],b:-\ [x]
+  setlocal comments+=nb:>
+
+  " Initialize the b:wiki state
+  let b:wiki = {}
+  let b:wiki.root = wiki#buffer#get_root()
+  let b:wiki.root_journal = printf('%s/%s', b:wiki.root, g:wiki_journal)
+  let b:wiki.extension = expand('%:e')
+  let b:wiki.in_journal = stridx(resolve(expand('%:p')),
+        \ b:wiki.root_journal) == 0
+
+  call s:init_buffer_commands()
+  call s:init_buffer_mappings()
+
+  call s:apply_template()
+endfunction
+
+" }}}1
+function! wiki#buffer#get_root() abort " {{{1
+  " If the root has been specified already, then simply return it
+  if exists('b:wiki.root') | return b:wiki.root | endif
+
+  " Search directory tree for an 'index.EXT' file
+  for l:ext in g:wiki_filetypes
+    let l:root = get(
+          \ map(
+          \   findfile('index.' . l:ext, '.;', -1),
+          \   'fnamemodify(v:val, '':p:h'')'),
+          \ -1, '')
+    if !empty(l:root) | break | endif
+  endfor
+
+  " Try globally specified wiki
+  if empty(l:root)
+    let l:root = get(g:, 'wiki_root', '')
+    if !empty(l:root)
+      let l:root = fnamemodify(l:root, ':p')
+      if l:root[-1:-1] ==# '/'
+        let l:root = l:root[:-2]
+      endif
+      if !isdirectory(l:root)
+        echoerr 'Please set g:wiki_root!'
+        return ''
+      endif
+    endif
+  endif
+
+  return resolve(l:root)
+endfunction
+
+" }}}1
+
+
+function! s:init_buffer_commands() abort " {{{1
+  command! -buffer WikiCodeRun            call wiki#u#run_code_snippet()
+  command! -buffer WikiGraphFindBacklinks call wiki#graph#find_backlinks()
+  command! -buffer WikiGraphIn            call wiki#graph#to_current()
+  command! -buffer WikiGraphOut           call wiki#graph#from_current()
+  command! -buffer -bang WikiJournalIndex call wiki#journal#make_index(<q-bang> == '!')
+  command! -buffer WikiLinkNext           call wiki#nav#next_link()
+  command! -buffer WikiLinkOpen           call wiki#link#open()
+  command! -buffer WikiLinkOpenSplit      call wiki#link#open('vsplit')
+  command! -buffer WikiLinkPrev           call wiki#nav#prev_link()
+  command! -buffer WikiLinkReturn         call wiki#nav#return()
+  command! -buffer WikiLinkToggle         call wiki#link#toggle()
+  command! -buffer WikiListToggle         call wiki#list#toggle()
+  command! -buffer WikiListUniq           call wiki#list#uniq(0)
+  command! -buffer WikiListUniqLocal      call wiki#list#uniq(1)
+  command! -buffer WikiPageDelete         call wiki#page#delete()
+  command! -buffer WikiPageRename         call wiki#page#rename()
+  command! -buffer WikiPageToc            call wiki#page#create_toc(0)
+  command! -buffer WikiPageTocLocal       call wiki#page#create_toc(1)
+  command! -buffer -range=% WikiPrint     call wiki#page#print(<line1>, <line2>)
+
+  if b:wiki.in_journal
+    command! -buffer -count=1 WikiJournalPrev       call wiki#journal#go(-<count>)
+    command! -buffer -count=1 WikiJournalNext       call wiki#journal#go(<count>)
+    command! -buffer          WikiJournalCopyToNext call wiki#journal#copy_note()
+    command! -buffer          WikiJournalToWeek     call wiki#journal#go_to_week()
+    command! -buffer          WikiJournalToMonth    call wiki#journal#go_to_month()
+  endif
+endfunction
+
+" }}}1
+function! s:init_buffer_mappings() abort " {{{1
+  nnoremap <buffer> <plug>(wiki-code-run)             :WikiCodeRun<cr>
+  nnoremap <buffer> <plug>(wiki-graph-find-backlinks) :WikiGraphFindBacklinks<cr>
+  nnoremap <buffer> <plug>(wiki-graph-in)             :WikiGraphIn<cr>
+  nnoremap <buffer> <plug>(wiki-graph-out)            :WikiGraphOut<cr>
+  nnoremap <buffer> <plug>(wiki-journal-index)        :WikiJournalIndex<cr>
+  nnoremap <buffer> <plug>(wiki-journal-index-md)     :WikiJournalIndex!<cr>
+  nnoremap <buffer> <plug>(wiki-link-next)            :WikiLinkNext<cr>
+  nnoremap <buffer> <plug>(wiki-link-open)            :WikiLinkOpen<cr>
+  nnoremap <buffer> <plug>(wiki-link-open-split)      :WikiLinkOpenSplit<cr>
+  nnoremap <buffer> <plug>(wiki-link-prev)            :WikiLinkPrev<cr>
+  nnoremap <buffer> <plug>(wiki-link-return)          :WikiLinkReturn<cr>
+  nnoremap <buffer> <plug>(wiki-link-toggle)          :WikiLinkToggle<cr>
+  nnoremap <buffer> <plug>(wiki-list-toggle)          :WikiListToggle<cr>
+  nnoremap <buffer> <plug>(wiki-list-uniq)            :WikiListUniq<cr>
+  nnoremap <buffer> <plug>(wiki-list-uniq-local)      :WikiListUniqLocal<cr>
+  nnoremap <buffer> <plug>(wiki-page-delete)          :WikiPageDelete<cr>
+  nnoremap <buffer> <plug>(wiki-page-rename)          :WikiPageRename<cr>
+  nnoremap <buffer> <plug>(wiki-page-toc)             :WikiPageToc<cr>
+  nnoremap <buffer> <plug>(wiki-page-toc-local)       :WikiPageTocLocal<cr>
+  nnoremap <buffer> <plug>(wiki-print)                :WikiPrint<cr>
+  xnoremap <buffer> <plug>(wiki-print)                :WikiPrint<cr>
+
+  inoremap <buffer><expr> <plug>(wiki-list-toggle)          wiki#list#new_line_bullet()
+  xnoremap <buffer>       <plug>(wiki-link-toggle-visual)   :<c-u>call wiki#link#toggle_visual()<cr>
+  nnoremap <buffer>       <plug>(wiki-link-toggle-operator) :set opfunc=wiki#link#toggle_operator<cr>g@
+
+  onoremap <buffer> <plug>(wiki-au) :call wiki#text_obj#link(0, 0)<cr>
+  xnoremap <buffer> <plug>(wiki-au) :<c-u>call wiki#text_obj#link(0, 1)<cr>
+  onoremap <buffer> <plug>(wiki-iu) :call wiki#text_obj#link(1, 0)<cr>
+  xnoremap <buffer> <plug>(wiki-iu) :<c-u>call wiki#text_obj#link(1, 1)<cr>
+  onoremap <buffer> <plug>(wiki-at) :call wiki#text_obj#link_text(0, 0)<cr>
+  xnoremap <buffer> <plug>(wiki-at) :<c-u>call wiki#text_obj#link_text(0, 1)<cr>
+  onoremap <buffer> <plug>(wiki-it) :call wiki#text_obj#link_text(1, 0)<cr>
+  xnoremap <buffer> <plug>(wiki-it) :<c-u>call wiki#text_obj#link_text(1, 1)<cr>
+  onoremap <buffer> <plug>(wiki-ac) :call wiki#text_obj#code(0, 0)<cr>
+  xnoremap <buffer> <plug>(wiki-ac) :<c-u>call wiki#text_obj#code(0, 1)<cr>
+  onoremap <buffer> <plug>(wiki-ic) :call wiki#text_obj#code(1, 0)<cr>
+  xnoremap <buffer> <plug>(wiki-ic) :<c-u>call wiki#text_obj#code(1, 1)<cr>
+  onoremap <buffer> <plug>(wiki-al) :call wiki#text_obj#list_element(0, 0)<cr>
+  xnoremap <buffer> <plug>(wiki-al) :<c-u>call wiki#text_obj#list_element(0, 1)<cr>
+  onoremap <buffer> <plug>(wiki-il) :call wiki#text_obj#list_element(1, 0)<cr>
+  xnoremap <buffer> <plug>(wiki-il) :<c-u>call wiki#text_obj#list_element(1, 1)<cr>
+
+  if b:wiki.in_journal
+    nnoremap <buffer> <plug>(wiki-journal-prev)        :WikiJournalPrev<cr>
+    nnoremap <buffer> <plug>(wiki-journal-next)        :WikiJournalNext<cr>
+    nnoremap <buffer> <plug>(wiki-journal-copy-tonext) :WikiJournalCopyToNext<cr>
+    nnoremap <buffer> <plug>(wiki-journal-toweek)      :WikiJournalToWeek<cr>
+    nnoremap <buffer> <plug>(wiki-journal-tomonth)     :WikiJournalToMonth<cr>
+  endif
+
+
+  let l:mappings = {}
+  if get(g:, 'wiki_mappings_use_defaults', 1)
+    let l:mappings = {
+          \ '<plug>(wiki-code-run)' : '<leader>wc',
+          \ '<plug>(wiki-graph-find-backlinks)' : '<leader>wb',
+          \ '<plug>(wiki-graph-in)' : '<leader>wg',
+          \ '<plug>(wiki-graph-out)' : '<leader>wG',
+          \ '<plug>(wiki-link-next)' : '<tab>',
+          \ '<plug>(wiki-link-open)' : '<cr>',
+          \ '<plug>(wiki-link-open-split)' : '<c-w><cr>',
+          \ '<plug>(wiki-link-prev)' : '<s-tab>',
+          \ '<plug>(wiki-link-return)' : '<bs>',
+          \ '<plug>(wiki-link-toggle)' : '<leader>wf',
+          \ '<plug>(wiki-link-toggle-operator)' : 'gl',
+          \ '<plug>(wiki-list-toggle)' : '<c-s>',
+          \ '<plug>(wiki-list-uniq)' : '<leader>wlu',
+          \ '<plug>(wiki-list-uniq-local)' : '<leader>wlU',
+          \ '<plug>(wiki-page-delete)' : '<leader>wd',
+          \ '<plug>(wiki-page-rename)' : '<leader>wr',
+          \ '<plug>(wiki-page-toc)' : '<leader>wt',
+          \ '<plug>(wiki-page-toc-local)' : '<leader>wT',
+          \ '<plug>(wiki-print)' : '<leader>wp',
+          \ 'x_<plug>(wiki-print)' : '<leader>wp',
+          \ 'i_<plug>(wiki-list-toggle)' : '<c-s>',
+          \ 'x_<plug>(wiki-link-toggle-visual)' : '<cr>',
+          \ 'o_<plug>(wiki-au)' : 'au',
+          \ 'x_<plug>(wiki-au)' : 'au',
+          \ 'o_<plug>(wiki-iu)' : 'iu',
+          \ 'x_<plug>(wiki-iu)' : 'iu',
+          \ 'o_<plug>(wiki-at)' : 'at',
+          \ 'x_<plug>(wiki-at)' : 'at',
+          \ 'o_<plug>(wiki-it)' : 'it',
+          \ 'x_<plug>(wiki-it)' : 'it',
+          \ 'o_<plug>(wiki-ac)' : 'ac',
+          \ 'x_<plug>(wiki-ac)' : 'ac',
+          \ 'o_<plug>(wiki-ic)' : 'ic',
+          \ 'x_<plug>(wiki-ic)' : 'ic',
+          \ 'o_<plug>(wiki-al)' : 'al',
+          \ 'x_<plug>(wiki-al)' : 'al',
+          \ 'o_<plug>(wiki-il)' : 'il',
+          \ 'x_<plug>(wiki-il)' : 'il',
+          \}
+
+    if b:wiki.in_journal
+      call extend(l:mappings, {
+            \ '<plug>(wiki-journal-prev)' : '<c-j>',
+            \ '<plug>(wiki-journal-next)' : '<c-k>',
+            \ '<plug>(wiki-journal-copy-tonext)' : '<leader>wk',
+            \ '<plug>(wiki-journal-toweek)' : '<leader>wu',
+            \ '<plug>(wiki-journal-tomonth)' : '<leader>wm',
+            \})
+    endif
+  endif
+
+  call extend(l:mappings, get(g:, 'wiki_mappings_local', {}))
+
+  call wiki#init#apply_mappings_from_dict(l:mappings, '<buffer>')
+endfunction
+
+" }}}1
+
+function! s:apply_template() abort " {{{1
+  if filereadable(expand('%')) | return | endif
+
+  let l:match = matchlist(expand('%:t:r'), '^\(\d\d\d\d\)_\(\w\)\(\d\d\)$')
+  if empty(l:match) | return | endif
+  let [l:year, l:type, l:number] = l:match[1:3]
+
+  if l:type ==# 'w'
+    call wiki#template#weekly_summary(l:year, l:number)
+  elseif l:type ==# 'm'
+    call wiki#template#monthly_summary(l:year, l:number)
+  endif
+endfunction
+
+" }}}1

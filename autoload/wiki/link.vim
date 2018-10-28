@@ -245,8 +245,7 @@ function! wiki#link#template_word(url, ...) abort " {{{1
   "
   " Next try at wiki root
   "
-  let l:root = wiki#get_root()
-  if filereadable(l:root . a:url . '.wiki')
+  if filereadable(printf('%s/%s.%s', b:wiki.root, a:url, b:wiki.extension))
     return wiki#link#template_wiki('/' . a:url)
   endif
 
@@ -254,7 +253,7 @@ function! wiki#link#template_word(url, ...) abort " {{{1
   " Finally we see if there are completable candidates
   "
   let l:candidates = map(
-        \ glob(l:root . '/' . a:url . '*.wiki', 0, 1),
+        \ glob(b:wiki.root . '/' . a:url . '*.wiki', 0, 1),
         \ 'fnamemodify(v:val, '':t:r'')')
 
   "

@@ -8,4 +8,40 @@
 if exists('g:wiki_loaded') | finish | endif
 let g:wiki_loaded = 1
 
-call wiki#init()
+" Initialize option
+let g:wiki_journal = get(g:, 'wiki_journal', 'journal')
+let g:wiki_pdf_viewer = get(g:, 'wiki_pdf_viewer', get({
+      \ 'linux' : 'xdg-open',
+      \ 'mac'   : 'open',
+      \}, wiki#init#get_os(), ''))
+let g:wiki_filetypes = get(g:, 'wiki_filetypes', ['wiki'])
+
+" Initialize global commands
+command! WikiEnable  call wiki#buffer#init()
+command! WikiIndex   call wiki#goto_index()
+command! WikiReload  call wiki#reload()
+command! WikiJournal call wiki#journal#make_note()
+command! CtrlPWiki   call ctrlp#init(ctrlp#wiki#id())
+
+" Initialize mappings
+nnoremap <silent> <plug>(wiki-index)   :WikiIndex<cr>
+nnoremap <silent> <plug>(wiki-journal) :WikiJournal<cr>
+nnoremap <silent> <plug>(wiki-reload)  :WikiReload<cr>
+
+" Apply default mappings
+let s:mappings = get(g:, 'wiki_mappings_use_defaults', 1)
+      \ ? {
+      \ '<plug>(wiki-index)' : '<leader>ww',
+      \ '<plug>(wiki-journal)' : '<leader>w<leader>w',
+      \ '<plug>(wiki-reload)' : '<leader>wx',
+      \} : {}
+call extend(s:mappings, get(g:, 'wiki_mappings_global', {}))
+call wiki#init#apply_mappings_from_dict(s:mappings, '')
+
+" Enable on desired filetypes
+augroup wiki
+  autocmd!
+  for s:ft in g:wiki_filetypes
+    execute 'autocmd BufRead,BufNewFile *.' . s:ft 'WikiEnable'
+  endfor
+augroup END

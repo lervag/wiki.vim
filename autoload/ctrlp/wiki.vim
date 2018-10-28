@@ -14,7 +14,7 @@ function! ctrlp#wiki#id()
 endfunction
 
 function! ctrlp#wiki#init()
-  let s:root = wiki#get_root()
+  let s:root = wiki#buffer#get_root()
 
   let l:files = systemlist(printf(
         \ (type(g:ctrlp_user_command) == type('')
@@ -22,13 +22,17 @@ function! ctrlp#wiki#init()
         \  : get(g:ctrlp_user_command, -1)),
         \ s:root))
 
-  call filter(l:files, 'v:val =~# ''wiki$''')
-  let l:files = map(l:files,
+  call filter(l:files,
+        \ 'v:val =~# ''\v%(' . join(g:wiki_filetypes, '|') . ')$''')
+  if empty(l:files) | return l:files | endif
+
+  let s:extension = fnamemodify(l:files[0], ':e')
+  call map(l:files,
         \ 'strpart(fnamemodify(v:val, '':r''), len(s:root)+1)')
 
   return sort(l:files)
 endfunction
 
 function! ctrlp#wiki#accept(md, path)
-  call ctrlp#acceptfile(a:md, s:root . '/' . a:path . '.wiki')
+  call ctrlp#acceptfile(a:md, printf('%s/%s.%s', s:root, a:path, s:extension))
 endfunction

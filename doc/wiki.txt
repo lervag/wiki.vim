@@ -44,27 +44,25 @@ CONTENTS                                                        *wiki-contents*
     Reference links                                |wiki-links-reference|
   Lists                                            |wiki-lists|
   Completion                                       |wiki-completion|
-  Folding                                          |wiki-folding|
-  Syntax highlighting                              |wiki-syntax|
-    Common elements                                |wiki-syntax-common|
-    Links                                          |wiki-syntax-links|
-    Code blocks                                    |wiki-syntax-code|
 
 ==============================================================================
 INTRODUCTION                                                       *wiki-intro*
 
-This is a Vim plugin for writing and maintaining a personal wiki in Markdown
-syntax. It is based on vimwiki [0], but written mostly from scratch.
+This is a Vim plugin for writing and maintaining a personal wiki. The plugin
+was initially based on vimwiki (https://github.com/vimwiki/vimwiki), but it is
+written mostly from scratch and is based on a more "do one thing and do it
+well" philosophy.
 
-The plugin will activate for any `.wiki` file as long as a top-level `index.wiki`
-file is found. That is, any directory tree that contains an `index.wiki` will
-be recognized as a wiki by this plugin. In addition, one may specify a main
-wiki with the |g:wiki_root| option. This allows convenient mappings and
+The plugin will activate by default for `.wiki` files, but this may be
+customized with |g:wiki_filetypes|. One may also explicitly activate with
+|WikiEnable|. The wiki root is automatically detected as long as there is
+a top-level `index.wiki` file available. If no such file is found, it sets the
+root to the same directory as the current file. In addition, one may specify
+a main wiki with the |g:wiki_root| option. This allows convenient mappings and
 commands for opening the main wiki from anywhere.
 
 ------------------------------------------------------------------------------
-Requirements~
-                                                      *wiki-intro-requirements*
+REQUIREMENTS                                          *wiki-intro-requirements*
 
 This plugin is mainly developed on and for Linux. Some or most of the features
 should still work on Windows and OSX, but currently there are no guaranties.
@@ -72,37 +70,57 @@ should still work on Windows and OSX, but currently there are no guaranties.
 The following is a list of external tools that are used for some of the
 features:
 
-- `date`
-- `xdg-open`
+  | Program                      | Feature                   |
+  | ---------------------------- + ------------------------- |
+  | `date`                         | for journal related stuff |
+  | `xdg-open`                     | for opening `pdf` files     |
+  | `pandoc` (https://pandoc.org/) | for |WikiPrint|             |
 
 ------------------------------------------------------------------------------
-Features~
-                                                          *wiki-intro-features*
+FEATURES                                                  *wiki-intro-features*
 
-- Syntax highlighting for `.wiki` files (within the recognized wiki projects)
-- Completion of wiki links and link anchors
-- Mappings
+- Wiki functionality
   - Global mappings for accessing a specified wiki
   - Local mappings for
     - Navigation (follow links, go back, etc)
     - Renaming pages (will also update links in other pages)
     - Creating a table of contents
     - Toggling links
-    - Toggling lists (marking as done/undone or add/remove TODO)
-    - Running code snippets (Note: This needs work)
     - Viewing wiki link graphs
+  - Completion of wiki links and link anchors
+  - Text objects
+    - `il al` Link url
+    - `it at` Link text
 - Support for journal entries
   - Navigating the journal back and forth with `<c-j>` and `<c-k>`
   - Support for parsing journal entries in order to make weekly and monthly
     summaries. The parsed result needs manual editing for good results.
-- Text objects
-  - `il al` Link url
-  - `it at` Link text
-  - `ic ac` Code blocks
-- Folding
+- Utility functionality
+  - Toggling lists (marking as done/undone or add/remove TODO)
+  - Running code snippets (Note: This needs work)
+  - |WikiPrint| command for exporting to `pdf`
+  - Text objects
+    - `ic ac` Code blocks
+    - `il al` List items
 - Third-party support
-  - |CtrlP|: |CtrlPWiki| command
-  - Sources for |unite| and |denite|
+  - |CtrlP|: |CtrlPWiki| command (https://github.com/ctrlpvim/ctrlp.vim)
+  - |unite| source (https://github.com/Shougo/unite.vim)
+  - |denite| source (https://github.com/Shougo/denite.nvim)
+
+------------------------------------------------------------------------------
+USAGE                                                        *wiki-intro-usage*
+
+This outlines the basic steps to get started:
+
+1. Create a wiki directory where the wiki files should be stored, for instance
+   `~/documents/wiki`.
+
+2. Add the following to your `vimrc` file: >
+
+   let g:wiki_root = '~/documents/wiki'
+
+3. Now you can open the index file (that is, `index.wiki`) with `<leader>ww`
+   and start to add your notes as desired.
 
 ==============================================================================
 CONFIGURATION                                                     *wiki-config*
@@ -112,6 +130,11 @@ CONFIGURATION                                                     *wiki-config*
   `<leader>ww` mapping.
 
   Default: ''
+
+*g:wiki_filetypes*
+  List of filetypes for which |wiki.vim| should be enabled.
+
+  Default: ['wiki']
 
 *g:wiki_journal*
   The name of the diary or journal sub folder.
@@ -171,7 +194,7 @@ CONFIGURATION                                                     *wiki-config*
     endfunction
 
 *g:wiki_pdf_viewer*
-  The PDF viewer that is used by |WikiPrint|.
+  The `pdf` viewer that is used by |WikiPrint|.
 
   Default: `xdg-open` on Linux and `open` on OSX.
 
@@ -180,6 +203,11 @@ COMMANDS                                                        *wiki-commands*
 
 The following is a list of commands that are available in the wiki. Most of
 the commands are also available as mappings of the form `<plug>(wiki-[name])`.
+
+*WikiEnable*
+Load |wiki.vim| for the current file. If the current file type is not in
+|g:wiki_filetypes|, then it will be added, so that interwiki links will be
+possible.
 
 *<plug>(wiki-index)*
 *WikiIndex*
@@ -297,11 +325,11 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 
 *<plug>(wiki-print)*
 *WikiPrint*
-  Converts the current wiki page or the selected text to a PDF. Then either
+  Converts the current wiki page or the selected text to a `pdf`. Then either
   preview it (see |g:wiki_pdf_viewer|) or export it to a desired name relative
   to `$HOME`.
 
-  Note: This feature requires `pandoc` (https://pandoc.org/) to build the PDF
+  Note: This feature requires `pandoc` (https://pandoc.org/) to build the `pdf`
         files.
 
 *CtrlPWiki*
@@ -316,8 +344,7 @@ default maps. Note that most of the mappings are also available as commands.
 These mappings are described in |wiki-commands|.
 
 ------------------------------------------------------------------------------
-Text objects~
-                                                       *wiki-mappings-text-obj*
+TEXT OBJECTS                                           *wiki-mappings-text-obj*
 
 The following mappings are available as visual mode and operator mode
 mappings, i.e. |xmap| and |omap|.
@@ -341,8 +368,7 @@ mappings, i.e. |xmap| and |omap|.
   its children.
 
 ------------------------------------------------------------------------------
-Default mappings~
-                                                        *wiki-mappings-default*
+DEFAULT MAPPINGS                                        *wiki-mappings-default*
 
 This is a list of default mappings. For a more detailed description of each
 mapping, read the documentation of the `<plug>(wiki-[name])` form of the
@@ -415,8 +441,7 @@ These are the link formats that are currently supported:
     `[Description][Target]`
 
 ------------------------------------------------------------------------------
-Link URLs~
-                                                              *wiki-links-urls*
+LINK URLS                                                     *wiki-links-urls*
 
 An URL, which is short for Uniform Resource Locator, has the general format
 
@@ -466,8 +491,7 @@ relatively easy to define new custom schemes. See the generic scheme for
 a simple example of how this is implemented.
 
 ------------------------------------------------------------------------------
-Markdown links~
-                                                          *wiki-links-markdown*
+MARKDOWN LINKS                                            *wiki-links-markdown*
 
 Markdown links are one of the standard type of links, and the look like this: >
 
@@ -477,8 +501,7 @@ One may toggle between markdown style links and wiki style links with the
 `<leader>wf` mapping.
 
 ------------------------------------------------------------------------------
-Wiki links~
-                                                              *wiki-links-wiki*
+WIKI LINKS                                                    *wiki-links-wiki*
 
 Wiki links are similar in style to the standard Mediawiki links.  This is the
 main syntax for creating internal wiki links.  The description part is
@@ -495,8 +518,7 @@ The `<leader>wf` mapping can be used to add a description to a wiki link or to
 toggle it to a markdown style link.
 
 ------------------------------------------------------------------------------
-Reference links~
-                                                         *wiki-links-reference*
+REFERENCE LINKS                                          *wiki-links-reference*
 
 Reference style links are slightly different.  They consist of up to three
 parts: An optional `description`, a `target` and a `link.`  The syntax is best
@@ -532,104 +554,6 @@ COMPLETION                                                    *wiki-completion*
 This plugin provides an |omni-complete| function that completes internal link
 targets, including anchors.  This should work both for markdown and wiki
 style links (see |wiki-links|).
-
-==============================================================================
-FOLDING                                                          *wiki-folding*
-
-The plugin provides a simple folding function that folds according to section
-depth.
-
-==============================================================================
-SYNTAX HIGHLIGHTING                                               *wiki-syntax*
-
-This plugin supports a relatively standard type of simple Markdown syntax.
-
-------------------------------------------------------------------------------
-Common elements~
-                                                           *wiki-syntax-common*
-
-The following listing shows the set of common syntax elements that are
-currently supported: >
-
-  # Level 1 headings
-
-  ## Level 2 headings
-
-  Text formatting and math:
-  - *bold text*
-  - _italic text_
-  - `inline code`
-  - $f(x) = 1$
-
-  Tables:
-  |-----+-----------|
-  | ID  | Value     |
-  |-----+-----------|
-  | 1   | Entry 1   |
-  | 2   | Entry 2   |
-  | ... | Entry ... |
-  | 12  | Entry 12  |
-  |-----+-----------|
-
-  Check lists:
-  - [ ] List item 1
-  - [.] List item 2
-  - [o] List item 3
-  - [x] List item 4
-
-  Quotes:
-  > Blocks of text like this are highlighted as quotes.
-  > Continued line of quote.
-
-  > Blocks of text like this are highlighted as quotes even if
-  the continued lines do not start with the initial quote symbol.
-
-------------------------------------------------------------------------------
-Links~
-                                                            *wiki-syntax-links*
-
-First, see |wiki-links| for a more general description of links.  Note that
-a link in general consists of an url and a description, although the
-description may be ignored.  The links will be highlighted and the |+conceal|
-feature is used to only display the descriptions if they are present.
-
-The following listing shows some examples of links. >
-
-  [[Link]]
-  [[Link|With description]]
-
-  [Description](Link)
-
-  Inline numbered links like this is also supported [0]. The link is supplied
-  below.
-
-  [0]: Link
-<
-URLs are also highlighted directly, e.g.: >
-
-  journal:2013-04-05
-  http://www.google.com
-  doi:10.1002%2Fandp.19053220607
-  file:/path/to/file
-
-------------------------------------------------------------------------------
-Code blocks~
-                                                             *wiki-syntax-code*
-
-Code blocks are blocks like the following: >
-
-  ```sh
-  ls ~
-  echo "hello world"
-  ```
-
-If the code block has a language specifier, then the block will be highlighted
-accordingly.
-
-Note: The file is parsed when opened for code blocks, and only the languages
-      detected are highlighted. Thus, if one adds a new code block with a new
-      language, one may need to reload the file to get the appropriate
-      highlighting.
 
 ==============================================================================
  vim:tw=78:ts=8:ft=help:norl:

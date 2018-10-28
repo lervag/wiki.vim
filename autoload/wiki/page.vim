@@ -353,7 +353,7 @@ function! s:rename_update_links(old, new) abort " {{{1
   let l:num_files = 0
   let l:num_links = 0
 
-  for l:file in glob(wiki#get_root() . '**/*.wiki', 0, 1)
+  for l:file in glob(b:wiki.root . '/**/*.' . b:wiki.extension, 0, 1)
     let l:updates = 0
     let l:lines = []
     for l:line in readfile(l:file)

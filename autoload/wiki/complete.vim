@@ -44,11 +44,12 @@ function! wiki#complete#omnicomplete(findstart, base) " {{{1
     endif
 
     if s:ctx.rooted
-      let l:cwd = resolve(wiki#get_root())
-      let l:cands = map(globpath(l:cwd, '**/*.wiki', 0, 1),
-            \ 's:relpath(l:cwd, fnamemodify(v:val, '':r''))')
+      let l:cands = map(
+            \ globpath(b:wiki.root, '**/*.' . b:wiki.extension, 0, 1),
+            \ 's:relpath(b:wiki.root, fnamemodify(v:val, '':r''))')
     else
-      let l:cands = map(globpath(expand('%:p:h'), '**/*.wiki', 0, 1),
+      let l:cands = map(
+            \ globpath(expand('%:p:h'), '**/*.' . b:wiki.extension, 0, 1),
             \ 'resolve(fnamemodify(v:val, '':.:r''))')
     endif
 

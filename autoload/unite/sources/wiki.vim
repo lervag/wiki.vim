@@ -12,7 +12,10 @@ let s:wiki = {
       \}
 
 function! s:wiki.gather_candidates(args, context) abort
-  return map(globpath(wiki#get_root(), '**/*.wiki', 0, 1),
+  let l:extension = exists('b:wiki')
+        \ ? b:wiki.extension
+        \ : g:wiki_filetypes[0]
+  return map(globpath(wiki#buffer#get_root(), '**/*.' . l:extension, 0, 1),
         \'{
         \ "word": substitute(fnamemodify(v:val, ":p:r"),
         \                    "^.*documents\/wiki\/", "", ""),
