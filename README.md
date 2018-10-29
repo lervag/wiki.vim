@@ -12,7 +12,7 @@ Note: `wiki.vim` is _not_ a filetype plugin. It is designed so that it may be us
 
 This README file contains basic information on how to get started, as well as
 a list of available features. For more details, please confer the
-[full documentation](https://github.com/lervag/wiki.vim/blob/master/doc/wiki.txt).
+[full documentation](doc/wiki.txt).
 
 ## Table of contents
 
