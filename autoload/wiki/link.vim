@@ -141,7 +141,8 @@ endfunction
 " }}}1
 function! wiki#link#toggle_visual() abort " {{{1
   normal! gv"wy
-  call wiki#link#toggle({
+
+  let l:link = {
         \ 'url' : getreg('w'),
         \ 'text' : '',
         \ 'scheme' : '',
@@ -149,7 +150,14 @@ function! wiki#link#toggle_visual() abort " {{{1
         \ 'c1' : getpos("'<")[2],
         \ 'c2' : s:handle_multibyte(getpos("'>")[2]),
         \ 'toggle' : function('wiki#link#template_word'),
-        \})
+        \}
+
+  if !empty(b:wiki.link_extension)
+    let l:link.text = l:link.url
+    let l:link.url .= b:wiki.link_extension
+  endif
+
+  call wiki#link#toggle(l:link)
 endfunction
 
 " }}}1
@@ -164,7 +172,7 @@ function! wiki#link#toggle_operator(type, ...) abort " {{{1
   let l:diff = strlen(@@) - strlen(l:word)
   let @@ = l:save
 
-  call wiki#link#toggle({
+  let l:link = {
         \ 'url' : l:word,
         \ 'text' : '',
         \ 'scheme' : '',
@@ -172,7 +180,14 @@ function! wiki#link#toggle_operator(type, ...) abort " {{{1
         \ 'c1' : getpos("'<")[2],
         \ 'c2' : getpos("'>")[2] - l:diff,
         \ 'toggle' : function('wiki#link#template_word'),
-        \})
+        \}
+
+  if !empty(b:wiki.link_extension)
+    let l:link.text = l:link.url
+    let l:link.url .= b:wiki.link_extension
+  endif
+
+  call wiki#link#toggle(l:link)
 endfunction
 
 " }}}1
@@ -209,7 +224,7 @@ endfunction
 " Templates translate url and possibly text into an appropriate link
 "
 function! wiki#link#template_wiki(url, ...) abort " {{{1
-  let l:text = a:0 > 0
+  let l:text = a:0 > 0 && !empty(a:1)
         \ ? a:1 ==# a:url[1:] ? '' : a:1
         \ : ''
 
@@ -234,19 +249,20 @@ function! wiki#link#template_word(url, ...) abort " {{{1
   " a smart search for likely candidates and if there is no unique match, it
   " asks for target link.
   "
+  let l:text = a:0 > 0 ? a:1 : ''
 
   "
   " First try local page
   "
   if filereadable(expand('%:p:h') . '/' . a:url . '.wiki')
-    return wiki#link#template_wiki(a:url)
+    return wiki#link#template_wiki(a:url, l:text)
   endif
 
   "
   " Next try at wiki root
   "
   if filereadable(printf('%s/%s.%s', b:wiki.root, a:url, b:wiki.extension))
-    return wiki#link#template_wiki('/' . a:url)
+    return wiki#link#template_wiki('/' . a:url, l:text)
   endif
 
   "
@@ -260,9 +276,9 @@ function! wiki#link#template_word(url, ...) abort " {{{1
   " Solve trivial cases first
   "
   if len(l:candidates) == 0
-    return wiki#link#template_wiki((b:wiki.in_journal ? '/' : '') . a:url)
+    return wiki#link#template_wiki((b:wiki.in_journal ? '/' : '') . a:url, l:text)
   elseif len(l:candidates) == 1
-    return wiki#link#template_wiki('/' . l:candidates[0], a:url)
+    return wiki#link#template_wiki('/' . l:candidates[0], a:url, l:text)
   endif
 
   "
@@ -283,7 +299,7 @@ function! wiki#link#template_word(url, ...) abort " {{{1
     if empty(l:choice) | return a:url | endif
 
     if l:choice ==# 'n'
-      return wiki#link#template_wiki('/' . a:url)
+      return wiki#link#template_wiki('/' . a:url, l:text)
     endif
 
     try
@@ -369,9 +385,12 @@ endfunction
 
 " }}}1
 function! s:parser_word(link, ...) abort dict " {{{1
+  if !empty(b:wiki.link_extension)
+    let a:link.text = a:link.full
+  endif
   return extend(a:link, {
         \ 'scheme' : '',
-        \ 'url' : a:link.full,
+        \ 'url' : a:link.full . get(b:wiki, 'link_extension', ''),
         \})
 endfunction
 
