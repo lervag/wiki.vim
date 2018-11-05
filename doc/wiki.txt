@@ -70,11 +70,11 @@ should still work on Windows and OSX, but currently there are no guaranties.
 The following is a list of external tools that are used for some of the
 features:
 
-  | Program                      | Feature                   |
-  | ---------------------------- + ------------------------- |
-  | `date`                         | for journal related stuff |
-  | `xdg-open`                     | for opening `pdf` files     |
-  | `pandoc` (https://pandoc.org/) | for |WikiPrint|             |
+  | Program                      | Feature                        |
+  | ---------------------------- + ------------------------------ |
+  | `date`                         | for journal related stuff      |
+  | `xdg-open`                     | for opening `pdf` files on Linux |
+  | `pandoc` (https://pandoc.org/) | for |WikiPrint|                  |
 
 ------------------------------------------------------------------------------
 FEATURES                                                  *wiki-intro-features*
@@ -178,9 +178,9 @@ CONFIGURATION                                                     *wiki-config*
 
 *g:wiki_file_open*
   Name of a function or a |FuncRef| for a function that should be used to open
-  a file url (|wiki-links-urls|). The function should give a non-zero return
-  value if it opens the url. If not, the plugin falls back to opening the url
-  with Vim. An example: >
+  a file url (see also |wiki-links-urls|). The function should give a non-zero
+  return value if it opens the url. If not, the plugin falls back to opening
+  the url with Vim. An example: >
 
     let g:wiki_file_open = 'WikiFileOpen'
 
@@ -194,9 +194,15 @@ CONFIGURATION                                                     *wiki-config*
     endfunction
 
 *g:wiki_pdf_viewer*
-  The `pdf` viewer that is used by |WikiPrint|.
+  A dictionary that specifies the `pdf` viewer that is used by |WikiPrint| and
+  by the generic link scheme opener (see |wiki-links-urls|).
 
-  Default: `xdg-open` on Linux and `open` on OSX.
+  Default: >
+
+    let g:wiki_pdf_viewer = {
+          \ 'linux' : 'xdg-open',
+          \ 'mac'   : 'open',
+          \}
 
 ==============================================================================
 COMMANDS                                                        *wiki-commands*
@@ -426,7 +432,7 @@ a link.
 
 These are the link formats that are currently supported:
 
-- Link URLs                          |wiki-links-url|
+- Link URLs                          |wiki-links-urls|
     `http://www.example.com`
     `wiki:index`
     `journal:2013-04-05`
@@ -482,9 +488,9 @@ The following schemes are supported:
 
   generic~
     If the scheme is not recognized, the link is opened with the system
-    handler, which is `xdg-open` on Linux.  Currently, only Linux is supported
-    here.  This will work quite well on standard Linux distributions, e.g. for
-    opening `http` and `https` URLs.
+    handler, which is defined by |g:wiki_pdf_viewer| on Linux.  Currently,
+    only Linux is supported here.  This will work quite well on standard Linux
+    distributions, e.g. for opening `http` and `https` URLs.
 
 Schemes are defined in `autoload/wiki/url/{scheme}.vim`, which means it is
 relatively easy to define new custom schemes. See the generic scheme for
