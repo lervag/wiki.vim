@@ -10,6 +10,10 @@ let g:wiki_loaded = 1
 
 " Initialize option
 let g:wiki_journal = get(g:, 'wiki_journal', 'journal')
+let g:wiki_generic_viewer = get(g:, 'wiki_generic_viewer', get({
+      \ 'linux' : 'xdg-open',
+      \ 'mac'   : 'open',
+      \}, wiki#init#get_os(), ''))
 let g:wiki_pdf_viewer = get(g:, 'wiki_pdf_viewer', get({
       \ 'linux' : 'xdg-open',
       \ 'mac'   : 'open',

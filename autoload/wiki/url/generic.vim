@@ -8,7 +8,7 @@
 function! wiki#url#generic#parse(url) abort " {{{1
   let l:parser = {}
   function! l:parser.open(...) abort dict
-    call system(g:wiki_pdf_viewer . ' ' . shellescape(self.url) . '&')
+    call system(g:wiki_generic_viewer . ' ' . shellescape(self.url) . '&')
   endfunction
 
   return deepcopy(l:parser)

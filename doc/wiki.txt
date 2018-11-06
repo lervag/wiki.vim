@@ -193,16 +193,20 @@ CONFIGURATION                                                     *wiki-config*
       return 0
     endfunction
 
+*g:wiki_generic_viewer*
+  A string that specifies the generic viewer that is used by the generic link
+  scheme opener (see |wiki-links-urls|).
+
+  Default: (OS dependent)
+    Linux   `xdg-open`
+    OSX     `open`
+
 *g:wiki_pdf_viewer*
-  A dictionary that specifies the `pdf` viewer that is used by |WikiPrint| and
-  by the generic link scheme opener (see |wiki-links-urls|).
+  A string that specifies the `pdf` viewer that is used by |WikiPrint|.
 
-  Default: >
-
-    let g:wiki_pdf_viewer = {
-          \ 'linux' : 'xdg-open',
-          \ 'mac'   : 'open',
-          \}
+  Default: (OS dependent)
+    Linux   `xdg-open`
+    OSX     `open`
 
 ==============================================================================
 COMMANDS                                                        *wiki-commands*
