@@ -22,7 +22,9 @@ function! wiki#url#wiki#parse(url) abort " {{{1
   endif
 
   " Determine the proper extension (if necessary)
-  if empty(fnamemodify(l:fname, ':e'))
+  if index(g:wiki_filetypes
+        \ + (exists('b:wiki.extension') ? [b:wiki.extension] : []),
+        \ fnamemodify(l:fname, ':e')) < 0
     let l:fname .= '.' . (exists('b:wiki.extension')
           \ ? b:wiki.extension
           \ : g:wiki_filetypes[0])
