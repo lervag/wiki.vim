@@ -9,7 +9,7 @@
 " Get info for given date
 "
 function! wiki#date#get_week(date) abort " {{{1
-  return systemlist('date +%W -d ' . a:date)[0]
+  return systemlist('date +%V -d ' . a:date)[0]
 endfunction
 
 " }}}1
