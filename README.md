@@ -66,7 +66,7 @@ This outlines the basic steps to get started:
     - Viewing wiki link graphs
   - Completion of wiki links and link anchors
   - Text objects
-    - `il al` Link url
+    - `iu au` Link url
     - `it at` Link text
 - Support for journal entries
   - Navigating the journal back and forth with `<c-j>` and `<c-k>`
