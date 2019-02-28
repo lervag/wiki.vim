@@ -141,6 +141,23 @@ CONFIGURATION                                                     *wiki-config*
 
   Default: ''
 
+*g:wiki_link_target_map*
+  This option may be used to transform text before creating a new link. An
+  example: >
+
+    let g:wiki_link_target_map = 'MyFunction'
+
+    function MyFunction(text) abort
+      return substitute(tolower(a:text), '\s\+', '-', 'g')
+    endfunction
+<
+  With the above setting, links created with |WikiLinkOpen| or
+  |WikiLinkToggle| (or related mappings) will be transformed by `MyFunction`.
+  As an example, if one creates a link from the text "Some text", the link
+  becomes "[[some-text|Some text]]".
+
+  Default: ''
+
 *g:wiki_journal*
   The name of the diary or journal sub folder.
 

@@ -250,35 +250,46 @@ function! wiki#link#template_word(url, ...) abort " {{{1
   " asks for target link.
   "
   let l:text = a:0 > 0 ? a:1 : ''
+  let l:url = a:url
+
+  "
+  " Allow to map text -> url
+  "
+  if !empty(g:wiki_link_target_map) && exists('*' . g:wiki_link_target_map)
+    let l:url = call(g:wiki_link_target_map, [a:url])
+    if empty(l:text) && l:url !=# a:url
+      let l:text = a:url
+    endif
+  endif
 
   "
   " First try local page
   "
-  if filereadable(expand('%:p:h') . '/' . a:url . '.wiki')
-    return wiki#link#template_wiki(a:url, l:text)
+  if filereadable(expand('%:p:h') . '/' . l:url . '.wiki')
+    return wiki#link#template_wiki(l:url, l:text)
   endif
 
   "
   " Next try at wiki root
   "
-  if filereadable(printf('%s/%s.%s', b:wiki.root, a:url, b:wiki.extension))
-    return wiki#link#template_wiki('/' . a:url, l:text)
+  if filereadable(printf('%s/%s.%s', b:wiki.root, l:url, b:wiki.extension))
+    return wiki#link#template_wiki('/' . l:url, l:text)
   endif
 
   "
   " Finally we see if there are completable candidates
   "
   let l:candidates = map(
-        \ glob(b:wiki.root . '/' . a:url . '*.wiki', 0, 1),
+        \ glob(b:wiki.root . '/' . l:url . '*.wiki', 0, 1),
         \ 'fnamemodify(v:val, '':t:r'')')
 
   "
   " Solve trivial cases first
   "
   if len(l:candidates) == 0
-    return wiki#link#template_wiki((b:wiki.in_journal ? '/' : '') . a:url, l:text)
+    return wiki#link#template_wiki((b:wiki.in_journal ? '/' : '') . l:url, l:text)
   elseif len(l:candidates) == 1
-    return wiki#link#template_wiki('/' . l:candidates[0], a:url, l:text)
+    return wiki#link#template_wiki('/' . l:candidates[0], l:url, l:text)
   endif
 
   "
@@ -294,18 +305,18 @@ function! wiki#link#template_word(url, ...) abort " {{{1
     for l:i in range(len(l:candidates))
       let l:echo .= '[' . (l:i + 1) . '] ' . l:candidates[l:i] . "\n"
     endfor
-    echo l:echo . printf('[n] %s (new page at wiki root)', a:url)
+    echo l:echo . printf('[n] %s (new page at wiki root)', l:url)
     let l:choice = input('Choice (empty cancels): ')
-    if empty(l:choice) | return a:url | endif
+    if empty(l:choice) | return l:url | endif
 
     if l:choice ==# 'n'
-      return wiki#link#template_wiki('/' . a:url, l:text)
+      return wiki#link#template_wiki('/' . l:url, l:text)
     endif
 
     try
       let l:cand = l:candidates[l:choice - 1]
       redraw!
-      return wiki#link#template_wiki('/' . l:cand, a:url)
+      return wiki#link#template_wiki('/' . l:cand, l:url)
     catch
       continue
     endtry

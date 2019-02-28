@@ -22,6 +22,7 @@ let g:wiki_filetypes = get(g:, 'wiki_filetypes', ['wiki'])
 let g:wiki_index_name = get(g:, 'wiki_index_name', 'index')
 let g:wiki_root = get(g:, 'wiki_root', '')
 let g:wiki_link_extension = get(g:, 'wiki_link_extension', '')
+let g:wiki_link_target_map = get(g:, 'wiki_link_target_map', '')
 
 " Initialize global commands
 command! WikiEnable  call wiki#buffer#init()
