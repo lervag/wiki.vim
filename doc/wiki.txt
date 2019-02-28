@@ -136,6 +136,11 @@ CONFIGURATION                                                     *wiki-config*
 
   Default: ['wiki']
 
+*g:wiki_link_extension*
+  Specify extension that should be applied to wiki links.
+
+  Default: ''
+
 *g:wiki_journal*
   The name of the diary or journal sub folder.
 
@@ -258,7 +263,8 @@ possible.
 
 *<plug>(wiki-link-open)*
 *WikiLinkOpen*
-  Open/follow link.
+  Open/follow link. Will create a new link if the text under the cursor is not
+  already a link.
 
 *<plug>(wiki-link-open-split)*
 *WikiLinkOpenSplit*
