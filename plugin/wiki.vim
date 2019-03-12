@@ -23,6 +23,24 @@ let g:wiki_index_name = get(g:, 'wiki_index_name', 'index')
 let g:wiki_root = get(g:, 'wiki_root', '')
 let g:wiki_link_extension = get(g:, 'wiki_link_extension', '')
 let g:wiki_link_target_map = get(g:, 'wiki_link_target_map', '')
+let g:wiki_month_names = get(g:, 'wiki_month_names', [
+      \ 'January',
+      \ 'February',
+      \ 'March',
+      \ 'April',
+      \ 'May',
+      \ 'June',
+      \ 'July',
+      \ 'August',
+      \ 'September',
+      \ 'October',
+      \ 'November',
+      \ 'December'
+      \])
+let g:wiki_template_title_week = get(g:, 'wiki_template_title_week',
+      \ '# Summary, %(year) week %(week)')
+let g:wiki_template_title_month = get(g:, 'wiki_template_title_month',
+      \ '# Summary, %(year) %(month-name)')
 
 " Initialize global commands
 command! WikiEnable  call wiki#buffer#init()

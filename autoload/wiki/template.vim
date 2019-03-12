@@ -8,10 +8,13 @@
 function! wiki#template#weekly_summary(year, week) abort " {{{1
   let l:parser = s:summary.new()
 
-  call append(0,
-        \ ['# Samandrag veke ' . a:week . ', ' . a:year]
-        \ + l:parser.parse(wiki#date#get_week_dates(a:week, a:year)))
+  let l:title = copy(g:wiki_template_title_week)
+  let l:title = substitute(l:title, '%(week)', a:week, 'g')
+  let l:title = substitute(l:title, '%(year)', a:year, 'g')
 
+  let l:links = wiki#date#get_week_dates(a:week, a:year)
+
+  call append(0, [l:title] + l:parser.parse(l:links))
   call setpos('.', [0, 3, 0, 0])
 endfunction
 
@@ -19,12 +22,15 @@ endfunction
 function! wiki#template#monthly_summary(year, month) abort " {{{1
   let l:parser = s:summary.new()
 
+  let l:title = copy(g:wiki_template_title_month)
+  let l:title = substitute(l:title, '%(month)', a:month, 'g')
+  let l:title = substitute(l:title, '%(month-name)',
+        \ wiki#date#get_month_name(a:month), 'g')
+  let l:title = substitute(l:title, '%(year)', a:year, 'g')
+
   let l:links = wiki#date#get_month_decomposed(a:month, a:year)
 
-  call append(0,
-        \ ['# Samandrag frå ' . wiki#date#get_month_name(a:month) . ' ' . a:year]
-        \ + l:parser.parse(l:links))
-
+  call append(0, [l:title] + l:parser.parse(l:links))
   call setpos('.', [0, 3, 0, 0])
 endfunction
 
@@ -141,3 +147,4 @@ function! s:summary.get_entries() abort dict " {{{1
 endfunction
 
 " }}}1
+

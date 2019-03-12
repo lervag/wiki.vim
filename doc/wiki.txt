@@ -187,6 +187,12 @@ CONFIGURATION                                                     *wiki-config*
 
   Default: Undefined
 
+*g:wiki_month_names*
+  A list of the names for each month. Used for interpolating month names in
+  the month template, |g:wiki_template_title_month|.
+
+  Default: `['January', 'February', ..., 'December']`
+
 *g:wiki_list_todos*
   A list of TODO toggles that may be toggled with |<plug>(wiki-list-toggle)|,
   which is by default mapped to `<c-s>`.
@@ -229,6 +235,25 @@ CONFIGURATION                                                     *wiki-config*
   Default: (OS dependent)
     Linux   `xdg-open`
     OSX     `open`
+
+*g:wiki_template_title_month*
+  A string that specifies the title of the month template. The following keys
+  are interpolated:
+
+    `%(month)`         Month number
+    `%(month-name)`    Name of month (see |g:wiki_month_names|)
+    `%(year)`          Year (4 digits)
+
+  Default: `'# Summary, %(year) %(month-name)'`
+
+*g:wiki_template_title_week*
+  A string that specifies the title of the week template. The following keys
+  are interpolated:
+
+    `%(week)`    Week number
+    `%(year)`    Year (4 digits)
+
+  Default: `'# Summary, %(year) week %(week)'`
 
 ==============================================================================
 COMMANDS                                                        *wiki-commands*
@@ -350,11 +375,14 @@ possible.
 
 *<plug>(wiki-journal-toweek)*
 *WikiJournalToWeek*
-  Go to week summary.
+  Go to week summary. If not existing, then parse the day entries to make
+  a first draft. The title is given by |g:wiki_template_title_week|.
 
 *<plug>(wiki-journal-tomonth)*
 *WikiJournalToMonth*
-  Go to month summary.
+  Go to month summary. If not existing, then parse the day entries and
+  relevant week summaries to make a first draft. The title is given by
+  |g:wiki_template_title_month|.
 
 *<plug>(wiki-print)*
 *WikiPrint*
