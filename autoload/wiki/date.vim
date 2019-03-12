@@ -64,20 +64,46 @@ endfunction
 
 " }}}1
 function! wiki#date#get_month_name(month) abort " {{{1
-  return get([
-        \ 'januar',
-        \ 'februar',
-        \ 'mars',
+  " get the monthname from python which has a broad locale support
+  " pythonx seems not to be available on all vim setups, therefore the duplicate is
+  " necessary
+  if has('python')
+    python << EOF
+import vim, locale, calendar
+try:
+  locale.setlocale(locale.LC_ALL, '')
+except locale.Error: # " Fallback locale, if none is set
+  locale.setlocale(locale.LC_ALL, 'en_US')
+vim.command("let monthname = '%s'" %calendar.month_name[int(vim.eval("a:month"))])
+EOF
+
+  elseif has('python3')
+    python3 << EOF
+import vim, locale, calendar
+try:
+  locale.setlocale(locale.LC_ALL, '')
+except locale.Error: # "Fallback locale, if none is set
+  locale.setlocale(locale.LC_ALL, 'en_US')
+vim.command("let monthname = '%s'" % calendar.month_name[int(vim.eval("a:month"))])
+EOF
+
+  elseif
+  let monthname = get([
+        \ 'january',
+        \ 'february',
+        \ 'march',
         \ 'april',
-        \ 'mai',
-        \ 'juni',
-        \ 'juli',
+        \ 'may',
+        \ 'june',
+        \ 'july',
         \ 'august',
         \ 'september',
-        \ 'oktober',
+        \ 'october',
         \ 'november',
-        \ 'desember'
+        \ 'december'
         \], a:month-1)
+  endif
+  return monthname
 endfunction
 
 " }}}1
