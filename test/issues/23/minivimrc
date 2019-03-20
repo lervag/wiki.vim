@@ -1,0 +1,10 @@
+set nocompatible
+let &runtimepath = '~/.vim/bundle/wiki.vim,' . &runtimepath
+filetype plugin indent on
+syntax enable
+
+let g:wiki_root = '~/.vim/bundle/wiki.vim/test/issues/23/example'
+
+runtime plugin/wiki.vim
+
+silent edit test.py
