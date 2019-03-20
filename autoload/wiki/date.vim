@@ -9,7 +9,16 @@
 " Get info for given date
 "
 function! wiki#date#get_week(date) abort " {{{1
-  return systemlist('date +%V -d ' . a:date)[0]
+  " This should work on Linux machines
+  let l:week = systemlist('date +%V -d ' . a:date)[0]
+  if l:week =~# '\d\+' | return l:week | endif
+
+  " This should work on BSD
+  let l:week = systemlist("date -j -f '%Y-%m-%d' " . a:date . ' +%V')[0]
+  if l:week =~# '\d\+' | return l:week | endif
+
+  " This number sort of screams "something is wrong"
+  return 55
 endfunction
 
 " }}}1
