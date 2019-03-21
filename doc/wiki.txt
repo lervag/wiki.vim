@@ -105,7 +105,6 @@ FEATURES                                                  *wiki-intro-features*
   - Running code snippets (Note: This needs work)
   - |WikiGeneratePDF| command for exporting to `pdf`
   - Text objects
-    - `ic ac` Code blocks
     - `il al` List items
 - Third-party support
   - |CtrlP|: |CtrlPWiki| command (https://github.com/ctrlpvim/ctrlp.vim)
@@ -430,10 +429,6 @@ mappings, i.e. |xmap| and |omap|.
 *<plug>(wiki-it)*
   Text object for link texts.
 
-*<plug>(wiki-ac)*
-*<plug>(wiki-ic)*
-  Text object for code blocks.
-
 *<plug>(wiki-al)*
 *<plug>(wiki-il)*
   Text object for list items. The inner object is the current list item
@@ -480,8 +475,6 @@ information about the different modes.
    `ox`    iu                  |<plug>(wiki-iu)|
    `ox`    at                  |<plug>(wiki-at)|
    `ox`    it                  |<plug>(wiki-it)|
-   `ox`    ac                  |<plug>(wiki-ac)|
-   `ox`    ic                  |<plug>(wiki-ic)|
    `ox`    al                  |<plug>(wiki-al)|
    `ox`    il                  |<plug>(wiki-il)|
   ---------------------------------------------------------------------~

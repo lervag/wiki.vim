@@ -76,7 +76,6 @@ This outlines the basic steps to get started:
   - Toggling lists (marking as done/undone or add/remove TODO)
   - Running code snippets (Note: This needs work)
   - Text objects
-    - `ic ac` Code blocks
     - `il al` List items
 - Third-party support
   - [CtrlP](https://github.com/ctrlpvim/ctrlp.vim): `CtrlPWiki` command
