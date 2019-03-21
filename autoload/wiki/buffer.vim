@@ -52,7 +52,8 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiPageRename         call wiki#page#rename()
   command! -buffer WikiPageToc            call wiki#page#create_toc(0)
   command! -buffer WikiPageTocLocal       call wiki#page#create_toc(1)
-  command! -buffer -range=% WikiPrint     call wiki#page#print(<line1>, <line2>)
+  command! -buffer -range=% -nargs=* WikiGeneratePDF
+        \ call wiki#page#generate_pdf(<line1>, <line2>, <f-args>)
 
   if b:wiki.in_journal
     command! -buffer -count=1 WikiJournalPrev       call wiki#journal#go(-<count>)
@@ -84,8 +85,8 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <buffer> <plug>(wiki-page-rename)          :WikiPageRename<cr>
   nnoremap <buffer> <plug>(wiki-page-toc)             :WikiPageToc<cr>
   nnoremap <buffer> <plug>(wiki-page-toc-local)       :WikiPageTocLocal<cr>
-  nnoremap <buffer> <plug>(wiki-print)                :WikiPrint<cr>
-  xnoremap <buffer> <plug>(wiki-print)                :WikiPrint<cr>
+  nnoremap <buffer> <plug>(wiki-generate-pdf)         :WikiGeneratePDF -view<cr>
+  xnoremap <buffer> <plug>(wiki-generate-pdf)         :WikiGeneratePDF -view<cr>
 
   inoremap <buffer><expr> <plug>(wiki-list-toggle)          wiki#list#new_line_bullet()
   xnoremap <buffer>       <plug>(wiki-link-toggle-visual)   :<c-u>call wiki#link#toggle_visual()<cr>
@@ -138,8 +139,8 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-page-rename)' : '<leader>wr',
           \ '<plug>(wiki-page-toc)' : '<leader>wt',
           \ '<plug>(wiki-page-toc-local)' : '<leader>wT',
-          \ '<plug>(wiki-print)' : '<leader>wp',
-          \ 'x_<plug>(wiki-print)' : '<leader>wp',
+          \ '<plug>(wiki-generate-pdf)' : '<leader>wp',
+          \ 'x_<plug>(wiki-generate-pdf)' : '<leader>wp',
           \ 'i_<plug>(wiki-list-toggle)' : '<c-s>',
           \ 'x_<plug>(wiki-link-toggle-visual)' : '<cr>',
           \ 'o_<plug>(wiki-au)' : 'au',

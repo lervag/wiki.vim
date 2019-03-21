@@ -296,49 +296,29 @@ function! wiki#page#get_anchors(...) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#page#print(line1, line2) abort " {{{1
-  let l:lines = getline(a:line1, a:line2)
+function! wiki#page#generate_pdf(line1, line2, ...) abort " {{{1
+  let l:view = v:false
+  let l:fname = ''
 
-  let l:wiki_link_rx = '\[\[#\?\([^\\|\]]\{-}\)\]\]'
-  call map(l:lines, 'substitute(v:val, l:wiki_link_rx, ''\1'', ''g'')')
-
-  let l:wiki_link_text_rx = '\[\[[^\]]\{-}|\([^\]]\{-}\)\]\]'
-  call map(l:lines, 'substitute(v:val, l:wiki_link_text_rx, ''\1'', ''g'')')
-
-  let l:tmp_wiki = tempname()
-  let l:tmp_pdf = l:tmp_wiki . '.pdf'
-  call writefile(l:lines, l:tmp_wiki)
-  call system(['pandoc', '-f', 'gfm', '-o', l:tmp_pdf, l:tmp_wiki])
-  call delete(l:tmp_wiki)
-
-  echohl ModeMsg
-  let l:reply = input('View file [y/N]? ')
-  echohl None
-  echon "\n"
-  if l:reply =~# '^y'
-    call system(g:wiki_pdf_viewer . ' ' . l:tmp_pdf)
-  endif
-
-  echohl ModeMsg
-  let l:reply = input('Print file [y/N]? ')
-  echohl None
-  echon "\n"
-  if l:reply =~# '^y'
-    call system('lp ' . l:tmp_pdf)
-  endif
-
-  echohl ModeMsg
-  let l:reply = input('Export file [y/N]? ')
-  echohl None
-  echon "\n"
-  if l:reply =~# '^y'
-    let l:newname = expand(input('File name: '))
-    if l:newname[0] !=# '/'
-      let l:newname = expand('~/') . l:newname
+  let l:args = copy(a:000)
+  while !empty(l:args)
+    let l:arg = remove(l:args, 0)
+    if l:arg ==# '-export'
+      let l:fname = remove(l:args, 0)
+    elseif l:arg ==# '-view'
+      let l:view = v:true
+    else
+      echomsg 'WikiGeneratePDF: Argument "' . l:arg . '" not recognized'
+      throw 'WikiGeneratePDF: Argument error'
     endif
-    call rename(l:tmp_pdf, l:newname)
-  else
-    call delete(l:tmp_pdf)
+  endwhile
+
+  let l:fname = s:generate_pdf(a:line1, a:line2, l:fname)
+  echo 'PDF file generated: ' . l:fname
+
+  if l:view
+    call call(has('nvim') ? 'jobstart' : 'job_start',
+          \ [[g:wiki_pdf_viewer, l:fname]])
   endif
 endfunction
 
@@ -400,6 +380,27 @@ function! s:get_anchors_argument(input) abort " {{{1
   else
     return get(wiki#url#parse(l:arg), 'path', l:current)
   endif
+endfunction
+
+" }}}1
+
+function! s:generate_pdf(start, end, fname) abort " {{{1
+  let l:wiki_link_rx = '\[\[#\?\([^\\|\]]\{-}\)\]\]'
+  let l:wiki_link_text_rx = '\[\[[^\]]\{-}|\([^\]]\{-}\)\]\]'
+
+  let l:lines = getline(a:start, a:end)
+  call map(l:lines, 'substitute(v:val, l:wiki_link_rx, ''\1'', ''g'')')
+  call map(l:lines, 'substitute(v:val, l:wiki_link_text_rx, ''\1'', ''g'')')
+
+  let l:tmp = tempname()
+  let l:fname = empty(a:fname) ? l:tmp . '.pdf' : a:fname
+  call writefile(l:lines, l:tmp)
+  call system('pandoc -f gfm -o'
+        \ . ' ' . shellescape(l:fname)
+        \ . ' ' . shellescape(l:tmp))
+  call delete(l:tmp)
+
+  return l:fname
 endfunction
 
 " }}}1

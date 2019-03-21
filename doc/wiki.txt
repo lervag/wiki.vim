@@ -74,7 +74,7 @@ features:
   | ---------------------------- + ------------------------------ |
   | `date`                         | for journal related stuff      |
   | `xdg-open`                     | for opening `pdf` files on Linux |
-  | `pandoc` (https://pandoc.org/) | for |WikiPrint|                  |
+  | `pandoc` (https://pandoc.org/) | for |WikiGeneratePDF|            |
 
 ------------------------------------------------------------------------------
 FEATURES                                                  *wiki-intro-features*
@@ -98,7 +98,7 @@ FEATURES                                                  *wiki-intro-features*
 - Utility functionality
   - Toggling lists (marking as done/undone or add/remove TODO)
   - Running code snippets (Note: This needs work)
-  - |WikiPrint| command for exporting to `pdf`
+  - |WikiGeneratePDF| command for exporting to `pdf`
   - Text objects
     - `ic ac` Code blocks
     - `il al` List items
@@ -230,7 +230,7 @@ CONFIGURATION                                                     *wiki-config*
     OSX     `open`
 
 *g:wiki_pdf_viewer*
-  A string that specifies the `pdf` viewer that is used by |WikiPrint|.
+  A string that specifies the `pdf` viewer that is used by |WikiGeneratePDF|.
 
   Default: (OS dependent)
     Linux   `xdg-open`
@@ -384,11 +384,18 @@ possible.
   relevant week summaries to make a first draft. The title is given by
   |g:wiki_template_title_month|.
 
-*<plug>(wiki-print)*
-*WikiPrint*
-  Converts the current wiki page or the selected text to a `pdf`. Then either
-  preview it (see |g:wiki_pdf_viewer|) or export it to a desired name relative
-  to `$HOME`.
+*<plug>(wiki-generate-pdf)*
+:[range]*WikiGeneratePDF* [options]
+  Generate a PDF file from the current wiki file (or current selection/range).
+  With no options, the PDF is saved to a temporary file. Available options
+  are:
+
+  `-export PATH`
+    Set the output file path.
+
+  `-view`
+    If specified, then the file is opened after it is generated with
+    |g:wiki_pdf_viewer|. This is useful to quickly inspect the file.
 
   Note: This feature requires `pandoc` (https://pandoc.org/) to build the `pdf`
         files.
@@ -452,8 +459,8 @@ information about the different modes.
    `n`     <leader>wr          |<plug>(wiki-page-rename)|
    `n`     <leader>wt          |<plug>(wiki-page-toc)|
    `n`     <leader>wT          |<plug>(wiki-page-toc-local)|
-   `n`     <leader>wp          |<plug>(wiki-print)|
-   `x`     <leader>wp          |<plug>(wiki-print)|
+   `n`     <leader>wp          |<plug>(wiki-generate-pdf)|
+   `x`     <leader>wp          |<plug>(wiki-generate-pdf)|
    `n`     <leader>wlu         |<plug>(wiki-list-uniq)|
    `n`     <leader>wlU         |<plug>(wiki-list-uniq-local)|
    `n`     <tab>               |<plug>(wiki-link-next)|
