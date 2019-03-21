@@ -1,5 +1,5 @@
 *wiki.txt*    A simple wiki plugin for Vim
-*wiki*
+*wiki.vim*
 
 Author:  Karl Yngve Lervåg <karl.yngve@gmail.com>
 License: MIT license {{{
@@ -60,6 +60,11 @@ a top-level `index.wiki` file available. If no such file is found, it sets the
 root to the same directory as the current file. In addition, one may specify
 a main wiki with the |g:wiki_root| option. This allows convenient mappings and
 commands for opening the main wiki from anywhere.
+
+Note: |wiki.vim| is `not` a filetype plugin. It is designed so that it may be used
+      along with filetype plugins, e.g. for dedicated Markdown plugins. One
+      may also use `wiki-ft.vim` (https://github.com/lervag/wiki-ft.vim) for
+      simple syntax highlighting and folding of `.wiki` files, if desired.
 
 ------------------------------------------------------------------------------
 REQUIREMENTS                                          *wiki-intro-requirements*
@@ -486,11 +491,10 @@ LINKS                                                              *wiki-links*
 
 Links are one of the most essential features of a wiki, and as such, requires
 particular attention.  A link is a structure that consists of an URL (see
-|wiki-links-urls|) and a possibly empty description.  Links are highlighted as
-described in |wiki-syntax-links|.  Any link may be activated with the mapping
-`<cr>` or `<c-cr>`, where the latter will open the link in a split (if it is
-an internal link).  One may use `<bs>` to navigate back after following
-a link.
+|wiki-links-urls|) and a possibly empty description.  Any link may be
+activated with the mapping `<cr>` or `<c-cr>`, where the latter will open the
+link in a split (if it is an internal link).  One may use `<bs>` to navigate
+back after following a link.
 
 These are the link formats that are currently supported:
 
