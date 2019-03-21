@@ -89,8 +89,6 @@ This is a list of TODO items that anyone may follow up on. I am very willing to
 accept [contributions](CONTRIBUTING.md), both as issues describing problems or
 as pull requests for implementing bug fixes or missing features.
 
-- [x] Implement `WikiEnable`
-- [x] Implement `g:wiki_filetypes`
 - [ ] Allow to choose the default type of link
 - [ ] [vimwiki](https://github.com/vimwiki/vimwiki) like TODO list toggles
       (cf. [#1](../../issues/1))
