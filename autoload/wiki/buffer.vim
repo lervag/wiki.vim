@@ -85,8 +85,8 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <buffer> <plug>(wiki-page-rename)          :WikiPageRename<cr>
   nnoremap <buffer> <plug>(wiki-page-toc)             :WikiPageToc<cr>
   nnoremap <buffer> <plug>(wiki-page-toc-local)       :WikiPageTocLocal<cr>
-  nnoremap <buffer> <plug>(wiki-generate-pdf)         :WikiGeneratePDF -view<cr>
-  xnoremap <buffer> <plug>(wiki-generate-pdf)         :WikiGeneratePDF -view<cr>
+  nnoremap <buffer> <plug>(wiki-generate-pdf)         :WikiGeneratePDF<cr>
+  xnoremap <buffer> <plug>(wiki-generate-pdf)         :WikiGeneratePDF<cr>
 
   inoremap <buffer><expr> <plug>(wiki-list-toggle)          wiki#list#new_line_bullet()
   xnoremap <buffer>       <plug>(wiki-link-toggle-visual)   :<c-u>call wiki#link#toggle_visual()<cr>

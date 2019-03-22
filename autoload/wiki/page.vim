@@ -303,15 +303,18 @@ function! wiki#page#generate_pdf(line1, line2, ...) abort " {{{1
   let l:args = copy(a:000)
   while !empty(l:args)
     let l:arg = remove(l:args, 0)
-    if l:arg ==# '-export'
-      let l:fname = remove(l:args, 0)
-    elseif l:arg ==# '-view'
+    if l:arg ==# '-view'
       let l:view = v:true
+    elseif empty(l:fname)
+      let l:fname = remove(l:args, 0)
     else
       echomsg 'WikiGeneratePDF: Argument "' . l:arg . '" not recognized'
-      throw 'WikiGeneratePDF: Argument error'
+      echomsg '                 Please see :help WikiGeneratePDF'
+      return
     endif
   endwhile
+
+  let l:view = l:view || empty(l:fname)
 
   let l:fname = s:generate_pdf(a:line1, a:line2, l:fname)
   echo 'PDF file generated: ' . l:fname
@@ -393,7 +396,8 @@ function! s:generate_pdf(start, end, fname) abort " {{{1
   call map(l:lines, 'substitute(v:val, l:wiki_link_text_rx, ''\1'', ''g'')')
 
   let l:tmp = tempname()
-  let l:fname = empty(a:fname) ? l:tmp . '.pdf' : a:fname
+  let l:fname = !empty(a:fname) ? a:fname
+        \ : fnamemodify(l:tmp, ':h') . '/' . expand('%:t:r') . '.pdf'
   call writefile(l:lines, l:tmp)
   call system('pandoc -f gfm -o'
         \ . ' ' . shellescape(l:fname)

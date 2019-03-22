@@ -389,17 +389,12 @@ possible.
   |g:wiki_template_title_month|.
 
 *<plug>(wiki-generate-pdf)*
-:[range]*WikiGeneratePDF* [options]
+:[range]*WikiGeneratePDF* [-view] [fname]
   Generate a PDF file from the current wiki file (or current selection/range).
-  With no options, the PDF is saved to a temporary file. Available options
-  are:
-
-  `-export PATH`
-    Set the output file path.
-
-  `-view`
-    If specified, then the file is opened after it is generated with
-    |g:wiki_pdf_viewer|. This is useful to quickly inspect the file.
+  If the output filename `fname` is not specified, the PDF is saved to
+  a temporary file and is viewed after it is created with |g:wiki_pdf_viewer|.
+  If `fname` is specified, the PDF file is saved to the given filename but is
+  not automatically viewed. One may add the `-view` option to open the viewer.
 
   Note: This feature requires `pandoc` (https://pandoc.org/) to build the `pdf`
         files.
