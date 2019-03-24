@@ -404,6 +404,14 @@ function! s:generate_pdf(start, end, fname) abort " {{{1
         \ . ' ' . shellescape(l:tmp))
   call delete(l:tmp)
 
+  if v:shell_error == 127
+    echoerr 'wiki.vim: Pandoc is required for this feature.'
+    throw 'error in generate_pdf'
+  elseif v:shell_error > 0
+    echoerr 'wiki.vim: Something went wrong when running pandoc.'
+    throw 'error in generate_pdf'
+  endif
+
   return l:fname
 endfunction
 
