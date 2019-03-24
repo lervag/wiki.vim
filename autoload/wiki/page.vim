@@ -306,7 +306,7 @@ function! wiki#page#generate_pdf(line1, line2, ...) abort " {{{1
     if l:arg ==# '-view'
       let l:view = v:true
     elseif empty(l:fname)
-      let l:fname = remove(l:args, 0)
+      let l:fname = expand(simplify(l:arg))
     else
       echomsg 'WikiGeneratePDF: Argument "' . l:arg . '" not recognized'
       echomsg '                 Please see :help WikiGeneratePDF'
