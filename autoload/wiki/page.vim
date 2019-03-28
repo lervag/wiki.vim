@@ -296,32 +296,44 @@ function! wiki#page#get_anchors(...) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#page#generate_pdf(line1, line2, ...) abort " {{{1
-  let l:view = v:false
-  let l:fname = ''
+function! wiki#page#export(line1, line2, ...) abort " {{{1
+  let l:cfg = deepcopy(g:wiki_export)
+  let l:cfg.fname = ''
 
   let l:args = copy(a:000)
   while !empty(l:args)
     let l:arg = remove(l:args, 0)
-    if l:arg ==# '-view'
-      let l:view = v:true
-    elseif empty(l:fname)
-      let l:fname = expand(simplify(l:arg))
+    if l:arg ==# '-args'
+      let l:cfg.args = remove(l:args, 0)
+    elseif l:arg =~# '\v^-f(rom_format)?$'
+      let l:cfg.from_format = remove(l:args, 0)
+    elseif l:arg ==# '-ext'
+      let l:cfg.ext = remove(l:args, 0)
+    elseif l:arg ==# '-view'
+      let l:cfg.view = v:true
+    elseif l:arg ==# '-viewer'
+      let l:cfg.view = v:true
+      let l:cfg.viewer = remove(l:args, 0)
+    elseif empty(l:cfg.fname)
+      let l:cfg.fname = expand(simplify(l:arg))
     else
-      echomsg 'WikiGeneratePDF: Argument "' . l:arg . '" not recognized'
-      echomsg '                 Please see :help WikiGeneratePDF'
+      echomsg 'WikiExport: Argument "' . l:arg . '" not recognized'
+      echomsg '            Please see :help WikiExport'
       return
     endif
   endwhile
 
-  let l:view = l:view || empty(l:fname)
+  " If no filename is provided, then open the viewer
+  let l:cfg.view = l:cfg.view || empty(l:cfg.fname)
 
-  let l:fname = s:generate_pdf(a:line1, a:line2, l:fname)
-  echo 'PDF file generated: ' . l:fname
+  " Generate the output file (NB: possibly modifies l:cfg)
+  call s:export(a:line1, a:line2, l:cfg)
+  echo 'wiki.vim: Page was exported to ' . l:cfg.fname
 
-  if l:view
+  if l:cfg.view
     call call(has('nvim') ? 'jobstart' : 'job_start',
-          \ [[g:wiki_pdf_viewer, l:fname]])
+          \ [[get(l:cfg, 'viewer', get(g:wiki_viewer,
+          \     l:cfg.ext, g:wiki_viewer['_'])), l:cfg.fname]])
   endif
 endfunction
 
@@ -387,32 +399,41 @@ endfunction
 
 " }}}1
 
-function! s:generate_pdf(start, end, fname) abort " {{{1
+function! s:export(start, end, cfg) abort " {{{1
+  " Get filenames
+  let l:fwiki = tempname()
+  let l:fout = fnamemodify(l:fwiki, ':h') . '/' . expand('%:t:r') . '.' . a:cfg.ext
+  let a:cfg.fname = !empty(a:cfg.fname) ? a:cfg.fname : l:fout
+  let a:cfg.ext = fnamemodify(l:fout, ':e')
+
+  " Parse wiki page content
   let l:wiki_link_rx = '\[\[#\?\([^\\|\]]\{-}\)\]\]'
   let l:wiki_link_text_rx = '\[\[[^\]]\{-}|\([^\]]\{-}\)\]\]'
-
   let l:lines = getline(a:start, a:end)
   call map(l:lines, 'substitute(v:val, l:wiki_link_rx, ''\1'', ''g'')')
   call map(l:lines, 'substitute(v:val, l:wiki_link_text_rx, ''\1'', ''g'')')
+  call writefile(l:lines, l:fwiki)
 
-  let l:tmp = tempname()
-  let l:fname = !empty(a:fname) ? a:fname
-        \ : fnamemodify(l:tmp, ':h') . '/' . expand('%:t:r') . '.pdf'
-  call writefile(l:lines, l:tmp)
-  call system('pandoc -f gfm -o'
-        \ . ' ' . shellescape(l:fname)
-        \ . ' ' . shellescape(l:tmp))
-  call delete(l:tmp)
+  " Construct and execute pandoc command
+  let l:cmd = printf('pandoc %s -f %s -o %s %s',
+        \ escape(a:cfg.args, ' '),
+        \ a:cfg.from_format,
+        \ shellescape(a:cfg.fname),
+        \ shellescape(l:fwiki))
+  let l:output = system(l:cmd)
 
   if v:shell_error == 127
     echoerr 'wiki.vim: Pandoc is required for this feature.'
-    throw 'error in generate_pdf'
+    throw 'error in s:export()'
   elseif v:shell_error > 0
-    echoerr 'wiki.vim: Something went wrong when running pandoc.'
-    throw 'error in generate_pdf'
+    echoerr 'wiki.vim: Something went wrong when running cmd:'
+    echoerr l:cmd
+    echom 'Shell output:'
+    echom l:output
+    throw 'error in s:export()'
   endif
 
-  return l:fname
+  call delete(l:fwiki)
 endfunction
 
 " }}}1

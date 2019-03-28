@@ -17,8 +17,14 @@ function! wiki#url#file#parse(url) abort " {{{1
       " Pass
     endtry
 
-    execute 'edit' fnameescape(self.path)
+    if has_key(g:wiki_viewer, self.ext)
+      call system(g:wiki_viewer[self.ext] . ' ' . shellescape(self.url) . '&')
+    else
+      execute 'edit' fnameescape(self.path)
+    endif
   endfunction
+
+  let l:url.ext = fnamemodify(a:url.origin, ':e')
 
   if a:url.stripped[0] ==# '/'
     let l:url.path = a:url.stripped

@@ -10,14 +10,18 @@ let g:wiki_loaded = 1
 
 " Initialize option
 let g:wiki_journal = get(g:, 'wiki_journal', 'journal')
-let g:wiki_generic_viewer = get(g:, 'wiki_generic_viewer', get({
-      \ 'linux' : 'xdg-open',
-      \ 'mac'   : 'open',
-      \}, wiki#init#get_os(), ''))
-let g:wiki_pdf_viewer = get(g:, 'wiki_pdf_viewer', get({
-      \ 'linux' : 'xdg-open',
-      \ 'mac'   : 'open',
-      \}, wiki#init#get_os(), ''))
+let g:wiki_viewer = extend({
+      \ '_' : get({
+      \   'linux' : 'xdg-open',
+      \   'mac'   : 'open',
+      \ }, wiki#init#get_os(), ''),
+      \}, get(g:, 'wiki_viewer', {}))
+let g:wiki_export = extend({
+      \ 'args' : '',
+      \ 'from_format' : 'gfm',
+      \ 'ext' : 'pdf',
+      \ 'view' : v:false,
+      \}, get(g:, 'wiki_export', {}))
 let g:wiki_filetypes = get(g:, 'wiki_filetypes', ['wiki'])
 let g:wiki_index_name = get(g:, 'wiki_index_name', 'index')
 let g:wiki_root = get(g:, 'wiki_root', '')

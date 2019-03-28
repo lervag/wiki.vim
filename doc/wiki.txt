@@ -79,7 +79,7 @@ features:
   | ---------------------------- + ------------------------------ |
   | `date`                         | for journal related stuff      |
   | `xdg-open`                     | for opening `pdf` files on Linux |
-  | `pandoc` (https://pandoc.org/) | for |WikiGeneratePDF|            |
+  | `pandoc` (https://pandoc.org/) | for |WikiExport|                 |
 
 ------------------------------------------------------------------------------
 FEATURES                                                  *wiki-intro-features*
@@ -103,7 +103,7 @@ FEATURES                                                  *wiki-intro-features*
 - Utility functionality
   - Toggling lists (marking as done/undone or add/remove TODO)
   - Running code snippets (Note: This needs work)
-  - |WikiGeneratePDF| command for exporting to `pdf`
+  - |WikiExport| command for exporting to e.g. `pdf` with `pandoc`
   - Text objects
     - `il al` List items
 - Third-party support
@@ -225,20 +225,28 @@ CONFIGURATION                                                     *wiki-config*
       return 0
     endfunction
 
-*g:wiki_generic_viewer*
-  A string that specifies the generic viewer that is used by the generic link
-  scheme opener (see |wiki-links-urls|).
+*g:wiki_viewer*
+  A dictionary that specifies which viewer to use for a given filetype. The
+  entry `_` specifies the fallback or generic viewer. This option thus allows
+  one to setup different viewers for different file types that are used by the
+  generic link scheme opener (see |wiki-links-urls|) and by |WikiExport|.
 
-  Default: (OS dependent)
-    Linux   `xdg-open`
-    OSX     `open`
+  Default: >
+    let g:wiki_viewer = {
+        \ '_' : OS Dependent: 'xdg-open' (Linux) | 'open' (OSX),
+        \}
 
-*g:wiki_pdf_viewer*
-  A string that specifies the `pdf` viewer that is used by |WikiGeneratePDF|.
+*g:wiki_export*
+  A dictionary that specifies the default configuration for |WikiExport|
+  options. See the specifications for the options for more information.
 
-  Default: (OS dependent)
-    Linux   `xdg-open`
-    OSX     `open`
+  Default: >
+    let g:wiki_export = {
+        \ 'args' : '',
+        \ 'from_format' : 'markdown',
+        \ 'ext' : 'pdf',
+        \ 'view' : v:false,
+        }
 
 *g:wiki_template_title_month*
   A string that specifies the title of the month template. The following keys
@@ -388,13 +396,31 @@ possible.
   relevant week summaries to make a first draft. The title is given by
   |g:wiki_template_title_month|.
 
-*<plug>(wiki-generate-pdf)*
-:[range]*WikiGeneratePDF* [-view] [fname]
-  Generate a PDF file from the current wiki file (or current selection/range).
-  If the output filename `fname` is not specified, the PDF is saved to
-  a temporary file and is viewed after it is created with |g:wiki_pdf_viewer|.
-  If `fname` is specified, the PDF file is saved to the given filename but is
-  not automatically viewed. One may add the `-view` option to open the viewer.
+*<plug>(wiki-export)*
+:[range]*WikiExport*  [options] [fname]
+  Export the current wiki file with `pandoc`. The main argument `fname`
+  specifies the target filename and format (implied by the file extension),
+  e.g. `test.pdf` or `test.html`. If the argument is not specified, then
+  a temporary filename is generated. In this case, the `-view` option is
+  activated regardless of the basic configuration.
+
+  Available options are (use |g:wiki_export| to set default values):
+
+  -args~
+    Specify extra arguments for `pandoc`.
+
+  -from-format FRMT | -f FRMT~
+    Specify format of the wiki page.
+
+  -ext EXT~
+    Specify extension to use if `fname` is not provided.
+
+  -view~
+    Set to true to open documents with specified `viewer` by default.
+
+  -viewer PATH~
+    Specify viewer to use to open the exported file. This implies `-view` and
+    overrides the |g:wiki_viewer| option.
 
   Note: This feature requires `pandoc` (https://pandoc.org/) to build the `pdf`
         files.
@@ -454,8 +480,8 @@ information about the different modes.
    `n`     <leader>wr          |<plug>(wiki-page-rename)|
    `n`     <leader>wt          |<plug>(wiki-page-toc)|
    `n`     <leader>wT          |<plug>(wiki-page-toc-local)|
-   `n`     <leader>wp          |<plug>(wiki-generate-pdf)|
-   `x`     <leader>wp          |<plug>(wiki-generate-pdf)|
+   `n`     <leader>wp          |<plug>(wiki-export)|
+   `x`     <leader>wp          |<plug>(wiki-export)|
    `n`     <leader>wlu         |<plug>(wiki-list-uniq)|
    `n`     <leader>wlU         |<plug>(wiki-list-uniq-local)|
    `n`     <tab>               |<plug>(wiki-link-next)|
