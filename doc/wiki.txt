@@ -435,6 +435,9 @@ possible.
   Note: This feature requires `pandoc` (https://pandoc.org/) to build the `pdf`
         files.
 
+*WikiTagList*
+  Show a list of tags used in the current wiki.
+
 *WikiTagSearch*  [options] [tag]
   List wiki pages that contain the desired `tag`. If the argument `tag` is not
   supplied, the command asks for input. See also |wiki-tags|.
@@ -674,6 +677,7 @@ non-space characters. All tags added in the top 15 lines of a file will be
 recognized.
 
 Related commands:
+- |WikiTagList|
 - |WikiTagSearch|
 
 Related settings:

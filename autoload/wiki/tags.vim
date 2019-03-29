@@ -25,11 +25,41 @@ function! wiki#tags#search(...) abort " {{{1
 
   if empty(l:cfg.tag)
     let l:cfg.tag = input('Specify tag: ')
-    echo "\n"
+    redraw
+  endif
+
+  call s:search(l:cfg)
+endfunction
+
+" }}}1
+function! wiki#tags#list() abort " {{{1
+  let l:tags = s:tags.list()
+
+  if empty(l:tags)
+    echo 'wiki.vim: No tags'
+    return
+  endif
+
+  echo 'Tags:'
+  for l:tag in l:tags
+    echo '-' l:tag
+  endfor
+endfunction
+
+" }}}1
+
+
+function! s:search(cfg) abort " {{{1
+  call s:tags.gather()
+  let l:tags = get(s:tags.collection, a:cfg.tag, [])
+
+  if empty(l:tags)
+    echo 'wiki.vim: Tag not found:' a:cfg.tag
+    return
   endif
 
   try
-    call s:output_{l:cfg.output}(l:cfg.tag)
+    call s:output_{a:cfg.output}(a:cfg, l:tags)
   catch /E117/
     echomsg 'WikiTagSeach: Output type "' . l:cfg.output . '" not recognized!'
     echomsg '              Please see :help WikiTagSearch'
@@ -38,41 +68,81 @@ endfunction
 
 " }}}1
 
-
-function! s:output_loclist(tag) abort " {{{1
-  call s:tags.gather()
-  let l:tags = get(s:tags.collection, a:tag, [])
-
-  if empty(l:tags)
-    echo 'Tag not found:' a:tag
-    return
-  endif
-
+function! s:output_loclist(cfg, lst) abort " {{{1
   let l:list = []
-  for [l:file, l:lnum, l:col] in l:tags
+  for [l:file, l:lnum, l:col] in a:lst
     call add(l:list, {
           \ 'filename' : l:file,
           \ 'lnum' : l:lnum,
           \ 'col' : l:col,
-          \ 'text' : a:tag,
+          \ 'text' : a:cfg.tag,
           \})
   endfor
 
-  call setloclist(0, [], ' ', {'title': 'WikiTagSearch', 'items': l:list})
+  call setloclist(0, [], 'r', {'title': 'WikiTagSearch', 'items': l:list})
+  lopen
+  wincmd w
 endfunction
 
 " }}}1
-function! s:output_echo(tag) abort " {{{1
-  call s:tags.gather()
-  let l:tags = get(s:tags.collection, a:tag, [])
+function! s:output_echo(cfg, lst) abort " {{{1
+  echom printf('wiki.vim: Pages with tag "%s"', a:cfg.tag)
+  for l:file in map(copy(a:lst), 'v:val[0]')
+    echom printf('- %s',
+          \ fnamemodify(wiki#paths#shorten_relative(l:file), ':r'))
+  endfor
+endfunction
 
-  if empty(l:tags)
-    echo 'Tag not found:' a:tag
-    return
-  endif
+" }}}1
+function! s:output_scratch(cfg, lst) abort " {{{1
+  let l:scratch = {
+        \ 'name': 'WikiTagSearch',
+        \ 'lines': [printf('Wiki pages with tag: %s', a:cfg.tag)],
+        \}
 
-  for [l:file, l:lnum, l:col] in l:tags
-    echo printf('- %s (%s:%s)', fnamemodify(l:file, ':t'), l:lnum, l:col)
+  for [l:file, l:lnum, l:col] in a:lst
+    call add(l:scratch.lines, '- ' . wiki#link#template_wiki('/' .
+          \ fnamemodify(wiki#paths#shorten_relative(l:file), ':r')))
+  endfor
+
+  function! l:scratch.print_content() abort dict
+    for l:line in self.lines
+      call append('$', l:line)
+    endfor
+  endfunction
+
+  function! l:scratch.syntax() abort dict
+    set conceallevel=2
+
+    execute 'syntax match wikiLinkWiki'
+          \ '/' . wiki#link#get_matcher_opt('wiki', 'rx') . '/'
+          \ 'display contains=@NoSpell,wikiLinkWikiConceal'
+    syntax match wikiLinkWikiConceal /\[\[\%(\/\|#\)\?\%([^\\\]]\{-}|\)\?/
+          \ contained transparent contains=NONE conceal
+    syntax match wikiLinkWikiConceal /\]\]/
+          \ contained transparent contains=NONE conceal
+
+    syntax match wikiTagSearchTitle /Wiki pages.*: / nextgroup=wikiTagSearchTag
+    syntax match wikiTagSearchTag /.*/ contained
+
+    highlight link wikiTagSearchTitle Title
+    highlight link wikiTagSearchTag Directory
+  endfunction
+
+  call wiki#scratch#new(l:scratch)
+endfunction
+
+" }}}1
+function! s:output_cursor(cfg, lst) abort " {{{1
+  let l:lines = [printf('Wiki pages with tag: %s', a:cfg.tag)]
+  for [l:file, l:lnum, l:col] in a:lst
+    call add(l:lines, '- ' . wiki#link#template_wiki('/' .
+          \ fnamemodify(wiki#paths#shorten_relative(l:file), ':r')))
+  endfor
+  call add(l:lines, '')
+
+  for l:line in reverse(l:lines)
+    call append(line('.'), l:line)
   endfor
 endfunction
 
@@ -84,12 +154,17 @@ let s:tags = {
       \ 'parsed' : 0,
       \}
 
+function! s:tags.list() abort dict " {{{1
+  return keys(self.gather())
+endfunction
+
+" }}}1
 function! s:tags.gather() abort dict " {{{1
   if !self.parsed
     for l:file in globpath(b:wiki.root, '**/*.' . b:wiki.extension, 0, 1)
       call self.gather_from_file(l:file)
     endfor
-    let self.parser = 1
+    let self.parsed = 1
   endif
 
   return self.collection
