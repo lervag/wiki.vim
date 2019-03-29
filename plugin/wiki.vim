@@ -22,6 +22,9 @@ let g:wiki_export = extend({
       \ 'ext' : 'pdf',
       \ 'view' : v:false,
       \}, get(g:, 'wiki_export', {}))
+let g:wiki_tags = extend({
+      \ 'output' : 'loclist',
+      \}, get(g:, 'wiki_tags', {}))
 let g:wiki_filetypes = get(g:, 'wiki_filetypes', ['wiki'])
 let g:wiki_index_name = get(g:, 'wiki_index_name', 'index')
 let g:wiki_root = get(g:, 'wiki_root', '')

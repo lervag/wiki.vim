@@ -44,6 +44,7 @@ CONTENTS                                                        *wiki-contents*
     Reference links                                |wiki-links-reference|
   Lists                                            |wiki-lists|
   Completion                                       |wiki-completion|
+  Tags                                             |wiki-tags|
 
 ==============================================================================
 INTRODUCTION                                                       *wiki-intro*
@@ -248,6 +249,15 @@ CONFIGURATION                                                     *wiki-config*
         \ 'view' : v:false,
         }
 
+*g:wiki_tags*
+  A dictionary that specifies the default configuration for |WikiTagSearch|
+  options. See the specifications for the options for more information.
+
+  Default: >
+    let g:wiki_tags = {
+        \ 'output' : 'loclist',
+        }
+
 *g:wiki_template_title_month*
   A string that specifies the title of the month template. The following keys
   are interpolated:
@@ -397,7 +407,7 @@ possible.
   |g:wiki_template_title_month|.
 
 *<plug>(wiki-export)*
-:[range]*WikiExport*  [options] [fname]
+[range]*WikiExport*  [options] [fname]
   Export the current wiki file with `pandoc`. The main argument `fname`
   specifies the target filename and format (implied by the file extension),
   e.g. `test.pdf` or `test.html`. If the argument is not specified, then
@@ -424,6 +434,20 @@ possible.
 
   Note: This feature requires `pandoc` (https://pandoc.org/) to build the `pdf`
         files.
+
+*WikiTagSearch*  [options] [tag]
+  List wiki pages that contain the desired `tag`. If the argument `tag` is not
+  supplied, the command asks for input. See also |wiki-tags|.
+
+  Available options are (use |g:wiki_tags| to set default values):
+
+  -output TRG~
+    Where to put the search result. `TRG` may be one of:
+
+      * `loclist`   Use |location-list|
+      * `echo`      Display results on screen
+      * `scratch`   Add results to a scratch buffer
+      * `cursor`    Insert result below cursor
 
 *CtrlPWiki*
   Open |CtrlP| in find file mode for wiki files in current wiki or in the main
@@ -640,6 +664,20 @@ COMPLETION                                                    *wiki-completion*
 This plugin provides an |omni-complete| function that completes internal link
 targets, including anchors.  This should work both for markdown and wiki
 style links (see |wiki-links|).
+
+==============================================================================
+TAGS                                                                *wiki-tags*
+
+Wiki pages may be tagged with the syntax `:tag-name:` for a single tag or
+`:tag-one:tag-two:` for multiple tags. The tag name must consist of purely
+non-space characters. All tags added in the top 15 lines of a file will be
+recognized.
+
+Related commands:
+- |WikiTagSearch|
+
+Related settings:
+- |g:wiki_tags|
 
 ==============================================================================
  vim:tw=78:ts=8:ft=help:norl:
