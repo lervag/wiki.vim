@@ -435,9 +435,11 @@ possible.
   Note: This feature requires `pandoc` (https://pandoc.org/) to build the `pdf`
         files.
 
+*<plug>(wiki-tag-list)*
 *WikiTagList*
-  Show a list of tags used in the current wiki.
+  Show list of detected tags.
 
+*<plug>(wiki-tag-search)*
 *WikiTagSearch*  [options] [tag]
   List wiki pages that contain the desired `tag`. If the argument `tag` is not
   supplied, the command asks for input. See also |wiki-tags|.
@@ -511,6 +513,8 @@ information about the different modes.
    `x`     <leader>wp          |<plug>(wiki-export)|
    `n`     <leader>wlu         |<plug>(wiki-list-uniq)|
    `n`     <leader>wlU         |<plug>(wiki-list-uniq-local)|
+   `n`     <leader>wss         |<plug>(wiki-tag-search)|
+   `n`     <leader>wsl         |<plug>(wiki-tag-list)|
    `n`     <tab>               |<plug>(wiki-link-next)|
    `n`     <cr>                |<plug>(wiki-link-open)|
    `n`     <c-cr>              |<plug>(wiki-link-open-split)|
