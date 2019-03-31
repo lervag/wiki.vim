@@ -173,12 +173,23 @@ endfunction
 " }}}1
 function! s:tags.gather_from_file(file) abort dict " {{{1
   let l:lnum = 0
+  let l:is_code = 0
   for l:line in readfile(a:file, 0, 15)
     let l:lnum += 1
     let l:col = 0
 
+    " Ignore code fenced lines
+    if l:is_code
+      let l:is_code = l:line !~# '^\s*```\s*$'
+      continue
+    elseif l:line =~# '^\s*```\w*\s*$'
+      let l:is_code = 1
+      continue
+    endif
+
     while v:true
-      let [l:tag, l:pos, l:col] = matchstrpos(l:line, '\v%(^|\s):\zs[^: ]+\ze:', l:col)
+      let [l:tag, l:pos, l:col]
+            \ = matchstrpos(l:line, '\v%(^|\s):\zs[^: ]+\ze:', l:col)
       if l:col == -1 | break | endif
 
       call self.add(l:tag, a:file, l:lnum, l:pos)
