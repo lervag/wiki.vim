@@ -439,6 +439,10 @@ possible.
 *WikiTagList*
   Show list of detected tags.
 
+*<plug>(wiki-tag-reload)*
+*WikiTagReload*
+  Source wiki files and reload tags.
+
 *<plug>(wiki-tag-search)*
 *WikiTagSearch*  [options] [tag]
   List wiki pages that contain the desired `tag`. If the argument `tag` is not
@@ -513,8 +517,9 @@ information about the different modes.
    `x`     <leader>wp          |<plug>(wiki-export)|
    `n`     <leader>wlu         |<plug>(wiki-list-uniq)|
    `n`     <leader>wlU         |<plug>(wiki-list-uniq-local)|
-   `n`     <leader>wss         |<plug>(wiki-tag-search)|
    `n`     <leader>wsl         |<plug>(wiki-tag-list)|
+   `n`     <leader>wsr         |<plug>(wiki-tag-reload)|
+   `n`     <leader>wss         |<plug>(wiki-tag-search)|
    `n`     <tab>               |<plug>(wiki-link-next)|
    `n`     <cr>                |<plug>(wiki-link-open)|
    `n`     <c-cr>              |<plug>(wiki-link-open-split)|
@@ -682,6 +687,7 @@ recognized.
 
 Related commands:
 - |WikiTagList|
+- |WikiTagReload|
 - |WikiTagSearch|
 
 Related settings:

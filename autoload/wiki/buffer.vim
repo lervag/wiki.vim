@@ -56,6 +56,7 @@ function! s:init_buffer_commands() abort " {{{1
         \ call wiki#page#export(<line1>, <line2>, <f-args>)
 
   command! -buffer          WikiTagList   call wiki#tags#list()
+  command! -buffer          WikiTagReload call wiki#tags#reload()
   command! -buffer -nargs=* WikiTagSearch call wiki#tags#search(<f-args>)
 
   if b:wiki.in_journal
@@ -90,8 +91,9 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <buffer> <plug>(wiki-page-toc-local)       :WikiPageTocLocal<cr>
   nnoremap <buffer> <plug>(wiki-export)               :WikiExport<cr>
   xnoremap <buffer> <plug>(wiki-export)               :WikiExport<cr>
-  nnoremap <buffer> <plug>(wiki-tag-search)           :WikiTagSearch<cr>
   nnoremap <buffer> <plug>(wiki-tag-list)             :WikiTagList<cr>
+  nnoremap <buffer> <plug>(wiki-tag-reload)           :WikiTagReload<cr>
+  nnoremap <buffer> <plug>(wiki-tag-search)           :WikiTagSearch<cr>
 
   inoremap <buffer><expr> <plug>(wiki-list-toggle)          wiki#list#new_line_bullet()
   xnoremap <buffer>       <plug>(wiki-link-toggle-visual)   :<c-u>call wiki#link#toggle_visual()<cr>
@@ -142,8 +144,9 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-page-toc-local)' : '<leader>wT',
           \ '<plug>(wiki-export)' : '<leader>wp',
           \ 'x_<plug>(wiki-export)' : '<leader>wp',
-          \ '<plug>(wiki-tag-search)' : '<leader>wss',
           \ '<plug>(wiki-tag-list)' : '<leader>wsl',
+          \ '<plug>(wiki-tag-reload)' : '<leader>wsr',
+          \ '<plug>(wiki-tag-search)' : '<leader>wss',
           \ 'i_<plug>(wiki-list-toggle)' : '<c-s>',
           \ 'x_<plug>(wiki-link-toggle-visual)' : '<cr>',
           \ 'o_<plug>(wiki-au)' : 'au',

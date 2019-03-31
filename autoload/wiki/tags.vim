@@ -47,6 +47,11 @@ function! wiki#tags#list() abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#tags#reload() abort " {{{1
+  call s:tags.reload()
+endfunction
+
+" }}}1
 
 
 function! s:search(cfg) abort " {{{1
@@ -156,6 +161,12 @@ let s:tags = {
 
 function! s:tags.list() abort dict " {{{1
   return keys(self.gather())
+endfunction
+
+" }}}1
+function! s:tags.reload() abort dict " {{{1
+  let l:parsed = 0
+  call self.gather()
 endfunction
 
 " }}}1
