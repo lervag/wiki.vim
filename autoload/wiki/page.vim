@@ -41,8 +41,9 @@ function! wiki#page#rename() abort "{{{1
   endif
 
   " Get new page name
+  echo 'Enter new name (without extension):'
   let l:new = {}
-  let l:new.name = substitute(input('Enter new name: '), '\.wiki$', '', '')
+  let l:new.name = input('> ')
   echon "\r"
   if empty(substitute(l:new.name, '\s*', '', ''))
     echom 'wiki Error: Cannot rename to an empty filename!'
@@ -50,7 +51,8 @@ function! wiki#page#rename() abort "{{{1
   endif
 
   " Expand to full path name, check if already exists
-  let l:new.path = expand('%:p:h') . '/' . l:new.name . '.wiki'
+  let l:new.path = printf('%s/%s.%s',
+        \ expand('%:p:h'), l:new.name, b:wiki.extension)
   if filereadable(l:new.path)
     echom 'wiki Error: Cannot rename to "' . l:new.path
           \ . '". File with that name exist!'
@@ -79,18 +81,20 @@ function! wiki#page#rename() abort "{{{1
         \}
 
   " Get list of open wiki buffers
-  let l:bufs = map(filter(map(filter(range(1, bufnr('$')),
+  let l:bufs = map(filter(filter(range(1, bufnr('$')),
         \       'buflisted(v:val)'),
-        \     'fnamemodify(bufname(v:val), '':p'')'),
-        \   'v:val =~# ''.wiki$'''),
-        \ '[v:val, getbufvar(v:val, ''wiki.prev_link'')]')
+        \     '!empty(getbufvar(v:val, ''wiki''))'),
+        \   '[fnamemodify(bufname(v:val), '':p''), '
+        \   . 'get(getbufvar(v:val, ''wiki''), ''prev_link'', [])]')
 
-  " Save and close wiki buffers
+  " Save and close wiki buffers (retain the b:wiki data blob)
+  let l:wiki = b:wiki
   for [l:bufname, l:dummy] in l:bufs
     execute 'buffer' fnameescape(l:bufname)
     update
     execute 'bwipeout' fnameescape(l:bufname)
   endfor
+  let b:wiki = l:wiki
 
   " Update links
   call s:rename_update_links(l:old.name, l:new.name)

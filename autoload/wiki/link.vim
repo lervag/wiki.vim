@@ -265,7 +265,7 @@ function! wiki#link#template_word(url, ...) abort " {{{1
   "
   " First try local page
   "
-  if filereadable(expand('%:p:h') . '/' . l:url . '.wiki')
+  if filereadable(printf('%s/%s.%s', expand('%:p:h'), l:url, b:wiki.extension))
     return wiki#link#template_wiki(l:url, l:text)
   endif
 
@@ -280,7 +280,7 @@ function! wiki#link#template_word(url, ...) abort " {{{1
   " Finally we see if there are completable candidates
   "
   let l:candidates = map(
-        \ glob(b:wiki.root . '/' . l:url . '*.wiki', 0, 1),
+        \ glob(printf('%s/%s*.%s', b:wiki.root, l:url, b:wiki.extension), 0, 1),
         \ 'fnamemodify(v:val, '':t:r'')')
 
   "

@@ -47,7 +47,7 @@ endfunction
 " }}}1
 function! s:summary.parse(links) abort dict " {{{1
   let self.links = map(filter(copy(a:links),
-        \   'filereadable(v:val . ''.wiki'')'),
+        \   'filereadable(v:val . ''.'' . b:wiki.extension)'),
         \ '''journal:'' . v:val')
 
   for l:link in self.links

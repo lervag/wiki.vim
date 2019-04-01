@@ -51,7 +51,7 @@ This outlines the basic steps to get started:
    let g:wiki_root = '~/documents/wiki'
    ```
 
-3. Now you can open the index file (that is, `index.wiki`) with `<leader>ww`
+3. Now you can open the index file (by default `index.wiki`) with `<leader>ww`
    and start to add your notes as desired.
 
 # Features
