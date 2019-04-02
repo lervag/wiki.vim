@@ -165,7 +165,7 @@ endfunction
 
 " }}}1
 function! s:tags.reload() abort dict " {{{1
-  let l:parsed = 0
+  let self.parsed = 0
   call self.gather()
 endfunction
 
