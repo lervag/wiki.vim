@@ -164,9 +164,13 @@ CONFIGURATION                                                     *wiki-config*
   Default: ''
 
 *g:wiki_journal*
-  The name of the diary or journal sub folder.
+  A dictionary for configuring the journal/diary feature.
 
-  Default: `'journal'`
+  Default: >
+
+    let g:wiki_journal = {
+        \ 'name': 'journal'
+        \}
 
 *g:wiki_mappings_use_defaults*
   Whether or not to use default mappings (see |wiki-mappings-default|). If

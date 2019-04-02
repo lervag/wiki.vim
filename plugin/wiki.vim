@@ -9,11 +9,13 @@ if exists('g:wiki_loaded') | finish | endif
 let g:wiki_loaded = 1
 
 " Initialize option
-let g:wiki_journal = get(g:, 'wiki_journal', 'journal')
+let g:wiki_journal = extend({
+      \ 'name' : 'journal',
+      \}, get(g:, 'wiki_journal', {}))
 let g:wiki_viewer = extend({
       \ '_' : get({
       \   'linux' : 'xdg-open',
-      \   'mac'   : 'open',
+      \   'mac' : 'open',
       \ }, wiki#init#get_os(), ''),
       \}, get(g:, 'wiki_viewer', {}))
 let g:wiki_export = extend({
