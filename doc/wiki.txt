@@ -167,12 +167,13 @@ CONFIGURATION                                                     *wiki-config*
   A dictionary for configuring the journal/diary feature. Available options
   are:
 
-    `name`         Name of journal (used to set journal path)
-    `frequency`    One of 'daily', 'weekly', or 'monthly'
+    `name`         Name of journal (used to set journal path).
+    `frequency`    One of 'daily', 'weekly', or 'monthly'.
     `date_format`  Dictionary of file name formats for the 'daily', 'weekly',
-                 and 'monthly' frequencies
+                 and 'monthly' frequencies.
     `date_regex`   Dictionary of regexes to match the file name formats for
-                 the 'daily', 'weekly', and 'monthly' frequencies
+                 the 'daily', 'weekly', and 'monthly' frequencies. This should
+                 reflect the `date_format` entries.
 
   Default: >
 
