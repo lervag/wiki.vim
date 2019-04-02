@@ -11,7 +11,7 @@ runtime plugin/wiki.vim
 " Test toggle normal on regular markdown links
 try
   bwipeout!
-  silent edit ex1/index.wiki
+  silent edit ex1-basic/index.wiki
   normal! 3G
   silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
 

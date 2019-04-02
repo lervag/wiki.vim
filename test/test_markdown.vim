@@ -8,7 +8,7 @@ runtime plugin/wiki.vim
 " Test open existing wiki with no settings
 try
   bwipeout!
-  silent edit ex3/README.md
+  silent edit ex2-markdown/README.md
   silent execute "normal \<Plug>(wiki-link-next)"
   silent execute "normal \<Plug>(wiki-link-open)"
 
@@ -20,7 +20,7 @@ endtry
 " Test toggle normal on regular markdown links
 try
   bwipeout!
-  silent edit ex3/README.md
+  silent edit ex2-markdown/README.md
   normal! 3G3w
   silent execute "normal \<Plug>(wiki-link-open)"
 
@@ -32,7 +32,7 @@ endtry
 " Test toggle visual and operator on regular markdown links
 try
   bwipeout!
-  silent edit ex3/README.md
+  silent edit ex2-markdown/README.md
   normal! 3G3w
   silent execute "normal viw\<Plug>(wiki-link-toggle-visual)"
 
