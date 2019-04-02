@@ -6,21 +6,27 @@
 "
 
 function! wiki#journal#make_note(...) abort " {{{1
-  let l:date = (a:0 > 0 ? a:1 : strftime('%Y-%m-%d'))
+  let l:date = (a:0 > 0 ? a:1
+        \ : strftime(g:wiki_journal.date_format[g:wiki_journal.frequency]))
   call wiki#url#parse('journal:' . l:date).open()
 endfunction
 
 " }}}1
 function! wiki#journal#copy_note() abort " {{{1
-  let l:next_day = wiki#date#get_next_weekday(expand('%:t:r'))
+  if g:wiki_journal.frequency ==# 'daily'
+    let l:next = wiki#date#get_next_weekday(expand('%:t:r'))
+  else
+    echoerr 'Not implemented yet!'
+    return
+  endif
 
   let l:next_entry = printf('%s/%s.%s',
-        \ b:wiki.root_journal, l:next_day, b:wiki.extension)
+        \ b:wiki.root_journal, l:next, b:wiki.extension)
   if !filereadable(l:next_entry)
     execute 'write' l:next_entry
   endif
 
-  call wiki#url#parse('journal:' . l:next_day).open()
+  call wiki#url#parse('journal:' . l:next).open()
 endfunction
 
 " }}}1
@@ -38,25 +44,35 @@ endfunction
 
 " }}}1
 function! wiki#journal#go_to_week() abort " {{{1
-  let l:date = expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
+  if g:wiki_journal.frequency !=# 'daily'
+    return
+  endif
+
+  let l:date = expand('%:r') =~# g:wiki_journal.date_regex.daily
         \ ? expand('%:r')
-        \ : strftime('%F')
-  call wiki#url#parse('journal:' . l:date[:3]
-        \ . '_w' . wiki#date#get_week(l:date)).open()
+        \ : strftime(g:wiki_journal.date_format.daily)
+  call wiki#url#parse('journal:'
+        \ . wiki#date#format(l:date, g:wiki_journal.date_format.weekly)).open()
 endfunction
 
 " }}}1
 function! wiki#journal#go_to_month() abort " {{{1
-  let l:date = expand('%:r') =~# '\d\d\d\d-\d\d-\d\d'
+  if g:wiki_journal.frequency ==# 'monthly'
+    return
+  endif
+
+  let l:date = expand('%:r') =~# g:wiki_journal.date_regex.daily
         \ ? expand('%:r')
-        \ : strftime('%F')
-  call wiki#url#parse('journal:' . l:date[:3] . '_m' . l:date[5:6]).open()
+        \ : strftime(g:wiki_journal.date_format.daily)
+  call wiki#url#parse('journal:'
+        \ . wiki#date#format(l:date, g:wiki_journal.date_format.monthly)).open()
 endfunction
 
 " }}}1
 function! wiki#journal#make_index(use_md_links) " {{{1
-  let l:regex_days = '\d\{4}-\d\d-\d\d'
-  let l:entries = s:get_links_generic(l:regex_days, '%Y-%m-%d')
+  let l:entries = s:get_links_generic(
+        \ g:wiki_journal.date_regex.daily,
+        \ g:wiki_journal.date_format.daily)
 
   let l:sorted_entries = {}
   for entry in entries
@@ -98,19 +114,16 @@ endfunction
 
 function! s:get_links() abort " {{{1
   let l:current = expand('%:t:r')
-  let l:regex_days = '\d\{4}-\d\d-\d\d'
-  let l:regex_weeks = '\d\{4}_w\d\d'
-  let l:regex_months = '\d\{4}_m\d\d'
 
-  if l:current =~# l:regex_days
-    return s:get_links_generic(l:regex_days, '%Y-%m-%d')
-  elseif l:current =~# l:regex_weeks
-    return s:get_links_generic(l:regex_weeks, '%Y_w%W')
-  elseif l:current =~# l:regex_months
-    return s:get_links_generic(l:regex_months, '%Y_m%m')
-  else
-    return []
-  endif
+  for l:freq in ['daily', 'weekly', 'monthly']
+    if l:current =~# g:wiki_journal.date_regex[l:freq]
+      return s:get_links_generic(
+            \ g:wiki_journal.date_regex[l:freq],
+            \ g:wiki_journal.date_format[l:freq])
+    endif
+  endfor
+
+  return []
 endfunction
 
 " }}}1

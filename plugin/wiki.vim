@@ -11,6 +11,17 @@ let g:wiki_loaded = 1
 " Initialize option
 let g:wiki_journal = extend({
       \ 'name' : 'journal',
+      \ 'frequency' : 'daily',
+      \ 'date_format' : {
+      \   'daily' : '%Y-%m-%d',
+      \   'weekly' : '%Y_w%V',
+      \   'monthly' : '%Y_m%m',
+      \ },
+      \ 'date_regex': {
+      \   'daily' : '\d\d\d\d-\d\d-\d\d',
+      \   'weekly' : '\d\d\d\d_w\d\d',
+      \   'monthly' : '\d\d\d\d_m\d\d',
+      \ },
       \}, get(g:, 'wiki_journal', {}))
 let g:wiki_viewer = extend({
       \ '_' : get({

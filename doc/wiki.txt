@@ -164,12 +164,31 @@ CONFIGURATION                                                     *wiki-config*
   Default: ''
 
 *g:wiki_journal*
-  A dictionary for configuring the journal/diary feature.
+  A dictionary for configuring the journal/diary feature. Available options
+  are:
+
+    `name`         Name of journal (used to set journal path)
+    `frequency`    One of 'daily', 'weekly', or 'monthly'
+    `date_format`  Dictionary of file name formats for the 'daily', 'weekly',
+                 and 'monthly' frequencies
+    `date_regex`   Dictionary of regexes to match the file name formats for
+                 the 'daily', 'weekly', and 'monthly' frequencies
 
   Default: >
 
     let g:wiki_journal = {
         \ 'name': 'journal'
+        \ 'frequency': 'daily',
+        \ 'date_format': {
+        \   'daily' : '%Y-%m-%d',
+        \   'weekly' : '%Y_w%V',
+        \   'monthly' : '%Y_m%m',
+        \ },
+        \ 'date_regex': {
+        \   'daily' : '\d\d\d\d-\d\d-\d\d',
+        \   'weekly' : '\d\d\d\d_w\d\d',
+        \   'monthly' : '\d\d\d\d_m\d\d',
+        \ },
         \}
 
 *g:wiki_mappings_use_defaults*
