@@ -8,6 +8,15 @@
 "
 " Get info for given date
 "
+function! wiki#date#format(date, format) abort " {{{1
+  return systemlist(printf('date +"%s" -d "%s"', a:format, a:date))[0]
+
+  " Probably better on BSD
+  return systemlist(
+        \ printf('date -j -f "%Y-%m-%d" "%s" +"%s"', a:format, a:date))[0]
+endfunction
+
+" }}}1
 function! wiki#date#get_week(date) abort " {{{1
   " This should work on Linux machines
   let l:week = systemlist('date +%V -d ' . a:date)[0]
