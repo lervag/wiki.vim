@@ -8,8 +8,8 @@
 if exists('g:wiki_loaded') | finish | endif
 let g:wiki_loaded = 1
 
-" Initialize option
-let g:wiki_journal = extend({
+" Initialize options
+call wiki#init#option('wiki_journal', {
       \ 'name' : 'journal',
       \ 'frequency' : 'daily',
       \ 'date_format' : {
@@ -17,34 +17,32 @@ let g:wiki_journal = extend({
       \   'weekly' : '%Y_w%V',
       \   'monthly' : '%Y_m%m',
       \ },
-      \}, get(g:, 'wiki_journal', {}))
-let g:wiki_viewer = extend({
+      \})
+call wiki#init#option('wiki_viewer', {
       \ '_' : get({
       \   'linux' : 'xdg-open',
       \   'mac' : 'open',
       \ }, wiki#init#get_os(), ''),
-      \}, get(g:, 'wiki_viewer', {}))
-let g:wiki_export = extend({
+      \})
+call wiki#init#option('wiki_export', {
       \ 'args' : '',
       \ 'from_format' : 'gfm',
       \ 'ext' : 'pdf',
       \ 'view' : v:false,
-      \}, get(g:, 'wiki_export', {}))
-let g:wiki_tags = extend({
-      \ 'output' : 'loclist',
-      \}, get(g:, 'wiki_tags', {}))
-let g:wiki_filetypes = get(g:, 'wiki_filetypes', ['wiki'])
-let g:wiki_index_name = get(g:, 'wiki_index_name', 'index')
-let g:wiki_root = get(g:, 'wiki_root', '')
-let g:wiki_link_extension = get(g:, 'wiki_link_extension', '')
-let g:wiki_link_target_map = get(g:, 'wiki_link_target_map', '')
-let g:wiki_month_names = get(g:, 'wiki_month_names', [
+      \})
+call wiki#init#option('wiki_tags', { 'output' : 'loclist' })
+call wiki#init#option('wiki_filetypes', ['wiki'])
+call wiki#init#option('wiki_index_name', 'index')
+call wiki#init#option('wiki_root', '')
+call wiki#init#option('wiki_link_extension', '')
+call wiki#init#option('wiki_link_target_map', '')
+call wiki#init#option('wiki_month_names', [
       \ 'January', 'February', 'March', 'April', 'May', 'June', 'July',
       \ 'August', 'September', 'October', 'November', 'December'
       \])
-let g:wiki_template_title_week = get(g:, 'wiki_template_title_week',
+call wiki#init#option('wiki_template_title_week',
       \ '# Summary, %(year) week %(week)')
-let g:wiki_template_title_month = get(g:, 'wiki_template_title_month',
+call wiki#init#option('wiki_template_title_month',
       \ '# Summary, %(year) %(month-name)')
 
 " Initialize global commands
