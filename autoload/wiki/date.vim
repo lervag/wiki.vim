@@ -38,6 +38,16 @@ endfunction
 " }}}1
 
 "
+" Utility functions
+"
+function! wiki#date#frmt_to_regex(frmt) abort " {{{1
+  let l:regex = substitute(a:frmt, '%[ymdVU]', '\\d\\d', 'g')
+  return substitute(l:regex, '%Y', '\\d\\d\\d\\d', '')
+endfunction
+
+" }}}1
+
+"
 " More complex parsers
 "
 function! wiki#date#get_next_weekday(date) abort " {{{1

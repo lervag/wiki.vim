@@ -15,7 +15,6 @@ endtry
 try
   bwipeout!
   let g:wiki_journal.date_format.daily = '%d.%m.%Y'
-  let g:wiki_journal.date_regex.daily = '\d\d\.\d\d\.\d\d\d\d'
   let s:date = strftime(g:wiki_journal.date_format[g:wiki_journal.frequency])
 
   call wiki#journal#make_note()

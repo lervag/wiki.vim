@@ -17,11 +17,6 @@ let g:wiki_journal = extend({
       \   'weekly' : '%Y_w%V',
       \   'monthly' : '%Y_m%m',
       \ },
-      \ 'date_regex': {
-      \   'daily' : '\d\d\d\d-\d\d-\d\d',
-      \   'weekly' : '\d\d\d\d_w\d\d',
-      \   'monthly' : '\d\d\d\d_m\d\d',
-      \ },
       \}, get(g:, 'wiki_journal', {}))
 let g:wiki_viewer = extend({
       \ '_' : get({
@@ -44,18 +39,8 @@ let g:wiki_root = get(g:, 'wiki_root', '')
 let g:wiki_link_extension = get(g:, 'wiki_link_extension', '')
 let g:wiki_link_target_map = get(g:, 'wiki_link_target_map', '')
 let g:wiki_month_names = get(g:, 'wiki_month_names', [
-      \ 'January',
-      \ 'February',
-      \ 'March',
-      \ 'April',
-      \ 'May',
-      \ 'June',
-      \ 'July',
-      \ 'August',
-      \ 'September',
-      \ 'October',
-      \ 'November',
-      \ 'December'
+      \ 'January', 'February', 'March', 'April', 'May', 'June', 'July',
+      \ 'August', 'September', 'October', 'November', 'December'
       \])
 let g:wiki_template_title_week = get(g:, 'wiki_template_title_week',
       \ '# Summary, %(year) week %(week)')

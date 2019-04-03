@@ -43,36 +43,31 @@ function! wiki#journal#go(step) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#journal#go_to_week() abort " {{{1
-  if g:wiki_journal.frequency !=# 'daily'
+function! wiki#journal#freq(frq) abort " {{{1
+  if a:frq ==# 'daily'
+    return
+  endif
+  if a:frq ==# 'weekly' && g:wiki_journal.frequency !=# 'daily'
+    return
+  endif
+  if a:frq ==# 'monthly' && g:wiki_journal.frequency ==# 'monthly'
     return
   endif
 
-  let l:date = expand('%:r') =~# g:wiki_journal.date_regex.daily
-        \ ? expand('%:r')
-        \ : strftime(g:wiki_journal.date_format.daily)
-  call wiki#url#parse('journal:'
-        \ . wiki#date#format(l:date, g:wiki_journal.date_format.weekly)).open()
-endfunction
+  let l:filedate = expand('%:r')
+  let l:fmt = g:wiki_journal.date_format.daily
+  let l:rx = wiki#date#frmt_to_regex(l:fmt)
+  let l:date = l:filedate =~# l:rx ? l:filedate : strftime(l:fmt)
 
-" }}}1
-function! wiki#journal#go_to_month() abort " {{{1
-  if g:wiki_journal.frequency ==# 'monthly'
-    return
-  endif
-
-  let l:date = expand('%:r') =~# g:wiki_journal.date_regex.daily
-        \ ? expand('%:r')
-        \ : strftime(g:wiki_journal.date_format.daily)
   call wiki#url#parse('journal:'
-        \ . wiki#date#format(l:date, g:wiki_journal.date_format.monthly)).open()
+        \ . wiki#date#format(l:date, g:wiki_journal.date_format[a:frq])).open()
 endfunction
 
 " }}}1
 function! wiki#journal#make_index(use_md_links) " {{{1
-  let l:entries = s:get_links_generic(
-        \ g:wiki_journal.date_regex.daily,
-        \ g:wiki_journal.date_format.daily)
+  let l:fmt = g:wiki_journal.date_format.daily
+  let l:rx = wiki#date#frmt_to_regex(l:fmt)
+  let l:entries = s:get_links_generic(l:rx, l:fmt)
 
   let l:sorted_entries = {}
   for entry in entries
@@ -115,11 +110,10 @@ endfunction
 function! s:get_links() abort " {{{1
   let l:current = expand('%:t:r')
 
-  for l:freq in ['daily', 'weekly', 'monthly']
-    if l:current =~# g:wiki_journal.date_regex[l:freq]
-      return s:get_links_generic(
-            \ g:wiki_journal.date_regex[l:freq],
-            \ g:wiki_journal.date_format[l:freq])
+  for l:fmt in values(g:wiki_journal.date_format)
+    let l:rx = wiki#date#frmt_to_regex(l:fmt)
+    if l:current =~# l:rx
+      return s:get_links_generic(l:rx, l:fmt)
     endif
   endfor
 

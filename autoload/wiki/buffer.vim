@@ -63,8 +63,8 @@ function! s:init_buffer_commands() abort " {{{1
     command! -buffer -count=1 WikiJournalPrev       call wiki#journal#go(-<count>)
     command! -buffer -count=1 WikiJournalNext       call wiki#journal#go(<count>)
     command! -buffer          WikiJournalCopyToNext call wiki#journal#copy_note()
-    command! -buffer          WikiJournalToWeek     call wiki#journal#go_to_week()
-    command! -buffer          WikiJournalToMonth    call wiki#journal#go_to_month()
+    command! -buffer          WikiJournalToWeek     call wiki#journal#freq('weekly')
+    command! -buffer          WikiJournalToMonth    call wiki#journal#freq('monthly')
   endif
 endfunction
 
