@@ -252,7 +252,7 @@ function! wiki#link#pick_template_type(url, ...) abort
     \ exists('*wiki#link#template_' . g:wiki_link_target_type)
     return call('wiki#link#template_' . g:wiki_link_target_type, [a:url] + a:000)
   else
-    return wiki#link#template_wiki(a:url, a:000)
+    return call ('wiki#link#template_wiki', [a:url] + a:000)
   endif
 endfunction
 
