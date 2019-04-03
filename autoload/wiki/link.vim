@@ -242,8 +242,14 @@ function! wiki#link#template_md(url, ...) abort " {{{1
   return '[' . l:text . '](' . a:url . ')'
 endfunction
 
+" }}}1
 function! wiki#link#pick_template_type(url, ...) abort
-  if !empty(g:wiki_link_target_type) && exists('*wiki#link#template_' . g:wiki_link_target_type)
+  "
+  " Pick the relevant link template command to use based on the users
+  " settings. Default to the wiki style one if its not set.
+  "
+  if !empty(g:wiki_link_target_type) &&
+    \ exists('*wiki#link#template_' . g:wiki_link_target_type)
     return call('wiki#link#template_' . g:wiki_link_target_type, [a:url] + a:000)
   else
     return wiki#link#template_wiki(a:url, a:000)
