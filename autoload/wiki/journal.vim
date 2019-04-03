@@ -103,18 +103,23 @@ endfunction
 " }}}1
 
 function! s:get_next_entry() abort " {{{1
+  let l:type = {
+        \ 'daily' : 'day',
+        \ 'weekly' : 'week',
+        \ 'monthly' : 'month',
+        \}
+
   let l:current = expand('%:t:r')
 
-  for l:fmt in values(g:wiki_journal.date_format)
+  for [l:key, l:fmt] in items(g:wiki_journal.date_format)
     let l:rx = wiki#date#frmt_to_regex(l:fmt)
     if l:current =~# l:rx
       let l:date = wiki#date#parse_frmt(l:current, l:fmt)
-      echo l:date
-      break
+      return wiki#date#format(l:date.next(l:type[l:key]).to_iso(), l:fmt)
     endif
   endfor
 
-  return wiki#date#get_next_weekday()
+  throw printf('Error: %s was not matched by any date formats', l:current)
 endfunction
 
 " }}}1

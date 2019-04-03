@@ -57,22 +57,69 @@ function! wiki#date#parse_frmt(date, frmt) abort " {{{1
         \}
   let l:rx = '%[' . join(keys(l:keys), '') . ']'
 
-  let l:result = {}
+  let l:result = deepcopy(s:date)
   let l:date = copy(a:date)
   let l:frmt = copy(a:frmt)
-  echo l:date l:frmt
   while v:true
     let [l:match, l:pos, l:end] = matchstrpos(l:frmt, l:rx)
     if l:pos < 0 | break | endif
 
     let [l:name, l:len] = l:keys[l:match[1]]
-    echo l:match l:name l:len
     let l:result[l:name] = strpart(l:date, l:pos, l:len)
-    let l:date = strpart(l:date, l:pos + l:len - 1)
+    let l:date = strpart(l:date, l:pos + l:len)
     let l:frmt = strpart(l:frmt, l:end)
   endwhile
 
-  return l:result
+  return l:result.init()
+endfunction
+
+" }}}1
+
+let s:date = {
+      \ 'year': '1970',
+      \ 'month': '01',
+      \ 'day': '01',
+      \}
+function! s:date.init() abort dict " {{{1
+  unlet self.init
+
+  if len(self.year) == 2
+    let self.year = '20' . self.year
+  endif
+
+  if has_key(self, 'week')
+    let l:date = printf('%s-01-10', self.year)
+    let l:dow = wiki#date#get_day_of_week(l:date)
+    let l:week = wiki#date#get_week(l:date)
+    let l:offset = 7*(self.week - l:week) - l:dow + 1
+    let l:date = systemlist(
+          \ printf('date +%%F -d "%s +%s days"', l:date, l:offset))[0]
+
+    let self.month = l:date[5:6]
+    let self.day = l:date[8:9]
+  else
+    let self.week = wiki#date#get_week(self.to_iso())
+  endif
+
+  return self
+endfunction
+
+" }}}1
+function! s:date.next(freq) abort dict " {{{1
+  let l:new_date = systemlist(
+        \ printf('date +%%F-%V -d "%s +1 %s"', self.to_iso(), a:freq))[0]
+
+  let self.year = l:new_date[0:3]
+  let self.month = l:new_date[5:6]
+  let self.day = l:new_date[8:9]
+  let self.week = l:new_date[11:12]
+
+  return self
+endfunction
+
+" }}}1
+function! s:date.to_iso() abort dict " {{{1
+  return printf('%4d-%2d-%2d', self.year, self.month, self.day)
 endfunction
 
 " }}}1
