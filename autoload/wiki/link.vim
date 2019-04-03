@@ -242,6 +242,14 @@ function! wiki#link#template_md(url, ...) abort " {{{1
   return '[' . l:text . '](' . a:url . ')'
 endfunction
 
+function! wiki#link#pick_template_type(url, ...) abort
+  if !empty(g:wiki_link_target_type) && exists('*wiki#link#template_' . g:wiki_link_target_type)
+    return call('wiki#link#template_' . g:wiki_link_target_type, [a:url] + a:000)
+  else
+    return wiki#link#template_wiki(a:url, a:000)
+  endif
+endfunction
+
 " }}}1
 function! wiki#link#template_word(url, ...) abort " {{{1
   "
@@ -266,14 +274,14 @@ function! wiki#link#template_word(url, ...) abort " {{{1
   " First try local page
   "
   if filereadable(printf('%s/%s.%s', expand('%:p:h'), l:url, b:wiki.extension))
-    return wiki#link#template_wiki(l:url, l:text)
+    return wiki#link#pick_template_type(l:url, l:text)
   endif
 
   "
   " Next try at wiki root
   "
   if filereadable(printf('%s/%s.%s', b:wiki.root, l:url, b:wiki.extension))
-    return wiki#link#template_wiki('/' . l:url, l:text)
+    return wiki#link#pick_template_type('/' . l:url, l:text)
   endif
 
   "
@@ -287,9 +295,9 @@ function! wiki#link#template_word(url, ...) abort " {{{1
   " Solve trivial cases first
   "
   if len(l:candidates) == 0
-    return wiki#link#template_wiki((b:wiki.in_journal ? '/' : '') . l:url, l:text)
+    return wiki#link#pick_template_type((b:wiki.in_journal ? '/' : '') . l:url, l:text)
   elseif len(l:candidates) == 1
-    return wiki#link#template_wiki('/' . l:candidates[0], l:url)
+    return wiki#link#pick_template_type('/' . l:candidates[0], l:url)
   endif
 
   "
@@ -310,13 +318,13 @@ function! wiki#link#template_word(url, ...) abort " {{{1
     if empty(l:choice) | return l:url | endif
 
     if l:choice ==# 'n'
-      return wiki#link#template_wiki('/' . l:url, l:text)
+      return wiki#link#pick_template_type('/' . l:url, l:text)
     endif
 
     try
       let l:cand = l:candidates[l:choice - 1]
       redraw!
-      return wiki#link#template_wiki('/' . l:cand, l:url)
+      return wiki#link#pick_template_type('/' . l:cand, l:url)
     catch
       continue
     endtry
@@ -325,7 +333,7 @@ endfunction
 
 " }}}1
 function! wiki#link#template_ref(...) abort " {{{1
-  return call('wiki#link#template_wiki', a:000)
+  return call('wiki#link#pick_template_type', a:000)
 endfunction
 
 " }}}1
