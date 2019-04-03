@@ -13,12 +13,7 @@ endfunction
 
 " }}}1
 function! wiki#journal#copy_note() abort " {{{1
-  if g:wiki_journal.frequency ==# 'daily'
-    let l:next = wiki#date#get_next_weekday(expand('%:t:r'))
-  else
-    echoerr 'Not implemented yet!'
-    return
-  endif
+  let l:next = s:get_next_entry()
 
   let l:next_entry = printf('%s/%s.%s',
         \ b:wiki.root_journal, l:next, b:wiki.extension)
@@ -103,6 +98,23 @@ function! wiki#journal#make_index(use_md_links) " {{{1
       put =''
     endfor
   endfor
+endfunction
+
+" }}}1
+
+function! s:get_next_entry() abort " {{{1
+  let l:current = expand('%:t:r')
+
+  for l:fmt in values(g:wiki_journal.date_format)
+    let l:rx = wiki#date#frmt_to_regex(l:fmt)
+    if l:current =~# l:rx
+      let l:date = wiki#date#parse_frmt(l:current, l:fmt)
+      echo l:date
+      break
+    endif
+  endfor
+
+  return wiki#date#get_next_weekday()
 endfunction
 
 " }}}1

@@ -46,6 +46,36 @@ function! wiki#date#frmt_to_regex(frmt) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#date#parse_frmt(date, frmt) abort " {{{1
+  let l:keys = {
+        \ 'y' : ['year', 2],
+        \ 'Y' : ['year', 4],
+        \ 'm' : ['month', 2],
+        \ 'd' : ['day', 2],
+        \ 'V' : ['week', 2],
+        \ 'U' : ['week', 2],
+        \}
+  let l:rx = '%[' . join(keys(l:keys), '') . ']'
+
+  let l:result = {}
+  let l:date = copy(a:date)
+  let l:frmt = copy(a:frmt)
+  echo l:date l:frmt
+  while v:true
+    let [l:match, l:pos, l:end] = matchstrpos(l:frmt, l:rx)
+    if l:pos < 0 | break | endif
+
+    let [l:name, l:len] = l:keys[l:match[1]]
+    echo l:match l:name l:len
+    let l:result[l:name] = strpart(l:date, l:pos, l:len)
+    let l:date = strpart(l:date, l:pos + l:len - 1)
+    let l:frmt = strpart(l:frmt, l:end)
+  endwhile
+
+  return l:result
+endfunction
+
+" }}}1
 
 "
 " More complex parsers
