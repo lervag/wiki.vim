@@ -51,7 +51,7 @@ function! wiki#journal#freq(frq) abort " {{{1
 
   let l:filedate = expand('%:r')
   let l:fmt = g:wiki_journal.date_format.daily
-  let l:rx = wiki#date#frmt_to_regex(l:fmt)
+  let l:rx = wiki#date#format_to_regex(l:fmt)
   let l:date = l:filedate =~# l:rx ? l:filedate : strftime(l:fmt)
 
   call wiki#url#parse('journal:'
@@ -61,7 +61,7 @@ endfunction
 " }}}1
 function! wiki#journal#make_index(use_md_links) " {{{1
   let l:fmt = g:wiki_journal.date_format.daily
-  let l:rx = wiki#date#frmt_to_regex(l:fmt)
+  let l:rx = wiki#date#format_to_regex(l:fmt)
   let l:entries = s:get_links_generic(l:rx, l:fmt)
 
   let l:sorted_entries = {}
@@ -103,19 +103,18 @@ endfunction
 " }}}1
 
 function! s:get_next_entry() abort " {{{1
-  let l:type = {
-        \ 'daily' : 'day',
-        \ 'weekly' : 'week',
-        \ 'monthly' : 'month',
-        \}
-
   let l:current = expand('%:t:r')
 
-  for [l:key, l:fmt] in items(g:wiki_journal.date_format)
-    let l:rx = wiki#date#frmt_to_regex(l:fmt)
+  for [l:freq, l:fmt] in items(g:wiki_journal.date_format)
+    let l:rx = wiki#date#format_to_regex(l:fmt)
     if l:current =~# l:rx
-      let l:date = wiki#date#parse_frmt(l:current, l:fmt)
-      return wiki#date#format(l:date.next(l:type[l:key]).to_iso(), l:fmt)
+      let l:date = wiki#date#parse_format(l:current, l:fmt)
+      let l:next = wiki#date#offset(l:date, {
+            \ 'daily' : '1 day',
+            \ 'weekly' : '1 week',
+            \ 'monthly' : '1 month',
+            \}[l:freq])
+      return wiki#date#format(l:next, l:fmt)
     endif
   endfor
 
@@ -128,7 +127,7 @@ function! s:get_links() abort " {{{1
   let l:current = expand('%:t:r')
 
   for l:fmt in values(g:wiki_journal.date_format)
-    let l:rx = wiki#date#frmt_to_regex(l:fmt)
+    let l:rx = wiki#date#format_to_regex(l:fmt)
     if l:current =~# l:rx
       return s:get_links_generic(l:rx, l:fmt)
     endif
