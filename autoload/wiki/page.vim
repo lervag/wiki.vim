@@ -404,11 +404,13 @@ endfunction
 " }}}1
 
 function! s:export(start, end, cfg) abort " {{{1
-  " Get filenames
-  let l:fwiki = tempname()
-  let l:fout = fnamemodify(l:fwiki, ':h') . '/' . expand('%:t:r') . '.' . a:cfg.ext
-  let a:cfg.fname = !empty(a:cfg.fname) ? a:cfg.fname : l:fout
-  let a:cfg.ext = fnamemodify(l:fout, ':e')
+  " Set filenames
+  let l:fwiki = expand('%:p') . '.tmp'
+  let a:cfg.fname = !empty(a:cfg.fname)
+        \ ? a:cfg.fname
+        \ : printf('%s/%s.%s',
+        \     fnamemodify(tempname(), ':h'), expand('%:t:r'), a:cfg.ext)
+  let a:cfg.ext = fnamemodify(a:cfg.fname, ':e')
 
   " Parse wiki page content
   let l:wiki_link_rx = '\[\[#\?\([^\\|\]]\{-}\)\]\]'
