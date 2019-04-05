@@ -243,6 +243,20 @@ function! wiki#link#template_md(url, ...) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#link#template_pick_from_option(...) abort
+  "
+  " Pick the relevant link template command to use based on the users
+  " settings. Default to the wiki style one if its not set.
+  "
+  try
+    return call('wiki#link#template_' . g:wiki_link_target_type, a:000)
+  catch /E117/
+      echoerr 'Link target type does not exist: ' . l:type
+      echoerr 'See ":help g:wiki_link_target_type" for help'
+  endtry
+endfunction
+
+" }}}1
 function! wiki#link#template_word(url, ...) abort " {{{1
   "
   " This template returns a wiki template for the provided word(s). It does
@@ -266,14 +280,14 @@ function! wiki#link#template_word(url, ...) abort " {{{1
   " First try local page
   "
   if filereadable(printf('%s/%s.%s', expand('%:p:h'), l:url, b:wiki.extension))
-    return wiki#link#template_wiki(l:url, l:text)
+    return wiki#link#template_pick_from_option(l:url, l:text)
   endif
 
   "
   " Next try at wiki root
   "
   if filereadable(printf('%s/%s.%s', b:wiki.root, l:url, b:wiki.extension))
-    return wiki#link#template_wiki('/' . l:url, l:text)
+    return wiki#link#template_pick_from_option('/' . l:url, l:text)
   endif
 
   "
@@ -287,9 +301,9 @@ function! wiki#link#template_word(url, ...) abort " {{{1
   " Solve trivial cases first
   "
   if len(l:candidates) == 0
-    return wiki#link#template_wiki((b:wiki.in_journal ? '/' : '') . l:url, l:text)
+    return wiki#link#template_pick_from_option((b:wiki.in_journal ? '/' : '') . l:url, l:text)
   elseif len(l:candidates) == 1
-    return wiki#link#template_wiki('/' . l:candidates[0], l:url)
+    return wiki#link#template_pick_from_option('/' . l:candidates[0], l:url)
   endif
 
   "
@@ -310,13 +324,13 @@ function! wiki#link#template_word(url, ...) abort " {{{1
     if empty(l:choice) | return l:url | endif
 
     if l:choice ==# 'n'
-      return wiki#link#template_wiki('/' . l:url, l:text)
+      return wiki#link#template_pick_from_option('/' . l:url, l:text)
     endif
 
     try
       let l:cand = l:candidates[l:choice - 1]
       redraw!
-      return wiki#link#template_wiki('/' . l:cand, l:url)
+      return wiki#link#template_pick_from_option('/' . l:cand, l:url)
     catch
       continue
     endtry
@@ -325,7 +339,7 @@ endfunction
 
 " }}}1
 function! wiki#link#template_ref(...) abort " {{{1
-  return call('wiki#link#template_wiki', a:000)
+  return call('wiki#link#template_pick_from_option', a:000)
 endfunction
 
 " }}}1
