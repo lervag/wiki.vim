@@ -163,6 +163,15 @@ CONFIGURATION                                                     *wiki-config*
 
   Default: ''
 
+*g:wiki_link_target_type*
+  This option may be used to pick the default style of link that will be used. An
+  example:
+
+  Setting this to `md` will cause Markdown style links to be added by default,
+  rather than `wiki` style links.
+
+  Default: 'wiki'
+
 *g:wiki_journal*
   A dictionary for configuring the journal/diary feature. Available options
   are:
