@@ -5,87 +5,23 @@
 " License:    MIT license
 "
 
-"
-" Get info for given date
-"
 function! wiki#date#format(date, format) abort " {{{1
-  return systemlist(printf('date +"%s" -d "%s"', a:format, a:date))[0]
-
-  " Probably better on BSD
-  return systemlist(
-        \ printf('date -j -f "%Y-%m-%d" "%s" +"%s"', a:format, a:date))[0]
+  return s:date(a:date, a:format)
 endfunction
 
 " }}}1
-function! wiki#date#get_week(date) abort " {{{1
-  " This should work on Linux machines
-  let l:week = systemlist('date +%V -d ' . a:date)[0]
-  if l:week =~# '\d\+' | return l:week | endif
-
-  " This should work on BSD
-  let l:week = systemlist("date -j -f '%Y-%m-%d' " . a:date . ' +%V')[0]
-  if l:week =~# '\d\+' | return l:week | endif
-
-  " This number sort of screams "something is wrong"
-  return 55
+function! wiki#date#offset(date, offset) abort " {{{1
+  return s:date_offset(a:date, a:offset)
 endfunction
 
 " }}}1
 function! wiki#date#get_day_of_week(date) abort " {{{1
-  return systemlist('date +%u -d ' . a:date)[0]
+  return s:date(a:date, '%u')
 endfunction
 
 " }}}1
-
-"
-" Utility functions
-"
-function! wiki#date#frmt_to_regex(frmt) abort " {{{1
-  let l:regex = substitute(a:frmt, '%[ymdVU]', '\\d\\d', 'g')
-  return substitute(l:regex, '%Y', '\\d\\d\\d\\d', '')
-endfunction
-
-" }}}1
-function! wiki#date#parse_frmt(date, frmt) abort " {{{1
-  let l:keys = {
-        \ 'y' : ['year', 2],
-        \ 'Y' : ['year', 4],
-        \ 'm' : ['month', 2],
-        \ 'd' : ['day', 2],
-        \ 'V' : ['week', 2],
-        \ 'U' : ['week', 2],
-        \}
-  let l:rx = '%[' . join(keys(l:keys), '') . ']'
-
-  let l:result = {}
-  let l:date = copy(a:date)
-  let l:frmt = copy(a:frmt)
-  echo l:date l:frmt
-  while v:true
-    let [l:match, l:pos, l:end] = matchstrpos(l:frmt, l:rx)
-    if l:pos < 0 | break | endif
-
-    let [l:name, l:len] = l:keys[l:match[1]]
-    echo l:match l:name l:len
-    let l:result[l:name] = strpart(l:date, l:pos, l:len)
-    let l:date = strpart(l:date, l:pos + l:len - 1)
-    let l:frmt = strpart(l:frmt, l:end)
-  endwhile
-
-  return l:result
-endfunction
-
-" }}}1
-
-"
-" More complex parsers
-"
-function! wiki#date#get_next_weekday(date) abort " {{{1
-  let l:day = systemlist('date +%F -d "' . a:date . ' +1 day"')[0]
-  while wiki#date#get_day_of_week(l:day) > 5
-    let l:day = systemlist('date +%F -d "' . l:day . ' +1 day"')[0]
-  endwhile
-  return l:day
+function! wiki#date#get_week(date) abort " {{{1
+  return s:date(a:date, '%V')
 endfunction
 
 " }}}1
@@ -95,29 +31,26 @@ function! wiki#date#get_week_dates(...) abort " {{{1
   "
   if a:0 == 1
     let l:date = a:1
-    let l:dow = systemlist('date +"%u" -d ' . l:date)[0]
-    return map(range(1-l:dow,7-l:dow),
-          \ 'systemlist(''date +%F -d "'
-          \             . l:date . ' '' . v:val . '' days"'')[0]')
+    let l:dow = wiki#date#get_day_of_week(l:date)
+    let l:range = range(1-l:dow, 7-l:dow)
   elseif a:0 == 2
     let l:week = a:1
     let l:year = a:2
-    let l:date_first = l:year . '-01-01'
+    let l:date = l:year . '-01-01'
 
-    let [l:first_week, l:dow] =
-          \ split(systemlist('date +"%V %u" -d ' . l:date_first)[0], ' ')
+    let l:dow = wiki#date#get_day_of_week(l:date)
+    let l:first_week = wiki#date#get_week(l:date)
     if l:first_week > 1
       let l:first_week = 0
     endif
 
     let l:ndays = 7*(l:week - l:first_week) - (l:dow - 1)
-
-    return map(range(l:ndays, l:ndays+6),
-          \ 'systemlist(''date +%F -d "'
-          \             . l:date_first . ' '' . v:val . '' days"'')[0]')
+    let l:range = range(l:ndays, l:ndays+6)
   else
     return []
   endif
+
+  return map(l:range, 's:date_offset(l:date, v:val . '' days'')')
 endfunction
 
 " }}}1
@@ -163,5 +96,81 @@ function! wiki#date#get_month_decomposed(month, year) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#date#format_to_regex(format) abort " {{{1
+  let l:regex = substitute(a:format, '%[ymdVU]', '\\d\\d', 'g')
+  return substitute(l:regex, '%Y', '\\d\\d\\d\\d', '')
+endfunction
+
+" }}}1
+function! wiki#date#parse_format(date, format) abort " {{{1
+  let l:keys = {
+        \ 'y' : ['year', 2],
+        \ 'Y' : ['year', 4],
+        \ 'm' : ['month', 2],
+        \ 'd' : ['day', 2],
+        \ 'V' : ['week', 2],
+        \ 'U' : ['week', 2],
+        \}
+  let l:rx = '%[' . join(keys(l:keys), '') . ']'
+
+  let l:result = {
+      \ 'year': '1970',
+      \ 'month': '01',
+      \ 'day': '01',
+      \}
+  let l:date = copy(a:date)
+  let l:format = copy(a:format)
+  while v:true
+    let [l:match, l:pos, l:end] = matchstrpos(l:format, l:rx)
+    if l:pos < 0 | break | endif
+
+    let [l:name, l:len] = l:keys[l:match[1]]
+    let l:result[l:name] = strpart(l:date, l:pos, l:len)
+    let l:date = strpart(l:date, l:pos + l:len)
+    let l:format = strpart(l:format, l:end)
+  endwhile
+
+  if len(l:result.year) == 2
+    let l:result.year = '20' . l:result.year
+  endif
+
+  if has_key(l:result, 'week')
+    let l:date = printf('%s-01-10', l:result.year)
+    let l:dow = wiki#date#get_day_of_week(l:date)
+    let l:week = wiki#date#get_week(l:date)
+    let l:offset = 7*(l:result.week - l:week) - l:dow + 1
+    return s:date_offset(l:date, l:offset . ' days')
+  else
+    return printf('%4d-%2d-%2d', l:result.year, l:result.month, l:result.day)
+  endif
+endfunction
+
+" }}}1
+
+"
+" Utility functions for running GNU date or similar shell commands
+"
+function! s:date(date, format) abort " {{{1
+  if s:gnu_date
+    return systemlist(printf('date +"%s" -d "%s"', a:format, a:date))[0]
+  else
+    return systemlist(
+          \ printf('date -j -f "%Y-%m-%d" "%s" +"%s"', a:date, a:format))[0]
+  endif
+endfunction
+
+" }}}1
+function! s:date_offset(date, offset) abort " {{{1
+  if s:gnu_date
+    return systemlist(
+          \ printf('date +%%F -d "%s +%s"', a:date, a:offset))[0]
+  else
+    throw 'Not implemented'
+  endif
+endfunction
+
+" }}}1
+
+let s:gnu_date = match(system('date --version'), 'GNU') >= 0
 
 " vim: fdm=marker sw=2

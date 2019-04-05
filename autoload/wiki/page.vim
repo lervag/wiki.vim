@@ -404,11 +404,13 @@ endfunction
 " }}}1
 
 function! s:export(start, end, cfg) abort " {{{1
-  " Get filenames
-  let l:fwiki = tempname()
-  let l:fout = fnamemodify(l:fwiki, ':h') . '/' . expand('%:t:r') . '.' . a:cfg.ext
-  let a:cfg.fname = !empty(a:cfg.fname) ? a:cfg.fname : l:fout
-  let a:cfg.ext = fnamemodify(l:fout, ':e')
+  " Set filenames
+  let l:fwiki = expand('%:p') . '.tmp'
+  let a:cfg.fname = !empty(a:cfg.fname)
+        \ ? a:cfg.fname
+        \ : printf('%s/%s.%s',
+        \     fnamemodify(tempname(), ':h'), expand('%:t:r'), a:cfg.ext)
+  let a:cfg.ext = fnamemodify(a:cfg.fname, ':e')
 
   " Parse wiki page content
   let l:wiki_link_rx = '\[\[#\?\([^\\|\]]\{-}\)\]\]'
@@ -419,12 +421,14 @@ function! s:export(start, end, cfg) abort " {{{1
   call writefile(l:lines, l:fwiki)
 
   " Construct and execute pandoc command
+  execute 'lcd' fnameescape(fnamemodify(l:fwiki, ':h'))
   let l:cmd = printf('pandoc %s -f %s -o %s %s',
         \ escape(a:cfg.args, ' '),
         \ a:cfg.from_format,
         \ shellescape(a:cfg.fname),
         \ shellescape(l:fwiki))
   let l:output = system(l:cmd)
+  lcd -
 
   if v:shell_error == 127
     echoerr 'wiki.vim: Pandoc is required for this feature.'
