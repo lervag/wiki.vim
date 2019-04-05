@@ -421,12 +421,14 @@ function! s:export(start, end, cfg) abort " {{{1
   call writefile(l:lines, l:fwiki)
 
   " Construct and execute pandoc command
+  execute 'lcd' fnameescape(fnamemodify(l:fwiki, ':h'))
   let l:cmd = printf('pandoc %s -f %s -o %s %s',
         \ escape(a:cfg.args, ' '),
         \ a:cfg.from_format,
         \ shellescape(a:cfg.fname),
         \ shellescape(l:fwiki))
   let l:output = system(l:cmd)
+  lcd -
 
   if v:shell_error == 127
     echoerr 'wiki.vim: Pandoc is required for this feature.'
