@@ -36,7 +36,7 @@ call wiki#init#option('wiki_index_name', 'index')
 call wiki#init#option('wiki_root', '')
 call wiki#init#option('wiki_link_extension', '')
 call wiki#init#option('wiki_link_target_map', '')
-call wiki#init#option('wiki_link_target_type', '')
+call wiki#init#option('wiki_link_target_type', 'wiki')
 call wiki#init#option('wiki_month_names', [
       \ 'January', 'February', 'March', 'April', 'May', 'June', 'July',
       \ 'August', 'September', 'October', 'November', 'December'
