@@ -289,7 +289,7 @@ function! wiki#link#template_word(url, ...) abort " {{{1
   if len(l:candidates) == 0
     return wiki#link#template_wiki((b:wiki.in_journal ? '/' : '') . l:url, l:text)
   elseif len(l:candidates) == 1
-    return wiki#link#template_wiki('/' . l:candidates[0], l:url, l:text)
+    return wiki#link#template_wiki('/' . l:candidates[0], l:url)
   endif
 
   "
