@@ -423,7 +423,7 @@ function! s:export(start, end, cfg) abort " {{{1
   " Construct and execute pandoc command
   execute 'lcd' fnameescape(fnamemodify(l:fwiki, ':h'))
   let l:cmd = printf('pandoc %s -f %s -o %s %s',
-        \ escape(a:cfg.args, ' '),
+        \ a:cfg.args,
         \ a:cfg.from_format,
         \ shellescape(a:cfg.fname),
         \ shellescape(l:fwiki))
