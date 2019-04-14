@@ -107,8 +107,10 @@ function! wiki#link#open(...) abort "{{{1
 
   try
     call call(l:link.open, a:000, l:link)
-  catch
+  catch /E716: Key not present/
     call wiki#link#toggle(l:link)
+  catch /E37: No write/
+    echoerr 'E37: Can''t open link before you''ve saved the current buffer.'
   endtry
 endfunction
 
