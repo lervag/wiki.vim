@@ -30,7 +30,7 @@ function! wiki#journal#go(step) abort " {{{1
   let l:index = index(l:links, expand('%:t:r'))
   let l:target = l:index + a:step
 
-  if l:target >= len(l:links) || l:target <= 0
+  if l:target >= len(l:links) || l:target < 0
     return
   endif
 
@@ -145,7 +145,7 @@ function! s:get_links_generic(rx, fmt) abort " {{{1
 
   for l:cand in [
         \ strftime(a:fmt),
-        \ expand('%:r'),
+        \ expand('%:t:r'),
         \]
     if l:cand =~# a:rx && index(l:links, l:cand) == -1
       call add(l:links, l:cand)
