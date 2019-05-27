@@ -128,8 +128,8 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-graph-find-backlinks)' : '<leader>wb',
           \ '<plug>(wiki-graph-in)' : '<leader>wg',
           \ '<plug>(wiki-graph-out)' : '<leader>wG',
-          \ '<plug>(wiki-link-next)' : '<c-n>',
-          \ '<plug>(wiki-link-prev)' : '<c-p>',
+          \ '<plug>(wiki-link-next)' : '<tab>',
+          \ '<plug>(wiki-link-prev)' : '<s-tab>',
           \ '<plug>(wiki-link-open)' : '<cr>',
           \ '<plug>(wiki-link-open-split)' : '<c-w><cr>',
           \ '<plug>(wiki-link-return)' : '<bs>',
@@ -165,8 +165,8 @@ function! s:init_buffer_mappings() abort " {{{1
 
     if b:wiki.in_journal
       call extend(l:mappings, {
-            \ '<plug>(wiki-journal-prev)' : '<c-j>',
-            \ '<plug>(wiki-journal-next)' : '<c-k>',
+            \ '<plug>(wiki-journal-prev)' : '<c-p>',
+            \ '<plug>(wiki-journal-next)' : '<c-n>',
             \ '<plug>(wiki-journal-copy-tonext)' : '<leader>wk',
             \ '<plug>(wiki-journal-toweek)' : '<leader>wu',
             \ '<plug>(wiki-journal-tomonth)' : '<leader>wm',
