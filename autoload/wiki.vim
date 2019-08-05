@@ -63,7 +63,7 @@ if get(s:, 'reload_guard', 1)
 
     " Reload ftplugin and syntax
     if &filetype ==# 'wiki'
-      unlet b:did_ftplugin
+      unlet! b:did_ftplugin
       runtime ftplugin/wiki.vim
 
       if get(b:, 'current_syntax', '') ==# 'wiki'
