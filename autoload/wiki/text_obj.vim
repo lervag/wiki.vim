@@ -57,17 +57,29 @@ function! wiki#text_obj#list_element(is_inner, vmode) abort " {{{1
     return
   endif
 
-  if a:is_inner
-    let l:lnum1 = l:current.lnum_start
-    let l:lnum2 = l:current.lnum_end_children()
-  else
-    let l:lnum1 = l:current.parent.lnum_start
-    let l:lnum2 = l:current.parent.lnum_end_children()
-  endif
+  while v:true
+    let l:start = [l:current.lnum_start, 1]
+    let l:end = [l:current.lnum_end_children(), 1]
+    let l:end[1] = strlen(getline(l:end[0]))
+    let l:linewise = 1
 
-  call cursor(l:lnum1, 1)
-  normal! V
-  call cursor(l:lnum2, strlen(getline(l:lnum2)))
+    if a:is_inner
+      let l:start[1] = 3 + indent(l:start[0])
+      let l:linewise = 0
+    endif
+
+    if !a:vmode
+          \ || l:current.type ==# 'root'
+          \ || l:start != getpos('''<')[1:2]
+          \ || l:end[0] != getpos('''>')[1]
+          \ | break | endif
+
+    let l:current = l:current.parent
+  endwhile
+
+  call cursor(l:start)
+  execute 'normal!' (l:linewise ? 'V' : 'v')
+  call cursor(l:end)
 endfunction
 
 " }}}1
