@@ -9,7 +9,7 @@ function! wiki#complete#omnicomplete(findstart, base) " {{{1
   if a:findstart
     let l:line = getline('.')[:col('.')-2]
     let l:cnum = match(l:line, '\[\[\zs[^\\[\]]\{-}$')
-    if l:cnum < 0 | return -1 | endif
+    if l:cnum < 0 | return -3 | endif
 
     let l:base = l:line[l:cnum:]
 
