@@ -97,8 +97,8 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <buffer> <plug>(wiki-tag-reload)           :WikiTagReload<cr>
   nnoremap <buffer> <plug>(wiki-tag-search)           :WikiTagSearch<cr>
 
-  nnoremap <buffer> <plug>(wiki-fzf-toc)              <esc><cmd>WikiFzfToc<cr>
-  inoremap <buffer> <plug>(wiki-fzf-toc)              <esc><cmd>WikiFzfToc<cr>
+  nnoremap <buffer> <plug>(wiki-fzf-toc)              :WikiFzfToc<cr>
+  inoremap <buffer> <plug>(wiki-fzf-toc)              <esc>:WikiFzfToc<cr>
 
   inoremap <buffer><expr> <plug>(wiki-list-toggle)          wiki#list#new_line_bullet()
   xnoremap <buffer>       <plug>(wiki-link-toggle-visual)   :<c-u>call wiki#link#toggle_visual()<cr>
