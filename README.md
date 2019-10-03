@@ -82,6 +82,7 @@ This outlines the basic steps to get started:
   - [unite](https://github.com/Shougo/unite.vim)
   - [denite](https://github.com/Shougo/denite.nvim)
   - [ncm2](https://github.com/ncm2/ncm2): SubscopeDetector for nested completion
+  - [fzf](https://github.com/junegunn/fzf.vim): `WikiFzfPages` and `WikiFzfToc` commands
 
 # TODO
 

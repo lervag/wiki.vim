@@ -228,6 +228,7 @@ function! wiki#page#gather_toc_entries(local) abort " {{{1
     let l:entry = {
           \ 'lnum' : l:lnum,
           \ 'level' : l:level,
+          \ 'header_text': l:header,
           \ 'header' : repeat(' ', shiftwidth()*(l:level-1))
           \            . '- ' . wiki#link#template_wiki(l:anchor, l:header),
           \}

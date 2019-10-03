@@ -59,6 +59,8 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer          WikiTagReload call wiki#tags#reload()
   command! -buffer -nargs=* WikiTagSearch call wiki#tags#search(<f-args>)
 
+  command! -buffer          WikiFzfToc    call wiki#fzf#toc()
+
   if b:wiki.in_journal
     command! -buffer -count=1 WikiJournalPrev       call wiki#journal#go(-<count>)
     command! -buffer -count=1 WikiJournalNext       call wiki#journal#go(<count>)
@@ -94,6 +96,9 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <buffer> <plug>(wiki-tag-list)             :WikiTagList<cr>
   nnoremap <buffer> <plug>(wiki-tag-reload)           :WikiTagReload<cr>
   nnoremap <buffer> <plug>(wiki-tag-search)           :WikiTagSearch<cr>
+
+  nnoremap <buffer> <plug>(wiki-fzf-toc)              :WikiFzfToc<cr>
+  inoremap <buffer> <plug>(wiki-fzf-toc)              <esc>:WikiFzfToc<cr>
 
   inoremap <buffer><expr> <plug>(wiki-list-toggle)          wiki#list#new_line_bullet()
   xnoremap <buffer>       <plug>(wiki-link-toggle-visual)   :<c-u>call wiki#link#toggle_visual()<cr>

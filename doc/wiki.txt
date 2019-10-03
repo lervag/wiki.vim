@@ -109,6 +109,8 @@ FEATURES                                                  *wiki-intro-features*
     - `il al` List items
 - Third-party support
   - |CtrlP|: |CtrlPWiki| command (https://github.com/ctrlpvim/ctrlp.vim)
+  - |fzf|: |WikiFzfPages|, |WikiFzfToc| commands
+    (https://github.com/junegunn/fzf.vim)
   - |unite| source (https://github.com/Shougo/unite.vim)
   - |denite| source (https://github.com/Shougo/denite.nvim)
 
@@ -498,6 +500,15 @@ possible.
 *CtrlPWiki*
   Open |CtrlP| in find file mode for wiki files in current wiki or in the main
   wiki defined by |g:wiki_root|.
+
+*<plug>(wiki-fzf-pages)*
+*WikiFzfPages*
+  Open |fzf| in find file mode for wiki files in current wiki or in the main
+  wiki defined by |g:wiki_root|.
+
+*<plug>(wiki-fzf-toc)*
+*WikiFzfToc*
+  Open |fzf| and list table of contents entries for the current wiki page.
 
 ==============================================================================
 MAPPINGS                                                        *wiki-mappings*

@@ -47,16 +47,19 @@ call wiki#init#option('wiki_template_title_month',
       \ '# Summary, %(year) %(month-name)')
 
 " Initialize global commands
-command! WikiEnable  call wiki#buffer#init()
-command! WikiIndex   call wiki#goto_index()
-command! WikiReload  call wiki#reload()
-command! WikiJournal call wiki#journal#make_note()
-command! CtrlPWiki   call ctrlp#init(ctrlp#wiki#id())
+command! WikiEnable   call wiki#buffer#init()
+command! WikiIndex    call wiki#goto_index()
+command! WikiReload   call wiki#reload()
+command! WikiJournal  call wiki#journal#make_note()
+command! CtrlPWiki    call ctrlp#init(ctrlp#wiki#id())
+command! WikiFzfPages call wiki#fzf#pages()
 
 " Initialize mappings
-nnoremap <silent> <plug>(wiki-index)   :WikiIndex<cr>
-nnoremap <silent> <plug>(wiki-journal) :WikiJournal<cr>
-nnoremap <silent> <plug>(wiki-reload)  :WikiReload<cr>
+nnoremap <silent> <plug>(wiki-index)     :WikiIndex<cr>
+nnoremap <silent> <plug>(wiki-journal)   :WikiJournal<cr>
+nnoremap <silent> <plug>(wiki-reload)    :WikiReload<cr>
+nnoremap <silent> <plug>(wiki-fzf-pages) :WikiFzfPages<cr>
+inoremap <silent> <plug>(wiki-fzf-pages) <esc>:WikiFzfPages<cr>
 
 " Apply default mappings
 let s:mappings = get(g:, 'wiki_mappings_use_defaults', 1)
