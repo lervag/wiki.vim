@@ -59,7 +59,6 @@ nnoremap <silent> <plug>(wiki-index)     :WikiIndex<cr>
 nnoremap <silent> <plug>(wiki-journal)   :WikiJournal<cr>
 nnoremap <silent> <plug>(wiki-reload)    :WikiReload<cr>
 nnoremap <silent> <plug>(wiki-fzf-pages) :WikiFzfPages<cr>
-inoremap <silent> <plug>(wiki-fzf-pages) <esc>:WikiFzfPages<cr>
 
 " Apply default mappings
 let s:mappings = get(g:, 'wiki_mappings_use_defaults', 1)
