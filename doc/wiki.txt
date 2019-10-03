@@ -508,7 +508,7 @@ possible.
 
 *<plug>(wiki-fzf-toc)*
 *WikiFzfToc*
-  Open |fzf| and list all table of contents entries for the current wiki page.
+  Open |fzf| and list table of contents entries for the current wiki page.
 
 ==============================================================================
 MAPPINGS                                                        *wiki-mappings*
