@@ -39,20 +39,21 @@ function! wiki#complete#omnicomplete(findstart, base) " {{{1
       let l:cnum = strlen(l:pre_base)
       let l:anchors = filter(wiki#page#get_anchors(l:url),
             \ 'v:val =~# ''^'' . wiki#u#escape(l:pre_base) . ''[^#]*$''')
-      return map(l:anchors, 'strpart(v:val, l:cnum)')
+      let l:anchors = map(l:anchors, 'strpart(v:val, l:cnum)')
+      return filter(l:anchors, 'v:val =~# ''' . a:base . '''')
     endif
 
     if s:ctx.rooted
       let l:cands = map(
             \ globpath(b:wiki.root, '**/*.' . b:wiki.extension, 0, 1),
-            \ 's:relpath(b:wiki.root, fnamemodify(v:val, '':r''))')
+            \ '"/" . s:relpath(b:wiki.root, fnamemodify(v:val, '':r''))')
     else
       let l:cands = map(
             \ globpath(expand('%:p:h'), '**/*.' . b:wiki.extension, 0, 1),
             \ 'resolve(fnamemodify(v:val, '':.:r''))')
     endif
 
-    return l:cands
+    return filter(l:cands, 'stridx(v:val, a:base) >= 0')
   endif
 endfunction
 
