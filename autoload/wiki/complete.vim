@@ -27,7 +27,6 @@ function! wiki#complete#omnicomplete(findstart, base) " {{{1
     endif
 
     if l:base[0] ==# '/'
-      let l:cnum += 1
       let s:ctx.rooted = 1
     endif
 
