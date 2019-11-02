@@ -555,6 +555,7 @@ information about the different modes.
    MODE  LHS                 RHS~
   ---------------------------------------------------------------------~
    `n`     <leader>ww          |<plug>(wiki-index)|               [GLOBAL]
+   `n`     <leader>wn          |<plug>(wiki-open)|                [GLOBAL]
    `n`     <leader>w<leader>w  |<plug>(wiki-journal)|             [GLOBAL]
    `n`     <leader>wx          |<plug>(wiki-reload)|              [GLOBAL]
    `n`     <leader>wc          |<plug>(wiki-code-run)|
