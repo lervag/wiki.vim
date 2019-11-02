@@ -5,6 +5,12 @@
 " License:    MIT license
 "
 
+function! wiki#page#open() abort "{{{1
+  let l:page = input('Open/Create page: ')
+  call wiki#url#parse('wiki:/' . l:page).open()
+endfunction
+
+"}}}1
 function! wiki#page#delete() abort "{{{1
   let l:input_response = input('Delete "' . expand('%') . '" [y]es/[N]o? ')
   if l:input_response !~? '^y' | return | endif

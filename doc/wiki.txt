@@ -332,6 +332,11 @@ possible.
   Go to wiki index. When not inside a wiki page, the index is specified by the
   option |g:wiki_root|.
 
+*<plug>(wiki-open)*
+*WikiOpen*
+  Open (or create) a page. Asks for user input to specify the page name. When
+  not already inside a wiki, the wiki root is given by |g:wiki_root|.
+
 *<plug>(wiki-journal)*
 *WikiJournal*
   Go to todays journal entry.
