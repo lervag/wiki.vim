@@ -240,6 +240,9 @@ function! wiki#link#template_md(url, ...) abort " {{{1
   let l:text = a:0 > 0 ? a:1 : ''
   if empty(l:text)
     let l:text = input('Link text: ')
+    if empty(l:text)
+      let l:text = a:url
+    endif
   endif
   return '[' . l:text . '](' . a:url . ')'
 endfunction
