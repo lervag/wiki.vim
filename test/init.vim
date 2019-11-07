@@ -1,5 +1,5 @@
 set nocompatible
-let &runtimepath = '~/.vim/bundle/wiki.vim,' . &runtimepath
+let &runtimepath = expand('<sfile>:p:h:h') . ',' . &runtimepath
 filetype plugin indent on
 syntax enable
 
