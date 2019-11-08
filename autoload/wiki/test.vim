@@ -8,29 +8,41 @@
 function! wiki#test#assert(condition) abort " {{{1
   if a:condition | return 1 | endif
 
-  echo 'Assertion failed!'
-  cquit
+  call s:fail()
 endfunction
 
 " }}}1
 function! wiki#test#assert_equal(x, y) abort " {{{1
   if a:x ==# a:y | return 1 | endif
 
-  echo 'Assertion failed!'
-  echo 'x =' a:x
-  echo 'y =' a:y
-  echo "---\n"
-  cquit
+  call s:fail([
+        \ 'x = ' . a:x,
+        \ 'y = ' . a:y,
+        \])
 endfunction
 
 " }}}1
 function! wiki#test#assert_match(x, regex) abort " {{{1
   if a:x =~# a:regex | return 1 | endif
 
+  call s:fail([
+        \ 'x = ' . a:x,
+        \ 'regex = ' . a:regex,
+        \])
+endfunction
+
+" }}}1
+
+function! s:fail(...) abort " {{{1
   echo 'Assertion failed!'
-  echo 'x =' a:x
-  echo 'regex =' a:regex
-  echo "---\n"
+
+  if a:0 > 0 && !empty(a:1)
+    for line in a:1
+      echo line
+    endfor
+  endif
+  echon "\n"
+
   cquit
 endfunction
 
