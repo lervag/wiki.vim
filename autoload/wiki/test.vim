@@ -37,9 +37,13 @@ function! s:fail(...) abort " {{{1
   echo 'Assertion failed!'
 
   if a:0 > 0 && !empty(a:1)
-    for line in a:1
-      echo line
-    endfor
+    if type(a:1) == type('')
+      echo a:1
+    else
+      for line in a:1
+        echo line
+      endfor
+    endif
   endif
   echon "\n"
 
