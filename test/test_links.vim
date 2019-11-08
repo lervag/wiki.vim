@@ -9,45 +9,27 @@ endfunction
 runtime plugin/wiki.vim
 
 " Test toggle normal on regular markdown links using wiki style links
-try
-  bwipeout!
-  silent edit ex1-basic/index.wiki
-  normal! 3G
-  silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
-
-  if getline('.') !=# '[[this-is-a-wiki|This is a wiki]].'
-    call wiki#test#error(expand('<sfile>'), 'Should have created a parsed wiki link.')
-  endif
-endtry
+silent edit ex1-basic/index.wiki
+normal! 3G
+silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
+call wiki#test#assert_equal(getline('.'), '[[this-is-a-wiki|This is a wiki]].')
 
 " Test toggle normal on regular markdown links using md style links
+bwipeout!
 let g:wiki_link_target_type = 'md'
-
-try
-  bwipeout!
-  silent edit ex1-basic/index.wiki
-  normal! 3G
-  silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
-
-  if getline('.') !=# '[This is a wiki](this-is-a-wiki).'
-    call wiki#test#error(expand('<sfile>'), 'Should have created a parsed markdown link.')
-  endif
-endtry
+silent edit ex1-basic/index.wiki
+normal! 3G
+silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
+call wiki#test#assert_equal(getline('.'), '[This is a wiki](this-is-a-wiki).')
 
 " Test toggle normal on regular markdown links using md style links with the
 " markdown extension
+bwipeout!
 let g:wiki_link_target_type = 'md'
 let g:wiki_link_extension = '.md'
+silent edit ex1-basic/index.wiki
+normal! 3G
+silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
+call wiki#test#assert_equal(getline('.'), '[This is a wiki](this-is-a-wiki.md).')
 
-try
-  bwipeout!
-  silent edit ex1-basic/index.wiki
-  normal! 3G
-  silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
-
-  if getline('.') !=# '[This is a wiki](this-is-a-wiki.md).'
-    call wiki#test#error(expand('<sfile>'), 'Should have created a markdown link with extension.')
-  endif
-endtry
-
-call wiki#test#quit()
+if $QUIT | quitall! | endif

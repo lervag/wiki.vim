@@ -2,10 +2,11 @@ export QUIT = 1
 
 tests := $(wildcard test_*.vim)
 
-.PHONY: $(tests)
+.PHONY: all $(tests)
 
-all: $(tests)
+test: $(tests)
 
 $(tests):
-	nvim -u $@
-	@vim -n -u NONE -e -s -c "source $@" 2>&1
+	@echo $@
+	@nvim --headless -u $@
+	@vim -T dumb --not-a-term --noplugin -n -u $@

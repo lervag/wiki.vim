@@ -5,43 +5,33 @@
 " License:    MIT license
 "
 
-function! wiki#test#init() abort " {{{1
-  set noswapfile
-  let v:errors = []
-  nnoremap q :qall!<cr>
+function! wiki#test#assert(condition) abort " {{{1
+  if a:condition | return 1 | endif
+
+  echo 'Assertion failed!'
+  cquit
 endfunction
 
 " }}}1
-function! wiki#test#quit() abort " {{{1
-  if !empty(v:errors)
-    for l:error in v:errors
-      verbose echo l:error . ' (' . v:progname . ')'
-    endfor
-    verbose echo ''
-  endif
+function! wiki#test#assert_equal(x, y) abort " {{{1
+  if a:x ==# a:y | return 1 | endif
 
-  if $QUIT
-    if !empty(v:errors)
-      cquit
-    else
-      quitall!
-    endif
-  endif
+  echo 'Assertion failed!'
+  echo 'x =' a:x
+  echo 'y =' a:y
+  echo "---\n"
+  cquit
 endfunction
 
 " }}}1
+function! wiki#test#assert_match(x, regex) abort " {{{1
+  if a:x =~# a:regex | return 1 | endif
 
-function! wiki#test#error(fname, msg) abort " {{{1
-  call add(v:errors, fnamemodify(a:fname, ':t') . ': ' . a:msg)
-endfunction
-
-" }}}1
-function! wiki#test#append(msg) abort " {{{1
-  if type(a:msg) == type([])
-    call extend(v:errors, a:msg)
-  else
-    call add(v:errors, a:msg)
-  endif
+  echo 'Assertion failed!'
+  echo 'x =' a:x
+  echo 'regex =' a:regex
+  echo "---\n"
+  cquit
 endfunction
 
 " }}}1

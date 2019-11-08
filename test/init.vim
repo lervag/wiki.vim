@@ -1,6 +1,7 @@
 set nocompatible
-let &runtimepath = '~/.vim/bundle/wiki.vim,' . &runtimepath
-filetype plugin indent on
-syntax enable
+let &runtimepath = '..,' . &runtimepath
+" filetype plugin indent on
+" syntax enable
 
-call wiki#test#init()
+set noswapfile
+nnoremap q :qall!<cr>
