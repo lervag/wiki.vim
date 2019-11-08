@@ -230,6 +230,10 @@ function! wiki#link#template_wiki(url, ...) abort " {{{1
         \ ? a:1 ==# a:url[1:] ? '' : a:1
         \ : ''
 
+  if l:text ==# a:url
+    let l:text = ''
+  endif
+
   return empty(l:text)
         \ ? '[[' . a:url . ']]'
         \ : '[[' . a:url . '|' . l:text . ']]'
@@ -238,10 +242,7 @@ endfunction
 " }}}1
 function! wiki#link#template_md(url, ...) abort " {{{1
   let l:text = a:0 > 0 ? a:1 : ''
-  if empty(l:text)
-    let l:text = input('Link text: ')
-  endif
-  return '[' . l:text . '](' . a:url . ')'
+  return '[' . (empty(l:text) ? a:url : l:text) . '](' . a:url . ')'
 endfunction
 
 " }}}1
