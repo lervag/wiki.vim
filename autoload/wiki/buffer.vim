@@ -72,57 +72,57 @@ endfunction
 
 " }}}1
 function! s:init_buffer_mappings() abort " {{{1
-  nnoremap <buffer> <plug>(wiki-code-run)             :WikiCodeRun<cr>
-  nnoremap <buffer> <plug>(wiki-graph-find-backlinks) :WikiGraphFindBacklinks<cr>
-  nnoremap <buffer> <plug>(wiki-graph-in)             :WikiGraphIn<cr>
-  nnoremap <buffer> <plug>(wiki-graph-out)            :WikiGraphOut<cr>
-  nnoremap <buffer> <plug>(wiki-journal-index)        :WikiJournalIndex<cr>
-  nnoremap <buffer> <plug>(wiki-journal-index-md)     :WikiJournalIndex!<cr>
-  nnoremap <buffer> <plug>(wiki-link-next)            :WikiLinkNext<cr>
-  nnoremap <buffer> <plug>(wiki-link-open)            :WikiLinkOpen<cr>
-  nnoremap <buffer> <plug>(wiki-link-open-split)      :WikiLinkOpenSplit<cr>
-  nnoremap <buffer> <plug>(wiki-link-prev)            :WikiLinkPrev<cr>
-  nnoremap <buffer> <plug>(wiki-link-return)          :WikiLinkReturn<cr>
-  nnoremap <buffer> <plug>(wiki-link-toggle)          :WikiLinkToggle<cr>
-  nnoremap <buffer> <plug>(wiki-list-toggle)          :WikiListToggle<cr>
-  nnoremap <buffer> <plug>(wiki-list-uniq)            :WikiListUniq<cr>
-  nnoremap <buffer> <plug>(wiki-list-uniq-local)      :WikiListUniqLocal<cr>
-  nnoremap <buffer> <plug>(wiki-page-delete)          :WikiPageDelete<cr>
-  nnoremap <buffer> <plug>(wiki-page-rename)          :WikiPageRename<cr>
-  nnoremap <buffer> <plug>(wiki-page-toc)             :WikiPageToc<cr>
-  nnoremap <buffer> <plug>(wiki-page-toc-local)       :WikiPageTocLocal<cr>
-  nnoremap <buffer> <plug>(wiki-export)               :WikiExport<cr>
-  xnoremap <buffer> <plug>(wiki-export)               :WikiExport<cr>
-  nnoremap <buffer> <plug>(wiki-tag-list)             :WikiTagList<cr>
-  nnoremap <buffer> <plug>(wiki-tag-reload)           :WikiTagReload<cr>
-  nnoremap <buffer> <plug>(wiki-tag-search)           :WikiTagSearch<cr>
+  nnoremap <silent><buffer> <plug>(wiki-code-run)             :WikiCodeRun<cr>
+  nnoremap <silent><buffer> <plug>(wiki-graph-find-backlinks) :WikiGraphFindBacklinks<cr>
+  nnoremap <silent><buffer> <plug>(wiki-graph-in)             :WikiGraphIn<cr>
+  nnoremap <silent><buffer> <plug>(wiki-graph-out)            :WikiGraphOut<cr>
+  nnoremap <silent><buffer> <plug>(wiki-journal-index)        :WikiJournalIndex<cr>
+  nnoremap <silent><buffer> <plug>(wiki-journal-index-md)     :WikiJournalIndex!<cr>
+  nnoremap <silent><buffer> <plug>(wiki-link-next)            :WikiLinkNext<cr>
+  nnoremap <silent><buffer> <plug>(wiki-link-open)            :WikiLinkOpen<cr>
+  nnoremap <silent><buffer> <plug>(wiki-link-open-split)      :WikiLinkOpenSplit<cr>
+  nnoremap <silent><buffer> <plug>(wiki-link-prev)            :WikiLinkPrev<cr>
+  nnoremap <silent><buffer> <plug>(wiki-link-return)          :WikiLinkReturn<cr>
+  nnoremap <silent><buffer> <plug>(wiki-link-toggle)          :WikiLinkToggle<cr>
+  nnoremap <silent><buffer> <plug>(wiki-list-toggle)          :WikiListToggle<cr>
+  nnoremap <silent><buffer> <plug>(wiki-list-uniq)            :WikiListUniq<cr>
+  nnoremap <silent><buffer> <plug>(wiki-list-uniq-local)      :WikiListUniqLocal<cr>
+  nnoremap <silent><buffer> <plug>(wiki-page-delete)          :WikiPageDelete<cr>
+  nnoremap <silent><buffer> <plug>(wiki-page-rename)          :WikiPageRename<cr>
+  nnoremap <silent><buffer> <plug>(wiki-page-toc)             :WikiPageToc<cr>
+  nnoremap <silent><buffer> <plug>(wiki-page-toc-local)       :WikiPageTocLocal<cr>
+  nnoremap <silent><buffer> <plug>(wiki-export)               :WikiExport<cr>
+  xnoremap <silent><buffer> <plug>(wiki-export)               :WikiExport<cr>
+  nnoremap <silent><buffer> <plug>(wiki-tag-list)             :WikiTagList<cr>
+  nnoremap <silent><buffer> <plug>(wiki-tag-reload)           :WikiTagReload<cr>
+  nnoremap <silent><buffer> <plug>(wiki-tag-search)           :WikiTagSearch<cr>
 
-  nnoremap <buffer> <plug>(wiki-fzf-toc)              :WikiFzfToc<cr>
-  inoremap <buffer> <plug>(wiki-fzf-toc)              <esc>:WikiFzfToc<cr>
+  nnoremap <silent><buffer> <plug>(wiki-fzf-toc)              :WikiFzfToc<cr>
+  inoremap <silent><buffer> <plug>(wiki-fzf-toc)              <esc>:WikiFzfToc<cr>
 
-  inoremap <buffer><expr> <plug>(wiki-list-toggle)          wiki#list#new_line_bullet()
-  xnoremap <buffer>       <plug>(wiki-link-toggle-visual)   :<c-u>call wiki#link#toggle_visual()<cr>
-  nnoremap <buffer>       <plug>(wiki-link-toggle-operator) :set opfunc=wiki#link#toggle_operator<cr>g@
+  inoremap <silent><buffer><expr> <plug>(wiki-list-toggle)          wiki#list#new_line_bullet()
+  xnoremap <silent><buffer>       <plug>(wiki-link-toggle-visual)   :<c-u>call wiki#link#toggle_visual()<cr>
+  nnoremap <silent><buffer>       <plug>(wiki-link-toggle-operator) :set opfunc=wiki#link#toggle_operator<cr>g@
 
-  onoremap <buffer> <plug>(wiki-au) :call wiki#text_obj#link(0, 0)<cr>
-  xnoremap <buffer> <plug>(wiki-au) :<c-u>call wiki#text_obj#link(0, 1)<cr>
-  onoremap <buffer> <plug>(wiki-iu) :call wiki#text_obj#link(1, 0)<cr>
-  xnoremap <buffer> <plug>(wiki-iu) :<c-u>call wiki#text_obj#link(1, 1)<cr>
-  onoremap <buffer> <plug>(wiki-at) :call wiki#text_obj#link_text(0, 0)<cr>
-  xnoremap <buffer> <plug>(wiki-at) :<c-u>call wiki#text_obj#link_text(0, 1)<cr>
-  onoremap <buffer> <plug>(wiki-it) :call wiki#text_obj#link_text(1, 0)<cr>
-  xnoremap <buffer> <plug>(wiki-it) :<c-u>call wiki#text_obj#link_text(1, 1)<cr>
-  onoremap <buffer> <plug>(wiki-al) :call wiki#text_obj#list_element(0, 0)<cr>
-  xnoremap <buffer> <plug>(wiki-al) :<c-u>call wiki#text_obj#list_element(0, 1)<cr>
-  onoremap <buffer> <plug>(wiki-il) :call wiki#text_obj#list_element(1, 0)<cr>
-  xnoremap <buffer> <plug>(wiki-il) :<c-u>call wiki#text_obj#list_element(1, 1)<cr>
+  onoremap <silent><buffer> <plug>(wiki-au) :call wiki#text_obj#link(0, 0)<cr>
+  xnoremap <silent><buffer> <plug>(wiki-au) :<c-u>call wiki#text_obj#link(0, 1)<cr>
+  onoremap <silent><buffer> <plug>(wiki-iu) :call wiki#text_obj#link(1, 0)<cr>
+  xnoremap <silent><buffer> <plug>(wiki-iu) :<c-u>call wiki#text_obj#link(1, 1)<cr>
+  onoremap <silent><buffer> <plug>(wiki-at) :call wiki#text_obj#link_text(0, 0)<cr>
+  xnoremap <silent><buffer> <plug>(wiki-at) :<c-u>call wiki#text_obj#link_text(0, 1)<cr>
+  onoremap <silent><buffer> <plug>(wiki-it) :call wiki#text_obj#link_text(1, 0)<cr>
+  xnoremap <silent><buffer> <plug>(wiki-it) :<c-u>call wiki#text_obj#link_text(1, 1)<cr>
+  onoremap <silent><buffer> <plug>(wiki-al) :call wiki#text_obj#list_element(0, 0)<cr>
+  xnoremap <silent><buffer> <plug>(wiki-al) :<c-u>call wiki#text_obj#list_element(0, 1)<cr>
+  onoremap <silent><buffer> <plug>(wiki-il) :call wiki#text_obj#list_element(1, 0)<cr>
+  xnoremap <silent><buffer> <plug>(wiki-il) :<c-u>call wiki#text_obj#list_element(1, 1)<cr>
 
   if b:wiki.in_journal
-    nnoremap <buffer> <plug>(wiki-journal-prev)        :WikiJournalPrev<cr>
-    nnoremap <buffer> <plug>(wiki-journal-next)        :WikiJournalNext<cr>
-    nnoremap <buffer> <plug>(wiki-journal-copy-tonext) :WikiJournalCopyToNext<cr>
-    nnoremap <buffer> <plug>(wiki-journal-toweek)      :WikiJournalToWeek<cr>
-    nnoremap <buffer> <plug>(wiki-journal-tomonth)     :WikiJournalToMonth<cr>
+    nnoremap <silent><buffer> <plug>(wiki-journal-prev)        :WikiJournalPrev<cr>
+    nnoremap <silent><buffer> <plug>(wiki-journal-next)        :WikiJournalNext<cr>
+    nnoremap <silent><buffer> <plug>(wiki-journal-copy-tonext) :WikiJournalCopyToNext<cr>
+    nnoremap <silent><buffer> <plug>(wiki-journal-toweek)      :WikiJournalToWeek<cr>
+    nnoremap <silent><buffer> <plug>(wiki-journal-tomonth)     :WikiJournalToMonth<cr>
   endif
 
 
