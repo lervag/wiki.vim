@@ -22,7 +22,7 @@ endfunction
 function! wiki#nav#return() abort "{{{1
   if exists('b:wiki.prev_link')
     let [l:file, l:pos] = b:wiki.prev_link
-    execute ':e ' . substitute(l:file, '\s', '\\\0', 'g')
+    silent execute ':e ' . substitute(l:file, '\s', '\\\0', 'g')
     call setpos('.', l:pos)
   else
     silent! execute "normal! \<c-o>"
