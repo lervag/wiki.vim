@@ -1,0 +1,3 @@
+# main wiki
+
+[[sub/index]]
