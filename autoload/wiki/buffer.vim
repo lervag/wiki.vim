@@ -40,6 +40,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiGraphOut           call wiki#graph#from_current()
   command! -buffer -bang WikiJournalIndex call wiki#journal#make_index(<q-bang> == '!')
   command! -buffer WikiLinkNext           call wiki#nav#next_link()
+  command! -buffer WikiLinkShow           call wiki#link#show()
   command! -buffer WikiLinkOpen           call wiki#link#open()
   command! -buffer WikiLinkOpenSplit      call wiki#link#open('vsplit')
   command! -buffer WikiLinkPrev           call wiki#nav#prev_link()
@@ -79,6 +80,7 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-journal-index)        :WikiJournalIndex<cr>
   nnoremap <silent><buffer> <plug>(wiki-journal-index-md)     :WikiJournalIndex!<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-next)            :WikiLinkNext<cr>
+  nnoremap <silent><buffer> <plug>(wiki-link-show)            :WikiLinkShow<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-open)            :WikiLinkOpen<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-open-split)      :WikiLinkOpenSplit<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-prev)            :WikiLinkPrev<cr>
@@ -135,6 +137,7 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-graph-out)' : '<leader>wG',
           \ '<plug>(wiki-link-next)' : '<tab>',
           \ '<plug>(wiki-link-prev)' : '<s-tab>',
+          \ '<plug>(wiki-link-show)' : '<leader>wll',
           \ '<plug>(wiki-link-open)' : '<cr>',
           \ '<plug>(wiki-link-open-split)' : '<c-w><cr>',
           \ '<plug>(wiki-link-return)' : '<bs>',
