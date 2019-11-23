@@ -1,3 +1,5 @@
+if !exists('g:gtrlp_ext_vars') | finish | endif
+
 call add(g:ctrlp_ext_vars, {
       \ 'init': 'ctrlp#wiki#init()',
       \ 'accept': 'ctrlp#wiki#accept',
