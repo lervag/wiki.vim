@@ -241,8 +241,8 @@ endfunction
 "}}}1
 function! s:handle_multibyte(cnum) abort " {{{1
   if a:cnum <= 0 | return a:cnum | endif
-  let l:char = getline('.')[a:cnum-1 : a:cnum]
-  return a:cnum + (strchars(l:char) == 1)
+  let l:bytes = len(strcharpart(getline('.')[a:cnum-1:], 0, 1))
+  return a:cnum + l:bytes - 1
 endfunction
 
 " }}}1
@@ -551,7 +551,7 @@ let s:matcher_word = {
       \ 'type' : 'word',
       \ 'parser' : function('s:parser_word'),
       \ 'toggle' : 'word',
-      \ 'rx' : '\<[0-9A-ZÆØÅa-zæøå]\+\>',
+      \ 'rx' : wiki#rx#word(),
       \}
 
 " }}}1
