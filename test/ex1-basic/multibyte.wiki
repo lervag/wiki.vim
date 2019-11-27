@@ -1,0 +1,10 @@
+# CJK Characters
+ウィキ
+土壇場
+
+# Standard multi byte characters
+être
+Pokémon
+ça
+miałyście
+

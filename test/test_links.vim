@@ -14,6 +14,16 @@ normal! 3G
 silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
 call wiki#test#assert_equal(getline('.'), '[[this-is-a-wiki|This is a wiki]].')
 
+" Test toggle on multibyte character words
+bwipeout!
+silent edit ex1-basic/multibyte.wiki
+normal! j
+silent execute "normal \<Plug>(wiki-link-toggle)"
+call wiki#test#assert_equal(getline('.'), '[[ウィキ]]')
+normal! 5j
+silent execute "normal \<Plug>(wiki-link-toggle)"
+call wiki#test#assert_equal(getline('.'), '[[pokémon|Pokémon]]')
+
 " Test toggle normal on regular markdown links using md style links
 bwipeout!
 let g:wiki_link_target_type = 'md'
