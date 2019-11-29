@@ -236,7 +236,7 @@ function! wiki#page#gather_toc_entries(local) abort " {{{1
           \ 'level' : l:level,
           \ 'header_text': l:header,
           \ 'header' : repeat(' ', shiftwidth()*(l:level-1))
-          \            . '- ' . wiki#link#template_wiki(l:anchor, l:header),
+          \            . '* ' . wiki#link#template_wiki(l:anchor, l:header),
           \}
     call add(l:entries, l:entry)
 
