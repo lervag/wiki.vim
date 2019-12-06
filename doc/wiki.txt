@@ -225,9 +225,19 @@ CONFIGURATION                                                     *wiki-config*
         \ '<plug>(wiki-reload)' : ',wx',
         \}
 <
-  This example will keep the default maps (unless disabled), except for
-  `<plug>(wiki-reload)`, which will be mapped to `,wx`. The available `<plug>`
-  mappings are listed in |wiki-mappings|.
+  This example maps `,wx` to |<plug>(wiki-reload)|. The other maps are kept at
+  the default (unless |g:wiki_mappings_use_defaults| is set to 0). Some
+  mappings are defined in other modes than normal mode. In this case, one can
+  use the following syntax: >
+
+    let g:wiki_mappings_local = {
+          \ '<plug>(wiki-list-toggle)' : '<c-w>',
+          \ 'i_<plug>(wiki-list-toggle)' : '<c-w>',
+          \}
+<
+  Here `<c-w>` is mapped to |<plug>(wiki-list-toggle)| in normal mode and
+  insert mode, respectively. The available `<plug>` mappings are listed in
+  |wiki-mappings|.
 
   Default: Undefined
 
