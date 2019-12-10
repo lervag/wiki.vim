@@ -13,7 +13,7 @@ function! wiki#url#file#parse(url) abort " {{{1
       if call(get(g:, 'wiki_file_open', ''), a:000, self)
         return
       endif
-    catch 'E117: Unknown function'
+    catch /E117:/
       " Pass
     endtry
 

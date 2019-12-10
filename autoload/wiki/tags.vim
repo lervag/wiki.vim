@@ -65,7 +65,7 @@ function! s:search(cfg) abort " {{{1
 
   try
     call s:output_{a:cfg.output}(a:cfg, l:tags)
-  catch /E117/
+  catch /E117:/
     echomsg 'WikiTagSeach: Output type "' . l:cfg.output . '" not recognized!'
     echomsg '              Please see :help WikiTagSearch'
   endtry

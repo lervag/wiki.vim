@@ -18,7 +18,7 @@ function! wiki#page#delete() abort "{{{1
   let l:filename = expand('%:p')
   try
     call delete(l:filename)
-  catch /.*/
+  catch
     echomsg 'wiki Error: Cannot delete "' . expand('%:t:r') . '"!'
     return
   endtry

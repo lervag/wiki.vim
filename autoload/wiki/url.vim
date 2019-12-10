@@ -37,7 +37,7 @@ function! wiki#url#parse(string, ...) abort " {{{1
 
   try
     call extend(l:url, wiki#url#{l:url.scheme}#parse(l:url))
-  catch 'E117: Unknown function'
+  catch /E117:/
     call extend(l:url, wiki#url#generic#parse(l:url))
   endtry
 
