@@ -14,6 +14,11 @@ normal! 3G
 silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
 call wiki#test#assert_equal(getline('.'), '[[this-is-a-wiki|This is a wiki]].')
 
+" Test toggle normal on regular markdown links using wiki style links
+normal! 5G
+silent execute "normal V\<Plug>(wiki-link-toggle-visual)"
+call wiki#test#assert_equal(getline('.'), '[[createfulllinelink|CreateFullLineLink]]')
+
 " Test toggle on multibyte character words
 bwipeout!
 silent edit ex1-basic/multibyte.wiki
