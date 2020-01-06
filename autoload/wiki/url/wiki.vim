@@ -87,7 +87,10 @@ function! s:parser.open(...) abort dict " {{{1
       normal! zMzv
     endif
   endif
-  normal! zt
+
+  if exists('#User#WikiLinkOpened')
+    doautocmd <nomodeline> User WikiLinkOpened
+  endif
 endfunction
 
 "}}}1

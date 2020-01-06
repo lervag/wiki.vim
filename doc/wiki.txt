@@ -383,10 +383,20 @@ possible.
 *WikiLinkOpen*
   Open/follow link. Will create a new link if the text under the cursor is not
   already a link.
+                                                         *#User#WikiLinkOpened*
+  The user autocommand `WikiLinkOpened` is triggered after a wiki link has
+  been triggered. This allows the user to add custom functionality after
+  opening wiki links. The following example will center the cursor inside the
+  window after following a link: >
+
+    augroup MyWikiAutocmds
+      autocmd!
+      autocmd User WikiLinkOpened normal! zz
+    augroup END
 
 *<plug>(wiki-link-open-split)*
 *WikiLinkOpenSplit*
-  Open/follow link in a |vsplit|.
+  Similar to |WikiLinkOpen|, except wiki links are opened in a |vsplit|.
 
 *<plug>(wiki-link-return)*
 *WikiLinkReturn*
