@@ -5,6 +5,11 @@
 " License:    MIT license
 "
 
+function! wiki#tags#get_all() abort " {{{1
+  return s:tags.gather()
+endfunction
+
+" }}}1
 function! wiki#tags#search(...) abort " {{{1
   let l:cfg = deepcopy(g:wiki_tags)
   let l:cfg.tag = ''
