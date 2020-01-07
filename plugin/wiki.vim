@@ -54,6 +54,7 @@ command! WikiReload   call wiki#reload()
 command! WikiJournal  call wiki#journal#make_note()
 command! CtrlPWiki    call ctrlp#init(ctrlp#wiki#id())
 command! WikiFzfPages call wiki#fzf#pages()
+command! WikiFzfTags  call wiki#fzf#tags()
 
 " Initialize mappings
 nnoremap <silent> <plug>(wiki-index)     :WikiIndex<cr>
@@ -61,6 +62,7 @@ nnoremap <silent> <plug>(wiki-open)      :WikiOpen<cr>
 nnoremap <silent> <plug>(wiki-journal)   :WikiJournal<cr>
 nnoremap <silent> <plug>(wiki-reload)    :WikiReload<cr>
 nnoremap <silent> <plug>(wiki-fzf-pages) :WikiFzfPages<cr>
+nnoremap <silent> <plug>(wiki-fzf-tags)  :WikiFzfTags<cr>
 
 " Apply default mappings
 let s:mappings = get(g:, 'wiki_mappings_use_defaults', 1)
