@@ -214,7 +214,9 @@ function! wiki#link#toggle_operator(type, ...) abort " {{{1
     let l:link.url .= b:wiki.link_extension
   endif
 
+  let s:operator = 1
   call wiki#link#toggle(l:link)
+  unlet! s:operator
 endfunction
 
 " }}}1
@@ -331,37 +333,55 @@ function! wiki#link#template_word(url, ...) abort " {{{1
   if len(l:candidates) == 0
     return wiki#link#template_pick_from_option((b:wiki.in_journal ? '/' : '') . l:url, l:text)
   elseif len(l:candidates) == 1
-    return wiki#link#template_pick_from_option('/' . l:candidates[0], l:url)
+    return wiki#link#template_pick_from_option('/' . l:candidates[0])
   endif
+
+  " Create menu
+  let l:list_menu = []
+  for l:i in range(len(l:candidates))
+    let l:list_menu += [['[' . (l:i + 1) . '] ', l:candidates[l:i]]]
+  endfor
+  let l:list_menu += [['[n] ', 'New page at wiki root']]
+  let l:list_menu += [['[x] ', 'Abort']]
 
   "
   " Finally we ask for user input to choose desired candidate
   "
   while 1
     redraw
-    "
-    " The list doesn't show for operator mapping unless I print it as one long
-    " string
-    "
-    let l:echo = ''
-    for l:i in range(len(l:candidates))
-      let l:echo .= '[' . (l:i + 1) . '] ' . l:candidates[l:i] . "\n"
-    endfor
-    echo l:echo . printf('[n] %s (new page at wiki root)', l:url)
-    let l:choice = input('Choice (empty cancels): ')
-    if empty(l:choice) | return l:url | endif
 
-    if l:choice ==# 'n'
-      return wiki#link#template_pick_from_option('/' . l:url, l:text)
+    " Print the menu; fancy printing is not possible with operator mapping
+    if exists('s:operator')
+      echo join(map(copy(l:list_menu), 'v:val[0] . v:val[1]'), "\n")
+    else
+      for [l:key, l:val] in l:list_menu
+        echohl ModeMsg
+        echo l:key
+        echohl NONE
+        echon l:val
+      endfor
     endif
 
-    try
-      let l:cand = l:candidates[l:choice - 1]
+    let l:choice = nr2char(getchar())
+    if l:choice ==# 'x'
       redraw!
-      return wiki#link#template_pick_from_option('/' . l:cand, l:url)
-    catch
-      continue
-    endtry
+      return l:url
+    endif
+
+    if l:choice ==# 'n'
+      redraw!
+      return wiki#link#template_pick_from_option(l:url, l:text)
+    endif
+
+    if str2nr(l:choice) > 0
+      try
+        let l:cand = l:candidates[l:choice - 1]
+        redraw!
+        return wiki#link#template_pick_from_option('/' . l:cand)
+      catch
+        continue
+      endtry
+    endif
   endwhile
 endfunction
 
