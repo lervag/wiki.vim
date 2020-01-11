@@ -32,16 +32,8 @@ function! wiki#fzf#tags() abort "{{{1
     return
   endif
 
-  let l:tags = wiki#tags#get_all()
-  let l:results = []
-  for [l:key, l:val] in items(l:tags)
-    for [l:file, l:lnum, l:col] in l:val
-      let l:results += [l:key . ': ' . l:file . ':' . l:lnum]
-    endfor
-  endfor
-
   call fzf#run(fzf#wrap({
-        \ 'source': l:results,
+        \ 'source': keys(wiki#tags#get_all()),
         \ 'sink': funcref('s:accept_tag'),
         \ 'options': '--prompt "WikiTags> " '
         \}))
@@ -81,9 +73,18 @@ endfunction
 
 " }}}1
 function! s:accept_tag(tag) abort "{{{1
-  let [l:file, l:lnum] = split(a:tag, ':')[1:]
-  execute 'edit ' . l:file
-  execute l:lnum
+  let l:tag = split(a:tag, ':')[0]
+  let l:locations = copy(wiki#tags#get_all()[l:tag])
+  call map(l:locations, '{
+        \ ''filename'': v:val[0],
+        \ ''lnum'': v:val[1],
+        \ ''text'': ''Tag: '' . l:tag,
+        \}')
+
+  call setloclist(0, l:locations, 'r')
+  lfirst
+  lopen
+  wincmd w
 endfunction
 
 " }}}1
