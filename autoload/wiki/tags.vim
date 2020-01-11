@@ -177,7 +177,8 @@ endfunction
 " }}}1
 function! s:tags.gather() abort dict " {{{1
   if !self.parsed
-    for l:file in globpath(b:wiki.root, '**/*.' . b:wiki.extension, 0, 1)
+    for l:file in globpath(wiki#get_root(),
+          \ '**/*.' . g:wiki_filetypes[0], 0, 1)
       call self.gather_from_file(l:file)
     endfor
     let self.parsed = 1
