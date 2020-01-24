@@ -198,7 +198,7 @@ CONFIGURATION                                                     *wiki-config*
   Default: >
 
     let g:wiki_journal = {
-        \ 'name': 'journal'
+        \ 'name': 'journal',
         \ 'frequency': 'daily',
         \ 'date_format': {
         \   'daily' : '%Y-%m-%d',
@@ -496,8 +496,8 @@ possible.
     Specify viewer to use to open the exported file. This implies `-view` and
     overrides the |g:wiki_viewer| option.
 
-  Note: This feature requires `pandoc` (https://pandoc.org/) to build the `pdf`
-        files.
+  Note: This feature requires `pandoc` (https://pandoc.org/) to build the 
+        output files.
 
 *<plug>(wiki-tag-list)*
 *WikiTagList*
@@ -684,7 +684,7 @@ The following schemes are supported:
 
   generic~
     If the scheme is not recognized, the link is opened with the system
-    handler, which is defined by |g:wiki_pdf_viewer| on Linux.  Currently,
+    handler, which is defined by |g:wiki_viewer| on Linux.  Currently,
     only Linux is supported here.  This will work quite well on standard Linux
     distributions, e.g. for opening `http` and `https` URLs.
 
@@ -732,7 +732,6 @@ explained through an example: >
   One may also add a [description][target].
 
   The target may consist of both words and numbers, e.g. [like this][Ref 3].
-  [Description][Target]
 
   [1]: Link 1
   [Target]: Link 2
