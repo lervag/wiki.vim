@@ -98,7 +98,8 @@ FEATURES                                                  *wiki-intro-features*
     - `iu au` Link url
     - `it at` Link text
 - Support for journal entries
-  - Navigating the journal back and forth with `<c-j>` and `<c-k>`
+  - Navigating the journal back and forth with `<Plug>(wiki-journal-next)`
+    and `<Plug>(wiki-journal-prev)`.
   - Support for parsing journal entries in order to make weekly and monthly
     summaries. The parsed result needs manual editing for good results.
 - Utility functionality
