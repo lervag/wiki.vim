@@ -16,8 +16,8 @@ function! wiki#test#assert_equal(x, y) abort " {{{1
   if a:x ==# a:y | return 1 | endif
 
   call s:fail([
-        \ 'x = ' . a:x,
-        \ 'y = ' . a:y,
+        \ 'x = ' . string(a:x),
+        \ 'y = ' . string(a:y),
         \])
 endfunction
 
