@@ -156,7 +156,7 @@ function! wiki#page#create_toc(local) abort " {{{1
       let l:header = getline(l:lnum)
       let l:start = l:lnum
       let l:end = l:start + (getline(l:lnum+1) =~# '^\s*$' ? 2 : 1)
-      while l:end <= l:lnum_bottom && getline(l:end) =~# '^\s*- '
+      while l:end <= l:lnum_bottom && getline(l:end) =~# '^\s*[*-] '
         let l:end += 1
       endwhile
 
