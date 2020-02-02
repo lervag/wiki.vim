@@ -4,4 +4,5 @@ let &runtimepath = '..,' . &runtimepath
 " syntax enable
 
 set noswapfile
+set nomore
 nnoremap q :qall!<cr>
