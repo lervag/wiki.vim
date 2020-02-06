@@ -59,23 +59,23 @@ function! wiki#journal#freq(frq) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#journal#make_index(use_md_links) " {{{1
+function! wiki#journal#make_index() " {{{1
   let l:fmt = g:wiki_journal.date_format.daily
   let l:rx = wiki#date#format_to_regex(l:fmt)
   let l:entries = s:get_links_generic(l:rx, l:fmt)
 
   let l:sorted_entries = {}
   for entry in entries
-    let [year, month, day] = split(entry, '-')
-    if has_key(sorted_entries, year)
-      let year_dict = sorted_entries[year]
-      if has_key(year_dict, month)
-        call add(year_dict[month], entry)
+    let date = wiki#date#parse_format(entry, g:wiki_journal.date_format.daily)
+    if has_key(sorted_entries, date.year)
+      let year_dict = sorted_entries[date.year]
+      if has_key(year_dict, date.month)
+        call add(year_dict[date.month], entry)
       else
-        let year_dict[month] = [entry]
+        let year_dict[date.month] = [entry]
       endif
     else
-      let sorted_entries[year] = {month:[entry]}
+      let sorted_entries[date.year] = {date.month:[entry]}
     endif
   endfor
 
@@ -89,11 +89,7 @@ function! wiki#journal#make_index(use_md_links) " {{{1
       put ='## ' . mname
       put =''
       for entry in entries
-        if a:use_md_links
-          put ='- [' . entry . '](journal:' . entry . ')'
-        else
-          put ='- [[journal:' . entry . '\|' . entry . ']]'
-        endif
+        put =wiki#link#template_pick_from_option('journal:' . entry, entry)
       endfor
       put =''
     endfor

@@ -38,7 +38,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiGraphFindBacklinks call wiki#graph#find_backlinks()
   command! -buffer WikiGraphIn            call wiki#graph#to_current()
   command! -buffer WikiGraphOut           call wiki#graph#from_current()
-  command! -buffer -bang WikiJournalIndex call wiki#journal#make_index(<q-bang> == '!')
+  command! -buffer WikiJournalIndex       call wiki#journal#make_index()
   command! -buffer WikiLinkNext           call wiki#nav#next_link()
   command! -buffer WikiLinkShow           call wiki#link#show()
   command! -buffer WikiLinkOpen           call wiki#link#open()
@@ -78,7 +78,6 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-graph-in)             :WikiGraphIn<cr>
   nnoremap <silent><buffer> <plug>(wiki-graph-out)            :WikiGraphOut<cr>
   nnoremap <silent><buffer> <plug>(wiki-journal-index)        :WikiJournalIndex<cr>
-  nnoremap <silent><buffer> <plug>(wiki-journal-index-md)     :WikiJournalIndex!<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-next)            :WikiLinkNext<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-show)            :WikiLinkShow<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-open)            :WikiLinkOpen<cr>

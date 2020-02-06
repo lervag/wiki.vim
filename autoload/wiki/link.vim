@@ -273,7 +273,7 @@ function! wiki#link#template_md(url, ...) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#link#template_pick_from_option(...) abort
+function! wiki#link#template_pick_from_option(...) abort " {{{1
   "
   " Pick the relevant link template command to use based on the users
   " settings. Default to the wiki style one if its not set.

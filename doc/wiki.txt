@@ -439,13 +439,8 @@ possible.
 
 *<plug>(wiki-journal-index)*
 *WikiJournalIndex*
-  Insert a sorted list of links to all journal pages below the cursor using
-  wiki style links
-
-*<plug>(wiki-journal-index-md)*
-*WikiJournalIndex!*
-  Insert a sorted list of links to all journal pages below the cursor using
-  markdown style links
+  Insert a sorted list of links to all journal pages below the cursor. It uses
+  the link style specified by |g:wiki_link_target_type|.
 
 *<plug>(wiki-journal-next)*
 *WikiJournalNext*
