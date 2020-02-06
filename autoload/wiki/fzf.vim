@@ -32,10 +32,20 @@ function! wiki#fzf#tags() abort "{{{1
     return
   endif
 
+  " Preprosess tags
+  let l:tags = wiki#tags#get_all()
+  let l:results = []
+  for [l:key, l:val] in items(l:tags)
+    for [l:file, l:lnum, l:col] in l:val
+      let l:results += [l:key . ': ' . l:file . ':' . l:lnum]
+    endfor
+  endfor
+
+  " Feed tags to FZF
   call fzf#run(fzf#wrap({
-        \ 'source': keys(wiki#tags#get_all()),
-        \ 'sink': funcref('s:accept_tag'),
-        \ 'options': '--prompt "WikiTags> " '
+        \ 'source': l:results,
+        \ 'sink*': funcref('s:accept_tag'),
+        \ 'options': '--expect=ctrl-l --prompt "WikiTags> " '
         \}))
 endfunction
 
@@ -72,19 +82,25 @@ function! s:accept_page(line) abort "{{{1
 endfunction
 
 " }}}1
-function! s:accept_tag(tag) abort "{{{1
-  let l:tag = split(a:tag, ':')[0]
-  let l:locations = copy(wiki#tags#get_all()[l:tag])
-  call map(l:locations, '{
-        \ ''filename'': v:val[0],
-        \ ''lnum'': v:val[1],
-        \ ''text'': ''Tag: '' . l:tag,
-        \}')
+function! s:accept_tag(input) abort "{{{1
+  let l:key = a:input[0]
+  let [l:tag, l:file, l:lnum] = split(a:input[1], ':')
 
-  call setloclist(0, l:locations, 'r')
-  lfirst
-  lopen
-  wincmd w
+  if l:key =~# 'ctrl-l'
+    let l:locations = copy(wiki#tags#get_all()[a:tag])
+    call map(l:locations, '{
+          \ ''filename'': v:val[0],
+          \ ''lnum'': v:val[1],
+          \ ''text'': ''Tag: '' . a:tag,
+          \}')
+    call setloclist(0, l:locations, 'r')
+    lfirst
+    lopen
+    wincmd w
+  else
+    execute 'edit ' . l:file
+    execute l:lnum
+  endif
 endfunction
 
 " }}}1
