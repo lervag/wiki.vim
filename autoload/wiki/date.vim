@@ -135,14 +135,16 @@ function! wiki#date#parse_format(date, format) abort " {{{1
   endif
 
   if has_key(l:result, 'week')
-    let l:date = printf('%s-01-10', l:result.year)
-    let l:dow = wiki#date#get_day_of_week(l:date)
-    let l:week = wiki#date#get_week(l:date)
+    let l:tmp_date = printf('%s-01-10', l:result.year)
+    let l:dow = wiki#date#get_day_of_week(l:tmp_date)
+    let l:week = wiki#date#get_week(l:tmp_date)
     let l:offset = 7*(l:result.week - l:week) - l:dow + 1
-    return s:date_offset(l:date, l:offset . ' days')
-  else
-    return printf('%4d-%2d-%2d', l:result.year, l:result.month, l:result.day)
+    let l:date = s:date_offset(l:tmp_date, l:offset . ' days')
+    let l:result.month = l:date[5:7]
+    let l:result.day = l:date[8:]
   endif
+
+  return l:result
 endfunction
 
 " }}}1

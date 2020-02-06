@@ -108,7 +108,9 @@ function! s:get_next_entry() abort " {{{1
   for [l:freq, l:fmt] in items(g:wiki_journal.date_format)
     let l:rx = wiki#date#format_to_regex(l:fmt)
     if l:current =~# l:rx
-      let l:date = wiki#date#parse_format(l:current, l:fmt)
+      let l:date_dict = wiki#date#parse_format(l:current, l:fmt)
+      let l:date = printf('%4d-%2d-%2d',
+            \ l:date_dict.year, l:date_dict.month, l:date_dict.day)
       let l:next = wiki#date#offset(l:date, {
             \ 'daily' : '1 day',
             \ 'weekly' : '1 week',
