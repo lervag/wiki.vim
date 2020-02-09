@@ -87,11 +87,11 @@ function! s:accept_tag(input) abort "{{{1
   let [l:tag, l:file, l:lnum] = split(a:input[1], ':')
 
   if l:key =~# 'ctrl-l'
-    let l:locations = copy(wiki#tags#get_all()[a:tag])
+    let l:locations = copy(wiki#tags#get_all()[l:tag])
     call map(l:locations, '{
           \ ''filename'': v:val[0],
           \ ''lnum'': v:val[1],
-          \ ''text'': ''Tag: '' . a:tag,
+          \ ''text'': ''Tag: '' . l:tag,
           \}')
     call setloclist(0, l:locations, 'r')
     lfirst
