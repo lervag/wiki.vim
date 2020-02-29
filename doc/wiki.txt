@@ -133,6 +133,16 @@ This outlines the basic steps to get started:
 ==============================================================================
 CONFIGURATION                                                     *wiki-config*
 
+*g:wiki_cache_root*
+  Specify the cache directory for |wiki.vim|.
+
+  Default value: '~/.cache/wiki.vim/'
+
+*g:wiki_cache_persistent*
+  Specify whether to use persistant caching.
+
+  Default value: 1
+
 *g:wiki_root*
   The root path for the main wiki, i.e. the wiki that is opened with the
   `<leader>ww` mapping.
