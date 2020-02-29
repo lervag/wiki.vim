@@ -6,11 +6,13 @@
 "
 
 function! wiki#graph#find_backlinks() abort "{{{1
-  call s:graph.init()
+  if !has_key(b:wiki, 'graph')
+    let b:wiki.graph = s:graph.init()
+  endif
 
   let l:origin = resolve(expand('%:p'))
   let l:results = []
-  for l:content in deepcopy(values(s:graph.nodes))
+  for l:content in deepcopy(values(b:wiki.graph.nodes))
     let l:results += filter(l:content.links, 'v:val.target ==# l:origin')
   endfor
 
@@ -31,14 +33,13 @@ endfunction
 "}}}1
 
 function! wiki#graph#out() abort " {{{1
-  call s:graph.init()
+  if !has_key(b:wiki, 'graph')
+    let b:wiki.graph = s:graph.init()
+  endif
 
-  "
-  " Define starting point
-  "
   let l:stack = [[expand('%:t:r'), []]]
-  let l:tree = {}
   let l:visited = []
+  let l:tree = {}
 
   "
   " Generate tree
@@ -48,7 +49,7 @@ function! wiki#graph#out() abort " {{{1
     if index(l:visited, l:node) >= 0 | continue | endif
     let l:visited += [l:node]
 
-    let l:targets = uniq(map(s:graph.get_links_from(l:node),
+    let l:targets = uniq(map(b:wiki.graph.get_links_from(l:node),
           \ 'fnamemodify(v:val.target, '':t:r'')'))
     let l:new_path = l:path + [l:node]
     let l:stack += map(l:targets, '[v:val, l:new_path]')
@@ -66,7 +67,9 @@ endfunction
 
 " }}}1
 function! wiki#graph#in() abort "{{{1
-  call s:graph.init()
+  if !has_key(b:wiki, 'graph')
+    let b:wiki.graph = s:graph.init()
+  endif
 
   let l:stack = [[expand('%:t:r'), []]]
   let l:visited = []
@@ -81,8 +84,8 @@ function! wiki#graph#in() abort "{{{1
     let l:visited += [l:node]
 
     let l:new_path = l:path + [l:node]
-    let l:stack += map(filter(keys(s:graph.nodes),
-          \   's:graph.has_link(v:val, l:node)'),
+    let l:stack += map(filter(keys(b:wiki.graph.nodes),
+          \   'b:wiki.graph.has_link(v:val, l:node)'),
           \ '[v:val, l:new_path]')
 
     if !has_key(l:tree, l:node)
@@ -99,18 +102,25 @@ endfunction
 "}}}1
 
 
-let s:graph = get(s:, 'graph', {})
+let s:graph = {}
 
 function! s:graph.init() abort dict " {{{1
-  if has_key(self, 'initialized') | return | endif
-  let self.nodes = {}
+  let new = deepcopy(s:graph)
+  unlet new.init
 
+  call new.scan()
+
+  return new
+endfunction
+
+" }}}1
+function! s:graph.scan() abort dict " {{{1
   echohl ModeMsg
   echo 'wiki: Scanning graph ... '
   echohl NONE
+
+  let self.nodes = {}
   let l:files = globpath(b:wiki.root, '**/*.' . b:wiki.extension, 0, 1)
-  let l:n = len(l:files)
-  let l:i = 1
   for l:file in l:files
     let l:node = fnamemodify(l:file, ':t:r')
 
@@ -134,15 +144,11 @@ function! s:graph.init() abort dict " {{{1
             \ 'col' : l:link.c1
             \})
      endfor
-
-    let l:i += 1
   endfor
   echohl ModeMSG
   echon 'DONE'
   echohl NONE
   sleep 100m
-
-  let self.initialized = 1
 endfunction
 
 " }}}1
