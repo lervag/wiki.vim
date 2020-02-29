@@ -30,7 +30,7 @@ endfunction
 
 "}}}1
 
-function! wiki#graph#from_current() abort " {{{1
+function! wiki#graph#out() abort " {{{1
   call s:graph.init()
 
   "
@@ -67,7 +67,7 @@ function! wiki#graph#from_current() abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#graph#to_current() abort "{{{1
+function! wiki#graph#in() abort "{{{1
   call s:graph.init()
 
   let l:stack = [[expand('%:t:r'), []]]
