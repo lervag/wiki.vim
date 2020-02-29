@@ -119,32 +119,47 @@ function! s:graph.scan() abort dict " {{{1
   echo 'wiki: Scanning graph ... '
   echohl NONE
 
+  let l:cache = wiki#cache#open('graph', {
+        \ 'local': 1,
+        \ 'default': { 'ftime': -1 },
+        \})
+
   let self.nodes = {}
   let l:files = globpath(b:wiki.root, '**/*.' . b:wiki.extension, 0, 1)
   for l:file in l:files
+    let l:current = l:cache.get(l:file)
+    let l:ftime = getftime(l:file)
+    if l:ftime > l:current.ftime
+      let l:cache.modified = 1
+      let l:current.ftime = l:ftime
+      let l:current.path = resolve(l:file)
+      let l:current.links = []
+
+      for l:link in filter(wiki#link#get_all(l:file),
+            \ 'get(v:val, ''scheme'', '''') ==# ''wiki''')
+        call add(l:current.links, {
+              \ 'text' : get(l:link, 'text'),
+              \ 'target' : resolve(l:link.path),
+              \ 'anchor' : l:link.anchor,
+              \ 'filename' : l:file,
+              \ 'lnum' : l:link.lnum,
+              \ 'col' : l:link.c1
+              \})
+      endfor
+    endif
+
     let l:node = fnamemodify(l:file, ':t:r')
 
     if has_key(self.nodes, l:node)
       echoerr 'Not implemented!'
     endif
 
-    let self.nodes[l:node] = {
-          \ 'path' : resolve(l:file),
-          \ 'links' : [],
-          \}
-
-    for l:link in filter(wiki#link#get_all(l:file),
-          \ 'get(v:val, ''scheme'', '''') ==# ''wiki''')
-      call add(self.nodes[l:node].links, {
-            \ 'text' : get(l:link, 'text'),
-            \ 'target' : resolve(l:link.path),
-            \ 'anchor' : l:link.anchor,
-            \ 'filename' : l:file,
-            \ 'lnum' : l:link.lnum,
-            \ 'col' : l:link.c1
-            \})
-     endfor
+    let self.nodes[l:node] = l:current
   endfor
+
+  " Save cache
+  call l:cache.write()
+
   echohl ModeMSG
   echon 'DONE'
   echohl NONE
