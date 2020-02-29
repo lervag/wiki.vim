@@ -59,11 +59,9 @@ function! wiki#graph#out() abort " {{{1
   endwhile
 
   "
-  " Print the tree
+  " Show graph in scratch buffer
   "
-  for l:entry in sort(values(l:tree))
-    echom l:entry
-  endfor
+  call s:output_to_scratch('WikiGraphOut', sort(values(l:tree)))
 endfunction
 
 " }}}1
@@ -74,6 +72,9 @@ function! wiki#graph#in() abort "{{{1
   let l:visited = []
   let l:tree = {}
 
+  "
+  " Generate tree
+  "
   while !empty(l:stack)
     let [l:node, l:path] = remove(l:stack, 0)
     if index(l:visited, l:node) >= 0 | continue | endif
@@ -90,11 +91,9 @@ function! wiki#graph#in() abort "{{{1
   endwhile
 
   "
-  " Print the tree
+  " Show graph in scratch buffer
   "
-  for l:entry in sort(values(l:tree))
-    echom l:entry
-  endfor
+  call s:output_to_scratch('WikiGraphIn', sort(values(l:tree)))
 endfunction
 
 "}}}1
@@ -161,6 +160,31 @@ endfunction
 " }}}1
 function! s:graph.get_links_from(node) abort dict " {{{1
   return deepcopy(get(get(self.nodes, a:node, {}), 'links', []))
+endfunction
+
+" }}}1
+
+"
+" Utility functions
+"
+function! s:output_to_scratch(name, lines) abort " {{{1
+  let l:scratch = {
+        \ 'name': a:name,
+        \ 'lines': a:lines,
+        \}
+
+  function! l:scratch.print_content() abort dict
+    for l:line in self.lines
+      call append('$', l:line)
+    endfor
+  endfunction
+
+  function! l:scratch.syntax() abort dict
+    syntax match ScratchSeparator /\//
+    highlight link ScratchSeparator Title
+  endfunction
+
+  call wiki#scratch#new(l:scratch)
 endfunction
 
 " }}}1
