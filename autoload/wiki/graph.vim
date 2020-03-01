@@ -127,9 +127,11 @@ function! s:gather_nodes() abort " {{{1
     return s:nodes[b:wiki.root]
   endif
 
+  redraw
   echohl ModeMsg
   echo 'wiki: Scanning wiki graph nodes ... '
   echohl NONE
+  sleep 25m
 
   let l:cache = wiki#cache#open('graph', {
         \ 'local': 1,

@@ -164,8 +164,12 @@ endfunction
 " Utility functions
 "
 function! s:local_name(name) abort " {{{1
-  return a:name . '_'
-        \ . sha256(exists('b:wiki.root') ? b:wiki.root : expand('%:p'))
+  let l:filename = exists('b:wiki.root')
+        \ ? b:wiki.root
+        \ : expand('%:p:h')
+  let l:filename = substitute(l:filename, '\s\+', '_', 'g')
+  let l:filename = substitute(l:filename, '\/', '%', 'g')
+  return a:name . l:filename
 endfunction
 
 " }}}1
