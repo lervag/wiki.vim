@@ -375,12 +375,11 @@ possible.
   Find backlinks to current page.
 
 *<plug>(wiki-graph-in)*
-*WikiGraphIn*
-  Show link graph to current page.
-
 *<plug>(wiki-graph-out)*
+*WikiGraphIn*
 *WikiGraphOut*
-  Show link graph from current page.
+  Show link graph in to or out of the current page. A count may be given to
+  limit the depth of the graph.
 
 *<plug>(wiki-link-next)*
 *WikiLinkNext*
