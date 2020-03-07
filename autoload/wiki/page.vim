@@ -266,44 +266,22 @@ endfunction
 
 " }}}1
 function! wiki#page#get_anchors(...) abort " {{{1
-  let l:filename = s:get_anchors_argument(a:000)
-  if !filereadable(l:filename) | return [] | endif
+  let l:cache = wiki#cache#open('anchors', {
+        \ 'local': 1,
+        \ 'default': { 'ftime': -1 },
+        \})
 
-  let anchor_level = ['', '', '', '', '', '', '']
-  let anchors = []
-  let current_section = ''
-  let preblock = 0
-  for line in readfile(l:filename)
-    " Ignore fenced code blocks
-    if line =~# '^\s*```'
-      let l:preblock += 1
-    endif
-    if l:preblock % 2 | continue | endif
+  let l:filename = s:get_anchors_filename(a:000)
+  let l:current = l:cache.get(l:filename)
+  let l:ftime = getftime(l:filename)
+  if l:ftime > l:current.ftime
+    let l:cache.modified = 1
+    let l:current.ftime = l:ftime
+    let l:current.anchors = s:get_anchors(l:filename)
+  endif
+  call l:cache.write()
 
-    " Parse headers
-    let h_match = matchlist(line, wiki#rx#header_items())
-    if !empty(h_match)
-      let lvl = len(h_match[1]) - 1
-      let anchor_level[lvl] = h_match[2]
-
-      let current_section = '#' . join(anchor_level[:lvl], '#')
-      call add(anchors, current_section)
-
-      continue
-    endif
-
-    " Parse bolded text (there can be several in one line)
-    let cnt = 0
-    while 1
-      let cnt += 1
-      let text = matchstr(line, wiki#rx#bold(), 0, cnt)
-      if empty(text) | break | endif
-
-      call add(anchors, current_section . '#' . text[1:-2])
-    endwhile
-  endfor
-
-  return anchors
+  return copy(l:current.anchors)
 endfunction
 
 " }}}1
@@ -385,7 +363,48 @@ endfunction
 
 " }}}1
 
-function! s:get_anchors_argument(input) abort " {{{1
+function! s:get_anchors(filename) abort " {{{1
+  if !filereadable(a:filename) | return [] | endif
+
+  let anchor_level = ['', '', '', '', '', '', '']
+  let anchors = []
+  let current_section = ''
+  let preblock = 0
+  for line in readfile(a:filename)
+    " Ignore fenced code blocks
+    if line =~# '^\s*```'
+      let l:preblock += 1
+    endif
+    if l:preblock % 2 | continue | endif
+
+    " Parse headers
+    let h_match = matchlist(line, wiki#rx#header_items())
+    if !empty(h_match)
+      let lvl = len(h_match[1]) - 1
+      let anchor_level[lvl] = h_match[2]
+
+      let current_section = '#' . join(anchor_level[:lvl], '#')
+      call add(anchors, current_section)
+
+      continue
+    endif
+
+    " Parse bolded text (there can be several in one line)
+    let cnt = 0
+    while 1
+      let cnt += 1
+      let text = matchstr(line, wiki#rx#bold(), 0, cnt)
+      if empty(text) | break | endif
+
+      call add(anchors, current_section . '#' . text[1:-2])
+    endwhile
+  endfor
+
+  return anchors
+endfunction
+
+" }}}1
+function! s:get_anchors_filename(input) abort " {{{1
   let l:current = expand('%:p')
   let l:arg = get(a:input, 0, '')
 

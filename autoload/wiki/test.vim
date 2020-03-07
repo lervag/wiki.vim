@@ -33,6 +33,20 @@ endfunction
 
 " }}}1
 
+function! wiki#test#completion(context, ...) abort " {{{1
+  let l:base = a:0 > 0 ? a:1 : ''
+
+  try
+    silent execute 'normal GO' . a:context . "\<c-x>\<c-o>"
+    silent normal! u
+    return wiki#complete#omnicomplete(0, l:base)
+  catch /.*/
+    call s:fail(v:exception)
+  endtry
+endfunction
+
+" }}}1
+
 function! s:fail(...) abort " {{{1
   echo 'Assertion failed!'
 

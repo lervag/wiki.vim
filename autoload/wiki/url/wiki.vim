@@ -10,8 +10,8 @@ function! wiki#url#wiki#parse(url) abort " {{{1
 
   " Extract anchor
   let l:anchors = split(a:url.stripped, '#', 1)
-  let l:url.anchor = len(l:anchors) > 1 && !empty(l:anchors[-1])
-        \ ? join(l:anchors[1:], '#') : ''
+  let l:url.anchor = len(l:anchors) > 1 ? join(l:anchors[1:], '#') : ''
+  let l:url.anchor = substitute(l:url.anchor, '#$', '', '')
 
   " Parse the file path relative to wiki root
   if empty(l:anchors[0])
