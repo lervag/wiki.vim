@@ -15,9 +15,7 @@ function! wiki#graph#find_backlinks() abort "{{{1
 
   for l:link in l:results
     let l:link.filename = l:link.filename_from
-    let l:link.text =
-          \ (!empty(l:link.anchor) ? '[' . l:link.anchor . '] ' : '')
-          \ . l:link.text
+    let l:link.text = readfile(l:link.filename, 0, l:link.lnum)[-1]
   endfor
 
   if empty(l:results)
@@ -30,7 +28,9 @@ endfunction
 
 "}}}1
 
-function! wiki#graph#out() abort " {{{1
+function! wiki#graph#out(...) abort " {{{1
+  let l:max_level = a:0 > 0 ? a:1 : -1
+
   if !has_key(b:wiki, 'graph')
     let b:wiki.graph = s:graph.init()
   endif
@@ -47,12 +47,16 @@ function! wiki#graph#out() abort " {{{1
     if index(l:visited, l:node) >= 0 | continue | endif
     let l:visited += [l:node]
 
-    let l:new_path = l:path + [l:node]
+    let l:current_path = l:path + [l:node]
+    if l:max_level > 0 && len(l:current_path) > l:max_level + 1
+      continue
+    endif
+
     let l:stack += map(b:wiki.graph.links_from(l:node),
-          \ '[v:val.node_to, l:new_path]')
+          \ '[v:val.node_to, l:current_path]')
 
     if !has_key(l:tree, l:node)
-      let l:tree[l:node] = join(l:new_path, ' / ')
+      let l:tree[l:node] = join(l:current_path, ' / ')
     endif
   endwhile
 
@@ -63,7 +67,9 @@ function! wiki#graph#out() abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#graph#in() abort "{{{1
+function! wiki#graph#in(...) abort "{{{1
+  let l:max_level = a:0 > 0 ? a:1 : -1
+
   if !has_key(b:wiki, 'graph')
     let b:wiki.graph = s:graph.init()
   endif
@@ -80,13 +86,17 @@ function! wiki#graph#in() abort "{{{1
     if index(l:visited, l:node) >= 0 | continue | endif
     let l:visited += [l:node]
 
-    let l:new_path = l:path + [l:node]
+    let l:current_path = l:path + [l:node]
+    if l:max_level > 0 && len(l:current_path) > l:max_level + 1
+      continue
+    endif
+
     let l:links = b:wiki.graph.links_to(l:node)
     let l:stack += map(l:links,
-          \ '[v:val.node_from, l:new_path]')
+          \ '[v:val.node_from, l:current_path]')
 
     if !has_key(l:tree, l:node)
-      let l:tree[l:node] = join(l:new_path, ' / ')
+      let l:tree[l:node] = join(l:current_path, ' / ')
     endif
   endwhile
 

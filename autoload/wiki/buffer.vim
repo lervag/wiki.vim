@@ -36,8 +36,8 @@ endfunction
 function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiCodeRun            call wiki#u#run_code_snippet()
   command! -buffer WikiGraphFindBacklinks call wiki#graph#find_backlinks()
-  command! -buffer WikiGraphIn            call wiki#graph#in()
-  command! -buffer WikiGraphOut           call wiki#graph#out()
+  command! -buffer -count=99 WikiGraphIn  call wiki#graph#in(<count>)
+  command! -buffer -count=99 WikiGraphOut call wiki#graph#out(<count>)
   command! -buffer WikiJournalIndex       call wiki#journal#make_index()
   command! -buffer WikiLinkNext           call wiki#nav#next_link()
   command! -buffer WikiLinkShow           call wiki#link#show()
