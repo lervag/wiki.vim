@@ -687,6 +687,14 @@ The following schemes are supported:
     Will use the `generic` scheme handler on an expanded URL of the form
     `http://dx.doi.org/<address>`, where `<address>` is the link address.
 
+  zot~
+    This is an early version of a Zotero scheme. It uses the `fd` tool to
+    search the Zotero storage for a matching pdf. This works very well if one
+    uses the Zotfile extension and the Better Bibtex extension to ensure that
+    all pdf files are named according to the format `%b - {%T - } {%t}`, where
+    `%b` is the citekey. Then links like `zot:citekey` should result in
+    a unique matches. The resulting file is opened with |g:wiki_viewer|.
+
   generic~
     If the scheme is not recognized, the link is opened with the system
     handler, which is defined by |g:wiki_viewer| on Linux.  Currently,
