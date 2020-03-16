@@ -337,6 +337,12 @@ CONFIGURATION                                                     *wiki-config*
 
   Default: `'# Summary, %(year) week %(week)'`
 
+*g:wiki_zotero_root*
+  A string that specifies the Zotero root folder used for the zotero url
+  scheme, see |wiki-links-url|.
+
+  Default: `'~/.local/zotero'`
+
 ==============================================================================
 COMMANDS                                                        *wiki-commands*
 
@@ -688,12 +694,14 @@ The following schemes are supported:
     `http://dx.doi.org/<address>`, where `<address>` is the link address.
 
   zot~
-    This is an early version of a Zotero scheme. It uses the `fd` tool to
-    search the Zotero storage for a matching pdf. This works very well if one
-    uses the Zotfile extension and the Better Bibtex extension to ensure that
-    all pdf files are named according to the format `%b - {%T - } {%t}`, where
-    `%b` is the citekey. Then links like `zot:citekey` should result in
-    a unique matches. The resulting file is opened with |g:wiki_viewer|.
+    This is an early version of a Zotero scheme. It uses `fd`, `fdfind`, or
+    `find` (in preferred order) to search the Zotero storage for a matching
+    pdf. This works very well if one uses the Zotfile extension and the Better
+    Bibtex extension to ensure that all pdf files are named according to the
+    format `%b - {%T - } {%t}`, where `%b` is the citekey. Then links like
+    `zot:citekey` should result in a unique matches. The resulting file is
+    opened with |g:wiki_viewer|. The Zotero storage root may be specified with
+    |g:wiki_zotero_root|.
 
   generic~
     If the scheme is not recognized, the link is opened with the system

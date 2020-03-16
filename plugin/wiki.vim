@@ -45,6 +45,7 @@ call wiki#init#option('wiki_template_title_week',
       \ '# Summary, %(year) week %(week)')
 call wiki#init#option('wiki_template_title_month',
       \ '# Summary, %(year) %(month-name)')
+call wiki#init#option('wiki_zotero_root', '~/.local/zotero')
 
 " Initialize global commands
 command! WikiEnable   call wiki#buffer#init()

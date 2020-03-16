@@ -7,9 +7,29 @@
 
 function! wiki#url#zot#parse(url) abort " {{{1
   let l:parser = {}
+
+  " Construct find cmd
+  if executable('fd') || executable('fdfind')
+    let l:parser.fd = (executable('fd') ? 'fd' : 'fdfind')
+          \ . ' -t f -e pdf "{citekey}" '
+          \ . escape(g:wiki_zotero_root, ' ')
+  else
+    let l:parser.fd = 'find '
+          \ . escape(g:wiki_zotero_root, ' ')
+          \ . ' -name "{citekey}*.pdf" -type f'
+  endif
+
   function! l:parser.open(...) abort dict
     let l:files = systemlist(
-          \ printf('fd -t f -e pdf "%s" ~/.local/zotero', self.stripped))
+          \ substitute(self.fd, '{citekey}', self.stripped, ''))
+    if v:shell_error != 0
+      echo 'wiki: something went wrong!'
+      echo 'cmd:' self.fd
+      for l:line in l:files
+        echo l:line
+      endfor
+      return
+    endif
 
     if len(l:files) >= 1
       if len(l:files) > 1
