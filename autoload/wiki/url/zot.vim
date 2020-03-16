@@ -33,14 +33,19 @@ function! wiki#url#zot#parse(url) abort " {{{1
 
     if len(l:files) >= 1
       if len(l:files) > 1
-        echo 'wiki: multiple Zotero citekeys found! Opening first one.'
-        for l:f in l:files
-          echo '-' substitute(l:f,
-                \ '^.*\.local\/zotero\/storage\/[^\/]*\/', '', '')
-        endfor
+        let l:choice = wiki#menu#choose(
+              \ map(copy(l:files), 'fnamemodify(v:val, '':t'')'),
+              \ {'header': 'multiple citekeys found, please select one:'})
+        if l:choice < 0
+          echo 'wiki: aborted'
+          return
+        endif
+        let l:file = l:files[l:choice]
+      else
+        let l:file = l:files[0]
       endif
 
-      call system(g:wiki_viewer['_'] . ' ' . shellescape(l:files[0]) . '&')
+      call system(g:wiki_viewer['_'] . ' ' . shellescape(l:file) . '&')
     else
       echo 'wiki: could not find Zotero citekey "' . self.stripped . '"'
     endif
