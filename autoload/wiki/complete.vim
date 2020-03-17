@@ -104,6 +104,39 @@ function! s:completer_wikilink.complete_page(regex) dict abort " {{{2
 endfunction
 
 " }}}1
+" {{{1 Zotero
+
+let s:completer_zotero = {
+      \ 'is_anchor': 0,
+      \ 'rooted': 0,
+      \}
+
+function! s:completer_zotero.findstart(line) dict abort " {{{2
+  return match(a:line, 'zot:\zs\S*$')
+endfunction
+
+function! s:completer_zotero.complete(regex) dict abort " {{{2
+  if executable('fd') || executable('fdfind')
+    let l:finder = (executable('fd') ? 'fd' : 'fdfind')
+          \ . ' -t f -e pdf . ' . escape(g:wiki_zotero_root, ' ')
+  else
+    let l:finder = 'find '
+          \ . escape(g:wiki_zotero_root, ' ')
+          \ . ' -name *.pdf -type f'
+  endif
+
+  let l:cands = map(systemlist(l:finder), 'fnamemodify(v:val, '':t'')')
+
+  call sort(filter(l:cands, 'v:val =~# ''^' . a:regex . ''''))
+
+  return map(l:cands, "{
+        \ 'word': split(v:val)[0],
+        \ 'menu': join(split(v:val)[2:]),
+        \ 'kind': '[z]'
+        \}")
+endfunction
+
+" }}}1
 
 "
 " Initialize module
