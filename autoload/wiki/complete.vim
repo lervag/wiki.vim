@@ -106,10 +106,7 @@ endfunction
 " }}}1
 " {{{1 Zotero
 
-let s:completer_zotero = {
-      \ 'is_anchor': 0,
-      \ 'rooted': 0,
-      \}
+let s:completer_zotero = {}
 
 function! s:completer_zotero.findstart(line) dict abort " {{{2
   return match(a:line, 'zot:\zs\S*$')
