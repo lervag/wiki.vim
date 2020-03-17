@@ -66,9 +66,11 @@ function! s:completer_wikilink.findstart(line) dict abort " {{{2
 endfunction
 
 function! s:completer_wikilink.complete(regex) dict abort " {{{2
-  return self.is_anchor
+  let l:candidates = self.is_anchor
         \ ? self.complete_anchor(a:regex)
         \ : self.complete_page(a:regex)
+
+  return map(l:candidates, "{'word': v:val, 'menu': '[wiki]'}")
 endfunction
 
 function! s:completer_wikilink.complete_anchor(regex) dict abort " {{{2
