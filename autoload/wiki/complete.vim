@@ -113,20 +113,9 @@ function! s:completer_zotero.findstart(line) dict abort " {{{2
 endfunction
 
 function! s:completer_zotero.complete(regex) dict abort " {{{2
-  if executable('fd') || executable('fdfind')
-    let l:finder = (executable('fd') ? 'fd' : 'fdfind')
-          \ . ' -t f -e pdf . ' . escape(g:wiki_zotero_root, ' ')
-  else
-    let l:finder = 'find '
-          \ . escape(g:wiki_zotero_root, ' ')
-          \ . ' -name *.pdf -type f'
-  endif
+  let l:cands = map(wiki#zotero#search(a:regex), 'fnamemodify(v:val, '':t'')')
 
-  let l:cands = map(systemlist(l:finder), 'fnamemodify(v:val, '':t'')')
-
-  call sort(filter(l:cands, 'v:val =~# ''^' . a:regex . ''''))
-
-  return map(l:cands, "{
+  return map(sort(l:cands), "{
         \ 'word': split(v:val)[0],
         \ 'menu': join(split(v:val)[2:]),
         \ 'kind': '[z]'
