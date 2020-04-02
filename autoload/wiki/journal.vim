@@ -49,7 +49,7 @@ function! wiki#journal#freq(frq) abort " {{{1
     return
   endif
 
-  let l:filedate = expand('%:r')
+  let l:filedate = expand('%:t:r')
   let l:fmt = g:wiki_journal.date_format.daily
   let l:rx = wiki#date#format_to_regex(l:fmt)
   let l:date = l:filedate =~# l:rx ? l:filedate : strftime(l:fmt)
