@@ -234,14 +234,20 @@ endfunction
 
 function! s:matchstr_at_cursor(regex) abort " {{{1
   let l:lnum = line('.')
+
+  " Seach backwards for current regex
   let l:c1 = searchpos(a:regex, 'ncb',  l:lnum)[1]
+  if l:c1 == 0 | return {} | endif
+
+  " Ensure that the cursor is positioned on top of the match
+  let l:c1e = searchpos(a:regex, 'ncbe', l:lnum)[1]
+  if l:c1e >= l:c1 && l:c1e < col('.') | return {} | endif
+
+  " Find the end of the match
   let l:c2 = searchpos(a:regex, 'nce',  l:lnum)[1]
-  if l:c1 == 0 || l:c2 == 0 | return {} | endif
+  if l:c2 == 0 | return {} | endif
 
   let l:c2 = s:handle_multibyte(l:c2)
-
-  let l:c1e = searchpos(a:regex, 'ncbe', l:lnum)[1]
-  if l:c1e > l:c1 && l:c1e < col('.') | return {} | endif
 
   return {
         \ 'full' : strpart(getline('.'), l:c1-1, l:c2-l:c1+1),
