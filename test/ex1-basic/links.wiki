@@ -1,0 +1,19 @@
+# Sample text with links
+
+A [[index|wiki link]] and a [markdown link](index).
+
+An url:
+https://github.com/lervag/wiki.vim
+
+List of ref links
+- [Interesting]
+- [Look at this]
+- This was one interesting link [0]
+- [1] also, as well as [2] and this [3]
+
+List of todo markers; should not be recognized as links
+- [ ] This is not done
+- [o] This is one item
+- [-] Partially done
+- [x] This is another
+
