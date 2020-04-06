@@ -81,10 +81,10 @@ function! s:parser.open(...) abort dict " {{{1
 
   " Focus
   if &foldenable
-    if l:same_file || &foldlevel > 0
+    if l:same_file
       normal! zv
     else
-      normal! zMzv
+      normal! zx
     endif
   endif
 
