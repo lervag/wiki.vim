@@ -592,7 +592,7 @@ let s:matcher_shortcite = {
       \ 'type' : 'url',
       \ 'parser' : function('s:parser_shortcite'),
       \ 'toggle' : 'md',
-      \ 'rx'     : '\%(\s\|^\|\[\)@\w\+\>',
+      \ 'rx'     : '\%(\s\|^\|\[\)\zs@\w\+\>',
       \}
 
 " }}}1
