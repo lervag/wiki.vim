@@ -439,6 +439,7 @@ function! wiki#link#get_matchers_all() abort " {{{1
         \ s:matcher_ref_single,
         \ s:matcher_ref_double,
         \ s:matcher_url,
+        \ s:matcher_shortcite,
         \ s:matcher_date,
         \ s:matcher_word,
         \]
@@ -453,6 +454,7 @@ function! wiki#link#get_matchers_links() abort " {{{1
         \ s:matcher_ref_single,
         \ s:matcher_ref_double,
         \ s:matcher_url,
+        \ s:matcher_shortcite,
         \]
 endfunction
 
@@ -494,6 +496,12 @@ function! s:parser_ref(link, ...) abort dict " {{{1
     let l:url = matchstr(getline(l:lnum), s:rx_url)
     return extend(a:link, call('wiki#url#parse', [l:url] + a:000))
   endif
+endfunction
+
+" }}}1
+function! s:parser_shortcite(link, ...) abort dict " {{{1
+  return extend(a:link, call('wiki#url#parse',
+        \ ['zot:' . strpart(a:link.full, 2)] + a:000))
 endfunction
 
 " }}}1
@@ -576,6 +584,15 @@ let s:matcher_url = {
       \ 'parser' : function('s:parser_general'),
       \ 'toggle' : 'md',
       \ 'rx'     : s:rx_url,
+      \}
+
+" }}}1
+" {{{1 s:matcher_shortcite
+let s:matcher_shortcite = {
+      \ 'type' : 'url',
+      \ 'parser' : function('s:parser_shortcite'),
+      \ 'toggle' : 'md',
+      \ 'rx'     : '\%(\s\|^\|\[\)@\w\+\>',
       \}
 
 " }}}1
