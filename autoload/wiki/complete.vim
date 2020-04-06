@@ -111,7 +111,7 @@ endfunction
 let s:completer_zotero = {}
 
 function! s:completer_zotero.findstart(line) dict abort " {{{2
-  return match(a:line, 'zot:\zs\S*$')
+  return match(a:line, '\%(zot:\|\%(\s\|^\|\[\)@\)\zs\S*$')
 endfunction
 
 function! s:completer_zotero.complete(regex) dict abort " {{{2
