@@ -17,3 +17,6 @@ List of todo markers; should not be recognized as links
 - [-] Partially done
 - [x] This is another
 
+Scheme shortcut with @citekey notation short for zot:citekey. Multiple keys in
+brackets [@c1; @c2]. Should not match in e.g. emails first.last@domain.com.
+

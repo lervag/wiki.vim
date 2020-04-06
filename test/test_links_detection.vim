@@ -29,4 +29,22 @@ for s:lnum in range(15, 18)
   call wiki#test#assert_equal({}, s:link)
 endfor
 
+let s:link = wiki#link#get_at_pos(20, 23)
+call wiki#test#assert_equal('url', s:link.type)
+call wiki#test#assert_equal('zot', s:link.scheme)
+
+let s:link = wiki#link#get_at_pos(20, 50)
+call wiki#test#assert_equal('url', s:link.type)
+call wiki#test#assert_equal('zot', s:link.scheme)
+
+let s:link = wiki#link#get_at_pos(21, 11)
+call wiki#test#assert_equal('url', s:link.type)
+call wiki#test#assert_equal('zot', s:link.scheme)
+call wiki#test#assert_equal('c1', s:link.stripped)
+
+let s:link = wiki#link#get_at_pos(21, 18)
+call wiki#test#assert_equal('url', s:link.type)
+call wiki#test#assert_equal('zot', s:link.scheme)
+call wiki#test#assert_equal('c2', s:link.stripped)
+
 if $QUIT | quitall! | endif
