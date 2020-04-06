@@ -58,6 +58,17 @@ endfunction
 " }}}2
 
 " }}}1
+function! wiki#link#get_at_pos(line, col) abort " {{{1
+  let l:save_pos = getcurpos()
+  call setpos('.', [0, a:line, a:col, 0])
+
+  let l:link = wiki#link#get_at_cursor()
+
+  call setpos('.', l:save_pos)
+  return l:link
+endfunction
+
+" }}}1
 function! wiki#link#get_all(...) abort "{{{1
   let l:file = a:0 > 0 ? a:1 : expand('%')
   if !filereadable(l:file) | return [] | endif
