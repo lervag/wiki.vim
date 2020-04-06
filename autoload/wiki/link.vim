@@ -500,6 +500,8 @@ endfunction
 
 " Common url regex
 let s:rx_url = '\<\l\+:\%(\/\/\)\?[^ \t()\[\]|]\+'
+let s:rx_reftext = '[^\\\[\]]\{-}'
+let s:rx_reftarget = '\%(\d\+\|\a[-_. [:alnum:]]\+\)'
 
 "
 " These are the actual matchers. Link matchers are the matcher objects used to
@@ -532,8 +534,10 @@ let s:matcher_ref_single = {
       \ 'type' : 'ref',
       \ 'parser' : function('s:parser_ref'),
       \ 'toggle' : 'ref',
-      \ 'rx' : '[\]\[]\@<!\[[^\\\[\]]\{-}\][\]\[]\@!',
-      \ 'rx_target' : '\[\zs[^\\\[\]]\{-}\ze\]',
+      \ 'rx' : '[\]\[]\@<!'
+      \   . '\[' . s:rx_reftarget . '\]'
+      \   . '[\]\[]\@!',
+      \ 'rx_target' : '\[\zs' . s:rx_reftarget . '\ze\]',
       \}
 
 " }}}1
@@ -542,15 +546,16 @@ let s:matcher_ref_double = {
       \ 'type' : 'ref',
       \ 'parser' : function('s:parser_ref'),
       \ 'toggle' : 'ref',
-      \ 'rx' : '[\]\[]\@<!\['
-      \   . '[^\\\[\]]\{-}\]\[\%([^\\\[\]]\{-}\)\?'
-      \   . '\][\]\[]\@!',
-      \ 'rx_target' : '[\]\[]\@<!\['
-      \   . '\%(\zs[^\\\[\]]\{-}\ze\]\[\|[^\\\[\]]\{-}\]\[\zs[^\\\[\]]\{-1,}\ze\)'
-      \   . '\][\]\[]\@!',
-      \ 'rx_text' : '[\]\[]\@<!\['
-      \   . '\zs[^\\\[\]]\{-}\ze\]\[[^\\\[\]]\{-1,}'
-      \   . '\][\]\[]\@!',
+      \ 'rx' : '[\]\[]\@<!'
+      \   . '\[' . s:rx_reftext   . '\]'
+      \   . '\[' . s:rx_reftarget . '\]'
+      \   . '[\]\[]\@!',
+      \ 'rx_target' :
+      \     '\['    . s:rx_reftext   . '\]'
+      \   . '\[\zs' . s:rx_reftarget . '\ze\]',
+      \ 'rx_text' :
+      \     '\[\zs' . s:rx_reftext   . '\ze\]'
+      \   . '\['    . s:rx_reftarget . '\]'
       \}
 
 " }}}1
@@ -559,9 +564,9 @@ let s:matcher_ref_target = {
       \ 'type' : 'ref_target',
       \ 'parser' : function('s:parser_general'),
       \ 'toggle' : 'ref_target',
-      \ 'rx' : '\[[^\\\]]\{-}\]:\s\+' . s:rx_url,
-      \ 'rx_url' : '\[[^\\\]]\{-}\]:\s\+\zs' . s:rx_url . '\ze',
-      \ 'rx_text' : '\[\zs[^\\\]]\{-}\ze\]:\s\+' . s:rx_url,
+      \ 'rx' : '^\s*\[' . s:rx_reftarget . '\]:\s\+' . s:rx_url,
+      \ 'rx_url' : '\[' . s:rx_reftarget . '\]:\s\+\zs' . s:rx_url,
+      \ 'rx_text' : '^\s*\[\zs' . s:rx_reftarget . '\ze\]',
       \}
 
 " }}}1
