@@ -436,8 +436,8 @@ function! wiki#link#get_matchers_all() abort " {{{1
         \ s:matcher_wiki,
         \ s:matcher_md,
         \ s:matcher_ref_target,
-        \ s:matcher_ref_simple,
-        \ s:matcher_ref,
+        \ s:matcher_ref_single,
+        \ s:matcher_ref_double,
         \ s:matcher_url,
         \ s:matcher_date,
         \ s:matcher_word,
@@ -450,8 +450,8 @@ function! wiki#link#get_matchers_links() abort " {{{1
         \ s:matcher_wiki,
         \ s:matcher_md,
         \ s:matcher_ref_target,
-        \ s:matcher_ref_simple,
-        \ s:matcher_ref,
+        \ s:matcher_ref_single,
+        \ s:matcher_ref_double,
         \ s:matcher_url,
         \]
 endfunction
@@ -486,7 +486,7 @@ endfunction
 
 " }}}1
 function! s:parser_ref(link, ...) abort dict " {{{1
-  let l:id = matchstr(a:link.full, self.rx_id)
+  let l:id = matchstr(a:link.full, self.rx_target)
   let l:lnum = searchpos('^\[' . l:id . '\]: ', 'nW')[0]
   if l:lnum == 0
     return a:link
@@ -503,7 +503,7 @@ let s:rx_url = '\<\l\+:\%(\/\/\)\?[^ \t()\[\]|]\+'
 
 "
 " These are the actual matchers. Link matchers are the matcher objects used to
-" parse and create links.
+" detect, parse, and create link objects.
 "
 " {{{1 s:matcher_wiki
 let s:matcher_wiki = {
@@ -527,30 +527,30 @@ let s:matcher_md = {
       \}
 
 " }}}1
-" {{{1 s:matcher_ref
-let s:matcher_ref = {
+" {{{1 s:matcher_ref_single
+let s:matcher_ref_single = {
+      \ 'type' : 'ref',
+      \ 'parser' : function('s:parser_ref'),
+      \ 'toggle' : 'ref',
+      \ 'rx' : '[\]\[]\@<!\[[^\\\[\]]\{-}\][\]\[]\@!',
+      \ 'rx_target' : '\[\zs[^\\\[\]]\{-}\ze\]',
+      \}
+
+" }}}1
+" {{{1 s:matcher_ref_double
+let s:matcher_ref_double = {
       \ 'type' : 'ref',
       \ 'parser' : function('s:parser_ref'),
       \ 'toggle' : 'ref',
       \ 'rx' : '[\]\[]\@<!\['
       \   . '[^\\\[\]]\{-}\]\[\%([^\\\[\]]\{-}\)\?'
       \   . '\][\]\[]\@!',
-      \ 'rx_id' : '[\]\[]\@<!\['
+      \ 'rx_target' : '[\]\[]\@<!\['
       \   . '\%(\zs[^\\\[\]]\{-}\ze\]\[\|[^\\\[\]]\{-}\]\[\zs[^\\\[\]]\{-1,}\ze\)'
       \   . '\][\]\[]\@!',
       \ 'rx_text' : '[\]\[]\@<!\['
       \   . '\zs[^\\\[\]]\{-}\ze\]\[[^\\\[\]]\{-1,}'
       \   . '\][\]\[]\@!',
-      \}
-
-" }}}1
-" {{{1 s:matcher_ref_simple
-let s:matcher_ref_simple = {
-      \ 'type' : 'ref',
-      \ 'parser' : function('s:parser_ref'),
-      \ 'toggle' : 'ref',
-      \ 'rx' : '[\]\[]\@<!\[[^\\\[\]]\{-}\][\]\[]\@!',
-      \ 'rx_id' : '\[\zs[^\\\[\]]\{-}\ze\]',
       \}
 
 " }}}1
