@@ -5,13 +5,11 @@ tests := $(wildcard test-*.vim)
 
 .PHONY: cleanup $(tests)
 
-test: $(tests)
+test:
+	@rm -rf wiki-tmp
+	@cp -r wiki wiki-tmp
+	@$(MAKE) $(tests)
 	@rm -rf wiki-tmp
 
 $(tests):
 	@$(MYVIM) -u $@
-
-test-rename.vim: | wiki-tmp
-
-wiki-tmp:
-	@cp -r wiki wiki-tmp
