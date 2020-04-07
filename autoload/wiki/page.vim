@@ -28,7 +28,10 @@ function! wiki#page#delete() abort "{{{1
 endfunction
 
 "}}}1
-function! wiki#page#rename() abort "{{{1
+function! wiki#page#rename(newname) abort "{{{1
+  let l:newpath = printf('%s/%s.%s',
+        \ expand('%:p:h'), a:newname, b:wiki.extension)
+
   " Check if current file exists
   if !filereadable(expand('%:p'))
     echom 'wiki Error: Cannot rename "' . expand('%:p')
@@ -36,46 +39,36 @@ function! wiki#page#rename() abort "{{{1
     return
   endif
 
+  " The new name must be nontrivial
+  if empty(substitute(a:newname, '\s*', '', ''))
+    echom 'wiki Error: Cannot rename to an empty filename!'
+    return
+  endif
+
+  " The new name must not exist
+  if filereadable(l:newpath)
+    echom 'wiki Error: Cannot rename to "' . l:newpath
+          \ . '". File with that name exist!'
+    return
+  endif
+
+  " Does not support renaming files inside journal
   if b:wiki.in_journal
     echom 'Not supported yet.'
     return
   endif
 
-  " Ask if user wants to rename
-  if input('Rename "' . expand('%:t:r') . '" [y]es/[N]o? ') !~? '^y'
-    return
-  endif
-
-  " Get new page name
-  echo 'Enter new name (without extension):'
-  let l:new = {}
-  let l:new.name = input('> ')
-  echon "\r"
-  if empty(substitute(l:new.name, '\s*', '', ''))
-    echom 'wiki Error: Cannot rename to an empty filename!'
-    return
-  endif
-
-  " Expand to full path name, check if already exists
-  let l:new.path = printf('%s/%s.%s',
-        \ expand('%:p:h'), l:new.name, b:wiki.extension)
-  if filereadable(l:new.path)
-    echom 'wiki Error: Cannot rename to "' . l:new.path
-          \ . '". File with that name exist!'
-    return
-  endif
-
-  " Rename current file to l:new.path
+  " Rename current file to l:newpath
   try
     echom 'wiki: Renaming ' . expand('%:t')
-          \ . ' to ' . fnamemodify(l:new.path, ':t')
-    if rename(expand('%:p'), l:new.path) != 0
+          \ . ' to ' . fnamemodify(l:newpath, ':t')
+    if rename(expand('%:p'), l:newpath) != 0
       throw 'Cannot rename!'
     end
     setlocal buftype=nofile
   catch
     echom 'wiki Error: Cannot rename "'
-          \ . expand('%:t:r') . '" to "' . l:new.path . '"!'
+          \ . expand('%:t:r') . '" to "' . l:newpath . '"!'
     return
   endtry
 
@@ -103,13 +96,13 @@ function! wiki#page#rename() abort "{{{1
   let b:wiki = l:wiki
 
   " Update links
-  call s:rename_update_links(l:old.name, l:new.name)
+  call s:rename_update_links(l:old.name, a:newname)
 
   " Restore wiki buffers
   for [l:bufname, l:prev_link] in l:bufs
     if resolve(l:bufname) ==# resolve(l:old.path)
       let l:url = wiki#url#parse(
-            \ l:new.name,
+            \ a:newname,
             \ { 'origin' : l:old.prev_link })
     else
       let l:url = wiki#url#parse(
@@ -118,6 +111,19 @@ function! wiki#page#rename() abort "{{{1
     endif
     silent call l:url.open()
   endfor
+endfunction
+
+" }}}1
+function! wiki#page#rename_ask() abort "{{{1
+  " Ask if user wants to rename
+  if input('Rename "' . expand('%:t:r') . '" [y]es/[N]o? ') !~? '^y'
+    return
+  endif
+
+  " Get new page name
+  echo 'Enter new name (without extension):'
+  let l:name = input('> ')
+  call wiki#page#rename(l:name)
 endfunction
 
 " }}}1
