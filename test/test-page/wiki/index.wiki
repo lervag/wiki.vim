@@ -1,0 +1,6 @@
+# Intro
+
+This is a wiki.
+
+[[BadName]]
+
