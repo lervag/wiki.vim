@@ -1,4 +1,4 @@
-source init.vim
+source ../init.vim
 
 let g:wiki_root = fnamemodify(expand('<cfile>'), ':p:h') . '/ex3-journal'
 let g:wiki_journal = {'name' : 'diary'}

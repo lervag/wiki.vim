@@ -1,4 +1,4 @@
-source init.vim
+source ../init.vim
 runtime plugin/wiki.vim
 
 let g:wiki_cache_persistent = 0

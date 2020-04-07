@@ -1,8 +1,7 @@
 set nocompatible
-let &runtimepath = '..,' . &runtimepath
-" filetype plugin indent on
-" syntax enable
-
+let &runtimepath =
+      \ simplify(fnamemodify(expand('<sfile>'), ':h') . '/..')
+      \ . ',' . &runtimepath
 set noswapfile
 set nomore
 nnoremap q :qall!<cr>

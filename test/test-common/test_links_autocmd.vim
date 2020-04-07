@@ -1,4 +1,4 @@
-source init.vim
+source ../init.vim
 runtime plugin/wiki.vim
 
 " Test that the autocommand WikiLinkOpened is triggered when a wiki link is

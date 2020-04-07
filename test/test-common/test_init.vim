@@ -1,4 +1,4 @@
-source init.vim
+source ../init.vim
 
 " Initial load of wiki.vim
 let g:wiki_filetypes = ['wiki', 'md']

@@ -1,4 +1,4 @@
-source init.vim
+source ../init.vim
 runtime plugin/wiki.vim
 
 silent edit ex5-tags/index.wiki

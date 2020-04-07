@@ -1,12 +1,25 @@
-export QUIT = 1
+MYVIM ?= nvim --headless
+MAKEFLAGS+=--no-print-directory
 
-tests := $(wildcard test_*.vim)
+TESTS := $(wildcard test-*)
 
-.PHONY: all $(tests)
+.PHONY: test $(TESTS)
 
-test: $(tests)
+test: $(TESTS)
 
-$(tests):
-	@echo $@
-	@nvim --headless -u $@
-	@vim -T dumb --not-a-term --noplugin -n -u $@
+sysinfo:
+	@echo "**** SYSTEM INFORMATION ****"
+	@-git log -1
+	@-$(MYVIM) --version
+	@echo "**** SYSTEM INFORMATION ****"
+
+$(TESTS):
+	$(MAKE) -C $@
+
+#
+# Ensure that some goals are run first/last
+#
+ifndef MAKECMDGOALS
+test: sysinfo
+$(TESTS): sysinfo
+endif

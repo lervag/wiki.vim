@@ -1,4 +1,4 @@
-source init.vim
+source ../init.vim
 
 let g:wiki_list_todos = ['TODO', 'INPROGRESS', 'DONE']
 
