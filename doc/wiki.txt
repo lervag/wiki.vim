@@ -171,6 +171,7 @@ CONFIGURATION                                                     *wiki-config*
 <
   With the above setting, links created with |WikiLinkOpen| or
   |WikiLinkToggle| (or related mappings) will be transformed by `MyFunction`.
+  The filename for pages created with |WikiOpen| will also be transformed.
   As an example, if one creates a link from the text "Some text", the link
   becomes "[[some-text|Some text]]".
 
@@ -362,7 +363,9 @@ possible.
 *<plug>(wiki-open)*
 *WikiOpen*
   Open (or create) a page. Asks for user input to specify the page name. When
-  not already inside a wiki, the wiki root is given by |g:wiki_root|.
+  not already inside a wiki, the wiki root is given by |g:wiki_root|. If
+  |g:wiki_link_target_map| is specified, it will be used to transform the
+  input before opening/creating the page.
 
 *<plug>(wiki-journal)*
 *WikiJournal*
@@ -398,7 +401,9 @@ possible.
 *<plug>(wiki-link-open)*
 *WikiLinkOpen*
   Open/follow link. Will create a new link if the text under the cursor is not
-  already a link.
+  already a link. If |g:wiki_link_target_map| is specified, it will be used to
+  transform the link when creating it.
+
                                                          *#User#WikiLinkOpened*
   The user autocommand `WikiLinkOpened` is triggered after a wiki link has
   been triggered. This allows the user to add custom functionality after
@@ -422,7 +427,8 @@ possible.
 *<plug>(wiki-link-toggle-visual)*    |xmap|
 *<plug>(wiki-link-toggle-operator)*  |map-operator|
 *WikiLinkToggle*
-  Toggle wiki link.
+  Toggle wiki link. If |g:wiki_link_target_map| is specified, it will be used
+  to transform the link when creating it.
 
 *<plug>(wiki-list-toggle)*
 *WikiListToggle*

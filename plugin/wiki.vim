@@ -50,7 +50,7 @@ call wiki#init#option('wiki_zotero_root', '~/.local/zotero')
 " Initialize global commands
 command! WikiEnable   call wiki#buffer#init()
 command! WikiIndex    call wiki#goto_index()
-command! WikiOpen     call wiki#page#open()
+command! WikiOpen     call wiki#page#open_ask()
 command! WikiReload   call wiki#reload()
 command! WikiJournal  call wiki#journal#make_note()
 command! CtrlPWiki    call ctrlp#init(ctrlp#wiki#id())

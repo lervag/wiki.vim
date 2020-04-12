@@ -5,9 +5,18 @@
 " License:    MIT license
 "
 
-function! wiki#page#open() abort "{{{1
-  let l:page = input('Open/Create page: ')
+function! wiki#page#open(page) abort "{{{1
+  let l:page =
+        \ !empty(g:wiki_link_target_map) && exists('*' . g:wiki_link_target_map)
+        \ ? call(g:wiki_link_target_map, [a:page])
+        \ : ''
   call wiki#url#parse('wiki:/' . l:page).open()
+endfunction
+
+"}}}1
+function! wiki#page#open_ask() abort "{{{1
+  let l:page = input('Open/Create page: ')
+  call wiki#page#open(l:page)
 endfunction
 
 "}}}1
