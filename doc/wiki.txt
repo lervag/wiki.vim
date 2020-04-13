@@ -308,7 +308,8 @@ CONFIGURATION                                                     *wiki-config*
         \ 'from_format' : 'markdown',
         \ 'ext' : 'pdf',
         \ 'view' : v:false,
-        }
+        \ 'output': fnamemodify(tempname(), ':h'),
+        \}
 
 *g:wiki_tags*
   A dictionary that specifies the default configuration for |WikiTagSearch|
@@ -491,11 +492,12 @@ possible.
 [range]*WikiExport*  [options] [fname]
   Export the current wiki file with `pandoc`. The main argument `fname`
   specifies the target filename and format (implied by the file extension),
-  e.g. `test.pdf` or `test.html`. If the argument is not specified, then
-  a temporary filename is generated. In this case, the `-view` option is
-  activated regardless of the basic configuration.
+  e.g. `test.pdf` or `test.html`. If `fname` is not specified, then the
+  `-path` option is used to determine the output location. In this case, the
+  `-view` option is activated regardless of the basic configuration.
 
-  Available options are (use |g:wiki_export| to set default values):
+  Available options are given below. The default values are specified in the
+  dictionary |g:wiki_export|.
 
   -args~
     Specify extra arguments for `pandoc`.
@@ -505,6 +507,10 @@ possible.
 
   -ext EXT~
     Specify extension to use if `fname` is not provided.
+
+  -output~
+    Set output directory where the exported file is stored. Relative paths are
+    relative to the wiki root.
 
   -view~
     Set to true to open documents with specified `viewer` by default.

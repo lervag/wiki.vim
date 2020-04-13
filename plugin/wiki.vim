@@ -29,6 +29,7 @@ call wiki#init#option('wiki_export', {
       \ 'from_format' : 'gfm',
       \ 'ext' : 'pdf',
       \ 'view' : v:false,
+      \ 'output' : fnamemodify(tempname(), ':h'),
       \})
 call wiki#init#option('wiki_tags', { 'output' : 'loclist' })
 call wiki#init#option('wiki_filetypes', ['wiki'])

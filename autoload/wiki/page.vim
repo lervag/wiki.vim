@@ -313,6 +313,8 @@ function! wiki#page#export(line1, line2, ...) abort " {{{1
       let l:cfg.from_format = remove(l:args, 0)
     elseif l:arg ==# '-ext'
       let l:cfg.ext = remove(l:args, 0)
+    elseif l:arg ==# '-output'
+      let l:cfg.output = remove(l:args, 0)
     elseif l:arg ==# '-view'
       let l:cfg.view = v:true
     elseif l:arg ==# '-viewer'
@@ -327,10 +329,20 @@ function! wiki#page#export(line1, line2, ...) abort " {{{1
     endif
   endwhile
 
+  " Ensure output directory is an absolute path
+  if !wiki#paths#is_abs(l:cfg.output)
+    let l:cfg.output = wiki#get_root() . '/' . l:cfg.output
+  endif
+
+  " Ensure output directory exists
+  if !isdirectory(l:cfg.output)
+    call mkdir(l:cfg.output, 'p')
+  endif
+
   " Determine output filename and extension
   if empty(l:cfg.fname)
     let l:cfg.fname = printf('%s/%s.%s',
-        \ fnamemodify(tempname(), ':h'), expand('%:t:r'), l:cfg.ext)
+          \ l:cfg.output, expand('%:t:r'), l:cfg.ext)
   else
     let l:cfg.ext = fnamemodify(l:cfg.fname, ':e')
   endif
