@@ -26,7 +26,7 @@ call wiki#init#option('wiki_viewer', {
       \})
 call wiki#init#option('wiki_export', {
       \ 'args' : '',
-      \ 'from_format' : 'gfm',
+      \ 'from_format' : 'markdown',
       \ 'ext' : 'pdf',
       \ 'view' : v:false,
       \ 'output' : fnamemodify(tempname(), ':h'),
