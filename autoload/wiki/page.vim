@@ -9,7 +9,7 @@ function! wiki#page#open(page) abort "{{{1
   let l:page =
         \ !empty(g:wiki_link_target_map) && exists('*' . g:wiki_link_target_map)
         \ ? call(g:wiki_link_target_map, [a:page])
-        \ : ''
+        \ : a:page
   call wiki#url#parse('wiki:/' . l:page).open()
 endfunction
 
