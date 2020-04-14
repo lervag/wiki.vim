@@ -345,27 +345,25 @@ CONFIGURATION                                                     *wiki-config*
   Default: `'~/.local/zotero'`
 
 *g:wiki_page_create_map*
-  This option may be used to transform text before creating a new page. An
-  example: >
+  This option may be used to specify a map or transformation for page names
+  provided to |WikiOpen|. For example: >
 
     let g:wiki_page_create_map = 'MyFunction'
 
-    function MyFunction(url) abort
-      let l:url = g:wiki_root . '/' . a:url
-      " Test if the file exists
-      if empty(glob(expand(l:url)))
-        " If the file is new, append the current date
-        return a:url . '_' . strftime('%Y%m%d')
-      endif
+    function MyFunction(name) abort
+      let l:name = wiki#get_root() . '/' . a:name
 
-      return a:url
+      " If the file is new, then append the current date
+      return filereadable(l:name)
+            \ ? a:name
+            \ : a:name . '_' . strftime('%Y%m%d')
     endfunction
 <
-  With the above setting, links created with |WikiOpen| will be transformed by
-  `MyFunction`. As an example, if one enters a page name "foo" on 2020-04-11,
-  the page "foo_20200411" will be created.
+  With the above setting, if one enters a page name "foo" for |WikiOpen| on
+  the date 2020-04-11, the page "foo_20200411" will be created.
 
   Default: ''
+
 ==============================================================================
 COMMANDS                                                        *wiki-commands*
 
@@ -387,7 +385,7 @@ possible.
   Open (or create) a page. Asks for user input to specify the page name. When
   not already inside a wiki, the wiki root is given by |g:wiki_root|. If
   |g:wiki_page_create_map| is specified, it will be used to transform the
-  input before opening/creating the page.
+  input name before opening/creating the page.
 
 *<plug>(wiki-journal)*
 *WikiJournal*
