@@ -6,7 +6,7 @@ endfunction
 
 let g:wiki_filetypes = ['md']
 let g:wiki_link_extension = '.md'
-let g:wiki_link_target_map = 'MyFunction'
+let g:wiki_map_link_target = 'MyFunction'
 let g:wiki_root = expand('<sfile>:h') . '/ex1-basic'
 
 runtime plugin/wiki.vim

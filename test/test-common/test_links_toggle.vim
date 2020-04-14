@@ -1,6 +1,6 @@
 source ../init.vim
 
-let g:wiki_link_target_map = 'MyFunction'
+let g:wiki_map_link_target = 'MyFunction'
 
 function MyFunction(text) abort
   return substitute(tolower(a:text), '\s\+', '-', 'g')

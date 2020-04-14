@@ -159,11 +159,11 @@ CONFIGURATION                                                     *wiki-config*
 
   Default: ''
 
-*g:wiki_link_target_map*
+*g:wiki_map_link_target*
   This option may be used to transform text before creating a new link. An
   example: >
 
-    let g:wiki_link_target_map = 'MyFunction'
+    let g:wiki_map_link_target = 'MyFunction'
 
     function MyFunction(text) abort
       return substitute(tolower(a:text), '\s\+', '-', 'g')
@@ -344,11 +344,11 @@ CONFIGURATION                                                     *wiki-config*
 
   Default: `'~/.local/zotero'`
 
-*g:wiki_page_create_map*
+*g:wiki_map_create_page*
   This option may be used to transform text before creating a new page. An
   example: >
 
-    let g:wiki_page_create_map = 'MyFunction'
+    let g:wiki_map_create_page = 'MyFunction'
 
     function MyFunction(url) abort
       let l:url = g:wiki_root . '/' . a:url
@@ -386,7 +386,7 @@ possible.
 *WikiOpen*
   Open (or create) a page. Asks for user input to specify the page name. When
   not already inside a wiki, the wiki root is given by |g:wiki_root|. If
-  |g:wiki_page_create_map| is specified, it will be used to transform the
+  |g:wiki_map_create_page| is specified, it will be used to transform the
   input before opening/creating the page.
 
 *<plug>(wiki-journal)*
@@ -423,7 +423,7 @@ possible.
 *<plug>(wiki-link-open)*
 *WikiLinkOpen*
   Open/follow link. Will create a new link if the text under the cursor is not
-  already a link. If |g:wiki_link_target_map| is specified, it will be used to
+  already a link. If |g:wiki_map_link_target| is specified, it will be used to
   transform the link when creating it.
 
                                                          *#User#WikiLinkOpened*
@@ -449,7 +449,7 @@ possible.
 *<plug>(wiki-link-toggle-visual)*    |xmap|
 *<plug>(wiki-link-toggle-operator)*  |map-operator|
 *WikiLinkToggle*
-  Toggle wiki link. If |g:wiki_link_target_map| is specified, it will be used
+  Toggle wiki link. If |g:wiki_map_link_target| is specified, it will be used
   to transform the link when creating it.
 
 *<plug>(wiki-list-toggle)*
