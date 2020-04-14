@@ -5,6 +5,31 @@
 " License:    MIT license
 "
 
+function! wiki#paths#pushd(path) abort " {{{1
+  if empty(a:path) || getcwd() ==# fnamemodify(a:path, ':p')
+    let s:qpath += ['']
+  else
+    let s:qpath += [getcwd()]
+    execute s:cd fnameescape(a:path)
+  endif
+endfunction
+
+" }}}1
+function! wiki#paths#popd() abort " {{{1
+  let l:path = remove(s:qpath, -1)
+  if !empty(l:path)
+    execute s:cd fnameescape(l:path)
+  endif
+endfunction
+
+" }}}1
+
+function! wiki#paths#is_abs(path) abort " {{{1
+  return a:path =~# s:re_abs
+endfunction
+
+" }}}1
+
 function! wiki#paths#shorten_relative(path) abort " {{{1
   " Input: An absolute path
   " Output: Relative path with respect to the wiki root, path relative to
@@ -43,3 +68,11 @@ function! wiki#paths#relative(path, current) abort " {{{1
 endfunction
 
 " }}}1
+
+
+let s:cd = exists('*haslocaldir') && haslocaldir()
+      \ ? 'lcd'
+      \ : exists(':tcd') && haslocaldir(-1) ? 'tcd' : 'cd'
+let s:qpath = get(s:, 'qpath', [])
+
+let s:re_abs = has('win32') ? '^[A-Z]:[\\/]' : '^/'
