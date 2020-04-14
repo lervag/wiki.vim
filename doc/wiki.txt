@@ -154,16 +154,31 @@ CONFIGURATION                                                     *wiki-config*
 
   Default: ['wiki']
 
-*g:wiki_link_extension*
-  Specify extension that should be applied to wiki links.
+*g:wiki_map_create_page*
+  This option may be used to specify a map or transformation for page names
+  provided to |WikiOpen|. For example: >
+
+    let g:wiki_map_create_page = 'MyFunction'
+
+    function MyFunction(name) abort
+      let l:name = wiki#get_root() . '/' . a:name
+
+      " If the file is new, then append the current date
+      return filereadable(l:name)
+            \ ? a:name
+            \ : a:name . '_' . strftime('%Y%m%d')
+    endfunction
+<
+  With the above setting, if one enters a page name "foo" for |WikiOpen| on
+  the date 2020-04-11, the page "foo_20200411" will be created.
 
   Default: ''
 
-*g:wiki_link_target_map*
+*g:wiki_map_link_target*
   This option may be used to transform text before creating a new link. An
   example: >
 
-    let g:wiki_link_target_map = 'MyFunction'
+    let g:wiki_map_link_target = 'MyFunction'
 
     function MyFunction(text) abort
       return substitute(tolower(a:text), '\s\+', '-', 'g')
@@ -173,6 +188,11 @@ CONFIGURATION                                                     *wiki-config*
   |WikiLinkToggle| (or related mappings) will be transformed by `MyFunction`.
   As an example, if one creates a link from the text "Some text", the link
   becomes "[[some-text|Some text]]".
+
+  Default: ''
+
+*g:wiki_link_extension*
+  Specify extension that should be applied to wiki links.
 
   Default: ''
 
@@ -344,26 +364,6 @@ CONFIGURATION                                                     *wiki-config*
 
   Default: `'~/.local/zotero'`
 
-*g:wiki_page_create_map*
-  This option may be used to specify a map or transformation for page names
-  provided to |WikiOpen|. For example: >
-
-    let g:wiki_page_create_map = 'MyFunction'
-
-    function MyFunction(name) abort
-      let l:name = wiki#get_root() . '/' . a:name
-
-      " If the file is new, then append the current date
-      return filereadable(l:name)
-            \ ? a:name
-            \ : a:name . '_' . strftime('%Y%m%d')
-    endfunction
-<
-  With the above setting, if one enters a page name "foo" for |WikiOpen| on
-  the date 2020-04-11, the page "foo_20200411" will be created.
-
-  Default: ''
-
 ==============================================================================
 COMMANDS                                                        *wiki-commands*
 
@@ -384,7 +384,7 @@ possible.
 *WikiOpen*
   Open (or create) a page. Asks for user input to specify the page name. When
   not already inside a wiki, the wiki root is given by |g:wiki_root|. If
-  |g:wiki_page_create_map| is specified, it will be used to transform the
+  |g:wiki_map_create_page| is specified, it will be used to transform the
   input name before opening/creating the page.
 
 *<plug>(wiki-journal)*
@@ -421,7 +421,7 @@ possible.
 *<plug>(wiki-link-open)*
 *WikiLinkOpen*
   Open/follow link. Will create a new link if the text under the cursor is not
-  already a link. If |g:wiki_link_target_map| is specified, it will be used to
+  already a link. If |g:wiki_map_link_target| is specified, it will be used to
   transform the link when creating it.
 
                                                          *#User#WikiLinkOpened*
@@ -447,7 +447,7 @@ possible.
 *<plug>(wiki-link-toggle-visual)*    |xmap|
 *<plug>(wiki-link-toggle-operator)*  |map-operator|
 *WikiLinkToggle*
-  Toggle wiki link. If |g:wiki_link_target_map| is specified, it will be used
+  Toggle wiki link. If |g:wiki_map_link_target| is specified, it will be used
   to transform the link when creating it.
 
 *<plug>(wiki-list-toggle)*

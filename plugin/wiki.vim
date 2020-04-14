@@ -35,8 +35,9 @@ call wiki#init#option('wiki_tags', { 'output' : 'loclist' })
 call wiki#init#option('wiki_filetypes', ['wiki'])
 call wiki#init#option('wiki_index_name', 'index')
 call wiki#init#option('wiki_root', '')
+call wiki#init#option('wiki_map_link_target', '')
+call wiki#init#option('wiki_map_create_page', '')
 call wiki#init#option('wiki_link_extension', '')
-call wiki#init#option('wiki_link_target_map', '')
 call wiki#init#option('wiki_link_target_type', 'wiki')
 call wiki#init#option('wiki_month_names', [
       \ 'January', 'February', 'March', 'April', 'May', 'June', 'July',

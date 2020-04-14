@@ -316,8 +316,8 @@ function! wiki#link#template_word(url, ...) abort " {{{1
   "
   " Allow to map text -> url
   "
-  if !empty(g:wiki_link_target_map) && exists('*' . g:wiki_link_target_map)
-    let l:url = call(g:wiki_link_target_map, [a:url])
+  if !empty(g:wiki_map_link_target) && exists('*' . g:wiki_map_link_target)
+    let l:url = call(g:wiki_map_link_target, [a:url])
     if empty(l:text) && l:url !=# a:url
       let l:text = a:url
     endif
