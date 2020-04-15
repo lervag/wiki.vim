@@ -238,13 +238,31 @@ CONFIGURATION                                                     *wiki-config*
         \ },
         \}
 
-*g:wiki_mappings_use_defaults*
+
+*g:wiki_mappings_use_all_defaults*
   Whether or not to use default mappings (see |wiki-mappings-default|). If
+  Whether or not to use all default mappings (see |wiki-mappings-default|). If
+  this is set to 0, then only custom mappings will be applied. Custom mappings
   this is set to 0, then only custom mappings will be applied. Custom mappings
   may either be specified explicitly or through |g:wiki_mappings_global| and
+  may either be specified explicitly or through |g:wiki_mappings_global| and
+  |g:wiki_mappings_local|.
   |g:wiki_mappings_local|.
 
+
   Default: 1
+  Default: 1
+
+
+*g:wiki_mappings_use_global_defaults*
+*g:wiki_mappings_use_local_defaults*
+  Whether or not to use the global or local (respectively) default mappings (see
+  |wiki-mappings-default|). Setting one of these variables to 1 and setting
+  g:wiki_mappings_use_all_defaults to 0 allows you to only enable one set of
+  default mappings (e.g. if you want the wiki buffer mappings but not the global
+  mappings)
+
+  Default: 0
 
 *g:wiki_mappings_global*
 *g:wiki_mappings_local*
@@ -257,7 +275,7 @@ CONFIGURATION                                                     *wiki-config*
         \}
 <
   This example maps `,wx` to |<plug>(wiki-reload)|. The other maps are kept at
-  the default (unless |g:wiki_mappings_use_defaults| is set to 0). Some
+  the default (unless |g:wiki_mappings_use_all_defaults| is set to 0). Some
   mappings are defined in other modes than normal mode. In this case, one can
   use the following syntax: >
 

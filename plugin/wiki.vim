@@ -68,7 +68,7 @@ nnoremap <silent> <plug>(wiki-fzf-pages) :WikiFzfPages<cr>
 nnoremap <silent> <plug>(wiki-fzf-tags)  :WikiFzfTags<cr>
 
 " Apply default mappings
-let s:mappings = get(g:, 'wiki_mappings_use_defaults', 1)
+let s:mappings = get(g:, 'wiki_mappings_use_all_defaults', 1) || get(g:, 'wiki_mappings_use_global_defaults', 0)
       \ ? {
       \ '<plug>(wiki-index)' : '<leader>ww',
       \ '<plug>(wiki-open)' : '<leader>wn',
