@@ -48,6 +48,7 @@ call wiki#init#option('wiki_template_title_week',
 call wiki#init#option('wiki_template_title_month',
       \ '# Summary, %(year) %(month-name)')
 call wiki#init#option('wiki_zotero_root', '~/.local/zotero')
+call wiki#init#option('wiki_mappings_use_defaults', 'all')
 
 " Initialize global commands
 command! WikiEnable   call wiki#buffer#init()
@@ -68,7 +69,7 @@ nnoremap <silent> <plug>(wiki-fzf-pages) :WikiFzfPages<cr>
 nnoremap <silent> <plug>(wiki-fzf-tags)  :WikiFzfTags<cr>
 
 " Apply default mappings
-let s:mappings = get(g:, 'wiki_mappings_use_all_defaults', 1) || get(g:, 'wiki_mappings_use_global_defaults', 0)
+let s:mappings = index(['all', 'global'], g:wiki_mappings_use_defaults) >= 0
       \ ? {
       \ '<plug>(wiki-index)' : '<leader>ww',
       \ '<plug>(wiki-open)' : '<leader>wn',

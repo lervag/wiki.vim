@@ -128,7 +128,7 @@ function! s:init_buffer_mappings() abort " {{{1
 
 
   let l:mappings = {}
-  if get(g:, 'wiki_mappings_use_all_defaults', 1) || get(g:, 'wiki_mappings_use_local_defaults', 0)
+  if index(['all', 'local'], g:wiki_mappings_use_defaults) >= 0
     let l:mappings = {
           \ '<plug>(wiki-code-run)' : '<leader>wc',
           \ '<plug>(wiki-graph-find-backlinks)' : '<leader>wb',
