@@ -19,14 +19,22 @@ function! wiki#nav#prev_link() abort "{{{1
 endfunction
 
 " }}}1
+
 function! wiki#nav#return() abort "{{{1
-  if exists('b:wiki.prev_link')
-    let [l:file, l:pos] = b:wiki.prev_link
+  if !empty(s:position_stack)
+    let [l:file, l:pos] = remove(s:position_stack, -1)
     silent execute ':e ' . substitute(l:file, '\s', '\\\0', 'g')
     call setpos('.', l:pos)
   else
     silent! execute "normal! \<c-o>"
   endif
 endfunction
+
+" }}}1
+function! wiki#nav#add_to_stack(link) abort " {{{1
+  let s:position_stack += [a:link]
+endfunction
+
+let s:position_stack = []
 
 " }}}1

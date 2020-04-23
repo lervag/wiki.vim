@@ -58,16 +58,16 @@ function! s:parser.open(...) abort dict " {{{1
   if !l:same_file
     if !empty(self.origin)
           \ && resolve(self.origin) ==# resolve(expand('%:p'))
-      let l:prev_link = [expand('%:p'), getpos('.')]
+      let l:old_position = [expand('%:p'), getpos('.')]
     elseif &filetype ==# 'wiki'
-      let l:prev_link = [self.origin, []]
+      let l:old_position = [self.origin, []]
     endif
 
     execute l:cmd fnameescape(self.path)
 
-    if exists('l:prev_link')
-      let b:wiki = extend(get(b:, 'wiki', {}),
-            \ { 'prev_link' : l:prev_link }, 'force')
+    if exists('l:old_position')
+      let b:wiki = get(b:, 'wiki', {})
+      call wiki#nav#add_to_stack(l:old_position)
     endif
   endif
 

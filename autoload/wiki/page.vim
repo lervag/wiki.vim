@@ -85,19 +85,19 @@ function! wiki#page#rename(newname) abort "{{{1
   let l:old = {
         \ 'path' : expand('%:p'),
         \ 'name' : expand('%:t:r'),
-        \ 'prev_link' : get(b:, 'wiki_prev_link', ''),
         \}
 
   " Get list of open wiki buffers
-  let l:bufs = map(filter(filter(range(1, bufnr('$')),
-        \       'buflisted(v:val)'),
+  let l:bufs =
+        \ map(
+        \   filter(
+        \     filter(range(1, bufnr('$')), 'buflisted(v:val)'),
         \     '!empty(getbufvar(v:val, ''wiki''))'),
-        \   '[fnamemodify(bufname(v:val), '':p''), '
-        \   . 'get(getbufvar(v:val, ''wiki''), ''prev_link'', [])]')
+        \   'fnamemodify(bufname(v:val), '':p'')')
 
   " Save and close wiki buffers (retain the b:wiki data blob)
   let l:wiki = b:wiki
-  for [l:bufname, l:dummy] in l:bufs
+  for l:bufname in l:bufs
     execute 'buffer' fnameescape(l:bufname)
     update
     execute 'bwipeout' fnameescape(l:bufname)
@@ -108,16 +108,11 @@ function! wiki#page#rename(newname) abort "{{{1
   call s:rename_update_links(l:old.name, a:newname)
 
   " Restore wiki buffers
-  for [l:bufname, l:prev_link] in l:bufs
-    if resolve(l:bufname) ==# resolve(l:old.path)
-      let l:url = wiki#url#parse(
-            \ a:newname,
-            \ { 'origin' : l:old.prev_link })
-    else
-      let l:url = wiki#url#parse(
-            \ fnamemodify(l:bufname, ':t:r'),
-            \ { 'prev_link' : l:prev_link })
-    endif
+  for l:bufname in l:bufs
+    let l:url = wiki#url#parse(
+          \ resolve(l:bufname) ==# resolve(l:old.path)
+          \ ? a:newname
+          \ : fnamemodify(l:bufname, ':t:r'))
     silent call l:url.open()
   endfor
 endfunction
