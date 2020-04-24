@@ -38,8 +38,12 @@ endfunction
 
 "}}}1
 function! wiki#page#rename(newname) abort "{{{1
+  let l:oldpath = expand('%:p')
   let l:newpath = printf('%s/%s.%s',
         \ expand('%:p:h'), a:newname, b:wiki.extension)
+
+  let l:oldlink = fnamemodify(wiki#paths#shorten_relative(l:oldpath), ':r')
+  let l:newlink = fnamemodify(wiki#paths#shorten_relative(l:newpath), ':r')
 
   " Check if current file exists
   if !filereadable(expand('%:p'))
@@ -81,12 +85,6 @@ function! wiki#page#rename(newname) abort "{{{1
     return
   endtry
 
-  " Store some info from old buffer
-  let l:old = {
-        \ 'path' : expand('%:p'),
-        \ 'name' : expand('%:t:r'),
-        \}
-
   " Get list of open wiki buffers
   let l:bufs =
         \ map(
@@ -105,13 +103,13 @@ function! wiki#page#rename(newname) abort "{{{1
   let b:wiki = l:wiki
 
   " Update links
-  call s:rename_update_links(l:old.name, a:newname)
+  call s:rename_update_links(l:oldlink, l:newlink)
 
   " Restore wiki buffers
   for l:bufname in l:bufs
     let l:url = wiki#url#parse(
-          \ resolve(l:bufname) ==# resolve(l:old.path)
-          \ ? a:newname
+          \ resolve(l:bufname) ==# resolve(l:oldpath)
+          \ ? l:newlink
           \ : fnamemodify(l:bufname, ':t:r'))
     silent call l:url.open()
   endfor
