@@ -205,6 +205,17 @@ CONFIGURATION                                                     *wiki-config*
 
   Default: 'wiki'
 
+*g:wiki_date_exe*
+  Specify the executable for `date`, which is used "behind the scenes" to
+  manipulate and calculate dates for the journal features.
+
+  On MacOS/OSX, one can install `coreutils` from Homebrew and then use the
+  `gdate` program with: >
+
+    let g:wiki_date_exe = 'gdate'
+<
+  Default: 'date'
+
 *g:wiki_journal*
   A dictionary for configuring the journal/diary feature. Available options
   are:
