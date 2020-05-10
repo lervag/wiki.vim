@@ -501,7 +501,7 @@ endfunction
 " }}}1
 function! s:parser_shortcite(link, ...) abort dict " {{{1
   return extend(a:link, call('wiki#url#parse',
-        \ ['zot:' . strpart(a:link.full, 2)] + a:000))
+        \ ['zot:' . strpart(a:link.full, 1)] + a:000))
 endfunction
 
 " }}}1
@@ -592,7 +592,7 @@ let s:matcher_shortcite = {
       \ 'type' : 'url',
       \ 'parser' : function('s:parser_shortcite'),
       \ 'toggle' : 'md',
-      \ 'rx'     : '\%(\s\|^\|\[\)\zs@\w\+\>',
+      \ 'rx'     : '\%(\s\|^\|\[\)\zs@[-_a-zA-Z0-9]\+\>',
       \}
 
 " }}}1
