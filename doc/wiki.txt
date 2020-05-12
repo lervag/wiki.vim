@@ -174,11 +174,11 @@ CONFIGURATION                                                     *wiki-config*
 
   Default: ''
 
-*g:wiki_map_link_target*
+*g:wiki_map_link_create*
   This option may be used to transform text before creating a new link. An
   example: >
 
-    let g:wiki_map_link_target = 'MyFunction'
+    let g:wiki_map_link_create = 'MyFunction'
 
     function MyFunction(text) abort
       return substitute(tolower(a:text), '\s\+', '-', 'g')
@@ -435,7 +435,7 @@ possible.
 *<plug>(wiki-link-open)*
 *WikiLinkOpen*
   Open/follow link. Will create a new link if the text under the cursor is not
-  already a link. If |g:wiki_map_link_target| is specified, it will be used to
+  already a link. If |g:wiki_map_link_create| is specified, it will be used to
   transform the link when creating it.
 
                                                          *#User#WikiLinkOpened*
@@ -461,7 +461,7 @@ possible.
 *<plug>(wiki-link-toggle-visual)*    |xmap|
 *<plug>(wiki-link-toggle-operator)*  |map-operator|
 *WikiLinkToggle*
-  Toggle wiki link. If |g:wiki_map_link_target| is specified, it will be used
+  Toggle wiki link. If |g:wiki_map_link_create| is specified, it will be used
   to transform the link when creating it.
 
 *<plug>(wiki-list-toggle)*
