@@ -2,7 +2,6 @@
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
-" License:    MIT license
 "
 
 " Note: This file is loaded as long as wiki.vim is loaded, so try to keep it as

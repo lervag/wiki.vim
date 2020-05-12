@@ -2,7 +2,6 @@
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
-" License:    MIT license
 "
 
 function! wiki#graph#find_backlinks() abort "{{{1
