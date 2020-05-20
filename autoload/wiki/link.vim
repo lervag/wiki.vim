@@ -487,14 +487,23 @@ endfunction
 
 " }}}1
 function! s:parser_ref(link, ...) abort dict " {{{1
-  let l:id = matchstr(a:link.full, self.rx_target)
-  let l:lnum = searchpos('^\[' . l:id . '\]: ', 'nW')[0]
-  if l:lnum == 0
-    return a:link
-  else
-    let l:url = matchstr(getline(l:lnum), s:rx_url)
-    return extend(a:link, call('wiki#url#parse', [l:url] + a:000))
+  let a:link.id = matchstr(a:link.full, self.rx_target)
+  let a:link.lnum = searchpos('^\[' . a:link.id . '\]: ', 'nW')[0]
+  if a:link.lnum == 0 | return a:link | endif
+
+  let a:link.url = matchstr(getline(a:link.lnum), s:rx_url)
+  if !empty(a:link.url)
+    return extend(a:link, call('wiki#url#parse', [a:link.url] + a:000))
   endif
+
+  " The url is not recognized, so we fall back to a link to the reference
+  " position.
+  function! a:link.open(...) abort dict
+    normal! m'
+    call cursor(self.lnum, 1)
+  endfunction
+
+  return a:link
 endfunction
 
 " }}}1

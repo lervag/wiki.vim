@@ -113,4 +113,3 @@ function! s:parser.open_anchor() abort dict " {{{1
 endfunction
 
 " }}}1
-
