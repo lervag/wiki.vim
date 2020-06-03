@@ -353,6 +353,15 @@ CONFIGURATION                                                     *wiki-config*
         \ 'output' : 'loclist',
         }
 
+*g:wiki_tag_format_pattern*
+  A regular expression describing the search pattern for a single tag.
+
+  Default: >
+    let g:wiki_tag_format_pattern = '\v%(^|\s):\zs[^: ]+\ze:'
+
+  Example (to allow tags to be of the form "#tag1 #tag2"): >
+    let g:wiki_tag_format_pattern = '\v%(^|\s)#\zs[^# ]+\ze($| )'
+
 *g:wiki_template_title_month*
   A string that specifies the title of the month template. The following keys
   are interpolated:
@@ -825,10 +834,13 @@ style links (see |wiki-links|).
 ==============================================================================
 TAGS                                                                *wiki-tags*
 
-Wiki pages may be tagged with the syntax `:tag-name:` for a single tag or
-`:tag-one:tag-two:` for multiple tags. The tag name must consist of purely
-non-space characters. All tags added in the top 15 lines of a file will be
-recognized.
+Wiki pages may be tagged with keywords for organization. By default, tags use
+the syntax `:tag-name:` for a single tag or `:tag-one:tag-two:` for multiple
+tags. The tag name must consist of purely non-space characters. All tags added
+in the top 15 lines of a file will be recognized.
+
+You may customize the format of tags by modifying the
+|g:wiki_tag_format_pattern| variable.
 
 Related commands:
 - |WikiTagList|
