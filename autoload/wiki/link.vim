@@ -317,9 +317,10 @@ function! wiki#link#template_word(url, ...) abort " {{{1
   "
   if !empty(g:wiki_map_link_create) && exists('*' . g:wiki_map_link_create)
     let l:url = call(g:wiki_map_link_create, [a:url])
-    if empty(l:text) && l:url !=# a:url
-      let l:text = a:url
-    endif
+  endif
+
+  if empty(l:text)
+    let l:text = a:url
   endif
 
   "
