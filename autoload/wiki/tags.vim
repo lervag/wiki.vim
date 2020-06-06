@@ -205,7 +205,7 @@ function! s:tags.gather_from_file(file) abort dict " {{{1
 
     while v:true
       let [l:tag, l:pos, l:col]
-            \ = matchstrpos(l:line, '\v%(^|\s):\zs[^: ]+\ze:', l:col)
+            \ = matchstrpos(l:line, g:wiki_tags_format_pattern, l:col)
       if l:col == -1 | break | endif
 
       call self.add(l:tag, a:file, l:lnum, l:pos)
