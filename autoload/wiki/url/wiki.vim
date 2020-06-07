@@ -20,15 +20,6 @@ function! wiki#url#wiki#parse(url) abort " {{{1
           \ . (l:anchors[0] =~# '/$' ? b:wiki.index_name : '')
   endif
 
-  " Determine the proper extension (if necessary)
-  if index(g:wiki_filetypes
-        \ + (exists('b:wiki.extension') ? [b:wiki.extension] : []),
-        \ fnamemodify(l:fname, ':e')) < 0
-    let l:fname .= '.' . (exists('b:wiki.extension')
-          \ ? b:wiki.extension
-          \ : g:wiki_filetypes[0])
-  endif
-
   " Extract the full path
   let l:url.path = l:fname[0] ==# '/'
         \ ? wiki#get_root() . l:fname
@@ -36,6 +27,25 @@ function! wiki#url#wiki#parse(url) abort " {{{1
         \   ? wiki#get_root()
         \   : fnamemodify(a:url.origin, ':p:h')) . '/' . l:fname
   let l:url.dir = fnamemodify(l:url.path, ':p:h')
+
+  " Determine the proper extension (if necessary)
+  let l:extensions = wiki#u#uniq_unsorted(
+        \ (exists('b:wiki.extension') ? [b:wiki.extension] : [])
+        \ + g:wiki_filetypes)
+  if index(l:extensions, fnamemodify(l:fname, ':e')) < 0
+    let l:path = l:url.path
+    let l:url.path .= '.' . l:extensions[0]
+
+    if !filereadable(l:url.path) && len(l:extensions) > 1
+      for l:ext in l:extensions[1:]
+        let l:newpath = l:path . '.' . l:ext
+        if filereadable(l:newpath)
+          let l:url.path = l:newpath
+          break
+        endif
+      endfor
+    endif
+  endif
 
   return l:url
 endfunction

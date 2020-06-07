@@ -87,3 +87,20 @@ function! wiki#u#extend_recursive(dict1, dict2, ...) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#u#uniq_unsorted(list) abort " {{{1
+  if len(a:list) <= 1 | return a:list | endif
+
+  let l:visited = {}
+  let l:result = []
+  for l:x in a:list
+    let l:key = string(l:x)
+    if !has_key(l:visited, l:key)
+      let l:visited[l:key] = 1
+      call add(l:result, l:x)
+    endif
+  endfor
+
+  return l:result
+endfunction
+
+" }}}1

@@ -25,10 +25,10 @@ function! wiki#get_root() abort " {{{1
     if l:root[-1:-1] ==# '/'
       let l:root = l:root[:-2]
     endif
-    if !isdirectory(l:root)
-      echoerr 'g:wiki_root is specified but it does not exist!'
-    else
+    if isdirectory(l:root)
       return resolve(l:root)
+    else
+      echoerr 'g:wiki_root is specified but it does not exist!'
     endif
   endif
 
