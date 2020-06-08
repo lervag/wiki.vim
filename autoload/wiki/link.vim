@@ -141,9 +141,11 @@ function! wiki#link#open(...) abort "{{{1
   let l:link = wiki#link#get_at_cursor()
 
   try
-    call call(l:link.open, a:000, l:link)
-  catch /E716:/
-    call wiki#link#toggle(l:link)
+    if has_key(l:link, 'open')
+      call l:link.open(a:000)
+    else
+      call wiki#link#toggle(l:link)
+    endif
   catch /E37:/
     echoerr 'E37: Can''t open link before you''ve saved the current buffer.'
   endtry
