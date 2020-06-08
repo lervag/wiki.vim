@@ -21,7 +21,7 @@ function! wiki#get_root() abort " {{{1
 
   " Try globally specified wiki
   if !empty(g:wiki_root)
-    let l:root = exists('*' . g:wiki_root)
+    let l:root = s:is_function(g:wiki_root)
       \ ? call(g:wiki_root, [])
       \ : g:wiki_root
     let l:root = fnamemodify(simplify(l:root), ':p')
@@ -82,5 +82,17 @@ if get(s:, 'reload_guard', 1)
     unlet s:reload_guard
   endfunction
 endif
+
+" }}}1
+
+function! s:is_function(string) abort " {{{1
+  try
+    let l:is_function = exists('*' . a:string)
+  catch /E129:/
+    let l:is_function = 0
+  endtry
+
+  return l:is_function
+endfunction
 
 " }}}1
