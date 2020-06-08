@@ -144,8 +144,28 @@ CONFIGURATION                                                     *wiki-config*
   Default value: 1
 
 *g:wiki_root*
-  The root path for the main wiki, i.e. the wiki that is opened with the
-  `<leader>ww` mapping.
+  Option to specify the wiki root path, i.e. the wiki that is opened with the
+  `<leader>ww` mapping. The option value must be a string that is either
+
+    i)   a specific path, or
+    ii)  the name of a function that returns a path.
+
+  The latter method allows more flexible determination of the root path, e.g.
+  project specific root paths. An example: >
+
+    function! WikiRoot()
+      let l:local = finddir('wiki', ';./')
+      return !empty(l:local) ? l:local : '~/wiki'
+    endfunction
+
+    let g:wiki_root = 'WikiRoot'
+<
+  This setting would first search for a `wiki` directory in the current
+  relative directory, and fallback to a global `wiki` if the local wiki is not
+  found.
+
+  Note: The (returned) path must be either a relative or absolute path to an
+        existing directory.
 
   Default: ''
 

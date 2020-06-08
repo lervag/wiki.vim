@@ -21,14 +21,17 @@ function! wiki#get_root() abort " {{{1
 
   " Try globally specified wiki
   if !empty(g:wiki_root)
-    let l:root = fnamemodify(g:wiki_root, ':p')
+    let l:root = exists('*' . g:wiki_root)
+      \ ? call(g:wiki_root, [])
+      \ : g:wiki_root
+    let l:root = fnamemodify(simplify(l:root), ':p')
     if l:root[-1:-1] ==# '/'
       let l:root = l:root[:-2]
     endif
     if isdirectory(l:root)
       return resolve(l:root)
     else
-      echoerr 'g:wiki_root is specified but it does not exist!'
+      echoerr 'g:wiki_root is specified but the target path does not exist!'
     endif
   endif
 
