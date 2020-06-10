@@ -25,9 +25,12 @@ function! wiki#url#zot#parse(url) abort " {{{1
       endif
 
       call system(g:wiki_viewer['_'] . ' ' . shellescape(l:file) . '&')
-    else
-      echo 'wiki: could not find Zotero citekey "' . self.stripped . '"'
+      return
     endif
+
+    " Fall back to zotero://select/items/bbt:citekey
+    call system(printf('%s zotero://select/items/bbt:%s &',
+          \ g:wiki_viewer['_'], self.stripped))
   endfunction
 
   return l:parser
