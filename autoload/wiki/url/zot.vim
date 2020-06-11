@@ -10,22 +10,23 @@ function! wiki#url#zot#parse(url) abort " {{{1
   function! l:parser.open(...) abort dict
     let l:files = wiki#zotero#search(self.stripped)
 
-    if len(l:files) >= 1
-      if len(l:files) > 1
-        let l:choice = wiki#menu#choose(
-              \ map(copy(l:files), 'fnamemodify(v:val, '':t'')'),
-              \ {'header': 'multiple citekeys found, please select one:'})
-        if l:choice < 0
-          echo 'wiki: aborted'
-          return
-        endif
-        let l:file = l:files[l:choice]
-      else
-        let l:file = l:files[0]
+    if len(l:files) > 0
+      let l:choice = wiki#menu#choose(['Open in Zotero: ' . self.stripped]
+            \ + map(copy(l:files), 's:menu_open_pdf(v:val)'),
+            \ {'header': 'Please select desired action:'})
+      if l:choice < 0
+        echohl Title
+        echo 'wiki: '
+        echohl NONE
+        echon 'aborted'
+        return
       endif
 
-      call system(g:wiki_viewer['_'] . ' ' . shellescape(l:file) . '&')
-      return
+      if l:choice > 0
+        let l:file = l:files[l:choice-1]
+        call system(g:wiki_viewer['_'] . ' ' . shellescape(l:file) . '&')
+        return
+      endif
     endif
 
     " Fall back to zotero://select/items/bbt:citekey
@@ -34,6 +35,22 @@ function! wiki#url#zot#parse(url) abort " {{{1
   endfunction
 
   return l:parser
+endfunction
+
+" }}}1
+
+function! s:menu_open_pdf(val) abort " {{{1
+  let l:filename = fnamemodify(a:val, ':t')
+
+  let l:strlen = strchars(l:filename)
+  let l:width = winwidth(0) - 14
+  if l:strlen > l:width
+    let l:pre = strcharpart(l:filename, 0, l:width/2 - 3)
+    let l:post = strcharpart(l:filename, l:strlen - l:width/2 + 3)
+    let l:filename = l:pre . ' ... ' . l:post
+  endif
+
+  return 'Open PDF: ' . l:filename
 endfunction
 
 " }}}1
