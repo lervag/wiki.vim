@@ -190,7 +190,7 @@ endfunction
 function! s:tags.gather_from_file(file) abort dict " {{{1
   let l:lnum = 0
   let l:is_code = 0
-  for l:line in readfile(a:file, 0, 15)
+  for l:line in readfile(a:file, 0, g:wiki_tags_scan_num_lines)
     let l:lnum += 1
     let l:col = 0
 

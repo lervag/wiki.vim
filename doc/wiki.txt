@@ -386,6 +386,17 @@ CONFIGURATION                                                     *wiki-config*
   Default: >
     let g:wiki_tags_format_pattern = '\v%(^|\s):\zs[^: ]+\ze:'
 
+*g:wiki_tags_scan_num_lines*
+  A number of lines to read from the top of a page when scanning tags. To scan
+  lines from the bottom, use a negative number, e.g. >
+
+    let g:wiki_tags_scan_num_lines = -10
+<
+  See also |readfile| for more information on how Vim reads a file.
+
+  Default: >
+    let g:wiki_tags_scan_num_lines = 15
+
 *g:wiki_template_title_month*
   A string that specifies the title of the month template. The following keys
   are interpolated:

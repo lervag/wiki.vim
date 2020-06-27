@@ -32,6 +32,7 @@ call wiki#init#option('wiki_export', {
       \})
 call wiki#init#option('wiki_tags', { 'output' : 'loclist' })
 call wiki#init#option('wiki_tags_format_pattern', '\v%(^|\s):\zs[^: ]+\ze:')
+call wiki#init#option('wiki_tags_scan_num_lines', 15)
 call wiki#init#option('wiki_filetypes', ['wiki'])
 call wiki#init#option('wiki_index_name', 'index')
 call wiki#init#option('wiki_root', '')
