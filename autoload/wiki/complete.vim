@@ -4,38 +4,36 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#complete#omnicomplete(findstart, base) " {{{1
+function! wiki#complete#omnicomplete(findstart, base) abort " {{{1
   if a:findstart
-    if exists('s:completer') | unlet s:completer | endif
-
-    let l:line = getline('.')[:col('.') - 2]
-    for l:completer in s:completers
-      let l:cnum = l:completer.findstart(l:line)
-      if l:cnum >= 0
-        let s:completer = l:completer
-        return l:cnum
-      endif
-    endfor
-
-    return -3
-      " -2  cancel silently and stay in completion mode.
-      " -3  cancel silently and leave completion mode.
+    return wiki#complete#findstart(getline('.')[:col('.') - 2])
   else
-    if !exists('s:completer') | return [] | endif
-
-    return s:completer.complete(a:base)
+    return wiki#complete#complete(a:base)
   endif
 endfunction
 
 " }}}1
-function! wiki#complete#complete(type, input, context) abort " {{{1
-  try
-    let s:completer = s:completer_{a:type}
-    let s:completer.context = a:context
-    return s:completer.complete(a:input)
-  catch /E121/
-    return []
-  endtry
+
+function! wiki#complete#findstart(line) abort " {{{1
+  if exists('s:completer') | unlet s:completer | endif
+
+  for l:completer in s:completers
+    let l:cnum = l:completer.findstart(a:line)
+    if l:cnum >= 0
+      let s:completer = l:completer
+      return l:cnum
+    endif
+  endfor
+
+  " -2  cancel silently and stay in completion mode.
+  " -3  cancel silently and leave completion mode.
+  return -3
+endfunction
+
+" }}}1
+function! wiki#complete#complete(input) abort " {{{1
+  if !exists('s:completer') | return [] | endif
+  return s:completer.complete(a:input)
 endfunction
 
 " }}}1
