@@ -433,7 +433,15 @@ OPTIONS                                                   *wiki-config-options*
 ------------------------------------------------------------------------------
 EVENTS                                                     *wiki-config-events*
 
-The following |User| events are available.
+The following |User| events are available. The following shows an example for
+how to use this: >
+
+  augroup MyWikiAutocmds
+    autocmd!
+    autocmd User WikiLinkOpened normal! zz
+    autocmd User WikiBufferInitialized
+          \ nmap <buffer> gf <plug>(wiki-link-open)
+  augroup END
 
 *WikiBufferInitialized*
   Event is triggered after the buffer features are initialized. This event
