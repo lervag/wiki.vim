@@ -27,6 +27,10 @@ function! wiki#buffer#init() abort " {{{1
   call s:init_buffer_mappings()
 
   call s:apply_template()
+
+  if exists('#User#WikiBufferInitialized')
+    doautocmd <nomodeline> User WikiBufferInitialized
+  endif
 endfunction
 
 " }}}1
