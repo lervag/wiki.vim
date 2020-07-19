@@ -96,7 +96,7 @@ function! wiki#link#get_all(...) abort "{{{1
       "
       for l:m in wiki#link#get_matchers_links()
         if l:m.type ==# 'ref' | continue | endif
-        if l:link.full =~# '^' . l:m.rx
+        if l:link.full =~# substitute(l:m.rx, '^^\?', '^', '')
           let l:link.text = matchstr(l:link.full, get(l:m, 'rx_text', ''))
           let l:link.type = l:m.type
           let l:link.toggle = function('wiki#link#template_' . l:m.toggle)
@@ -405,8 +405,10 @@ function! wiki#link#template_word(url, ...) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#link#template_ref(...) abort " {{{1
-  return call('wiki#link#template_pick_from_option', a:000)
+function! wiki#link#template_ref(...) dict abort " {{{1
+  let l:text = self.id
+  let l:url = self.url
+  return wiki#link#template_md(l:url, l:text)
 endfunction
 
 " }}}1
@@ -491,10 +493,10 @@ endfunction
 " }}}1
 function! s:parser_ref(link, ...) abort dict " {{{1
   let a:link.id = matchstr(a:link.full, self.rx_target)
-  let a:link.lnum = searchpos('^\[' . a:link.id . '\]: ', 'nW')[0]
-  if a:link.lnum == 0 | return a:link | endif
+  let a:link.lnum_target = searchpos('^\[' . a:link.id . '\]: ', 'nW')[0]
+  if a:link.lnum_target == 0 | return a:link | endif
 
-  let a:link.url = matchstr(getline(a:link.lnum), s:rx_url)
+  let a:link.url = matchstr(getline(a:link.lnum_target), s:rx_url)
   if !empty(a:link.url)
     return extend(a:link, call('wiki#url#parse', [a:link.url] + a:000))
   endif
@@ -503,7 +505,7 @@ function! s:parser_ref(link, ...) abort dict " {{{1
   " position.
   function! a:link.open(...) abort dict
     normal! m'
-    call cursor(self.lnum, 1)
+    call cursor(self.lnum_target, 1)
   endfunction
 
   return a:link
