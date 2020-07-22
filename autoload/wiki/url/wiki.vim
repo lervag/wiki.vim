@@ -47,6 +47,9 @@ function! wiki#url#wiki#parse(url) abort " {{{1
     endif
   endif
 
+  " Fully expand (possibly relative) path
+  let l:url.path = fnamemodify(l:url.path, ':p')
+
   return l:url
 endfunction
 
