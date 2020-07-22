@@ -50,6 +50,7 @@ call wiki#init#option('wiki_template_title_month',
       \ '# Summary, %(year) %(month-name)')
 call wiki#init#option('wiki_zotero_root', '~/.local/zotero')
 call wiki#init#option('wiki_mappings_use_defaults', 'all')
+call wiki#init#option('wiki_write_on_nav', 0)
 
 " Initialize global commands
 command! WikiEnable   call wiki#buffer#init()
