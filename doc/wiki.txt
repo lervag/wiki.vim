@@ -430,6 +430,12 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: `'~/.local/zotero'`
 
+*g:wiki_write_on_nav*
+  Option to specify whether or not to save the current file automatically
+  before navigating (forward or backward) between wiki links.
+
+  Default: 0
+
 ------------------------------------------------------------------------------
 EVENTS                                                     *wiki-config-events*
 

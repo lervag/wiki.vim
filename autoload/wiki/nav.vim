@@ -20,6 +20,8 @@ endfunction
 " }}}1
 
 function! wiki#nav#return() abort "{{{1
+  if g:wiki_write_on_nav | update | endif
+
   if !empty(s:position_stack)
     let [l:file, l:pos] = remove(s:position_stack, -1)
     silent execute ':e ' . substitute(l:file, '\s', '\\\0', 'g')
