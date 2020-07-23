@@ -142,9 +142,7 @@ function! wiki#link#open(...) abort "{{{1
 
   try
     if has_key(l:link, 'open')
-      if g:wiki_write_on_nav
-        update
-      endif
+      if g:wiki_write_on_nav | update | endif
       call call(l:link.open, a:000, l:link)
     else
       call wiki#link#toggle(l:link)
