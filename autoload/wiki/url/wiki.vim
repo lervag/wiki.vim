@@ -26,6 +26,7 @@ function! wiki#url#wiki#parse(url) abort " {{{1
         \ : (empty(a:url.origin)
         \   ? wiki#get_root()
         \   : fnamemodify(a:url.origin, ':p:h')) . '/' . l:fname
+  let l:url.path = simplify(l:url.path)
   let l:url.dir = fnamemodify(l:url.path, ':p:h')
 
   " Determine the proper extension (if necessary)
