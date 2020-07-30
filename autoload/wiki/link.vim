@@ -183,7 +183,7 @@ function! wiki#link#toggle_visual() abort " {{{1
   normal! gv"wy
 
   let l:link = {
-        \ 'url' : trim(getreg('w')),
+        \ 'url' : wiki#u#trim(getreg('w')),
         \ 'text' : '',
         \ 'scheme' : '',
         \ 'lnum' : line('.'),
