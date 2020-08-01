@@ -4,19 +4,6 @@
 " Email:      karl.yngve@gmail.com
 "
 
-"
-" Generated regexes
-"
-function! wiki#rx#link() abort " {{{1
-  if !exists('s:rx.link')
-    let s:rx.link = join(
-        \ map(wiki#link#get_matchers_links(), 'v:val.rx'), '\|')
-  endif
-
-  return s:rx.link
-endfunction
-
-" }}}1
 function! wiki#rx#surrounded(word, chars) abort " {{{1
   return '\%(^\|\s\|[[:punct:]]\)\@<='
         \ . '\zs'
@@ -44,3 +31,27 @@ let wiki#rx#bold = wiki#rx#surrounded(
       \ '[^*`[:space:]]\%([^*`]*[^*`[:space:]]\)\?', '*')
 let wiki#rx#italic = wiki#rx#surrounded(
       \ '[^_`[:space:]]\%([^_`]*[^_`[:space:]]\)\?', '_')
+let wiki#rx#date = '\d\d\d\d-\d\d-\d\d'
+let wiki#rx#url = '\<\l\+:\%(\/\/\)\?[^ \t()\[\]|]\+'
+let wiki#rx#reftext = '[^\\\[\]]\{-}'
+let wiki#rx#reftarget = '\%(\d\+\|\a[-_. [:alnum:]]\+\)'
+let wiki#rx#link_md = '\[[^\\\[\]]\{-}\]([^\\]\{-})'
+let wiki#rx#link_ref_single = '[\]\[]\@<!\[' . wiki#rx#reftarget . '\][\]\[]\@!'
+let wiki#rx#link_ref_double =
+      \ '[\]\[]\@<!'
+      \ . '\[' . wiki#rx#reftext   . '\]'
+      \ . '\[' . wiki#rx#reftarget . '\]'
+      \ . '[\]\[]\@!'
+let wiki#rx#link_ref_target =
+      \ '^\s*\[' . wiki#rx#reftarget . '\]:\s\+' . wiki#rx#url
+let wiki#rx#link_shortcite = '\%(\s\|^\|\[\)\zs@[-_a-zA-Z0-9]\+\>'
+let wiki#rx#link_wiki = '\[\[\/\?[^\\\]]\{-}\%(|[^\\\]]\{-}\)\?\]\]'
+let wiki#rx#link = join([
+      \ wiki#rx#link_wiki,
+      \ wiki#rx#link_md,
+      \ wiki#rx#link_ref_target,
+      \ wiki#rx#link_ref_single,
+      \ wiki#rx#link_ref_double,
+      \ wiki#rx#url,
+      \ wiki#rx#link_shortcite,
+      \], '\|')

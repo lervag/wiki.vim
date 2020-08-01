@@ -5,16 +5,16 @@
 "
 
 function! wiki#nav#next_link() abort "{{{1
-  call search(wiki#rx#link(), 's')
+  call search(g:wiki#rx#link, 's')
 endfunction
 
 " }}}1
 function! wiki#nav#prev_link() abort "{{{1
   if wiki#u#in_syntax('wikiLink.*')
         \ && wiki#u#in_syntax('wikiLink.*', line('.'), col('.')-1)
-    call search(wiki#rx#link(), 'sb')
+    call search(g:wiki#rx#link, 'sb')
   endif
-  call search(wiki#rx#link(), 'sb')
+  call search(g:wiki#rx#link, 'sb')
 endfunction
 
 " }}}1

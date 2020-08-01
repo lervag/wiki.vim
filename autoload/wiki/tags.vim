@@ -110,7 +110,7 @@ function! s:output_scratch(cfg, lst) abort " {{{1
         \}
 
   for [l:file, l:lnum, l:col] in a:lst
-    call add(l:scratch.lines, '- ' . wiki#link#template_wiki('/' .
+    call add(l:scratch.lines, '- ' . wiki#link#wiki#template('/' .
           \ fnamemodify(wiki#paths#shorten_relative(l:file), ':r')))
   endfor
 
@@ -124,7 +124,7 @@ function! s:output_scratch(cfg, lst) abort " {{{1
     set conceallevel=2
 
     execute 'syntax match wikiLinkWiki'
-          \ '/' . wiki#link#get_matcher_opt('wiki', 'rx') . '/'
+          \ '/' . wiki#link#wiki#matcher().rx . '/'
           \ 'display contains=@NoSpell,wikiLinkWikiConceal'
     syntax match wikiLinkWikiConceal /\[\[\%(\/\|#\)\?\%([^\\\]]\{-}|\)\?/
           \ contained transparent contains=NONE conceal
@@ -145,7 +145,7 @@ endfunction
 function! s:output_cursor(cfg, lst) abort " {{{1
   let l:lines = [printf('Wiki pages with tag: %s', a:cfg.tag)]
   for [l:file, l:lnum, l:col] in a:lst
-    call add(l:lines, '- ' . wiki#link#template_wiki('/' .
+    call add(l:lines, '- ' . wiki#link#wiki#template('/' .
           \ fnamemodify(wiki#paths#shorten_relative(l:file), ':r')))
   endfor
   call add(l:lines, '')
