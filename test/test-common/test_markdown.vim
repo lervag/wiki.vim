@@ -14,7 +14,7 @@ call wiki#test#assert_equal(expand('%:t'), 'test.md')
 " Test toggle normal on regular markdown links
 silent bwipeout!
 silent edit ex2-markdown/README.md
-normal! 3G3w
+normal! 03G3w
 silent execute "normal \<Plug>(wiki-link-open)"
 call wiki#test#assert_equal(expand('<cWORD>'), '[[simple.md|simple]]')
 
