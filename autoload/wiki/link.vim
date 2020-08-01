@@ -292,7 +292,7 @@ function! wiki#link#template_md(url, ...) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#link#template_pick_from_option(...) abort " {{{1
+function! wiki#link#template(...) abort " {{{1
   "
   " Pick the relevant link template command to use based on the users
   " settings. Default to the wiki style one if its not set.
@@ -330,14 +330,14 @@ function! wiki#link#template_word(url, ...) abort " {{{1
   " First try local page
   "
   if filereadable(printf('%s/%s.%s', expand('%:p:h'), l:url, b:wiki.extension))
-    return wiki#link#template_pick_from_option(l:url, l:text)
+    return wiki#link#template(l:url, l:text)
   endif
 
   "
   " Next try at wiki root
   "
   if filereadable(printf('%s/%s.%s', b:wiki.root, l:url, b:wiki.extension))
-    return wiki#link#template_pick_from_option('/' . l:url, l:text)
+    return wiki#link#template('/' . l:url, l:text)
   endif
 
   "
@@ -351,9 +351,9 @@ function! wiki#link#template_word(url, ...) abort " {{{1
   " Solve trivial cases first
   "
   if len(l:candidates) == 0
-    return wiki#link#template_pick_from_option((b:wiki.in_journal ? '/' : '') . l:url, l:text)
+    return wiki#link#template((b:wiki.in_journal ? '/' : '') . l:url, l:text)
   elseif len(l:candidates) == 1
-    return wiki#link#template_pick_from_option('/' . l:candidates[0])
+    return wiki#link#template('/' . l:candidates[0])
   endif
 
   " Create menu
@@ -390,14 +390,14 @@ function! wiki#link#template_word(url, ...) abort " {{{1
 
     if l:choice ==# 'n'
       redraw!
-      return wiki#link#template_pick_from_option(l:url, l:text)
+      return wiki#link#template(l:url, l:text)
     endif
 
     if str2nr(l:choice) > 0
       try
         let l:cand = l:candidates[l:choice - 1]
         redraw!
-        return wiki#link#template_pick_from_option('/' . l:cand)
+        return wiki#link#template('/' . l:cand)
       catch
         continue
       endtry

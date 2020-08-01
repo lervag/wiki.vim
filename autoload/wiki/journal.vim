@@ -88,7 +88,7 @@ function! wiki#journal#make_index() " {{{1
       put ='## ' . mname
       put =''
       for entry in entries
-        put =wiki#link#template_pick_from_option('journal:' . entry, entry)
+        put =wiki#link#template('journal:' . entry, entry)
       endfor
       put =''
     endfor
