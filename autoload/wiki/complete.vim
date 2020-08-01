@@ -13,6 +13,29 @@ function! wiki#complete#omnicomplete(findstart, base) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#complete#link(lead, line, pos) abort " {{{1
+  let l:parts = split(a:lead, '::')
+  if empty(l:parts) || len(l:parts) > 1 | return [] | endif
+
+  let l:base = ''
+  let l:input = l:parts[0]
+
+  let l:cnum = s:completer_wikilink.findstart('[[' . l:input) - 2
+  if l:cnum > 0
+    let l:base = l:input[:l:cnum-1]
+    let l:input = l:input[l:cnum:]
+  endif
+
+  let l:candidates = s:completer_wikilink.complete(l:input)
+  call map(l:candidates, 'v:val.word')
+  if !s:completer_wikilink.is_anchor
+    return filter(l:candidates, 'stridx(v:val, l:input) == 0')
+  endif
+
+  return map(l:candidates, 'l:base . v:val')
+endfunction
+
+" }}}1
 
 function! wiki#complete#findstart(line) abort " {{{1
   if exists('s:completer') | unlet s:completer | endif
