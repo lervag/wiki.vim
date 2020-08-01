@@ -5,66 +5,33 @@
 "
 
 function! wiki#link#get() abort " {{{1
-  for l:m in wiki#link#get_matchers_all()
-    let l:link = s:matchstr_at_cursor(l:m.rx)
+  for l:matcher in wiki#link#get_matchers_all()
+    let l:link = s:matchstr_at_cursor(l:matcher.rx)
     if !empty(l:link)
-      "
       " Get link text
-      "
-      let l:match = s:matchstrpos(l:link.full, get(l:m, 'rx_text', ''))
+      let l:match = s:matchstrpos(l:link.full, get(l:matcher, 'rx_text', ''))
       let l:link.text = l:match[0]
       if !empty(l:link.text)
         let l:link.text_c1 = l:link.c1 + l:match[1]
         let l:link.text_c2 = l:link.c1 + l:match[2] - 1
       endif
 
-      "
       " Get link url position (if available)
-      "
-      if has_key(l:m, 'rx_url')
-        let l:match = s:matchstrpos(l:link.full, l:m.rx_url)
+      if has_key(l:matcher, 'rx_url')
+        let l:match = s:matchstrpos(l:link.full, l:matcher.rx_url)
         if !empty(l:match[0])
           let l:link.url_c1 = l:link.c1 + l:match[1]
           let l:link.url_c2 = l:link.c1 + l:match[2] - 1
         endif
       endif
 
-      let l:link.type = l:m.type
-      let l:link.toggle = function('wiki#link#template_' . l:m.toggle)
-      return l:m.parser(l:link)
+      let l:link.type = l:matcher.type
+      let l:link.toggle = function('wiki#link#template_' . l:matcher.toggle)
+      return l:matcher.parser(l:link)
     endif
   endfor
 
   return {}
-endfunction
-
-function! s:matchstrpos(...) abort " {{{2
-  if exists('*matchstrpos')
-    return call('matchstrpos', a:000)
-  else
-    let [l:expr, l:pat] = a:000[:1]
-
-    let l:pos = match(l:expr, l:pat)
-    if l:pos < 0
-      return ['', -1, -1]
-    else
-      let l:match = matchstr(l:expr, l:pat)
-      return [l:match, l:pos, l:pos+strlen(l:match)]
-    endif
-  endif
-endfunction
-
-" }}}2
-
-" }}}1
-function! wiki#link#get_at_pos(line, col) abort " {{{1
-  let l:save_pos = getcurpos()
-  call setpos('.', [0, a:line, a:col, 0])
-
-  let l:link = wiki#link#get()
-
-  call setpos('.', l:save_pos)
-  return l:link
 endfunction
 
 " }}}1
@@ -81,9 +48,7 @@ function! wiki#link#get_all(...) abort "{{{1
       let l:c1 = match(l:line, wiki#rx#link(), l:col) + 1
       if l:c1 == 0 | break | endif
 
-      "
       " Create link
-      "
       let l:link = {}
       let l:link.full = matchstr(l:line, wiki#rx#link(), l:col)
       let l:link.lnum = l:lnum
@@ -91,16 +56,14 @@ function! wiki#link#get_all(...) abort "{{{1
       let l:link.c2 = l:c1 + strlen(l:link.full)
       let l:col = l:link.c2
 
-      "
-      " Add link details
-      "
-      for l:m in wiki#link#get_matchers_links()
-        if l:m.type ==# 'ref' | continue | endif
-        if l:link.full =~# substitute(l:m.rx, '^^\?', '^', '')
-          let l:link.text = matchstr(l:link.full, get(l:m, 'rx_text', ''))
-          let l:link.type = l:m.type
-          let l:link.toggle = function('wiki#link#template_' . l:m.toggle)
-          call add(l:links, l:m.parser(l:link, { 'origin' : l:file }))
+      " Match link to type and add details
+      for l:matcher in wiki#link#get_matchers_links()
+        if l:matcher.type ==# 'ref' | continue | endif
+        if l:link.full =~# substitute(l:matcher.rx, '^^\?', '^', '')
+          let l:link.text = matchstr(l:link.full, get(l:matcher, 'rx_text', ''))
+          let l:link.type = l:matcher.type
+          let l:link.toggle = function('wiki#link#template_' . l:matcher.toggle)
+          call add(l:links, l:matcher.parser(l:link, { 'origin' : l:file }))
           break
         endif
       endfor
@@ -111,6 +74,17 @@ function! wiki#link#get_all(...) abort "{{{1
 endfunction
 
 "}}}1
+function! wiki#link#get_at_pos(line, col) abort " {{{1
+  let l:save_pos = getcurpos()
+  call setpos('.', [0, a:line, a:col, 0])
+
+  let l:link = wiki#link#get()
+
+  call setpos('.', l:save_pos)
+  return l:link
+endfunction
+
+" }}}1
 
 function! wiki#link#show(...) abort "{{{1
   let l:link = wiki#link#get()
@@ -157,22 +131,16 @@ function! wiki#link#toggle(...) abort " {{{1
   let l:link = a:0 > 0 ? a:1 : wiki#link#get()
   if empty(l:link) | return | endif
 
-  "
   " Use stripped url for wiki links
-  "
   let l:url = get(l:link, 'scheme', '') ==# 'wiki'
         \ ? l:link.stripped
         \ : get(l:link, 'url', '')
   if empty(l:url) | return | endif
 
-  "
-  " Apply link template
-  "
+  " Apply link template from toggle
   let l:new = l:link.toggle(l:url, l:link.text)
 
-  "
-  " Replace current link with l:new
-  "
+  " Replace link in text
   let l:line = getline(l:link.lnum)
   call setline(l:link.lnum,
         \ strpart(l:line, 0, l:link.c1-1) . l:new . strpart(l:line, l:link.c2))
@@ -201,11 +169,7 @@ function! wiki#link#toggle_visual() abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#link#toggle_operator(type, ...) abort " {{{1
-  "
-  " Note: This function assumes that it is called as an operator.
-  "
-
+function! wiki#link#toggle_operator(type) abort " {{{1
   let l:save = @@
   silent execute 'normal! `[v`]y'
   let l:word = substitute(@@, '\s\+$', '', '')
@@ -234,6 +198,7 @@ endfunction
 
 " }}}1
 
+
 function! s:matchstr_at_cursor(regex) abort " {{{1
   let l:lnum = line('.')
 
@@ -260,6 +225,23 @@ function! s:matchstr_at_cursor(regex) abort " {{{1
 endfunction
 
 "}}}1
+function! s:matchstrpos(...) abort " {{{1
+  if exists('*matchstrpos')
+    return call('matchstrpos', a:000)
+  else
+    let [l:expr, l:pat] = a:000[:1]
+
+    let l:pos = match(l:expr, l:pat)
+    if l:pos < 0
+      return ['', -1, -1]
+    else
+      let l:match = matchstr(l:expr, l:pat)
+      return [l:match, l:pos, l:pos+strlen(l:match)]
+    endif
+  endif
+endfunction
+
+" }}}1
 function! s:handle_multibyte(cnum) abort " {{{1
   if a:cnum <= 0 | return a:cnum | endif
   let l:bytes = len(strcharpart(getline('.')[a:cnum-1:], 0, 1))
