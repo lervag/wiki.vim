@@ -215,11 +215,11 @@ function! wiki#page#gather_toc_entries(local) abort " {{{1
 
     " Get line - check for header
     let l:line = getline(l:lnum)
-    if l:line !~# wiki#rx#header() | continue | endif
+    if l:line !~# g:wiki#rx#header | continue | endif
 
     " Parse current header
     let l:level = len(matchstr(l:line, '^#*'))
-    let l:header = matchlist(l:line, wiki#rx#header_items())[2]
+    let l:header = matchlist(l:line, g:wiki#rx#header_items)[2]
     if l:header ==# 'Innhald' | continue | endif
 
     " Update header stack in order to have well defined anchor
@@ -402,7 +402,7 @@ function! s:get_anchors(filename) abort " {{{1
     if l:preblock % 2 | continue | endif
 
     " Parse headers
-    let h_match = matchlist(line, wiki#rx#header_items())
+    let h_match = matchlist(line, g:wiki#rx#header_items)
     if !empty(h_match)
       let lvl = len(h_match[1]) - 1
       let anchor_level[lvl] = h_match[2]
@@ -417,7 +417,7 @@ function! s:get_anchors(filename) abort " {{{1
     let cnt = 0
     while 1
       let cnt += 1
-      let text = matchstr(line, wiki#rx#bold(), 0, cnt)
+      let text = matchstr(line, g:wiki#rx#bold, 0, cnt)
       if empty(text) | break | endif
 
       call add(anchors, current_section . '#' . text[1:-2])

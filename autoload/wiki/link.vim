@@ -624,7 +624,7 @@ let s:matcher_word = {
       \ 'type' : 'word',
       \ 'parser' : function('s:parser_word'),
       \ 'toggle' : 'word',
-      \ 'rx' : wiki#rx#word(),
+      \ 'rx' : wiki#rx#word,
       \}
 
 " }}}1
