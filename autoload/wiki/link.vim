@@ -4,7 +4,7 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#link#get_at_cursor() abort " {{{1
+function! wiki#link#get() abort " {{{1
   for l:m in wiki#link#get_matchers_all()
     let l:link = s:matchstr_at_cursor(l:m.rx)
     if !empty(l:link)
@@ -61,7 +61,7 @@ function! wiki#link#get_at_pos(line, col) abort " {{{1
   let l:save_pos = getcurpos()
   call setpos('.', [0, a:line, a:col, 0])
 
-  let l:link = wiki#link#get_at_cursor()
+  let l:link = wiki#link#get()
 
   call setpos('.', l:save_pos)
   return l:link
@@ -113,7 +113,7 @@ endfunction
 "}}}1
 
 function! wiki#link#show(...) abort "{{{1
-  let l:link = wiki#link#get_at_cursor()
+  let l:link = wiki#link#get()
 
   echohl Title
   echo 'wiki.vim: '
@@ -138,7 +138,7 @@ endfunction
 
 " }}}1
 function! wiki#link#open(...) abort "{{{1
-  let l:link = wiki#link#get_at_cursor()
+  let l:link = wiki#link#get()
 
   try
     if has_key(l:link, 'open')
@@ -154,7 +154,7 @@ endfunction
 
 " }}}1
 function! wiki#link#toggle(...) abort " {{{1
-  let l:link = a:0 > 0 ? a:1 : wiki#link#get_at_cursor()
+  let l:link = a:0 > 0 ? a:1 : wiki#link#get()
   if empty(l:link) | return | endif
 
   "

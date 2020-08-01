@@ -5,7 +5,7 @@
 "
 
 function! wiki#text_obj#link(is_inner, vmode) abort " {{{1
-  let l:link = wiki#link#get_at_cursor()
+  let l:link = wiki#link#get()
   if empty(l:link)
     if a:vmode
       normal! gv
@@ -28,7 +28,7 @@ endfunction
 
 " }}}1
 function! wiki#text_obj#link_text(is_inner, vmode) abort " {{{1
-  let l:link = wiki#link#get_at_cursor()
+  let l:link = wiki#link#get()
   if empty(l:link) || empty(l:link.text)
     if a:vmode
       normal! gv
