@@ -8,26 +8,7 @@ function! wiki#link#get() abort " {{{1
   for l:matcher in wiki#link#get_matchers_all()
     let l:link = s:matchstr_at_cursor(l:matcher.rx)
     if !empty(l:link)
-      " Get link text
-      let l:match = s:matchstrpos(l:link.full, get(l:matcher, 'rx_text', ''))
-      let l:link.text = l:match[0]
-      if !empty(l:link.text)
-        let l:link.text_c1 = l:link.c1 + l:match[1]
-        let l:link.text_c2 = l:link.c1 + l:match[2] - 1
-      endif
-
-      " Get link url position (if available)
-      if has_key(l:matcher, 'rx_url')
-        let l:match = s:matchstrpos(l:link.full, l:matcher.rx_url)
-        if !empty(l:match[0])
-          let l:link.url_c1 = l:link.c1 + l:match[1]
-          let l:link.url_c2 = l:link.c1 + l:match[2] - 1
-        endif
-      endif
-
-      let l:link.type = l:matcher.type
-      let l:link.toggle = function('wiki#link#template_' . l:matcher.toggle)
-      return l:matcher.parser(l:link)
+      return s:parse_link(l:matcher, l:link)
     endif
   endfor
 
@@ -54,16 +35,14 @@ function! wiki#link#get_all(...) abort "{{{1
       let l:link.lnum = l:lnum
       let l:link.c1 = l:c1
       let l:link.c2 = l:c1 + strlen(l:link.full)
+      let l:link.origin = l:file
       let l:col = l:link.c2
 
       " Match link to type and add details
       for l:matcher in wiki#link#get_matchers_links()
         if l:matcher.type ==# 'ref' | continue | endif
         if l:link.full =~# substitute(l:matcher.rx, '^^\?', '^', '')
-          let l:link.text = matchstr(l:link.full, get(l:matcher, 'rx_text', ''))
-          let l:link.type = l:matcher.type
-          let l:link.toggle = function('wiki#link#template_' . l:matcher.toggle)
-          call add(l:links, l:matcher.parser(l:link, { 'origin' : l:file }))
+          call add(l:links, s:parse_link(l:matcher, l:link))
           break
         endif
       endfor
@@ -225,6 +204,37 @@ function! s:matchstr_at_cursor(regex) abort " {{{1
 endfunction
 
 "}}}1
+function! s:parse_link(matcher, link) abort " {{{1
+  let a:link.type = a:matcher.type
+  let a:link.toggle = function('wiki#link#template_' . a:matcher.toggle)
+  let a:link.url = a:link.full
+  let a:link.text = ''
+
+  " Get link text
+  if has_key(a:matcher, 'rx_text')
+    let [l:text, l:c1, l:c2] = s:matchstrpos(a:link.full, a:matcher.rx_text)
+    if !empty(l:text)
+      let a:link.text = l:text
+      let a:link.text_c1 = a:link.c1 + l:c1
+      let a:link.text_c2 = a:link.c1 + l:c2 - 1
+    endif
+  endif
+
+  " Get link url
+  if has_key(a:matcher, 'rx_url')
+    let [l:url, l:c1, l:c2] = s:matchstrpos(a:link.full, a:matcher.rx_url)
+    if !empty(l:url)
+      let a:link.url = l:url
+      let a:link.url_c1 = a:link.c1 + l:c1
+      let a:link.url_c2 = a:link.c1 + l:c2 - 1
+    endif
+  endif
+
+  let l:opts = has_key(a:link, 'origin') ? {'origin': a:link.origin} : {}
+  return a:matcher.parser(a:link, l:opts)
+endfunction
+
+" }}}1
 function! s:matchstrpos(...) abort " {{{1
   if exists('*matchstrpos')
     return call('matchstrpos', a:000)
