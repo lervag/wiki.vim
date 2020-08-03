@@ -240,9 +240,13 @@ endfunction
 "}}}1
 function! s:parse_link(matcher, link) abort " {{{1
   let a:link.type = a:matcher.type
-  let a:link.toggle = a:matcher.toggle
   let a:link.url = a:link.full
   let a:link.text = ''
+  if has_key(a:matcher, 'toggle')
+    let a:link.toggle = a:matcher.toggle
+  else
+    let a:link.toggle = function(g:wiki_link_toggles[a:link.type])
+  endif
 
   " Get link text
   if has_key(a:matcher, 'rx_text')

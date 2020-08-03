@@ -12,7 +12,6 @@ endfunction
 
 let s:matcher = {
       \ 'type' : 'url',
-      \ 'toggle' : function('wiki#link#md#template'),
       \ 'rx' : wiki#rx#link_shortcite,
       \}
 

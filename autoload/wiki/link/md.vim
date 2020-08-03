@@ -7,7 +7,6 @@
 function! wiki#link#md#matcher() abort " {{{1
   return {
         \ 'type' : 'md',
-        \ 'toggle' : function('wiki#link#wiki#template'),
         \ 'rx' : g:wiki#rx#link_md,
         \ 'rx_url' : '\[[^\\\[\]]\{-}\](\zs[^\\]\{-}\ze)',
         \ 'rx_text' : '\[\zs[^\\\[\]]\{-}\ze\]([^\\]\{-})',

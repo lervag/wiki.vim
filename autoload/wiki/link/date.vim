@@ -8,7 +8,6 @@ function! wiki#link#date#matcher() abort " {{{1
   return {
         \ 'type' : 'date',
         \ 'scheme' : 'journal',
-        \ 'toggle' : function('wiki#link#wiki#template'),
         \ 'rx' : g:wiki#rx#date,
         \}
 endfunction

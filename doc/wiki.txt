@@ -233,6 +233,39 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: 'wiki'
 
+*g:wiki_link_toggles*
+  This option specifies the template for toggling a specific type of link with
+  |WikiLingToggle| or |<plug>(wiki-link-toggle)|.
+
+  This allows to customize how links are changed when they are toggled. For
+  instance, to add/remove extensions for wiki and markdown style links, one
+  could use: >
+
+    function WikiToggleWiki(url, text) abort dict
+      return wiki#link#md#template(a:url . '.wiki',
+            \ empty(a:text) ? a:url : a:text)
+    endfunction
+
+    function WikiToggleMd(url, text) abort dict
+      let l:url = substitute(a:url, '\.wiki$', '', '')
+      return wiki#link#wiki#template(l:url, a:text)
+    endfunction
+
+    let g:wiki_link_toggles = {
+          \ 'md': 'WikiToggleMd',
+          \ 'wiki': 'WikiToggleWiki',
+          \}
+<
+  Default: >
+
+    let g:wiki_link_toggles = {
+          \ 'md': 'wiki#link#wiki#template',
+          \ 'wiki': 'wiki#link#md#template',
+          \ 'date': 'wiki#link#wiki#template',
+          \ 'shortcite': 'wiki#link#md#template',
+          \ 'url': 'wiki#link#md#template',
+          \}
+
 *g:wiki_date_exe*
   Specify the executable for `date`, which is used "behind the scenes" to
   manipulate and calculate dates for the journal features.
