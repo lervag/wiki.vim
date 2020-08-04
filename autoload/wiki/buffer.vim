@@ -177,7 +177,7 @@ function! s:init_buffer_mappings() abort " {{{1
       call extend(l:mappings, {
             \ '<plug>(wiki-journal-prev)' : '<c-p>',
             \ '<plug>(wiki-journal-next)' : '<c-n>',
-            \ '<plug>(wiki-journal-copy-tonext)' : '<leader>wn',
+            \ '<plug>(wiki-journal-copy-tonext)' : '<leader><c-n>',
             \ '<plug>(wiki-journal-toweek)' : '<leader>wu',
             \ '<plug>(wiki-journal-tomonth)' : '<leader>wm',
             \})
