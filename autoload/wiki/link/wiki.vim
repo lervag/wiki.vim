@@ -15,7 +15,7 @@ endfunction
 
 " }}}1
 function! wiki#link#wiki#template(url, text) abort " {{{1
-  return a:text ==# a:url || a:text ==# a:url[1:]
+  return empty(a:text) || a:text ==# a:url || a:text ==# a:url[1:]
         \ ? '[[' . a:url . ']]'
         \ : '[[' . a:url . '|' . a:text . ']]'
 endfunction
