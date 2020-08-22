@@ -21,19 +21,19 @@ function! wiki#menu#choose(list, ...) abort " {{{1
 
     " Print menu
     if get(l:opts, 'fancy', 1)
-      if has_key(l:opts, 'header')
-        echohl Title
-        echo 'wiki: '
-        echohl NONE
-        echon l:opts.header
-      endif
-
       for [l:key, l:val] in l:list_menu
         echohl ModeMsg
         echo printf(l:frmt, l:key)
         echohl NONE
         echon l:val
       endfor
+
+      if has_key(l:opts, 'header')
+        echohl Title
+        echo 'wiki: '
+        echohl NONE
+        echon substitute(l:opts.header, '\s*$', ' ', '')
+      endif
     else
       echo join(map(copy(l:list_menu), 'v:val[0] . v:val[1]'), "\n")
     endif
@@ -43,6 +43,11 @@ function! wiki#menu#choose(list, ...) abort " {{{1
     else
       let l:choice = nr2char(getchar())
     endif
+    echohl ModeMsg
+    echon l:choice
+    echohl NONE
+    sleep 75m
+
     if l:choice ==# 'x'
       redraw!
       return -1
