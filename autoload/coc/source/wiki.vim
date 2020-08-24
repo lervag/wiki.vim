@@ -10,7 +10,7 @@ function! coc#source#wiki#init() abort
         \ 'name': 'w',
         \ 'shortcut': 'wiki',
         \ 'filetypes': l:filetypes,
-        \ 'triggerCharacters': ['/', '#', '@'],
+        \ 'triggerCharacters': ['[', '/', '#', '@'],
         \}
 endfunction
 
