@@ -126,6 +126,25 @@ function! s:completer_wikilink.complete_page(regex) dict abort " {{{2
 endfunction
 
 " }}}1
+" {{{1 MdLink
+
+let s:completer_mdlink = deepcopy(s:completer_wikilink)
+
+function! s:completer_mdlink.findstart(line) dict abort " {{{2
+  let l:cnum = match(a:line, '\](\zs[^)]\{-}$')
+  if l:cnum < 0 | return -1 | endif
+
+  let l:base = a:line[l:cnum:]
+
+  let self.rooted = l:base[0] ==# '/'
+  let self.is_anchor = l:base =~# '#'
+  if !self.is_anchor | return l:cnum | endif
+
+  let self.base = substitute(l:base, '\(.*#\).*', '\1', '')
+  return l:cnum + strlen(self.base)
+endfunction
+
+" }}}1
 " {{{1 Zotero
 
 let s:completer_zotero = {}
