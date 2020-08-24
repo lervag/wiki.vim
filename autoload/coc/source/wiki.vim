@@ -1,9 +1,15 @@
 function! coc#source#wiki#init() abort
+  let l:filetypes = copy(g:wiki_filetypes)
+  let l:index = index(l:filetypes, 'md')
+  if l:index >= 0
+    let l:filetypes[l:index] = 'markdown'
+  endif
+
   return {
         \ 'priority': 100,
         \ 'name': 'w',
         \ 'shortcut': 'wiki',
-        \ 'filetypes': g:wiki_filetypes,
+        \ 'filetypes': l:filetypes,
         \ 'triggerCharacters': ['/', '#', '@'],
         \}
 endfunction
