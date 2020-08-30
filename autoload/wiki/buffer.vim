@@ -141,7 +141,7 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-link-prev)' : '<s-tab>',
           \ '<plug>(wiki-link-show)' : '<leader>wll',
           \ '<plug>(wiki-link-open)' : '<cr>',
-          \ '<plug>(wiki-link-open-split)' : '<c-w><cr>',
+          \ '<plug>(wiki-link-open-split)' : '<c-cr>',
           \ '<plug>(wiki-link-return)' : '<bs>',
           \ '<plug>(wiki-link-toggle)' : '<leader>wf',
           \ '<plug>(wiki-link-toggle-operator)' : 'gl',
