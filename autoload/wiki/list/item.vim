@@ -16,8 +16,9 @@ function! wiki#list#item#get_current(root) abort " {{{1
   let l:lnum = line('.')
   let l:current = a:root.next
   while l:current.lnum_start < l:lnum
-    if !has_key(l:current, 'next') | break | endif
-    if l:current.next.lnum_start > l:lnum | break | endif
+    if empty(l:current.next) || l:current.next.lnum_start > l:lnum
+      break
+    endif
     let l:current = l:current.next
   endwhile
 
@@ -68,10 +69,12 @@ endfunction
 
 " }}}1
 function! s:parse_items_to_tree(items) abort " {{{1
-  let l:root = s:item.new_root()
+  let l:root = s:item.new()
   if empty(a:items) | return l:root | endif
 
   let l:prev = l:root
+  let l:prev.lnum_start = a:items[0].lnum_start
+
   for l:current in a:items
     let l:prev.next = l:current
     let l:current.prev = l:prev
@@ -80,9 +83,10 @@ function! s:parse_items_to_tree(items) abort " {{{1
       let l:prev = l:prev.parent
     endwhile
 
-    call add(l:prev.children, l:current)
     let l:current.parent = l:prev
-    let l:current.children = []
+    call add(l:prev.children, l:current)
+    let l:prev.lnum_last = l:current.lnum_end
+
     let l:prev = l:current
   endfor
 
@@ -103,35 +107,30 @@ let s:re_list_checkbox = '\[[ x]\]'
 let s:re_list_checkbox_checked = '\[x\]'
 
 let s:item = {}
-function! s:item.new(lnum1, lnum2) abort dict " {{{1
+function! s:item.new(...) abort dict " {{{1
+  " Args: Either zero or two args: lnum_start and lnum_end
   let l:new = deepcopy(self)
+
   unlet l:new.new
-  unlet l:new.new_root
-
-  let l:new.lnum_start = a:lnum1
-  let l:new.lnum_end = a:lnum2-1
-  let l:new.text = getline(l:new.lnum_start, l:new.lnum_end)
-  let l:new.indent = indent(a:lnum1)
-
-  if match(l:new.text[0], s:re_list_start . s:re_list_checkbox) >= 0
-    call s:list_checkbox.init(l:new)
-  else
-    call s:list_todo.init(l:new)
-  endif
-
-  return l:new
-endfunction
-
-" }}}1
-function! s:item.new_root() abort dict " {{{1
-  let l:new = deepcopy(self)
-  unlet l:new.new
-  unlet l:new.new_root
-
   let l:new.type = 'root'
-  let l:new.next = {}
-  let l:new.children = []
   let l:new.indent = -1
+  let l:new.next = {}
+  let l:new.prev = {}
+  let l:new.parent = {}
+  let l:new.children = []
+
+  if a:0 == 2
+    let l:new.lnum_start = a:1
+    let l:new.lnum_end = a:2-1
+    let l:new.lnum_last = l:new.lnum_end
+    let l:new.text = getline(l:new.lnum_start, l:new.lnum_end)
+    let l:new.indent = indent(a:1)
+    if match(l:new.text[0], s:re_list_start . s:re_list_checkbox) >= 0
+      call s:list_checkbox.init(l:new)
+    else
+      call s:list_todo.init(l:new)
+    endif
+  endif
 
   return l:new
 endfunction

@@ -6,7 +6,7 @@ let g:wiki_cache_persistent = 0
 silent edit ex1-basic/index.wiki
 
 let s:candidates = wiki#test#completion('[[', 'li')
-call wiki#test#assert_equal(3, len(s:candidates))
+call wiki#test#assert_equal(2, len(s:candidates))
 
 let s:candidates = wiki#test#completion('[[/', 'in')
 call wiki#test#assert_equal(3, len(s:candidates))
