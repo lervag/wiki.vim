@@ -582,6 +582,12 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *WikiListToggle*
   Toggle a list item. Map works in both normal and insert mode.
 
+*<plug>(wiki-list-moveup)*
+*<plug>(wiki-list-movedown)*
+*WikiListMoveUp*
+*WikiListMoveDown*
+  Move current list item up/down through a list.
+
 *<plug>(wiki-list-uniq)*
 *WikiListUniq*
   Parse the current list and remove repeated entries recursively.
@@ -765,6 +771,8 @@ information about the different modes.
    `n`     <leader>wT          |<plug>(wiki-page-toc-local)|
    `n`     <leader>wp          |<plug>(wiki-export)|
    `x`     <leader>wp          |<plug>(wiki-export)|
+   `n`     <leader>wlk         |<plug>(wiki-list-moveup)|
+   `n`     <leader>wlj         |<plug>(wiki-list-movedown)|
    `n`     <leader>wlu         |<plug>(wiki-list-uniq)|
    `n`     <leader>wlU         |<plug>(wiki-list-uniq-local)|
    `n`     <leader>wsl         |<plug>(wiki-tag-list)|

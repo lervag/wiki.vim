@@ -31,6 +31,62 @@ function! wiki#list#toggle(...) abort "{{{1
 endfunction
 
 " }}}1
+function! wiki#list#move(direction, ...) abort "{{{1
+  let [l:root, l:current] = a:0 > 0
+        \ ? wiki#list#get(a:1)
+        \ : wiki#list#get()
+  if empty(l:current) | return | endif
+
+  let l:target_pos = getcurpos()
+
+  if a:direction == 0
+    let l:target = -1
+    let l:parent_counter = 0
+    let l:prev = l:current.prev
+    while l:prev.indent >= 0
+      let l:parent_counter += l:prev.indent < l:current.indent
+
+      if l:prev.indent == l:current.indent
+        let l:target = l:parent_counter > 0
+              \ ? l:prev.lnum_last
+              \ : l:prev.lnum_start - 1
+        break
+      elseif l:parent_counter > 1 && l:prev.indent == l:current.parent.indent
+        let l:target = l:prev.lnum_end
+        break
+      endif
+
+      let l:prev = l:prev.prev
+    endwhile
+
+    let l:target_pos[1] += l:target - l:current.lnum_start + 1
+  else
+    let l:target = -1
+    let l:next = l:current.next
+    while !empty(l:next)
+      if l:next.indent > l:current.indent
+        let l:next = l:next.next
+        continue
+      endif
+
+      let l:target = l:next.indent < l:current.indent
+            \ ? l:next.lnum_end
+            \ : l:next.lnum_last
+      break
+    endwhile
+
+    let l:target_pos[1] += l:target - l:current.lnum_last
+  endif
+
+  if l:target < 0 | return | endif
+
+  silent execute printf('%d,%dm %d',
+        \ l:current.lnum_start, l:current.lnum_last, l:target)
+
+  call setpos('.', l:target_pos)
+endfunction
+
+" }}}1
 function! wiki#list#uniq(local, ...) abort "{{{1
   let [l:root, l:current] = a:0 > 0
         \ ? wiki#list#get(a:1)

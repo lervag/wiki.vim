@@ -49,6 +49,8 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiLinkPrev           call wiki#nav#prev_link()
   command! -buffer WikiLinkReturn         call wiki#nav#return()
   command! -buffer WikiLinkToggle         call wiki#link#toggle()
+  command! -buffer WikiListMoveUp         call wiki#list#move(0)
+  command! -buffer WikiListMoveDown       call wiki#list#move(1)
   command! -buffer WikiListToggle         call wiki#list#toggle()
   command! -buffer WikiListUniq           call wiki#list#uniq(0)
   command! -buffer WikiListUniqLocal      call wiki#list#uniq(1)
@@ -88,6 +90,8 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-link-prev)            :WikiLinkPrev<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-return)          :WikiLinkReturn<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-toggle)          :WikiLinkToggle<cr>
+  nnoremap <silent><buffer> <plug>(wiki-list-moveup)          :WikiListMoveUp<cr>
+  nnoremap <silent><buffer> <plug>(wiki-list-movedown)        :WikiListMoveDown<cr>
   nnoremap <silent><buffer> <plug>(wiki-list-toggle)          :WikiListToggle<cr>
   nnoremap <silent><buffer> <plug>(wiki-list-uniq)            :WikiListUniq<cr>
   nnoremap <silent><buffer> <plug>(wiki-list-uniq-local)      :WikiListUniqLocal<cr>
@@ -146,6 +150,8 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-link-toggle)' : '<leader>wf',
           \ '<plug>(wiki-link-toggle-operator)' : 'gl',
           \ '<plug>(wiki-list-toggle)' : '<c-s>',
+          \ '<plug>(wiki-list-moveup)' : '<leader>wlk',
+          \ '<plug>(wiki-list-movedown)' : '<leader>wlj',
           \ '<plug>(wiki-list-uniq)' : '<leader>wlu',
           \ '<plug>(wiki-list-uniq-local)' : '<leader>wlU',
           \ '<plug>(wiki-page-delete)' : '<leader>wd',
