@@ -18,7 +18,10 @@ let s:matcher = {
         \}
 
 function! s:matcher.parse(link) abort dict " {{{1
-  return extend(a:link, wiki#url#parse('file://' . a:link.url,
+  if empty(matchstr(a:link.url, '\v^\w+:%(//)?'))
+    let a:link.url = 'file:' . a:link.url
+  endif
+  return extend(a:link, wiki#url#parse(a:link.url,
         \ has_key(a:link, 'origin') ? {'origin': a:link.origin} : {}))
 endfunction
 
