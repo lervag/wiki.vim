@@ -47,4 +47,8 @@ call wiki#test#assert_equal('url', s:link.type)
 call wiki#test#assert_equal('zot', s:link.scheme)
 call wiki#test#assert_equal('c2', s:link.stripped)
 
+let s:link = wiki#link#get_at_pos(23, 5)
+call wiki#test#assert_equal('md_fig', s:link.type)
+call wiki#test#assert_equal('file', s:link.scheme)
+
 if $QUIT | quitall! | endif

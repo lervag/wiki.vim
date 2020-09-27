@@ -7,6 +7,7 @@
 function! wiki#link#get() abort " {{{1
   for l:matcher in [
         \ wiki#link#wiki#matcher(),
+        \ wiki#link#md_fig#matcher(),
         \ wiki#link#md#matcher(),
         \ wiki#link#ref_target#matcher(),
         \ wiki#link#ref_single#matcher(),
@@ -32,6 +33,7 @@ function! wiki#link#get_all(...) abort "{{{1
 
   let l:matchers = [
         \ wiki#link#wiki#matcher(),
+        \ wiki#link#md_fig#matcher(),
         \ wiki#link#md#matcher(),
         \ wiki#link#ref_target#matcher(),
         \ wiki#link#ref_single#matcher(),
