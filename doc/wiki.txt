@@ -43,6 +43,7 @@ CONTENTS                                                        *wiki-contents*
     Link URLs                                      |wiki-link-urls|
     Wiki links                                     |wiki-link-wiki|
     Markdown links                                 |wiki-link-markdown|
+    Markdown image links                           |wiki-link-image|
     Reference links                                |wiki-link-reference|
   Lists                                            |wiki-lists|
   Completion                                       |wiki-completion|
@@ -816,6 +817,8 @@ These are the link formats that are currently supported:
     `[[URL|Description]]`
 - Markdown links                     |wiki-link-markdown|
     `[Description](URL)`
+- Markdown image links               |wiki-link-image|
+    `![Caption text](URL)`
 - Reference links                    |wiki-link-reference|
     `[Target]`
     `[Description][Target]`
@@ -859,7 +862,8 @@ The following schemes are supported:
 <
   file~
     Links to a file on the system and opens it.  This can be customized with
-    |g:wiki_file_open|, but falls back to opening the file with Vim.
+    |g:wiki_file_open|, but falls back to opening the file with Vim. This
+    scheme is the default scheme for |wiki-link-image|.
 
   doi~
     Will use the `generic` scheme handler on an expanded URL of the form
@@ -908,6 +912,16 @@ MARKDOWN LINKS                                             *wiki-link-markdown*
 Markdown links are one of the standard type of links, and the look like this: >
 
   [Description](URL)
+
+One may toggle between markdown style links and wiki style links with the
+`<leader>wf` mapping.
+
+------------------------------------------------------------------------------
+MARKDOWN IMAGE LINKS                                          *wiki-link-image*
+
+Markdown image links are similar to markdown links: >
+
+  ![Caption text](URL)
 
 One may toggle between markdown style links and wiki style links with the
 `<leader>wf` mapping.
