@@ -39,11 +39,11 @@ CONTENTS                                                        *wiki-contents*
     Text objects                                   |wiki-mappings-text-obj|
     Journal mappings                               |wiki-mappings-default|
   Commands                                         |wiki-commands|
-  Links                                            |wiki-links|
-    Link URLs                                      |wiki-links-urls|
-    Markdown links                                 |wiki-links-markdown|
-    Wiki links                                     |wiki-links-wiki|
-    Reference links                                |wiki-links-reference|
+  Links                                            |wiki-link|
+    Link URLs                                      |wiki-link-urls|
+    Wiki links                                     |wiki-link-wiki|
+    Markdown links                                 |wiki-link-markdown|
+    Reference links                                |wiki-link-reference|
   Lists                                            |wiki-lists|
   Completion                                       |wiki-completion|
   Tags                                             |wiki-tags|
@@ -97,7 +97,7 @@ FEATURES                                                  *wiki-intro-features*
     - Viewing wiki link graphs
   - Completion of wiki links and link anchors
   - Text objects
-    - `iu au` Link url
+    - `iu au` Link URL
     - `it at` Link text
 - Support for journal entries
   - Navigating the journal back and forth with `<Plug>(wiki-journal-next)`
@@ -366,9 +366,9 @@ OPTIONS                                                   *wiki-config-options*
 
 *g:wiki_file_open*
   Name of a function or a |FuncRef| for a function that should be used to open
-  a file url (see also |wiki-links-urls|). The function should give a non-zero
-  return value if it opens the url. If not, the plugin falls back to opening
-  the url with Vim. An example: >
+  a file URL (see also |wiki-link-urls|). The function should give a non-zero
+  return value if it opens the URL. If not, the plugin falls back to opening
+  the URL with Vim. An example: >
 
     let g:wiki_file_open = 'WikiFileOpen'
 
@@ -385,7 +385,7 @@ OPTIONS                                                   *wiki-config-options*
   A dictionary that specifies which viewer to use for a given filetype. The
   entry `_` specifies the fallback or generic viewer. This option thus allows
   one to setup different viewers for different file types that are used by the
-  generic link scheme opener (see |wiki-links-urls|) and by |WikiExport|.
+  generic link scheme opener (see |wiki-link-url|) and by |WikiExport|.
 
   Default: >
     let g:wiki_viewer = {
@@ -458,8 +458,8 @@ OPTIONS                                                   *wiki-config-options*
   Default: `'# Summary, %(year) week %(week)'`
 
 *g:wiki_zotero_root*
-  A string that specifies the Zotero root folder used for the zotero url
-  scheme, see |wiki-links-url|.
+  A string that specifies the Zotero root folder used for the zotero URL
+  scheme, see |wiki-link-url|.
 
   Default: `'~/.local/zotero'`
 
@@ -732,7 +732,7 @@ mappings, i.e. |xmap| and |omap|.
 
 *<plug>(wiki-au)*
 *<plug>(wiki-iu)*
-  Text object for link urls.
+  Text object for link URLs.
 
 *<plug>(wiki-at)*
 *<plug>(wiki-it)*
@@ -795,41 +795,46 @@ information about the different modes.
   ---------------------------------------------------------------------~
 
 ==============================================================================
-LINKS                                                              *wiki-links*
+LINKS                                                               *wiki-link*
 
 Links are one of the most essential features of a wiki, and as such, requires
 particular attention.  A link is a structure that consists of an URL (see
-|wiki-links-urls|) and a possibly empty description.  Any link may be
+|wiki-link-url|) and a possibly empty description.  Any link may be
 activated with the mapping `<cr>` or `<c-cr>`, where the latter will open the
 link in a split (if it is an internal link).  One may use `<bs>` to navigate
 back after following a link.
 
 These are the link formats that are currently supported:
 
-- Link URLs                          |wiki-links-urls|
+- Link URLs                          |wiki-link-url|
     `http://www.example.com`
     `wiki:index`
     `journal:2013-04-05`
     `doi:10.1002%2Fandp.19053220607`
-- Markdown links                     |wiki-links-markdown|
-    `[Description](Link)`
-- Wiki links                         |wiki-links-wiki|
-    `[[Link]]`
-    `[[Link|Description]]`
-- Reference links                    |wiki-links-reference|
+- Wiki links                         |wiki-link-wiki|
+    `[[URL]]`
+    `[[URL|Description]]`
+- Markdown links                     |wiki-link-markdown|
+    `[Description](URL)`
+- Reference links                    |wiki-link-reference|
     `[Target]`
     `[Description][Target]`
+- Zotero shortlink                   |wiki-link-zotero|
+    `@citekey`
 
 ------------------------------------------------------------------------------
-LINK URLS                                                     *wiki-links-urls*
+LINK URLS                                                      *wiki-link-url*
 
 An URL, which is short for Uniform Resource Locator, has the general format
 
   `[scheme:]address`
 
-The `scheme` specifies which kind of link it is.  If no handle is specified,
-it is assumed that the address is an internal wiki link, i.e. the `wiki` scheme
-is assumed.
+The `scheme` specifies which kind of link it is. When the URL is typed
+directly and with a proper scheme, it will typically be possible to open the
+link directly without putting it inside a fuller link type.
+
+When the scheme is not specified for URLs inside one of the other link types,
+then the `wiki` scheme is generally assumed (unless otherwise stated).
 
 The following schemes are supported:
 
@@ -881,24 +886,14 @@ relatively easy to define new custom schemes. See the generic scheme for
 a simple example of how this is implemented.
 
 ------------------------------------------------------------------------------
-MARKDOWN LINKS                                            *wiki-links-markdown*
-
-Markdown links are one of the standard type of links, and the look like this: >
-
-  [Description](url)
-
-One may toggle between markdown style links and wiki style links with the
-`<leader>wf` mapping.
-
-------------------------------------------------------------------------------
-WIKI LINKS                                                    *wiki-links-wiki*
+WIKI LINKS                                                     *wiki-link-wiki*
 
 Wiki links are similar in style to the standard Mediawiki links.  This is the
 main syntax for creating internal wiki links.  The description part is
 optional.  Examples: >
 
-    [[Link]]
-    [[Link|Description]]
+    [[URL]]
+    [[URL|Description]]
 
 Any non-link words may be turned into a wiki link with the `<cr>` mapping.
 One may also use visual mode to turn a selection into a wiki link, or one may
@@ -908,7 +903,17 @@ The `<leader>wf` mapping can be used to add a description to a wiki link or to
 toggle it to a markdown style link.
 
 ------------------------------------------------------------------------------
-REFERENCE LINKS                                          *wiki-links-reference*
+MARKDOWN LINKS                                             *wiki-link-markdown*
+
+Markdown links are one of the standard type of links, and the look like this: >
+
+  [Description](URL)
+
+One may toggle between markdown style links and wiki style links with the
+`<leader>wf` mapping.
+
+------------------------------------------------------------------------------
+REFERENCE LINKS                                           *wiki-link-reference*
 
 Reference style links are slightly different.  They consist of up to three
 parts: An optional `description`, a `target` and a `link.`  The syntax is best
@@ -921,12 +926,19 @@ explained through an example: >
 
   The target may consist of both words and numbers, e.g. [like this][Ref 3].
 
-  [1]: Link 1
-  [Target]: Link 2
-  [Ref 3]: Link 3
+  [1]: URL 1
+  [Target]: URL 2
+  [Ref 3]: URL 3
 
 Reference style links may be opened with `<cr>` both on the reference location
 and on the link line.
+
+------------------------------------------------------------------------------
+ZOTERO SHORLINKS                                             *wiki-link-zotero*
+
+As a minor convenience link type, Zotero URLs may be written in short as
+`@citekey` instead of `zot:citekey`. See also |wiki-link-url| for more info on
+the Zotero URL scheme and handler.
 
 ==============================================================================
 LISTS                                                              *wiki-lists*
