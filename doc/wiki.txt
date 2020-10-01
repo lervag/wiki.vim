@@ -781,7 +781,7 @@ information about the different modes.
    `n`     <leader>wss         |<plug>(wiki-tag-search)|
    `n`     <tab>               |<plug>(wiki-link-next)|
    `n`     <cr>                |<plug>(wiki-link-open)|
-   `n`     <c-cr>              |<plug>(wiki-link-open-split)|
+   `n`     <c-w><cr>           |<plug>(wiki-link-open-split)|
    `n`     <s-tab>             |<plug>(wiki-link-prev)|
    `n`     <bs>                |<plug>(wiki-link-return)|
    `n`     gl                  |<plug>(wiki-link-toggle-operator)|
