@@ -7,8 +7,9 @@ tests := $(wildcard test-*.vim)
 
 test: $(tests)
 
+WIKI=wiki-1
 $(tests):
 	@rm -rf wiki-tmp
-	@cp -r wiki wiki-tmp
+	@cp -r $(WIKI) wiki-tmp
 	@$(MYVIM) -u $@
 	@rm -rf wiki-tmp

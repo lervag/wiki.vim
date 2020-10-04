@@ -42,9 +42,6 @@ function! wiki#page#rename(newname) abort "{{{1
   let l:newpath = printf('%s/%s.%s',
         \ expand('%:p:h'), a:newname, b:wiki.extension)
 
-  let l:oldlink = fnamemodify(wiki#paths#shorten_relative(l:oldpath), ':r')
-  let l:newlink = fnamemodify(wiki#paths#shorten_relative(l:newpath), ':r')
-
   " Check if current file exists
   if !filereadable(l:oldpath)
     echom 'wiki Error: Cannot rename "' . l:oldpath
@@ -103,6 +100,8 @@ function! wiki#page#rename(newname) abort "{{{1
   let b:wiki = l:wiki
 
   " Update links
+  let l:oldlink = fnamemodify(wiki#paths#shorten_relative(l:oldpath), ':r')
+  let l:newlink = fnamemodify(wiki#paths#shorten_relative(l:newpath), ':r')
   call s:rename_update_links(l:oldlink, l:newlink)
 
   " Restore wiki buffers
