@@ -37,6 +37,7 @@ endfunction
 
 "}}}1
 function! wiki#page#rename(newname) abort "{{{1
+  redraw!
   let l:oldpath = expand('%:p')
   let l:newpath = printf('%s/%s.%s',
         \ expand('%:p:h'), a:newname, b:wiki.extension)
@@ -45,22 +46,9 @@ function! wiki#page#rename(newname) abort "{{{1
   let l:newlink = fnamemodify(wiki#paths#shorten_relative(l:newpath), ':r')
 
   " Check if current file exists
-  if !filereadable(expand('%:p'))
-    echom 'wiki Error: Cannot rename "' . expand('%:p')
+  if !filereadable(l:oldpath)
+    echom 'wiki Error: Cannot rename "' . l:oldpath
           \ . '". It does not exist! (New file? Save it before renaming.)'
-    return
-  endif
-
-  " The new name must be nontrivial
-  if empty(substitute(a:newname, '\s*', '', ''))
-    echom 'wiki Error: Cannot rename to an empty filename!'
-    return
-  endif
-
-  " The new name must not exist
-  if filereadable(l:newpath)
-    echom 'wiki Error: Cannot rename to "' . l:newpath
-          \ . '". File with that name exist!'
     return
   endif
 
@@ -70,17 +58,29 @@ function! wiki#page#rename(newname) abort "{{{1
     return
   endif
 
+  " The new name must be nontrivial
+  if empty(substitute(a:newname, '\s*', '', ''))
+    echom 'wiki Error: Cannot rename to an empty filename!'
+    return
+  endif
+
+  " The target path must not exist
+  if filereadable(l:newpath)
+    echom 'wiki Error: Cannot rename to "' . l:newpath
+          \ . '". File with that name exist!'
+    return
+  endif
+
   " Rename current file to l:newpath
   try
-    echom 'wiki: Renaming ' . expand('%:t')
-          \ . ' to ' . fnamemodify(l:newpath, ':t')
-    if rename(expand('%:p'), l:newpath) != 0
+    echom printf('wiki: Renaming "%s" to "%s"',
+          \ expand('%:t') , fnamemodify(l:newpath, ':t'))
+    if rename(l:oldpath, l:newpath) != 0
       throw 'Cannot rename!'
     end
-    setlocal buftype=nofile
   catch
-    echom 'wiki Error: Cannot rename "'
-          \ . expand('%:t:r') . '" to "' . l:newpath . '"!'
+    echom printf('wiki Error: Cannot rename "%s" to "%s"',
+          \ expand('%:t:r') , l:newpath)
     return
   endtry
 
@@ -92,8 +92,9 @@ function! wiki#page#rename(newname) abort "{{{1
         \     '!empty(getbufvar(v:val, ''wiki''))'),
         \   'fnamemodify(bufname(v:val), '':p'')')
 
-  " Save and close wiki buffers (retain the b:wiki data blob)
+  " Save and close wiki buffers (retain current b:wiki data blob)
   let l:wiki = b:wiki
+  setlocal buftype=nofile
   for l:bufname in l:bufs
     execute 'buffer' fnameescape(l:bufname)
     update
@@ -122,6 +123,7 @@ function! wiki#page#rename_ask() abort "{{{1
   endif
 
   " Get new page name
+  redraw!
   echo 'Enter new name (without extension):'
   let l:name = input('> ')
   call wiki#page#rename(l:name)
