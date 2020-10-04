@@ -100,8 +100,8 @@ function! wiki#page#rename(newname) abort "{{{1
   let b:wiki = l:wiki
 
   " Update links
-  let l:oldlink = fnamemodify(wiki#paths#shorten_relative(l:oldpath), ':r')
-  let l:newlink = fnamemodify(wiki#paths#shorten_relative(l:newpath), ':r')
+  let l:oldlink = s:path_to_wiki_url(l:oldpath)
+  let l:newlink = s:path_to_wiki_url(l:newpath)
   call s:rename_update_links(l:oldlink, l:newlink)
 
   " Restore wiki buffers
@@ -354,10 +354,11 @@ endfunction
 " }}}1
 
 function! s:rename_update_links(old, new) abort " {{{1
-  let l:pattern  = '\v\[\[\/?\zs' . a:old . '\ze%(#.*)?%(\|.*)?\]\]'
-  let l:pattern .= '|\[.*\]\[\zs' . a:old . '\ze%(#.*)?\]'
-  let l:pattern .= '|\[.*\]\(\/?\zs' . a:old . '\ze%(#.*)?\)'
-  let l:pattern .= '|\[\zs' . a:old . '\ze%(#.*)?\]\[\]'
+  let l:old_re = escape(a:old, '.')
+  let l:pattern  = '\v\[\[\/?\zs' . l:old_re . '\ze%(#.*)?%(\|.*)?\]\]'
+  let l:pattern .= '|\[.*\]\[\zs' . l:old_re . '\ze%(#.*)?\]'
+  let l:pattern .= '|\[.*\]\(\/?\zs' . l:old_re . '\ze%(#.*)?\)'
+  let l:pattern .= '|\[\zs' . l:old_re . '\ze%(#.*)?\]\[\]'
 
   let l:num_files = 0
   let l:num_links = 0
@@ -384,6 +385,17 @@ function! s:rename_update_links(old, new) abort " {{{1
     endif
   endfor
   echom printf('Updated %d links in %d files', l:num_links, l:num_files)
+endfunction
+
+" }}}1
+function! s:path_to_wiki_url(path) abort " {{{1
+  let l:path = wiki#paths#shorten_relative(a:path)
+  let l:ext = '.' . fnamemodify(l:path, ':e')
+  if l:ext ==# g:wiki_link_extension
+    return l:path
+  else
+    return fnamemodify(l:path, ':r')
+  endif
 endfunction
 
 " }}}1

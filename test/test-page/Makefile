@@ -13,3 +13,5 @@ $(tests):
 	@cp -r $(WIKI) wiki-tmp
 	@$(MYVIM) -u $@
 	@rm -rf wiki-tmp
+
+test-rename-md.vim: WIKI=wiki-2
