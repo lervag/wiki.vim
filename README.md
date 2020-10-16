@@ -34,9 +34,9 @@ Plug 'lervag/wiki.vim'
 ```
 
 Or use some other plugin manager:
-- [vundle](https://github.com/gmarik/vundle)
-- [neobundle](https://github.com/Shougo/neobundle.vim)
-- [pathogen](https://github.com/tpope/vim-pathogen)
+* [vundle](https://github.com/gmarik/vundle)
+* [neobundle](https://github.com/Shougo/neobundle.vim)
+* [pathogen](https://github.com/tpope/vim-pathogen)
 
 ## Usage
 
@@ -82,24 +82,12 @@ This outlines the basic steps to get started:
   - [unite](https://github.com/Shougo/unite.vim)
   - [denite](https://github.com/Shougo/denite.nvim)
   - [ncm2](https://github.com/ncm2/ncm2): SubscopeDetector for nested completion
-  - [fzf](https://github.com/junegunn/fzf.vim): `WikiFzfPages` and `WikiFzfToc` commands
-
-# TODO
-
-This is a list of TODO items that anyone may follow up on. I am very willing to
-accept [contributions](CONTRIBUTING.md), both as issues describing problems or
-as pull requests for implementing bug fixes or missing features.
-
-- [ ] Allow to choose the default type of link
-- [ ] [vimwiki](https://github.com/vimwiki/vimwiki) like TODO list toggles
-      (cf. [#1](../../issues/1))
-- [x] Allow journal entries per week/months (cf. [#2](../../issues/2))
-- [ ] Improve the "execute code section" feature
+  - [fzf](https://github.com/junegunn/fzf): `WikiFzfPages`, `WikiFzfTags`, and `WikiFzfToc` commands
 
 # Related projects
 
-- [vimwiki](https://github.com/vimwiki/vimwiki)
-- [vim-waikiki](https://github.com/fcpg/vim-waikiki)
+* [vimwiki](https://github.com/vimwiki/vimwiki)
+* [vim-waikiki](https://github.com/fcpg/vim-waikiki)
 
 # Acknowledgements
 
