@@ -308,6 +308,8 @@ function! wiki#page#export(line1, line2, ...) abort " {{{1
       let l:cfg.ext = remove(l:args, 0)
     elseif l:arg ==# '-output'
       let l:cfg.output = remove(l:args, 0)
+    elseif l:arg ==# '-link-extension-replace'
+      let l:cfg.link_replace = v:true
     elseif l:arg ==# '-view'
       let l:cfg.view = v:true
     elseif l:arg ==# '-viewer'
