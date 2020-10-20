@@ -968,7 +968,7 @@ COMPLETION                                                    *wiki-completion*
 
 This plugin provides an |omni-complete| function that completes internal link
 targets, including anchors.  This should work both for markdown and wiki
-style links (see |wiki-links|).
+style links (see |wiki-link|).
 
 ==============================================================================
 TAGS                                                                *wiki-tags*
