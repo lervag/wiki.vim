@@ -308,7 +308,7 @@ function! wiki#page#export(line1, line2, ...) abort " {{{1
       let l:cfg.ext = remove(l:args, 0)
     elseif l:arg ==# '-output'
       let l:cfg.output = remove(l:args, 0)
-    elseif l:arg ==# '-link-extension-replace'
+    elseif l:arg ==# '-link-ext-replace'
       let l:cfg.link_replace = v:true
     elseif l:arg ==# '-view'
       let l:cfg.view = v:true
@@ -472,9 +472,30 @@ function! s:export(start, end, cfg) abort " {{{1
   let l:fwiki = expand('%:p') . '.tmp'
 
   " Parse wiki page content
+  let l:lines = getline(a:start, a:end)
+" Replace link extensions with .html if desired
+  if a:cfg.link_replace
+    " Regex requires that links end with '.', even when wiki_link_extension is
+    " empty.
+    if g:wiki_link_target_type ==# 'md'
+      let l:link_rx = '\[\([^\\\[\]]\{-}\)\](\([^\(\)\\]\{-}\)\.'
+      let l:link_rx = l:link_rx . g:wiki_link_extension
+      let l:link_rx = l:link_rx . '\(#[^#\(\)\\]\{-}\)\{-})'
+      let l:pattern = '[\1](\2.html\3)'
+    elseif g:wiki_link_target_type ==# 'wiki'
+      let l:link_rx = '\[\[\([^\\\[\]]\{-}\)\.' . g:wiki_link_extension
+      let l:link_rx = l:link_rx . '\(#[^#\\\[\]]\{-}\)'
+      let l:link_rx = l:link_rx . '|\([^\[\]\\]\{-}\)\]\]'
+      let l:pattern = '\[\[\1.html\2|\3\]\]'
+    else
+      echoerr 'Unsupported link type for export replacement'
+      return
+    endif
+    call map(l:lines, 'substitute(v:val, l:link_rx, l:pattern, ''g'')')
+  endif
+
   let l:wiki_link_rx = '\[\[#\?\([^\\|\]]\{-}\)\]\]'
   let l:wiki_link_text_rx = '\[\[[^\]]\{-}|\([^\]]\{-}\)\]\]'
-  let l:lines = getline(a:start, a:end)
   call map(l:lines, 'substitute(v:val, l:wiki_link_rx, ''\1'', ''g'')')
   call map(l:lines, 'substitute(v:val, l:wiki_link_text_rx, ''\1'', ''g'')')
   call writefile(l:lines, l:fwiki)
