@@ -308,8 +308,8 @@ function! wiki#page#export(line1, line2, ...) abort " {{{1
       let l:cfg.ext = remove(l:args, 0)
     elseif l:arg ==# '-output'
       let l:cfg.output = remove(l:args, 0)
-    elseif l:arg ==# '-link-ext-replace'
-      let l:cfg.link_replace = v:true
+    elseif l:arg ==# '-link_ext_replace'
+      let l:cfg.link_ext_replace = v:true
     elseif l:arg ==# '-view'
       let l:cfg.view = v:true
     elseif l:arg ==# '-viewer'
@@ -474,7 +474,7 @@ function! s:export(start, end, cfg) abort " {{{1
   " Parse wiki page content
   let l:lines = getline(a:start, a:end)
 " Replace link extensions with .html if desired
-  if a:cfg.link_replace
+  if a:cfg.link_ext_replace
     " Regex requires that links end with '.', even when wiki_link_extension is
     " empty.
     if g:wiki_link_target_type ==# 'md'

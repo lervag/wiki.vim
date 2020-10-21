@@ -402,7 +402,7 @@ OPTIONS                                                   *wiki-config-options*
         \ 'args' : '',
         \ 'from_format' : 'markdown',
         \ 'ext' : 'pdf',
-        \ 'link-extension-replace': v:false,
+        \ 'link_ext_replace': v:false,
         \ 'view' : v:false,
         \ 'output': fnamemodify(tempname(), ':h'),
         \}
@@ -663,9 +663,10 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   -ext EXT~
     Specify extension to use if `fname` is not provided.
 
-  -link-extension-replace~
+  -link_ext_replace~
     Set to true to replace in-wiki link extensions with html. This enables
-    in-browser wiki navigation. Requires`ext` be set to html.
+    in-browser wiki navigation. Requires`ext` be set to `html` and for
+    `g:wiki_link_extension` to be non-empty to have any meaningful effect.
 
   -output~
     Set output directory where the exported file is stored. Relative paths are
