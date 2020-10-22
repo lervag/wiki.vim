@@ -468,13 +468,7 @@ endfunction
 
 " }}}1
 
-function! s:export(start, end, cfg) abort " {{{1
-  let l:fwiki = expand('%:p') . '.tmp'
-
-  " Parse wiki page content
-  let l:lines = getline(a:start, a:end)
-" Replace link extensions with .html if desired
-  if a:cfg.link_ext_replace
+function! s:convert_links_html(lines) abort
     " Regex requires that links end with '.', even when wiki_link_extension is
     " empty.
     if g:wiki_link_target_type ==# 'md'
@@ -488,10 +482,23 @@ function! s:export(start, end, cfg) abort " {{{1
       let l:link_rx = l:link_rx . '|\([^\[\]\\]\{-}\)\]\]'
       let l:pattern = '\[\[\1.html\2|\3\]\]'
     else
-      echoerr 'Unsupported link type for export replacement'
+      let l:err = 'g:wiki_link_target_type must be `md` or `wiki` to replace '
+      let l:err = l:err . 'link extensions on export.'
+      echoerr l:err
       return
     endif
-    call map(l:lines, 'substitute(v:val, l:link_rx, l:pattern, ''g'')')
+    call map(a:lines, 'substitute(v:val, l:link_rx, l:pattern, ''g'')')
+    return a:lines
+endfunction
+
+function! s:export(start, end, cfg) abort " {{{1
+  let l:fwiki = expand('%:p') . '.tmp'
+
+  " Parse wiki page content
+  let l:lines = getline(a:start, a:end)
+" Replace link extensions with .html if desired
+  if a:cfg.link_ext_replace
+    let l:lines = s:convert_links_html(l:lines)
   endif
 
   let l:wiki_link_rx = '\[\[#\?\([^\\|\]]\{-}\)\]\]'
