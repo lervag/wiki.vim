@@ -308,6 +308,8 @@ function! wiki#page#export(line1, line2, ...) abort " {{{1
       let l:cfg.ext = remove(l:args, 0)
     elseif l:arg ==# '-output'
       let l:cfg.output = remove(l:args, 0)
+    elseif l:arg ==# '-link-ext-replace'
+      let l:cfg.link_ext_replace = v:true
     elseif l:arg ==# '-view'
       let l:cfg.view = v:true
     elseif l:arg ==# '-viewer'
@@ -338,6 +340,13 @@ function! wiki#page#export(line1, line2, ...) abort " {{{1
           \ l:cfg.output, expand('%:t:r'), l:cfg.ext)
   else
     let l:cfg.ext = fnamemodify(l:cfg.fname, ':e')
+  endif
+
+  " Ensure '-link-ext-replace' is combined wiht '-ext html'
+  if l:cfg.link_ext_replace && l:cfg.ext !=# 'html'
+    echoerr 'wiki.vim: export option conflict!'
+    echomsg 'Note: Option "-link-ext-replace" only works with "-ext html"'
+    return
   endif
 
   " Generate the output file
@@ -470,9 +479,13 @@ function! s:export(start, end, cfg) abort " {{{1
   let l:fwiki = expand('%:p') . '.tmp'
 
   " Parse wiki page content
+  let l:lines = getline(a:start, a:end)
+  if a:cfg.link_ext_replace
+    call s:convert_links_to_html(l:lines)
+  endif
+
   let l:wiki_link_rx = '\[\[#\?\([^\\|\]]\{-}\)\]\]'
   let l:wiki_link_text_rx = '\[\[[^\]]\{-}|\([^\]]\{-}\)\]\]'
-  let l:lines = getline(a:start, a:end)
   call map(l:lines, 'substitute(v:val, l:wiki_link_rx, ''\1'', ''g'')')
   call map(l:lines, 'substitute(v:val, l:wiki_link_text_rx, ''\1'', ''g'')')
   call writefile(l:lines, l:fwiki)
@@ -501,6 +514,28 @@ function! s:export(start, end, cfg) abort " {{{1
   endif
 
   call delete(l:fwiki)
+endfunction
+
+" }}}1
+function! s:convert_links_to_html(lines) abort " {{{1
+  if g:wiki_link_target_type ==# 'md'
+    let l:rx = '\[\([^\\\[\]]\{-}\)\]'
+          \ . '(\([^\(\)\\]\{-}\)\.' . g:wiki_link_extension
+          \ . '\(#[^#\(\)\\]\{-}\)\{-})'
+    let l:sub = '[\1](\2.html\3)'
+  elseif g:wiki_link_target_type ==# 'wiki'
+    let l:rx = '\[\[\([^\\\[\]]\{-}\)\.' . g:wiki_link_extension
+          \ . '\(#[^#\\\[\]]\{-}\)'
+          \ . '|\([^\[\]\\]\{-}\)\]\]'
+    let l:sub = '\[\[\1.html\2|\3\]\]'
+  else
+    echoerr 'wiki.vim: error during export!'
+    echomsg 'g:wiki_link_target_type must be `md` or `wiki` to replace'
+          \ . ' link extensions on export.'
+    return
+  endif
+
+  call map(a:lines, 'substitute(v:val, l:rx, l:sub, ''g'')')
 endfunction
 
 " }}}1
