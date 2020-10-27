@@ -68,6 +68,14 @@ function! wiki#page#rename(newname) abort "{{{1
     return
   endif
 
+  " The target directory must exist
+  let l:target_dir = fnamemodify (expand (l:newpath), ':h')
+  if !isdirectory (l:target_dir)
+    echom 'wikiError: Cannot rename to "' . l:newpath . '".
+          \ Target directory "' . l:target_dir . '" does not exist!'
+    return
+  endif
+
   " Rename current file to l:newpath
   try
     echom printf('wiki: Renaming "%s" to "%s"',
