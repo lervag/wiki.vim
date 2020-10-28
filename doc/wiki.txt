@@ -228,9 +228,10 @@ OPTIONS                                                   *wiki-config-options*
 *g:wiki_link_target_type*
   This option may be used to pick the default style of link that will be used.
 
-  Setting this to `md` will cause Markdown style links to be added by default,
-  rather than `wiki` style links. Toggling between link types can still be
-  achieved using |WikiLinkToggle|.
+  Available styles are `md` which will cause Markdown style links to be added
+  by default, `adoc` - Asciidoc inter-page cross reference style links and
+  `wiki` style links. Toggling between link types can still be achieved using
+  |WikiLinkToggle|.
 
   Default: 'wiki'
 
@@ -830,6 +831,8 @@ These are the link formats that are currently supported:
     `[Description][Target]`
 - Zotero shortlink                   |wiki-link-zotero|
     `@citekey`
+- Asciidoc links                     |wiki-link-adoc|
+    `<<URL#,Description>>`
 
 ------------------------------------------------------------------------------
 LINK URLS                                                      *wiki-link-url*
@@ -959,6 +962,14 @@ ZOTERO SHORLINKS                                             *wiki-link-zotero*
 As a minor convenience link type, Zotero URLs may be written in short as
 `@citekey` instead of `zot:citekey`. See also |wiki-link-url| for more info on
 the Zotero URL scheme and handler.
+
+------------------------------------------------------------------------------
+ASCIIDOC LINKSSHORLINKS                                        *wiki-link-adoc*
+
+Asciidoc links use Asciidoctor's Inter-document Cross References syntax and
+look like this: >
+
+  <<URL#,Description>>
 
 ==============================================================================
 LISTS                                                              *wiki-lists*
