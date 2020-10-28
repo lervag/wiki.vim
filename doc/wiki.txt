@@ -964,7 +964,7 @@ As a minor convenience link type, Zotero URLs may be written in short as
 the Zotero URL scheme and handler.
 
 ------------------------------------------------------------------------------
-ASCIIDOC LINKSSHORLINKS                                        *wiki-link-adoc*
+ASCIIDOC LINKS                                                 *wiki-link-adoc*
 
 Asciidoc links use Asciidoctor's Inter-document Cross References syntax and
 look like this: >
