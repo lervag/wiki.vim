@@ -53,6 +53,7 @@ call wiki#init#option('wiki_mappings_use_defaults', 'all')
 call wiki#init#option('wiki_write_on_nav', 0)
 call wiki#init#option('wiki_link_toggles', {
       \ 'md': 'wiki#link#wiki#template',
+      \ 'adoc': 'wiki#link#adoc#template',
       \ 'wiki': 'wiki#link#md#template',
       \ 'date': 'wiki#link#wiki#template',
       \ 'shortcite': 'wiki#link#md#template',
