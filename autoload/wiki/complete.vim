@@ -145,6 +145,27 @@ function! s:completer_mdlink.findstart(line) dict abort " {{{2
 endfunction
 
 " }}}1
+" {{{1 AdocLink
+
+let s:completer_adoclink = deepcopy(s:completer_wikilink)
+
+function! s:completer_adoclink.findstart(line) dict abort " {{{2
+  let l:cnum = match(a:line, '<<\zs[^,]\{-}')
+  if l:cnum < 0 | return -1 | endif
+
+  let l:base = a:line[l:cnum:]
+
+  let self.rooted = l:base[0] ==# '/'
+
+  " completing of anchors is disabled because they won't be found for asciidoc
+  " anyway: wiki#rx#header_items regex is uded for search of anchors and it
+  " requires Markdown-style headers. This could be resolved by passing a
+  " specific regular expression to wiki#page#get_anchors()
+  let self.is_anchor = 0
+  return l:cnum
+endfunction
+
+" }}}1
 " {{{1 Zotero
 
 let s:completer_zotero = {}
