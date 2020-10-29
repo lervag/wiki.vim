@@ -53,53 +53,15 @@ function! wiki#link#word#template(url, text) abort dict " {{{1
     return wiki#link#template('/' . l:candidates[0], '')
   endif
 
-  " Create menu
-  let l:list_menu = []
-  for l:i in range(len(l:candidates))
-    let l:list_menu += [['[' . (l:i + 1) . '] ', l:candidates[l:i]]]
-  endfor
-  let l:list_menu += [['[n] ', 'New page at wiki root']]
-  let l:list_menu += [['[x] ', 'Abort']]
-
   "
-  " Finally we ask for user input to choose desired candidate
+  " Select with menu
   "
-  while 1
-    redraw
-
-    " Print the menu; fancy printing is not possible with operator mapping
-    if exists('wiki#link#word#operator')
-      echo join(map(copy(l:list_menu), 'v:val[0] . v:val[1]'), "\n")
-    else
-      for [l:key, l:val] in l:list_menu
-        echohl ModeMsg
-        echo l:key
-        echohl NONE
-        echon l:val
-      endfor
-    endif
-
-    let l:choice = nr2char(getchar())
-    if l:choice ==# 'x'
-      redraw!
-      return l:url
-    endif
-
-    if l:choice ==# 'n'
-      redraw!
-      return wiki#link#template(l:url, l:text)
-    endif
-
-    if str2nr(l:choice) > 0
-      try
-        let l:cand = l:candidates[l:choice - 1]
-        redraw!
-        return wiki#link#template('/' . l:cand, '')
-      catch
-        continue
-      endtry
-    endif
-  endwhile
+  let l:choice = wiki#ui#choose(['New page at wiki root'] + l:candidates)
+  redraw!
+  return empty(l:choice) ? l:url : (
+        \ l:choice ==# 'New page at wiki root'
+        \   ? wiki#link#template(l:url, l:text)
+        \   : wiki#link#template('/' . l:choice, ''))
 endfunction
 
 " }}}1
