@@ -27,6 +27,7 @@ call wiki#init#option('wiki_export', {
       \ 'args' : '',
       \ 'from_format' : 'markdown',
       \ 'ext' : 'pdf',
+      \ 'link_ext_replace': v:false,
       \ 'view' : v:false,
       \ 'output' : fnamemodify(tempname(), ':h'),
       \})
