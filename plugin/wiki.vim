@@ -53,8 +53,9 @@ call wiki#init#option('wiki_zotero_root', '~/.local/zotero')
 call wiki#init#option('wiki_mappings_use_defaults', 'all')
 call wiki#init#option('wiki_write_on_nav', 0)
 call wiki#init#option('wiki_link_toggles', {
-      \ 'md': 'wiki#link#wiki#template',
       \ 'wiki': 'wiki#link#md#template',
+      \ 'md': 'wiki#link#adoc#template',
+      \ 'adoc': 'wiki#link#wiki#template',
       \ 'date': 'wiki#link#wiki#template',
       \ 'shortcite': 'wiki#link#md#template',
       \ 'url': 'wiki#link#md#template',
