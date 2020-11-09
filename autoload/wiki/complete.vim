@@ -150,7 +150,7 @@ endfunction
 let s:completer_adoclink = deepcopy(s:completer_wikilink)
 
 function! s:completer_adoclink.findstart(line) dict abort " {{{2
-  let l:cnum = match(a:line, '<<\zs[^,]\{-}')
+  let l:cnum = match(a:line, '<<\zs[^,]\{-}$')
   if l:cnum < 0 | return -1 | endif
 
   let l:base = a:line[l:cnum:]
@@ -162,7 +162,9 @@ function! s:completer_adoclink.findstart(line) dict abort " {{{2
   " requires Markdown-style headers. This could be resolved by passing a
   " specific regular expression to wiki#page#get_anchors().
   let self.is_anchor = 0
-  return l:cnum
+
+  let self.base = substitute(l:base, '\(.*#\).*', '\1', '')
+  return l:cnum + strlen(self.base)
 endfunction
 
 " }}}1
