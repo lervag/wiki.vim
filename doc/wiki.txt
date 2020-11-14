@@ -221,7 +221,8 @@ OPTIONS                                                   *wiki-config-options*
   Default: ''
 
 *g:wiki_link_extension*
-  Specify extension that should be applied to wiki links.
+  Specify the extension that should be applied to wiki links. This should be
+  in the format `.ext`, e.g. `.md` or `.wiki`.
 
   Default: ''
 

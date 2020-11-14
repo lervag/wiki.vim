@@ -520,11 +520,11 @@ endfunction
 function! s:convert_links_to_html(lines) abort " {{{1
   if g:wiki_link_target_type ==# 'md'
     let l:rx = '\[\([^\\\[\]]\{-}\)\]'
-          \ . '(\([^\(\)\\]\{-}\)\.' . g:wiki_link_extension
+          \ . '(\([^\(\)\\]\{-}\)' . g:wiki_link_extension
           \ . '\(#[^#\(\)\\]\{-}\)\{-})'
     let l:sub = '[\1](\2.html\3)'
   elseif g:wiki_link_target_type ==# 'wiki'
-    let l:rx = '\[\[\([^\\\[\]]\{-}\)\.' . g:wiki_link_extension
+    let l:rx = '\[\[\([^\\\[\]]\{-}\)' . g:wiki_link_extension
           \ . '\(#[^#\\\[\]]\{-}\)'
           \ . '|\([^\[\]\\]\{-}\)\]\]'
     let l:sub = '\[\[\1.html\2|\3\]\]'
