@@ -225,6 +225,13 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: ''
 
+*g:wiki_link_toggle_on_open*
+  This option allows to disable the toggle behaviour in |WikiLinkOpen| where
+  "normal" text is transformed into links. One may always use |WikiLinkToggle|
+  to transform text into links.
+
+  Default: 1
+
 *g:wiki_link_target_type*
   This option may be used to pick the default style of link that will be used.
 
