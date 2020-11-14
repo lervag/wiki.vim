@@ -225,6 +225,11 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: ''
 
+*g:wiki_link_toggle_on_open*
+  If set, transform text into links with |WikiLinkOpen|
+
+  Default: 1
+
 *g:wiki_link_target_type*
   This option may be used to pick the default style of link that will be used.
 

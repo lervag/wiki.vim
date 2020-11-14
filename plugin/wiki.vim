@@ -40,6 +40,7 @@ call wiki#init#option('wiki_root', '')
 call wiki#init#option('wiki_map_link_create', '')
 call wiki#init#option('wiki_map_create_page', '')
 call wiki#init#option('wiki_link_extension', '')
+call wiki#init#option('wiki_link_toggle_on_open', 1)
 call wiki#init#option('wiki_link_target_type', 'wiki')
 call wiki#init#option('wiki_month_names', [
       \ 'January', 'February', 'March', 'April', 'May', 'June', 'July',
