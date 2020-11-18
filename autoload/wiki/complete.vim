@@ -163,8 +163,7 @@ function! s:completer_adoclink.findstart(line) dict abort " {{{2
   " specific regular expression to wiki#page#get_anchors().
   let self.is_anchor = 0
 
-  let self.base = substitute(l:base, '\(.*#\).*', '\1', '')
-  return l:cnum + strlen(self.base)
+  return l:cnum
 endfunction
 
 " }}}1
