@@ -26,7 +26,7 @@ function! s:matcher.parse(link) abort dict " {{{1
   let a:link.lnum_target = searchpos('^\[' . a:link.id . '\]: ', 'nW')[0]
   if a:link.lnum_target == 0 | return a:link | endif
 
-  let a:link.url = matchstr(getline(a:link.lnum_target), wiki#rx#url)
+  let a:link.url = matchstr(getline(a:link.lnum_target), g:wiki#rx#url)
   if !empty(a:link.url)
     return extend(a:link, wiki#url#parse(a:link.url,
           \ has_key(a:link, 'origin') ? {'origin': a:link.origin} : {}))
