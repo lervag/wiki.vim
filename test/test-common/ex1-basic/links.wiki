@@ -21,3 +21,10 @@ Scheme shortcut with @citekey notation short for zot:citekey. Multiple keys in
 brackets [@c1; @c2]. Should not match in e.g. emails first.last@domain.com.
 
 A ![link to a figure](figs/test.png) here.
+
+[0]: URL 1
+[1]: URL 2
+[2]: URL 3
+[3]: URL 4
+[Interesting]: URL 5
+[Look at this]: URL 6
