@@ -9,7 +9,7 @@ List of ref links
 - [Interesting]
 - [Look at this]
 - This was one interesting link [0]
-- [1] also, as well as [2] and this [3]
+- [1] also, as well as [2] and this [^3]
 
 List of todo markers; should not be recognized as links
 - [ ] This is not done
@@ -25,6 +25,6 @@ A ![link to a figure](figs/test.png) here.
 [0]: URL 1
 [1]: URL 2
 [2]: URL 3
-[3]: URL 4
+[^3]: URL 4
 [Interesting]: URL 5
 [Look at this]: URL 6
