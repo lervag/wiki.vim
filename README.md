@@ -91,7 +91,7 @@ This outlines the basic steps to get started:
 
 # Acknowledgements
 
-Without [vimwiki](https://github.com/vimwiki/vimwiki), thus plugin would never
+Without [vimwiki](https://github.com/vimwiki/vimwiki), this plugin would never
 have existed. So my thanks go to the smart people that developed and maintains
 `vimwiki`, both for the inspiration and for the ideas.
 
