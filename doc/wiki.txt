@@ -1005,11 +1005,14 @@ TAGS                                                                *wiki-tags*
 Wiki pages may be tagged with keywords for organization. By default, tags use
 the syntax `:tag-name:`. Multiple tags may be specified both with `:tag1: :tag2:`
 and with the short form `:tag1:tag2:`. The tag name must consist of purely
-non-space characters. All tags added in the top 15 lines of a file will be
+non-space characters. By default, all tags added in the top 15 lines of a file will be
 recognized.
 
 You may customize the format of tags by modifying the
 |g:wiki_tags_format_pattern| variable.
+
+The number of lines in which tags are recognized can be costumized by modifying
+the |g:wiki_tags_scan_num_lines| variable.
 
 Related commands:
 - |WikiTagList|
