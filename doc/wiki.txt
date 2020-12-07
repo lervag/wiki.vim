@@ -448,8 +448,10 @@ OPTIONS                                                   *wiki-config-options*
 
     let g:wiki_tags_scan_num_lines = -10
 <
-  See also |readfile| for more information on how Vim reads a file.
+  To scan the entire files, use: >
 
+    let g:wiki_tags_scan_num_lines = 'all'
+<
   Default: >
     let g:wiki_tags_scan_num_lines = 15
 
