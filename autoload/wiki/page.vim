@@ -39,8 +39,8 @@ endfunction
 function! wiki#page#rename(newname) abort "{{{1
   redraw!
   let l:oldpath = expand('%:p')
-  let l:newpath = printf('%s/%s.%s',
-        \ expand('%:p:h'), a:newname, b:wiki.extension)
+  let l:newpath = simplify(printf('%s/%s.%s',
+        \ expand('%:p:h'), a:newname, b:wiki.extension))
 
   " Check if current file exists
   if !filereadable(l:oldpath)
@@ -95,7 +95,7 @@ function! wiki#page#rename(newname) abort "{{{1
   for l:bufname in l:bufs
     execute 'buffer' fnameescape(l:bufname)
     update
-    execute 'bwipeout' fnameescape(l:bufname)
+   execute 'bwipeout' fnameescape(l:bufname)
   endfor
   let b:wiki = l:wiki
 
@@ -120,15 +120,15 @@ function! wiki#page#rename_ask() abort "{{{1
   if input('Rename "' . expand('%:t:r') . '" [y]es/[N]o? ') !~? '^y'
     return
   endif
-  
+
   " Get new page name
   redraw!
   echo 'Enter new name (without extension):'
   let l:name = input('> ')
   
-  " Check if directory if it does not exist
-  let l:newpath = printf('%s/%s', expand('%:p:h'), l:name)
-  let l:target_dir = fnamemodify(expand(l:newpath), ':h')
+  " Check if directory exists
+  let l:newpath = printf('%s/%s', expand('%:h'), l:name)
+  let l:target_dir = simplify(fnamemodify(expand(l:newpath), ':h'))
   if !isdirectory(l:target_dir)
     redraw!
     echo "Directory '" . l:target_dir . "' does not exist. "
