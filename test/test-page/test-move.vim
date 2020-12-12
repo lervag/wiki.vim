@@ -9,7 +9,7 @@ call wiki#test#assert_equal(
       \ expand('%:p'))
 
 silent edit wiki-tmp/index.wiki
-silent call wiki#page#rename('nosubdir/index')
+call wiki#page#rename('nosubdir/index')
 call wiki#test#assert_equal(
       \ expand('<sfile>:h') . '/wiki-tmp/nosubdir/index.wiki',
       \ expand('%:p'))

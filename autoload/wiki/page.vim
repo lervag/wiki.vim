@@ -68,20 +68,12 @@ function! wiki#page#rename(newname) abort "{{{1
     return
   endif
 
-  " The target directory must exist
-  let l:target_dir = fnamemodify (expand (l:newpath), ':h')
-  if !isdirectory (l:target_dir)
-    echom 'wikiError: Cannot rename to "' . l:newpath . '".
-          \ Target directory "' . l:target_dir . '" does not exist!'
-    return
-  endif
-
   " Rename current file to l:newpath
   try
     echom printf('wiki: Renaming "%s" to "%s"',
           \ expand('%:t') , fnamemodify(l:newpath, ':t'))
     if rename(l:oldpath, l:newpath) != 0
-      throw 'Cannot rename!'
+      throw 'wiki.vim: Cannot rename file!'
     end
   catch
     echom printf('wiki Error: Cannot rename "%s" to "%s"',
@@ -128,11 +120,24 @@ function! wiki#page#rename_ask() abort "{{{1
   if input('Rename "' . expand('%:t:r') . '" [y]es/[N]o? ') !~? '^y'
     return
   endif
-
+  
   " Get new page name
   redraw!
   echo 'Enter new name (without extension):'
   let l:name = input('> ')
+  
+  " Check if directory if it does not exist
+  let l:newpath = printf('%s/%s', expand('%:p:h'), l:name)
+  let l:target_dir = fnamemodify(expand(l:newpath), ':h')
+  if !isdirectory(l:target_dir)
+    redraw!
+    echo "Directory '" . l:target_dir . "' does not exist. "
+    if input("Create [Y]es/[n]o ? ", "Y") !=? "y"
+        return
+    endif
+    call mkdir(l:target_dir, "p")
+  endif 
+
   call wiki#page#rename(l:name)
 endfunction
 
