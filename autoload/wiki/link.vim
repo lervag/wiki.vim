@@ -193,9 +193,9 @@ function! wiki#link#toggle_operator(type) abort " {{{1
     let l:link.url .= b:wiki.link_extension
   endif
 
-  let wiki#link#word#operator = 1
+  let g:wiki#ui#buffered = v:true
   call wiki#link#toggle(l:link)
-  unlet! wiki#link#word#operator
+  let g:wiki#ui#buffered = v:false
 endfunction
 
 " }}}1

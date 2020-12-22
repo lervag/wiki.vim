@@ -56,7 +56,7 @@ function! wiki#link#word#template(url, text) abort dict " {{{1
   "
   " Select with menu
   "
-  let l:choice = wiki#ui#choose(['New page at wiki root'] + l:candidates)
+  let l:choice = wiki#ui#choose(l:candidates + ['New page at wiki root'])
   redraw!
   return empty(l:choice) ? l:url : (
         \ l:choice ==# 'New page at wiki root'
