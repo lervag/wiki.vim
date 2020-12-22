@@ -75,6 +75,7 @@ endfunction
 
 " }}}1
 function! wiki#ui#clear_buffer() abort " {{{1
+  if empty(s:buffer) | return | endif
   let l:cmdheight = &cmdheight
   let &cmdheight = len(s:buffer) + 2
 
