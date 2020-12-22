@@ -275,12 +275,12 @@ function! s:parse_link(matcher, link) abort " {{{1
   if has_key(a:matcher, 'parse')
     return a:matcher.parse(a:link)
   else
-    let l:string = a:link.url
-    if has_key(a:link, 'scheme')
-      let l:string = a:link.scheme . ':' . a:link.url
-    endif
+    let l:url = has_key(a:matcher, 'scheme')
+          \ ? a:matcher.scheme . ':'
+          \ : ''
+    let l:url .= a:link.url
 
-    return extend(a:link, wiki#url#parse(l:string,
+    return extend(a:link, wiki#url#parse(l:url,
           \ has_key(a:link, 'origin') ? {'origin': a:link.origin} : {}))
   endif
 endfunction
