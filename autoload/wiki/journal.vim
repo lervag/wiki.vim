@@ -59,7 +59,7 @@ endfunction
 
 " }}}1
 function! wiki#journal#make_index() " {{{1
-  let l:fmt = g:wiki_journal.date_format.daily
+  let l:fmt = g:wiki_journal.date_format[g:wiki_journal.frequency]
   let l:rx = wiki#date#format_to_regex(l:fmt)
   let l:entries = s:get_links_generic(l:rx, l:fmt)
 
