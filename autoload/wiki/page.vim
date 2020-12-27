@@ -95,7 +95,7 @@ function! wiki#page#rename(newname) abort "{{{1
   for l:bufname in l:bufs
     execute 'buffer' fnameescape(l:bufname)
     update
-   execute 'bwipeout' fnameescape(l:bufname)
+    execute 'bwipeout' fnameescape(l:bufname)
   endfor
   let b:wiki = l:wiki
 
@@ -127,13 +127,13 @@ function! wiki#page#rename_ask() abort "{{{1
   let l:name = input('> ')
   
   " Check if directory exists
-  let l:newpath = printf('%s/%s', expand('%:h'), l:name)
-  let l:target_dir = simplify(fnamemodify(expand(l:newpath), ':h'))
+  let l:target_dir = fnamemodify(
+    \ simplify(printf('%s/%s', expand('%:p:h'), l:name)), ":p:h")
   if !isdirectory(l:target_dir)
     redraw!
     echo "Directory '" . l:target_dir . "' does not exist. "
     if input("Create [Y]es/[n]o ? ", "Y") !=? "y"
-        return
+      return
     endif
     call mkdir(l:target_dir, "p")
   endif 
