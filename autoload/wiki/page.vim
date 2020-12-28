@@ -363,11 +363,14 @@ endfunction
 " }}}1
 
 function! s:rename_update_links(old, new) abort " {{{1
-  let l:old_re = escape(a:old, '.')
-  let l:pattern  = '\v\[\[\/?\zs' . l:old_re . '\ze%(#.*)?%(\|.*)?\]\]'
+  let l:old_re = '(\.\/|\/)?' . escape(a:old, '.')
+
+  " Pattern to search for relevant links
+  let l:pattern  = '\v\[\[\zs' . l:old_re . '\ze%(#.*)?%(\|.*)?\]\]'
+  let l:pattern .= '|\[.*\]\(\zs' . l:old_re . '\ze%(#.*)?\)'
   let l:pattern .= '|\[.*\]\[\zs' . l:old_re . '\ze%(#.*)?\]'
-  let l:pattern .= '|\[.*\]\(\/?\zs' . l:old_re . '\ze%(#.*)?\)'
   let l:pattern .= '|\[\zs' . l:old_re . '\ze%(#.*)?\]\[\]'
+  let l:pattern .= '\<\<\zs' . l:old_re . '\ze#,[^>]{-}\>\>'
 
   let l:num_files = 0
   let l:num_links = 0

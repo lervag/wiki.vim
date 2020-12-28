@@ -8,7 +8,7 @@ function! wiki#link#adoc#matcher() abort " {{{1
   return {
         \ 'type' : 'adoc',
         \ 'rx' : g:wiki#rx#link_adoc,
-        \ 'rx_url' : '<<\zs[^#]\{-}\ze.adoc#,[^>]\{-}>>',
+        \ 'rx_url' : '<<\zs[^#]\{-}\ze\.adoc#,[^>]\{-}>>',
         \ 'rx_text' : '<<[^#]\{-}#,\zs[^>]\{-}\ze>>',
         \}
 endfunction
