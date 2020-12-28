@@ -919,8 +919,8 @@ Wiki links are similar in style to the standard Mediawiki links.  This is the
 main syntax for creating internal wiki links.  The description part is
 optional.  Examples: >
 
-    [[URL]]
-    [[URL|Description]]
+  [[URL]]
+  [[URL|Description]]
 
 Any non-link words may be turned into a wiki link with the `<cr>` mapping.
 One may also use visual mode to turn a selection into a wiki link, or one may
@@ -980,10 +980,13 @@ the Zotero URL scheme and handler.
 ------------------------------------------------------------------------------
 ASCIIDOC LINKS                                                 *wiki-link-adoc*
 
-Asciidoc links use Asciidoctor's Inter-document Cross References syntax and
-look like this: >
+Asciidoc links use Asciidoctor's Inter-document Cross References syntax [0]
+and look like this: >
 
   <<URL#,Description>>
+
+[0]: https://asciidoctor.org/docs/user-manual/#inter-document-cross-references
+     https://docs.asciidoctor.org/asciidoc/latest/macros/inter-document-xref/
 
 ==============================================================================
 LISTS                                                              *wiki-lists*
