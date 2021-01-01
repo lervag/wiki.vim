@@ -12,9 +12,12 @@ bwipeout!
 let g:wiki_journal.date_format.daily = '%d.%m.%Y'
 let s:date = strftime(g:wiki_journal.date_format[g:wiki_journal.frequency])
 silent call wiki#journal#make_note()
-call wiki#test#assert_equal(expand('%:t:r'), s:date)
-silent call wiki#journal#go(-1)
-call wiki#test#assert_equal(expand('%:t:r'), '01.02.2019')
+call wiki#test#assert_equal(s:date, expand('%:t:r'))
+
+let s:step = index(sort(['01.02.2019', s:date]), s:date)
+      \ ? -1 : 1
+silent call wiki#journal#go(s:step)
+call wiki#test#assert_equal('01.02.2019', expand('%:t:r'))
 
 silent bwipeout!
 let g:wiki_journal.frequency = 'weekly'
