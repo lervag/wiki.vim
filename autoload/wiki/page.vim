@@ -42,10 +42,10 @@ function! wiki#page#rename(newname, ...) abort "{{{1
   let l:newpath = simplify(printf('%s/%s.%s',
         \ expand('%:p:h'), a:newname, b:wiki.extension))
 
-  let l:dir_mode = get (a:, 1, 'abort')
+  let l:dir_mode = get(a:, 1, 'abort')
   if index (['abort', 'ask', 'create'], l:dir_mode) ==? -1
-    echom "wiki Error: The second argument to wiki#page#rename must be "
-      \ . "either 'abort', 'ask', or 'create', but '" 
+    echom 'wiki Error: The second argument to wiki#page#rename must be '
+      \ . "either 'abort', 'ask', or 'create', but '"
       \ . l:dir_mode . "' received."
     return
   end
@@ -75,17 +75,17 @@ function! wiki#page#rename(newname, ...) abort "{{{1
           \ . '". File with that name exist!'
     return
   endif
-  
+
   " Check if directory exists
-  let l:target_dir = fnamemodify(l:newpath, ":p:h")
+  let l:target_dir = fnamemodify(l:newpath, ':p:h')
   if !isdirectory(l:target_dir)
     if l:dir_mode ==? 'abort'
       echo "Directory '" . l:target_dir . "' does not exist. Aborting."
       return
     elseif l:dir_mode ==? 'ask'
       redraw!
-      echo "Directory '" . l:target_dir . "' does not exist. "
-      if input("Create [Y]es/[n]o ? ", "Y") !=? "y"
+      echo "Directory '" . l:target_dir . "' does not exist."
+      if input("Create it? [Y]es/[n]o: ", "Y") !=? "y"
         return
       endif
       echo '\n'
@@ -93,7 +93,7 @@ function! wiki#page#rename(newname, ...) abort "{{{1
     " At this point dir_mode is 'create' or the user said 'yes'
     echo "Creating directory '" . l:target_dir . "'."
     call mkdir(l:target_dir, "p")
-  endif 
+  endif
 
   " Rename current file to l:newpath
   try
@@ -152,7 +152,7 @@ function! wiki#page#rename_ask() abort "{{{1
   redraw!
   echo 'Enter new name (without extension):'
   let l:name = input('> ')
-  
+
   call wiki#page#rename(l:name, 'ask')
 endfunction
 
