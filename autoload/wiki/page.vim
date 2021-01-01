@@ -38,17 +38,18 @@ endfunction
 "}}}1
 function! wiki#page#rename(newname, ...) abort "{{{1
   redraw!
-  let l:oldpath = expand('%:p')
-  let l:newpath = simplify(printf('%s/%s.%s',
-        \ expand('%:p:h'), a:newname, b:wiki.extension))
 
   let l:dir_mode = get(a:, 1, 'abort')
   if index (['abort', 'ask', 'create'], l:dir_mode) ==? -1
-    echom 'wiki Error: The second argument to wiki#page#rename must be '
-      \ . "either 'abort', 'ask', or 'create', but '"
-      \ . l:dir_mode . "' received."
+    echom 'wiki Error: The second argument to wiki#page#rename must be one of'
+    echom "            'abort', 'ask', or 'create'!"
+    echom '            Recieved argument: ' . l:dir_mode
     return
   end
+
+  let l:oldpath = expand('%:p')
+  let l:newpath = simplify(printf('%s/%s.%s',
+        \ expand('%:p:h'), a:newname, b:wiki.extension))
 
   " Check if current file exists
   if !filereadable(l:oldpath)
@@ -85,14 +86,15 @@ function! wiki#page#rename(newname, ...) abort "{{{1
     elseif l:dir_mode ==? 'ask'
       redraw!
       echo "Directory '" . l:target_dir . "' does not exist."
-      if input("Create it? [Y]es/[n]o: ", "Y") !=? "y"
+      if input('Create it? [Y]es/[n]o: ', 'Y') !=? 'y'
         return
       endif
       echo '\n'
     end
+
     " At this point dir_mode is 'create' or the user said 'yes'
     echo "Creating directory '" . l:target_dir . "'."
-    call mkdir(l:target_dir, "p")
+    call mkdir(l:target_dir, 'p')
   endif
 
   " Rename current file to l:newpath
