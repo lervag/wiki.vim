@@ -36,11 +36,19 @@ function! wiki#page#delete() abort "{{{1
 endfunction
 
 "}}}1
-function! wiki#page#rename(newname) abort "{{{1
+function! wiki#page#rename(newname, ...) abort "{{{1
   redraw!
   let l:oldpath = expand('%:p')
-  let l:newpath = printf('%s/%s.%s',
-        \ expand('%:p:h'), a:newname, b:wiki.extension)
+  let l:newpath = simplify(printf('%s/%s.%s',
+        \ expand('%:p:h'), a:newname, b:wiki.extension))
+
+  let l:dir_mode = get (a:, 1, 'abort')
+  if index (['abort', 'ask', 'create'], l:dir_mode) ==? -1
+    echom "wiki Error: The second argument to wiki#page#rename must be "
+      \ . "either 'abort', 'ask', or 'create', but '" 
+      \ . l:dir_mode . "' received."
+    return
+  end
 
   " Check if current file exists
   if !filereadable(l:oldpath)
@@ -67,13 +75,32 @@ function! wiki#page#rename(newname) abort "{{{1
           \ . '". File with that name exist!'
     return
   endif
+  
+  " Check if directory exists
+  let l:target_dir = fnamemodify(l:newpath, ":p:h")
+  if !isdirectory(l:target_dir)
+    if l:dir_mode ==? 'abort'
+      echo "Directory '" . l:target_dir . "' does not exist. Aborting."
+      return
+    elseif l:dir_mode ==? 'ask'
+      redraw!
+      echo "Directory '" . l:target_dir . "' does not exist. "
+      if input("Create [Y]es/[n]o ? ", "Y") !=? "y"
+        return
+      endif
+      echo '\n'
+    end
+    " At this point dir_mode is 'create' or the user said 'yes'
+    echo "Creating directory '" . l:target_dir . "'."
+    call mkdir(l:target_dir, "p")
+  endif 
 
   " Rename current file to l:newpath
   try
     echom printf('wiki: Renaming "%s" to "%s"',
           \ expand('%:t') , fnamemodify(l:newpath, ':t'))
     if rename(l:oldpath, l:newpath) != 0
-      throw 'Cannot rename!'
+      throw 'wiki.vim: Cannot rename file!'
     end
   catch
     echom printf('wiki Error: Cannot rename "%s" to "%s"',
@@ -125,7 +152,8 @@ function! wiki#page#rename_ask() abort "{{{1
   redraw!
   echo 'Enter new name (without extension):'
   let l:name = input('> ')
-  call wiki#page#rename(l:name)
+  
+  call wiki#page#rename(l:name, 'ask')
 endfunction
 
 " }}}1
