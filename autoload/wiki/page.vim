@@ -98,8 +98,9 @@ function! wiki#page#rename(newname, ...) abort "{{{1
   endif
 
   " Rename current file to l:newpath
+  let l:bufnr = bufnr()
   try
-    echom printf('wiki: Renaming "%s" to "%s"',
+    echom printf('wiki: Renaming "%s" to "%s" ...',
           \ expand('%:t') , fnamemodify(l:newpath, ':t'))
     if rename(l:oldpath, l:newpath) != 0
       throw 'wiki.vim: Cannot rename file!'
@@ -110,6 +111,11 @@ function! wiki#page#rename(newname, ...) abort "{{{1
     return
   endtry
 
+  " Open new file and remove old buffer
+  execute 'silent edit' l:newpath
+  execute 'silent bwipeout' l:bufnr
+  let l:bufnr = bufnr()
+
   " Get list of open wiki buffers
   let l:bufs =
         \ map(
@@ -118,29 +124,24 @@ function! wiki#page#rename(newname, ...) abort "{{{1
         \     '!empty(getbufvar(v:val, ''wiki''))'),
         \   'fnamemodify(bufname(v:val), '':p'')')
 
-  " Save and close wiki buffers (retain current b:wiki data blob)
-  let l:wiki = b:wiki
-  setlocal buftype=nofile
+  " Save other wiki buffers
   for l:bufname in l:bufs
     execute 'buffer' fnameescape(l:bufname)
     update
-    execute 'bwipeout' fnameescape(l:bufname)
   endfor
-  let b:wiki = l:wiki
 
   " Update links
   let l:oldlink = s:path_to_wiki_url(l:oldpath)
   let l:newlink = s:path_to_wiki_url(l:newpath)
   call s:rename_update_links(l:oldlink, l:newlink)
 
-  " Restore wiki buffers
+  " Refresh other wiki buffers
   for l:bufname in l:bufs
-    let l:url = wiki#url#parse(
-          \ resolve(l:bufname) ==# resolve(l:oldpath)
-          \ ? l:newlink
-          \ : fnamemodify(l:bufname, ':t:r'))
-    silent call l:url.open()
+    execute 'buffer' fnameescape(l:bufname)
+    edit
   endfor
+
+  execute 'buffer' l:bufnr
 endfunction
 
 " }}}1
