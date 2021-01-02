@@ -11,15 +11,15 @@ function! wiki#url#zot#parse(url) abort " {{{1
     let l:files = wiki#zotero#search(self.stripped)
 
     if len(l:files) > 0
-      let l:choice = wiki#ui#menu(['Open in Zotero: ' . self.stripped]
-            \ + map(copy(l:files), 's:menu_open_pdf(v:val)'),
-            \ {'header': 'Please select desired action:'})
+      let l:choice = wiki#ui#choose(
+            \ ['Open in Zotero: ' . self.stripped]
+            \   + map(copy(l:files), 's:menu_open_pdf(v:val)'),
+            \ {
+            \   'prompt': 'Please select desired action:',
+            \   'return': 'index',
+            \ })
       if l:choice < 0
-        echohl Title
-        echo 'wiki: '
-        echohl NONE
-        echon 'aborted'
-        return
+        return wiki#log#warn('Aborted')
       endif
 
       if l:choice > 0
