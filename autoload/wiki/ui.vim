@@ -7,34 +7,7 @@
 let g:wiki#ui#buffered = get(g:, 'wiki#ui#buffered', v:false)
 let s:buffer = []
 
-
-function! wiki#ui#choose(container, ...) abort " {{{1
-  if empty(a:container) | return '' | endif
-
-  if type(a:container) == v:t_dict
-    let l:choose_list = values(a:container)
-    let l:return_list = keys(a:container)
-  else
-    let l:choose_list = a:container
-    let l:return_list = a:container
-  endif
-
-  let l:options = extend(
-        \ {
-        \   'prompt': 'Please choose item:',
-        \   'abort': v:true,
-        \ },
-        \ a:0 > 0 ? a:1 : {})
-
-  let l:index = s:choose_from(l:choose_list, l:options)
-
-  sleep 50m
-  redraw!
-
-  return l:index < 0 ? '' : l:return_list[l:index]
-endfunction
-
-" }}}1
+"
 function! wiki#ui#echo(message) abort " {{{1
   if g:wiki#ui#buffered
     call add(s:buffer, a:message)
@@ -83,6 +56,92 @@ function! wiki#ui#clear_buffer() abort " {{{1
   let s:buffer = []
 
   let &cmdheight = l:cmdheight
+endfunction
+
+" }}}1
+
+function! wiki#ui#menu(list, ...) abort " {{{1
+  let l:opts = a:0 > 0 ? a:1 : {}
+
+  " Create menu
+  let l:frmt = '%' . (3 + strlen(string(len(a:list)))) . 's'
+  let l:list_menu = []
+  for l:i in range(len(a:list))
+    let l:list_menu += [['[' . (l:i + 1) . '] ', a:list[l:i]]]
+  endfor
+  let l:list_menu += [['[x] ', 'Abort']]
+
+  " Ask for user input to choose desired candidate
+  while 1
+    redraw
+
+    " Print menu
+    if get(l:opts, 'fancy', 1)
+      for [l:key, l:val] in l:list_menu
+        echohl ModeMsg
+        echo printf(l:frmt, l:key)
+        echohl NONE
+        echon l:val
+      endfor
+
+      if has_key(l:opts, 'header')
+        echohl Title
+        echo 'wiki: '
+        echohl NONE
+        echon substitute(l:opts.header, '\s*$', ' ', '')
+      endif
+    else
+      echo join(map(copy(l:list_menu), 'v:val[0] . v:val[1]'), "\n")
+    endif
+
+    if len(a:list) > 9
+      let l:choice = input('> ')
+    else
+      let l:choice = nr2char(getchar())
+    endif
+    echohl ModeMsg
+    echon l:choice
+    echohl NONE
+    sleep 75m
+
+    if l:choice ==# 'x'
+      redraw!
+      return -1
+    endif
+
+    let l:index = str2nr(l:choice)
+    if l:index > 0 && l:index <= len(a:list)
+      redraw!
+      return l:index - 1
+    endif
+  endwhile
+endfunction
+
+" }}}1
+function! wiki#ui#choose(container, ...) abort " {{{1
+  if empty(a:container) | return '' | endif
+
+  if type(a:container) == v:t_dict
+    let l:choose_list = values(a:container)
+    let l:return_list = keys(a:container)
+  else
+    let l:choose_list = a:container
+    let l:return_list = a:container
+  endif
+
+  let l:options = extend(
+        \ {
+        \   'prompt': 'Please choose item:',
+        \   'abort': v:true,
+        \ },
+        \ a:0 > 0 ? a:1 : {})
+
+  let l:index = s:choose_from(l:choose_list, l:options)
+
+  sleep 50m
+  redraw!
+
+  return l:index < 0 ? '' : l:return_list[l:index]
 endfunction
 
 " }}}1

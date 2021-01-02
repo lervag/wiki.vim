@@ -11,7 +11,7 @@ function! wiki#url#zot#parse(url) abort " {{{1
     let l:files = wiki#zotero#search(self.stripped)
 
     if len(l:files) > 0
-      let l:choice = wiki#menu#choose(['Open in Zotero: ' . self.stripped]
+      let l:choice = wiki#ui#menu(['Open in Zotero: ' . self.stripped]
             \ + map(copy(l:files), 's:menu_open_pdf(v:val)'),
             \ {'header': 'Please select desired action:'})
       if l:choice < 0
