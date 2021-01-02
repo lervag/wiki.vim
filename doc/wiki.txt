@@ -45,6 +45,8 @@ CONTENTS                                                        *wiki-contents*
     Markdown links                                 |wiki-link-markdown|
     Markdown image links                           |wiki-link-image|
     Reference links                                |wiki-link-reference|
+    Zotero shortlinks                              |wiki-link-zotero|
+    Asciidoc cross references                      |wiki-link-adoc-xref|
   Lists                                            |wiki-lists|
   Completion                                       |wiki-completion|
   Tags                                             |wiki-tags|
@@ -240,7 +242,7 @@ OPTIONS                                                   *wiki-config-options*
   Available styles for the default target type are:
 
     `md`    Markdown style links (|wiki-link-markdown|)
-    `adoc`  Asciidoc inter-page cross reference style links (|wiki-link-adoc|)
+    `adoc`  Asciidoc cross-reference style links (|wiki-link-adoc-xref|)
     `wiki`  Wiki style links (|wiki-link-wiki|)
 
   Toggling between link types can still be achieved using |WikiLinkToggle|.
@@ -845,7 +847,7 @@ These are the link formats that are currently supported:
     `[Description][Target]`
 - Zotero shortlink                   |wiki-link-zotero|
     `@citekey`
-- Asciidoc links                     |wiki-link-adoc|
+- Asciidoc links                     |wiki-link-adoc-xref|
     `<<URL#,Description>>`
 
 ------------------------------------------------------------------------------
@@ -971,22 +973,25 @@ Reference style links may be opened with `<cr>` both on the reference location
 and on the link line.
 
 ------------------------------------------------------------------------------
-ZOTERO SHORLINKS                                             *wiki-link-zotero*
+ZOTERO SHORTLINKS                                            *wiki-link-zotero*
 
 As a minor convenience link type, Zotero URLs may be written in short as
 `@citekey` instead of `zot:citekey`. See also |wiki-link-url| for more info on
 the Zotero URL scheme and handler.
 
 ------------------------------------------------------------------------------
-ASCIIDOC LINKS                                                 *wiki-link-adoc*
+ASCIIDOC CROSS REFERENCES                                 *wiki-link-adoc-xref*
 
-Asciidoc links use Asciidoctor's Inter-document Cross References syntax [0]
-and look like this: >
+Asciidoc cross-reference links or xrefs [0] look like this: >
 
-  <<URL#,Description>>
+  <<URL#anchor>>
+  <<URL#anchor,Description>>
+  <<URL.adoc#anchor,Description>>
 
-[0]: https://asciidoctor.org/docs/user-manual/#inter-document-cross-references
-     https://docs.asciidoctor.org/asciidoc/latest/macros/inter-document-xref/
+Note that both the description/text part and the `.adoc` extension is
+optional.
+
+[0]: https://docs.asciidoctor.org/asciidoc/latest/macros/xref/
 
 ==============================================================================
 LISTS                                                              *wiki-lists*
