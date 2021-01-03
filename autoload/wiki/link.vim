@@ -153,19 +153,14 @@ function! wiki#link#toggle_visual() abort " {{{1
   normal! gv"wy
 
   let l:link = {
-        \ 'url' : wiki#u#trim(getreg('w')),
-        \ 'text' : '',
+        \ 'url' : 'N/A',
+        \ 'text' : wiki#u#trim(getreg('w')),
         \ 'scheme' : '',
         \ 'lnum' : line('.'),
         \ 'c1' : getpos("'<")[2],
         \ 'c2' : s:handle_multibyte(getpos("'>")[2]),
         \ 'toggle' : function('wiki#link#word#template'),
         \}
-
-  if !empty(b:wiki.link_extension)
-    let l:link.text = l:link.url
-    let l:link.url .= b:wiki.link_extension
-  endif
 
   call wiki#link#toggle(l:link)
 endfunction
@@ -179,19 +174,14 @@ function! wiki#link#toggle_operator(type) abort " {{{1
   let @@ = l:save
 
   let l:link = {
-        \ 'url' : l:word,
-        \ 'text' : '',
+        \ 'url' : 'N/A',
+        \ 'text' : l:word,
         \ 'scheme' : '',
         \ 'lnum' : line('.'),
         \ 'c1' : getpos("'<")[2],
         \ 'c2' : getpos("'>")[2] - l:diff,
         \ 'toggle' : function('wiki#link#word#template'),
         \}
-
-  if !empty(b:wiki.link_extension)
-    let l:link.text = l:link.url
-    let l:link.url .= b:wiki.link_extension
-  endif
 
   let g:wiki#ui#buffered = v:true
   call wiki#link#toggle(l:link)

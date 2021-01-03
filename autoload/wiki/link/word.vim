@@ -9,58 +9,58 @@ function! wiki#link#word#matcher() abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#link#word#template(url, text) abort dict " {{{1
-  "
+function! wiki#link#word#template(_url, text) abort dict " {{{1
   " This template returns a wiki template for the provided word(s). It does
   " a smart search for likely candidates and if there is no unique match, it
   " asks for target link.
-  "
-  let l:url = a:url
-  let l:text = empty(a:text) ? l:url : a:text
 
-  " Allow to map text -> url
+  " Allow map from text -> url (without extension)
   if !empty(g:wiki_map_link_create) && exists('*' . g:wiki_map_link_create)
-    let l:url = call(g:wiki_map_link_create, [a:url])
+    let l:url_target = call(g:wiki_map_link_create, [a:text])
+  else
+    let l:url_target = a:text
   endif
 
-  "
+  " Append extension if wanted
+  let l:url_root = l:url_target
+  if !empty(b:wiki.link_extension)
+    let l:url_target .= b:wiki.link_extension
+    let l:url_actual = l:url_target
+  else
+    let l:url_actual = l:url_target . '.' . b:wiki.extension
+  endif
+
+
   " First try local page
-  "
-  if filereadable(printf('%s/%s.%s', expand('%:p:h'), l:url, b:wiki.extension))
-    return wiki#link#template(l:url, l:text)
+  if filereadable(printf('%s/%s', expand('%:p:h'), l:url_actual))
+    return wiki#link#template(l:url_target, a:text)
   endif
 
-  "
   " Next try at wiki root
-  "
-  if filereadable(printf('%s/%s.%s', b:wiki.root, l:url, b:wiki.extension))
-    return wiki#link#template('/' . l:url, l:text)
+  if filereadable(printf('%s/%s', b:wiki.root, l:url_actual))
+    return wiki#link#template('/' . l:url_target, a:text)
   endif
 
-  "
   " Finally we see if there are completable candidates
-  "
   let l:candidates = map(
-        \ glob(printf('%s/%s*.%s', b:wiki.root, l:url, b:wiki.extension), 0, 1),
+        \ glob(printf(
+        \     '%s/%s*.%s', b:wiki.root, l:url_root, b:wiki.extension), 0, 1),
         \ 'fnamemodify(v:val, '':t:r'')')
 
-  "
   " Solve trivial cases first
-  "
   if len(l:candidates) == 0
-    return wiki#link#template((b:wiki.in_journal ? '/' : '') . l:url, l:text)
+    return wiki#link#template(
+          \ (b:wiki.in_journal ? '/' : '') . l:url_target, a:text)
   elseif len(l:candidates) == 1
     return wiki#link#template('/' . l:candidates[0], '')
   endif
 
-  "
   " Select with menu
-  "
   let l:choice = wiki#ui#choose(l:candidates + ['New page at wiki root'])
   redraw!
-  return empty(l:choice) ? l:url : (
+  return empty(l:choice) ? l:url_target : (
         \ l:choice ==# 'New page at wiki root'
-        \   ? wiki#link#template(l:url, l:text)
+        \   ? wiki#link#template(l:url_target, a:text)
         \   : wiki#link#template('/' . l:choice, ''))
 endfunction
 
@@ -74,11 +74,8 @@ let s:matcher = {
 
 function! s:matcher.parse(link) abort dict " {{{1
   let a:link.scheme = ''
-  let a:link.url = a:link.full . get(b:wiki, 'link_extension', '')
-  if !empty(b:wiki.link_extension)
-    let a:link.text = a:link.full
-  endif
-
+  let a:link.text = a:link.full
+  let a:link.url = 'N/A'
   return a:link
 endfunction
 
