@@ -117,7 +117,9 @@ function! s:completer_wikilink.complete_page(regex) dict abort " {{{2
         \ : globpath(l:root, '**/*.' . b:wiki.extension, 0, 1)
 
   call map(l:cands, 'strpart(v:val, strlen(l:root)+1)')
-  call map(l:cands, 'l:pre . fnamemodify(v:val, '':r'')')
+  if empty(b:wiki.link_extension)
+    call map(l:cands, 'l:pre . fnamemodify(v:val, '':r'')')
+  endif
   call filter(l:cands, 'stridx(v:val, a:regex) >= 0')
 
   call sort(l:cands)
