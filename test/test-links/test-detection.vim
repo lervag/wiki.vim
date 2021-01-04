@@ -1,7 +1,7 @@
 source ../init.vim
 
 runtime plugin/wiki.vim
-silent edit ex1-basic/links.wiki
+silent edit ../wiki-basic/links.wiki
 
 let s:link = wiki#link#get_at_pos(3, 3)
 call wiki#test#assert_equal('wiki', s:link.type)

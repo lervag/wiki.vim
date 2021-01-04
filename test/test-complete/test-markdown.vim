@@ -8,7 +8,7 @@ filetype plugin indent on
 
 runtime plugin/wiki.vim
 
-silent edit ex2-markdown/index.md
+silent edit ../wiki-markdown/index.md
 
 let s:candidates = wiki#test#completion('](', 'li')
 call wiki#test#assert_equal(2, len(s:candidates))

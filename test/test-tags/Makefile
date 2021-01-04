@@ -1,6 +1,6 @@
 export QUIT = 1
 
-tests := $(wildcard test-*.vim)
+tests := $(wildcard test*.vim)
 
 .PHONY: all $(tests)
 

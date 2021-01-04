@@ -1,7 +1,7 @@
 source ../init.vim
 runtime plugin/wiki.vim
 
-silent edit ex5-tags/index.wiki
+silent edit ../wiki-basic/index.wiki
 
 let s:tags = wiki#tags#get_all()
 call wiki#test#assert_equal(len(s:tags), 2)

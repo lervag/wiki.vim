@@ -17,7 +17,7 @@ endfunction
 runtime plugin/wiki.vim
 
 " Test toggle normal on regular markdown links using wiki style links
-silent edit ex1-basic/index.wiki
+silent edit ../wiki-basic/index.wiki
 execute "normal \<plug>(wiki-link-next)"
 silent execute "normal \<Plug>(wiki-link-toggle)"
 call wiki#test#assert_equal('[NewPage](NewPage.wiki)', getline('.'))

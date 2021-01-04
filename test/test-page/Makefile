@@ -7,11 +7,11 @@ tests := $(wildcard test-*.vim)
 
 test: $(tests)
 
-WIKI=wiki-1
+WIKI=../wiki-basic
 $(tests):
 	@rm -rf wiki-tmp
 	@cp -r $(WIKI) wiki-tmp
 	@$(MYVIM) -u $@
 	@rm -rf wiki-tmp
 
-test-rename-md.vim: WIKI=wiki-2
+test-rename-md.vim: WIKI=../wiki-markdown

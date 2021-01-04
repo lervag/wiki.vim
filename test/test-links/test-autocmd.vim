@@ -10,7 +10,7 @@ augroup MyWikiAutocmds
   autocmd User WikiLinkOpened let g:it_works = 1
 augroup END
 
-silent edit ex1-basic/index.wiki
+silent edit ../wiki-basic/index.wiki
 silent execute "normal \<Plug>(wiki-link-next)"
 silent execute "normal \<Plug>(wiki-link-open)"
 call wiki#test#assert_equal(g:it_works, 1)

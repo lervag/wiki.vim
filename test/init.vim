@@ -5,3 +5,5 @@ let &runtimepath =
 set noswapfile
 set nomore
 nnoremap q :qall!<cr>
+
+let g:testroot = fnamemodify(expand('<cfile>'), ':p:h:h')

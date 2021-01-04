@@ -1,6 +1,6 @@
 source ../init.vim
 
-let g:wiki_root = fnamemodify(expand('<cfile>'), ':p:h') . '/ex3-journal'
+let g:wiki_root = g:testroot . '/wiki-basic'
 let g:wiki_journal = {'name' : 'diary'}
 runtime plugin/wiki.vim
 
