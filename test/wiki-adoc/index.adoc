@@ -1,0 +1,12 @@
+Intro
+-----
+
+link:https://www.example.com[Text here]
+link:[test file.txt][Description]
+
+xref:foo.adoc[Foo]
+<<foo.adoc#,Foo>>
+
+xref:[foo bar.adoc][Foobar]
+<<foo bar.adoc#,Foobar>>
+
