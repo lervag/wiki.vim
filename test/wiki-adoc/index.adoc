@@ -10,3 +10,5 @@ xref:foo.adoc[Foo]
 xref:[foo bar.adoc][Foobar]
 <<foo bar.adoc#,Foobar>>
 
+Some text, cf. foo.
+

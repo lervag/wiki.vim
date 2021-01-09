@@ -15,7 +15,19 @@ endfunction
 
 " }}}1
 function! wiki#link#adoc#template(url, text) abort " {{{1
-  return printf('<<%s.adoc#,%s>>', a:url, empty(a:text) ? a:url : a:text)
+  let l:parts = split(a:url, '#')
+
+  let l:url = l:parts[0]
+  if a:url !~# '\.adoc$'
+    let l:url .= '.adoc'
+  endif
+
+  let l:anchors = len(l:parts) > 1
+        \ ? join(l:parts[1:], '#')
+        \ : ''
+
+  return printf('<<%s#%s,%s>>',
+        \ l:url, l:anchors, empty(a:text) ? a:url : a:text)
 endfunction
 
 " }}}1
