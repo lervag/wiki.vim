@@ -9,7 +9,7 @@ function! wiki#link#adoc#matcher() abort " {{{1
         \ 'type' : 'adoc',
         \ 'scheme' : 'adoc',
         \ 'rx' : g:wiki#rx#link_adoc,
-        \ 'rx_url' : '<<\zs\%([^,>]\{-}\ze,\)\?[^>]\{-}>>',
+        \ 'rx_url' : '<<\zs\%([^,>]\{-}\ze,[^>]\{-}\|[^>]\{-}\ze\)>>',
         \ 'rx_text' : '<<[^,>]\{-},\zs[^>]\{-}\ze>>',
         \}
 endfunction

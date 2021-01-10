@@ -26,7 +26,7 @@ call wiki#test#assert_equal('foo.adoc', expand('%:t'))
 
 
 " Test navigation to next link
-%bwipeout!
+silent %bwipeout!
 silent edit ../wiki-adoc/foo.adoc
 silent execute "normal \<Plug>(wiki-link-next)"
 call wiki#test#assert_equal(5, line('.'))
