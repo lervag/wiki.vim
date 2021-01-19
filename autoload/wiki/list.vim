@@ -10,8 +10,8 @@ function! wiki#list#get(...) abort "{{{1
     call setpos('.', [0, a:1, 1, 0])
   endif
 
-  let l:root = wiki#list#item#parse_tree()
-  let l:current = wiki#list#item#get_current(l:root)
+  let l:root = wiki#list#unordered#parse_tree()
+  let l:current = wiki#list#unordered#get_current(l:root)
 
   if a:0 > 0
     call setpos('.', l:save_pos)
