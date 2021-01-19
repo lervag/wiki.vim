@@ -10,14 +10,26 @@ function! wiki#list#get(...) abort "{{{1
     call setpos('.', [0, a:1, 1, 0])
   endif
 
-  let l:root = wiki#list#unordered#parse_tree()
-  let l:current = wiki#list#unordered#get_current(l:root)
+  for l:type in ['unordered', 'ordered']
+    let [l:root, l:current] = wiki#list#{l:type}#parse()
+    if !empty(l:root) | break | endif
+  endfor
 
   if a:0 > 0
     call setpos('.', l:save_pos)
   endif
 
   return [l:root, l:current]
+endfunction
+
+" }}}1
+function! wiki#list#get_previous() abort "{{{1
+  let l:lnum = max(
+        \ map(['unordered', 'ordered'], {_, x -> wiki#list#{x}#prev_start()}))
+
+  if l:lnum <= 0 | return [{}, {}] | endif
+
+  return wiki#list#get(l:lnum)
 endfunction
 
 " }}}1
@@ -112,23 +124,46 @@ function! wiki#list#uniq(local, ...) abort "{{{1
 endfunction
 
 " }}}1
-function! wiki#list#new_line_bullet() abort "{{{1
-  let l:re = '\v^\s*[*-] %(TODO:)?\s*'
-  let l:line = getline('.')
+function! wiki#list#new_item() abort "{{{1
+  " Go back properly to insert mode
+  let l:col_last = col('$') - 1
+  let l:col_cur = col('.')
+  normal! l
 
-  " Toggle TODO if at start of list item
-  if match(l:line, l:re . '$') >= 0
-    let l:re = '\v^\s*[*-] \zs%(TODO:)?\s*'
-    return repeat("\<bs>", strlen(matchstr(l:line, l:re)))
-          \ . (match(l:line, 'TODO') < 0 ? 'TODO: ' : '')
+  " Toggle TODO if cursor inside valid todo list item
+  let l:line = getline('.')
+  if l:line !~# '^\s*$'
+    let [l:root, l:current] = wiki#list#get()
+
+    if !empty(l:current)
+      call l:current.toggle()
+      let l:col_new = col('$') - 1
+    endif
+
+    " Go back properly to insert mode
+    if l:col_cur == l:col_last
+      startinsert!
+    else
+      startinsert
+    endif
+
+    return
   endif
 
-  " Find last used bullet type (including the TODO)
-  let l:lnum = search(l:re, 'bn')
-  let l:bullet = matchstr(getline(l:lnum), l:re)
+  " Find last used list item type
+  let [l:root, l:current] = wiki#list#get_previous()
+  if empty(l:root)
+    startinsert
+    return
+  endif
 
-  " Return new line (unless current line is empty) and the correct bullet
-  return (match(l:line, '^\s*$') >= 0 ? '' : "\<cr>") . "0\<c-d>" . l:bullet
+  let l:cur = l:root
+  while !empty(l:cur.next)
+    let l:cur = l:cur.next
+  endwhile
+
+  call setline(line('.'), l:cur.header)
+  startinsert!
 endfunction
 
 " }}}1
