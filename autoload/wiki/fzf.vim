@@ -15,12 +15,13 @@ function! wiki#fzf#pages() abort "{{{1
 
   let l:root = wiki#get_root()
   let l:pages = globpath(l:root, l:pattern, v:false, v:true)
-  let l:pages = map(l:pages, '"/" . substitute(v:val, l:root . "/" , "", "")')
+  call map(l:pages, '"/" . substitute(v:val, l:root . "/" , "", "")')
+  call map(l:pages, {_, x -> x . "¤" . fnamemodify(x, ':r')})
 
   call fzf#run(fzf#wrap({
         \ 'source': l:pages,
         \ 'sink': funcref('s:accept_page'),
-        \ 'options': '--prompt "WikiPages> " '
+        \ 'options': '-d"¤" --with-nth=-1 --prompt "WikiPages> " '
         \}))
 endfunction
 
@@ -77,7 +78,8 @@ endfunction
 "}}}1
 
 function! s:accept_page(line) abort "{{{1
-  execute 'edit ' . wiki#get_root() . a:line
+  let l:file = split(a:line, '¤')[0]
+  execute 'edit ' . wiki#get_root() . l:file
 endfunction
 
 " }}}1
