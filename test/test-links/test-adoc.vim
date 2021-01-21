@@ -34,7 +34,6 @@ call wiki#test#assert_equal(5, col('.'))
 
 
 " Test links within a document
-echo wiki#link#get()
 silent execute "normal \<Plug>(wiki-link-open)"
 " call wiki#test#assert_equal(7, line('.'))
 " call wiki#test#assert_equal(1, col('.'))

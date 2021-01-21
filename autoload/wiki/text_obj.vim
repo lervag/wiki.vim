@@ -48,7 +48,7 @@ endfunction
 
 " }}}1
 function! wiki#text_obj#list_element(is_inner, vmode) abort " {{{1
-  let [l:root, l:current] = wiki#list#get()
+  let [l:root, l:current] = wiki#list#parser#get_current()
   if empty(l:current)
     if a:vmode
       normal! gv

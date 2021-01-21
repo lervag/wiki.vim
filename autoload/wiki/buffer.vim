@@ -54,6 +54,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiListToggle         call wiki#list#toggle()
   command! -buffer WikiListUniq           call wiki#list#uniq(0)
   command! -buffer WikiListUniqLocal      call wiki#list#uniq(1)
+  command! -buffer WikiListShowItem       call wiki#list#show_item()
   command! -buffer WikiPageDelete         call wiki#page#delete()
   command! -buffer WikiPageRename         call wiki#page#rename_ask()
   command! -buffer WikiPageToc            call wiki#page#create_toc(0)
@@ -95,6 +96,7 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-list-toggle)          :WikiListToggle<cr>
   nnoremap <silent><buffer> <plug>(wiki-list-uniq)            :WikiListUniq<cr>
   nnoremap <silent><buffer> <plug>(wiki-list-uniq-local)      :WikiListUniqLocal<cr>
+  nnoremap <silent><buffer> <plug>(wiki-list-show-item)       :WikiListShowItem<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-delete)          :WikiPageDelete<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-rename)          :WikiPageRename<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-toc)             :WikiPageToc<cr>
@@ -154,6 +156,7 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-list-movedown)' : '<leader>wlj',
           \ '<plug>(wiki-list-uniq)' : '<leader>wlu',
           \ '<plug>(wiki-list-uniq-local)' : '<leader>wlU',
+          \ '<plug>(wiki-list-show-item)' : '<leader>wls',
           \ '<plug>(wiki-page-delete)' : '<leader>wd',
           \ '<plug>(wiki-page-rename)' : '<leader>wr',
           \ '<plug>(wiki-page-toc)' : '<leader>wt',

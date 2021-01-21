@@ -4,39 +4,10 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#list#get(...) abort "{{{1
-  if a:0 > 0
-    let l:save_pos = getcurpos()
-    call setpos('.', [0, a:1, 1, 0])
-  endif
-
-  for l:type in ['unordered', 'ordered']
-    let [l:root, l:current] = wiki#list#{l:type}#parse()
-    if !empty(l:root) | break | endif
-  endfor
-
-  if a:0 > 0
-    call setpos('.', l:save_pos)
-  endif
-
-  return [l:root, l:current]
-endfunction
-
-" }}}1
-function! wiki#list#get_previous() abort "{{{1
-  let l:lnum = max(
-        \ map(['unordered', 'ordered'], {_, x -> wiki#list#{x}#prev_start()}))
-
-  if l:lnum <= 0 | return [{}, {}] | endif
-
-  return wiki#list#get(l:lnum)
-endfunction
-
-" }}}1
 function! wiki#list#toggle(...) abort "{{{1
   let [l:root, l:current] = a:0 > 0
-        \ ? wiki#list#get(a:1)
-        \ : wiki#list#get()
+        \ ? wiki#list#parser#get_at(a:1)
+        \ : wiki#list#parser#get_current()
   if empty(l:current) | return | endif
 
   call l:current.toggle()
@@ -45,8 +16,8 @@ endfunction
 " }}}1
 function! wiki#list#move(direction, ...) abort "{{{1
   let [l:root, l:current] = a:0 > 0
-        \ ? wiki#list#get(a:1)
-        \ : wiki#list#get()
+        \ ? wiki#list#parser#get_at(a:1)
+        \ : wiki#list#parser#get_current()
   if empty(l:current) | return | endif
 
   let l:target_pos = getcurpos()
@@ -101,8 +72,8 @@ endfunction
 " }}}1
 function! wiki#list#uniq(local, ...) abort "{{{1
   let [l:root, l:current] = a:0 > 0
-        \ ? wiki#list#get(a:1)
-        \ : wiki#list#get()
+        \ ? wiki#list#parser#get_at(a:1)
+        \ : wiki#list#parser#get_current()
   if empty(l:current) | return | endif
 
   let l:parent = a:local ? l:current.parent : l:root
@@ -123,52 +94,7 @@ function! wiki#list#uniq(local, ...) abort "{{{1
   call setpos('.', l:save_pos)
 endfunction
 
-" }}}1
-function! wiki#list#new_item() abort "{{{1
-  " Go back properly to insert mode
-  let l:col_last = col('$') - 1
-  let l:col_cur = col('.')
-  normal! l
-
-  " Toggle TODO if cursor inside valid todo list item
-  let l:line = getline('.')
-  if l:line !~# '^\s*$'
-    let [l:root, l:current] = wiki#list#get()
-
-    if !empty(l:current)
-      call l:current.toggle()
-      let l:col_new = col('$') - 1
-    endif
-
-    " Go back properly to insert mode
-    if l:col_cur == l:col_last
-      startinsert!
-    else
-      startinsert
-    endif
-
-    return
-  endif
-
-  " Find last used list item type
-  let [l:root, l:current] = wiki#list#get_previous()
-  if empty(l:root)
-    startinsert
-    return
-  endif
-
-  let l:cur = l:root
-  while !empty(l:cur.next)
-    let l:cur = l:cur.next
-  endwhile
-
-  call setline(line('.'), l:cur.header)
-  startinsert!
-endfunction
-
-" }}}1
-
-function! s:uniq_parse(items) abort "{{{1
+function! s:uniq_parse(items) abort "{{{2
   let l:uniq = []
 
   for l:e in a:items
@@ -196,8 +122,8 @@ function! s:uniq_parse(items) abort "{{{1
   return l:uniq
 endfunction
 
-" }}}1
-function! s:uniq_to_text(tree) abort "{{{1
+" }}}2
+function! s:uniq_to_text(tree) abort "{{{2
   let l:text = []
 
   for l:leaf in a:tree
@@ -209,6 +135,71 @@ function! s:uniq_to_text(tree) abort "{{{1
   endfor
 
   return l:text
+endfunction
+
+" }}}2
+
+" }}}1
+function! wiki#list#renumber() abort "{{{1
+  let [l:root, l:current] = a:0 > 0
+        \ ? wiki#list#parser#get_at(a:1)
+        \ : wiki#list#parser#get_current()
+  if empty(l:current) | return | endif
+endfunction
+
+" }}}1
+function! wiki#list#show_item(...) abort "{{{1
+  let [l:root, l:current] = a:0 > 0
+        \ ? wiki#list#parser#get_at(a:1)
+        \ : wiki#list#parser#get_current()
+  if empty(l:current) | return | endif
+
+  echo join(l:current.to_string(), "\n")
+endfunction
+
+" }}}1
+
+function! wiki#list#new_item() abort "{{{1
+  " Go back properly to insert mode
+  let l:col_last = col('$') - 1
+  let l:col_cur = col('.')
+  normal! l
+
+  " Toggle TODOstate if cursor inside valid todo list item
+  let l:line = getline('.')
+  if l:line !~# '^\s*$'
+    let [l:root, l:current] = wiki#list#parser#get_current()
+
+    if !empty(l:current)
+      call l:current.toggle()
+      let l:col_new = col('$') - 1
+    endif
+
+    " Go back properly to insert mode
+    if l:col_cur == l:col_last
+      startinsert!
+    else
+      startinsert
+    endif
+
+    return
+  endif
+
+  " Find last used list item type
+  let [l:root, l:current] = wiki#list#parser#get_previous()
+  unsilent echo empty(l:current)
+  if empty(l:root)
+    startinsert
+    return
+  endif
+
+  let l:cur = l:root
+  while !empty(l:cur.next)
+    let l:cur = l:cur.next
+  endwhile
+
+  call setline(line('.'), l:cur.next_header())
+  startinsert!
 endfunction
 
 " }}}1
