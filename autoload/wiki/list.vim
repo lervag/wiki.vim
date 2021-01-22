@@ -187,7 +187,6 @@ function! wiki#list#new_item() abort "{{{1
 
   " Find last used list item type
   let [l:root, l:current] = wiki#list#parser#get_previous()
-  unsilent echo empty(l:current)
   if empty(l:root)
     startinsert
     return
