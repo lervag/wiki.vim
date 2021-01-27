@@ -97,7 +97,7 @@ function! wiki#link#show(...) abort "{{{1
   if empty(l:link) || l:link.type ==# 'word'
     echon 'No link detected'
   else
-    echon 'Link type/scheme = ' l:link.type '/' l:link.scheme
+    echon 'Link type/scheme = ' l:link.type '/' get(l:link, 'scheme', 'NONE')
     if !empty(l:link.text)
       echohl ModeMsg
       echo 'Text: '
