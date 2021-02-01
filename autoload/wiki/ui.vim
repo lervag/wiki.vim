@@ -4,62 +4,6 @@
 " Email:      karl.yngve@gmail.com
 "
 
-let g:wiki#ui#buffered = get(g:, 'wiki#ui#buffered', v:false)
-let s:buffer = []
-
-"
-function! wiki#ui#echo(message) abort " {{{1
-  if g:wiki#ui#buffered
-    call add(s:buffer, a:message)
-  else
-    echohl ModeMsg
-    echo a:message
-    echohl None
-  endif
-endfunction
-
-" }}}1
-function! wiki#ui#echof(parts) abort " {{{1
-  if g:wiki#ui#buffered
-    let l:message = ''
-    for l:part in a:parts
-      let l:message .= type(l:part) == v:t_list ? l:part[1] : l:part
-    endfor
-    call add(s:buffer, l:message)
-    return
-  endif
-
-  echo ''
-  try
-    for l:part in a:parts
-      if type(l:part) == v:t_string
-        echohl None
-        echon l:part
-      else
-        execute 'echohl' l:part[0]
-        echon l:part[1]
-      endif
-      unlet l:part
-    endfor
-  finally
-    echohl None
-  endtry
-endfunction
-
-" }}}1
-function! wiki#ui#clear_buffer() abort " {{{1
-  if empty(s:buffer) | return | endif
-  let l:cmdheight = &cmdheight
-  let &cmdheight = len(s:buffer) + 2
-
-  echo repeat('-', winwidth(0)-1) . "\n" . join(s:buffer, "\n")
-  let s:buffer = []
-
-  let &cmdheight = l:cmdheight
-endfunction
-
-" }}}1
-
 function! wiki#ui#choose(container, ...) abort " {{{1
   if empty(a:container) | return '' | endif
 
@@ -117,11 +61,11 @@ function! s:choose_from(list, options) abort " {{{1
   while 1
     redraw!
 
-    call wiki#ui#echof([['Title', 'wiki: '], a:options.prompt])
+    call wiki#log#info(a:options.prompt)
     for l:line in l:menu
-      call wiki#ui#echof(l:line)
+      call wiki#log#echo(l:line)
     endfor
-    call wiki#ui#clear_buffer()
+    call wiki#log#clear_buffer()
 
     try
       let l:choice = s:get_number(l:length, l:digits, a:options.abort)

@@ -10,7 +10,7 @@ function! wiki#url#vimdoc#parse(url) abort " {{{1
       execute 'help' self.stripped
       execute winnr('#') 'hide'
     catch
-      echo 'wiki: can''t find vimdoc page "' . self.stripped . '"'
+      call wiki#log#warn('can''t find vimdoc page "' . self.stripped . '"')
     endtry
   endfunction
 

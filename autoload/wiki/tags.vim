@@ -21,9 +21,10 @@ function! wiki#tags#search(...) abort " {{{1
     elseif empty(l:cfg.tag)
       let l:cfg.tag = l:arg
     else
-      echomsg 'WikiTagSeach: Argument "' . l:arg . '" not recognized'
-      echomsg '              Please see :help WikiTagSearch'
-      return
+      return wiki#log#error(
+            \ 'WikiTagSeach argument "' . l:arg . '" not recognized',
+            \ 'Please see :help WikiTagSearch',
+            \)
     endif
   endwhile
 
@@ -40,13 +41,12 @@ function! wiki#tags#list() abort " {{{1
   let l:tags = s:tags.list()
 
   if empty(l:tags)
-    echo 'wiki.vim: No tags'
-    return
+    return wiki#log#info('No tags')
   endif
 
-  echo 'Tags:'
+  call wiki#log#info('List of tags')
   for l:tag in l:tags
-    echo '-' l:tag
+    call wiki#log#echo('- ' . l:tag)
   endfor
 endfunction
 
@@ -63,15 +63,17 @@ function! s:search(cfg) abort " {{{1
   let l:tags = get(s:tags.collection, a:cfg.tag, [])
 
   if empty(l:tags)
-    echo 'wiki.vim: Tag not found:' a:cfg.tag
+    call wiki#log#info('Tag not found: ' . a:cfg.tag)
     return
   endif
 
   try
     call s:output_{a:cfg.output}(a:cfg, l:tags)
   catch /E117:/
-    echomsg 'WikiTagSeach: Output type "' . l:cfg.output . '" not recognized!'
-    echomsg '              Please see :help WikiTagSearch'
+    call wiki#log#warn(
+          \ 'WikiTagSearch output type "' . l:cfg.output . '" not recognized!',
+          \ 'Please see :help WikiTagSearch'
+          \)
   endtry
 endfunction
 
@@ -95,10 +97,10 @@ endfunction
 
 " }}}1
 function! s:output_echo(cfg, lst) abort " {{{1
-  echom printf('wiki.vim: Pages with tag "%s"', a:cfg.tag)
+  call wiki#log#info(printf('Pages with tag "%s"', a:cfg.tag))
   for l:file in map(copy(a:lst), 'v:val[0]')
-    echom printf('- %s',
-          \ fnamemodify(wiki#paths#shorten_relative(l:file), ':r'))
+    call wiki#log#echo(printf('- %s',
+          \ fnamemodify(wiki#paths#shorten_relative(l:file), ':r')))
   endfor
 endfunction
 

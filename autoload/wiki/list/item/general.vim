@@ -35,7 +35,7 @@ function! s:item.new(start, end) abort dict " {{{1
 
   " This is a template and must be combined with a real item type!
   if !has_key(self, 're_item')
-    echo 'WARNING HERE!'
+    call wiki#log#error('THIS IS A GENERIC FUNCTION!')
     return {}
   endif
 

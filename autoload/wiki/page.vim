@@ -27,8 +27,7 @@ function! wiki#page#delete() abort "{{{1
   try
     call delete(l:filename)
   catch
-    echomsg 'wiki Error: Cannot delete "' . expand('%:t:r') . '"!'
-    return
+    return wiki#log#error('Cannot delete "' . expand('%:t:r') . '"!')
   endtry
 
   call wiki#nav#return()
@@ -41,10 +40,11 @@ function! wiki#page#rename(newname, ...) abort "{{{1
 
   let l:dir_mode = get(a:, 1, 'abort')
   if index (['abort', 'ask', 'create'], l:dir_mode) ==? -1
-    echom 'wiki Error: The second argument to wiki#page#rename must be one of'
-    echom "            'abort', 'ask', or 'create'!"
-    echom '            Recieved argument: ' . l:dir_mode
-    return
+    return wiki#log#error(
+          \ 'The second argument to wiki#page#rename must be one of',
+          \ '"abort", "ask", or "create"!',
+          \ 'Recieved argument: ' . l:dir_mode,
+          \)
   end
 
   let l:oldpath = expand('%:p')
@@ -53,39 +53,40 @@ function! wiki#page#rename(newname, ...) abort "{{{1
 
   " Check if current file exists
   if !filereadable(l:oldpath)
-    echom 'wiki Error: Cannot rename "' . l:oldpath
-          \ . '". It does not exist! (New file? Save it before renaming.)'
-    return
+    return wiki#log#error(
+          \ 'Cannot rename "' . l:oldpath . '".',
+          \ 'It does not exist! (New file? Save it before renaming.)'
+          \)
   endif
 
   " Does not support renaming files inside journal
   if b:wiki.in_journal
-    echom 'Not supported yet.'
-    return
+    return wiki#log#error('Not supported yet.')
   endif
 
   " The new name must be nontrivial
   if empty(substitute(a:newname, '\s*', '', ''))
-    echom 'wiki Error: Cannot rename to an empty filename!'
-    return
+    return wiki#log#error('Cannot rename to an empty filename!')
   endif
 
   " The target path must not exist
   if filereadable(l:newpath)
-    echom 'wiki Error: Cannot rename to "' . l:newpath
-          \ . '". File with that name exist!'
-    return
+    return wiki#log#error(
+          \ 'Cannot rename to "' . l:newpath . '".',
+          \ 'File with that name exist!'
+          \)
   endif
 
   " Check if directory exists
   let l:target_dir = fnamemodify(l:newpath, ':p:h')
   if !isdirectory(l:target_dir)
     if l:dir_mode ==? 'abort'
-      echo "Directory '" . l:target_dir . "' does not exist. Aborting."
+      call wiki#log#warn(
+            \ 'Directory "' . l:target_dir . '" does not exist. Aborting.')
       return
     elseif l:dir_mode ==? 'ask'
       redraw!
-      echo "Directory '" . l:target_dir . "' does not exist."
+      call wiki#log#warn('Directory "' . l:target_dir . '" does not exist.')
       if input('Create it? [Y]es/[n]o: ', 'Y') !=? 'y'
         return
       endif
@@ -93,22 +94,22 @@ function! wiki#page#rename(newname, ...) abort "{{{1
     end
 
     " At this point dir_mode is 'create' or the user said 'yes'
-    echo "Creating directory '" . l:target_dir . "'."
+    call wiki#log#info('Creating directory "' . l:target_dir . '".')
     call mkdir(l:target_dir, 'p')
   endif
 
   " Rename current file to l:newpath
   let l:bufnr = bufnr()
   try
-    echom printf('wiki: Renaming "%s" to "%s" ...',
-          \ expand('%:t') , fnamemodify(l:newpath, ':t'))
+    call wiki#log#info(
+          \ printf('wiki: Renaming "%s" to "%s" ...',
+          \   expand('%:t') , fnamemodify(l:newpath, ':t')))
     if rename(l:oldpath, l:newpath) != 0
       throw 'wiki.vim: Cannot rename file!'
     end
   catch
-    echom printf('wiki Error: Cannot rename "%s" to "%s"',
-          \ expand('%:t:r') , l:newpath)
-    return
+    return wiki#log#error(
+          \ printf('Cannot rename "%s" to "%s"', expand('%:t:r') , l:newpath))
   endtry
 
   " Open new file and remove old buffer
@@ -153,7 +154,7 @@ function! wiki#page#rename_ask() abort "{{{1
 
   " Get new page name
   redraw!
-  echo 'Enter new name (without extension):'
+  call wiki#log#info('Enter new name (without extension):')
   let l:name = input('> ')
 
   call wiki#page#rename(l:name, 'ask')
@@ -349,9 +350,10 @@ function! wiki#page#export(line1, line2, ...) abort " {{{1
     elseif empty(l:cfg.fname)
       let l:cfg.fname = expand(simplify(l:arg))
     else
-      echomsg 'WikiExport: Argument "' . l:arg . '" not recognized'
-      echomsg '            Please see :help WikiExport'
-      return
+      return wiki#log#error(
+            \ 'WikiExport argument "' . l:arg . '" not recognized',
+            \ 'Please see :help WikiExport'
+            \)
     endif
   endwhile
 
@@ -375,14 +377,15 @@ function! wiki#page#export(line1, line2, ...) abort " {{{1
 
   " Ensure '-link-ext-replace' is combined wiht '-ext html'
   if l:cfg.link_ext_replace && l:cfg.ext !=# 'html'
-    echoerr 'wiki.vim: export option conflict!'
-    echomsg 'Note: Option "-link-ext-replace" only works with "-ext html"'
-    return
+    return wiki#log#error(
+          \ 'WikiExport option conflict!',
+          \ 'Note: Option "-link-ext-replace" only works with "-ext html"',
+          \)
   endif
 
   " Generate the output file
   call s:export(a:line1, a:line2, l:cfg)
-  echo 'wiki.vim: Page was exported to ' . l:cfg.fname
+  call wiki#log#info('Page was exported to ' . l:cfg.fname)
 
   if l:cfg.view
     call call(has('nvim') ? 'jobstart' : 'job_start',
@@ -420,14 +423,15 @@ function! s:rename_update_links(old, new) abort " {{{1
     endfor
 
     if l:updates
-      echom 'Updating links in: ' . fnamemodify(l:file, ':t')
+      call wiki#log#info('Updating links in: ' . fnamemodify(l:file, ':t'))
       call rename(l:file, l:file . '#tmp')
       call writefile(l:lines, l:file)
       call delete(l:file . '#tmp')
       let l:num_files += 1
     endif
   endfor
-  echom printf('Updated %d links in %d files', l:num_links, l:num_files)
+  call wiki#log#info(
+        \ printf('Updated %d links in %d files', l:num_links, l:num_files))
 endfunction
 
 " }}}1
@@ -537,14 +541,14 @@ function! s:export(start, end, cfg) abort " {{{1
   call wiki#paths#popd()
 
   if v:shell_error == 127
-    echoerr 'wiki.vim: Pandoc is required for this feature.'
-    throw 'error in s:export()'
+    return wiki#log#error('Pandoc is required for this feature.')
   elseif v:shell_error > 0
-    echoerr 'wiki.vim: Something went wrong when running cmd:'
-    echoerr l:cmd
-    echom 'Shell output:'
-    echom l:output
-    throw 'error in s:export()'
+    return wiki#log#error(
+          \ 'Something went wrong when running cmd:',
+          \ l:cmd,
+          \ 'Shell output:',
+          \ join(l:output, "\n"),
+          \)
   endif
 
   call delete(l:fwiki)
@@ -563,10 +567,10 @@ function! s:convert_links_to_html(lines) abort " {{{1
           \ . '|\([^\[\]\\]\{-}\)\]\]'
     let l:sub = '\[\[\1.html\2|\3\]\]'
   else
-    echoerr 'wiki.vim: error during export!'
-    echomsg 'g:wiki_link_target_type must be `md` or `wiki` to replace'
-          \ . ' link extensions on export.'
-    return
+    return wiki#log#error(
+          \ 'g:wiki_link_target_type must be `md` or `wiki` to replace',
+          \ 'link extensions on export.'
+          \)
   endif
 
   call map(a:lines, 'substitute(v:val, l:rx, l:sub, ''g'')')

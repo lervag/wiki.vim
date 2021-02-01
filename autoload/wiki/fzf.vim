@@ -6,7 +6,7 @@
 
 function! wiki#fzf#pages() abort "{{{1
   if !exists('*fzf#run')
-    echo 'fzf must be installed for this to work'
+    call wiki#log#warn('fzf must be installed for this to work')
     return
   endif
 
@@ -28,7 +28,7 @@ endfunction
 " }}}1
 function! wiki#fzf#tags() abort "{{{1
   if !exists('*fzf#run')
-    echo 'fzf must be installed for this to work'
+    call wiki#log#warn('fzf must be installed for this to work')
     return
   endif
 
@@ -52,7 +52,7 @@ endfunction
 " }}}1
 function! wiki#fzf#toc() abort "{{{1
   if !exists('*fzf#run')
-    echo 'fzf must be installed for this to work'
+    call wiki#log#warn('fzf must be installed for this to work')
     return
   endif
 

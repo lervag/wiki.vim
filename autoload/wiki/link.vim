@@ -91,25 +91,19 @@ endfunction
 function! wiki#link#show(...) abort "{{{1
   let l:link = wiki#link#get()
 
-  echohl Title
-  echo 'wiki.vim: '
-  echohl NONE
   if empty(l:link) || l:link.type ==# 'word'
-    echon 'No link detected'
+    call wiki#log#info('No link detected')
   else
-    echon 'Link type/scheme = ' l:link.type '/' get(l:link, 'scheme', 'NONE')
-    if !empty(l:link.text)
-      echohl ModeMsg
-      echo 'Text: '
-      echohl NONE
-      echon l:link.text
-    endif
-    echohl ModeMsg
-    echo 'URL: '
-    echohl NONE
-    echon l:link.url
+    call wiki#log#info(
+          \ 'Link info',
+          \ {
+          \   'type': l:link.type,
+          \   'scheme': get(l:link, 'scheme', 'NONE'),
+          \   'url': l:link.url,
+          \   'text': get(l:link, 'text', ''),
+          \ }
+          \)
   endif
-  echohl NONE
 endfunction
 
 " }}}1
@@ -124,7 +118,8 @@ function! wiki#link#open(...) abort "{{{1
       call wiki#link#toggle(l:link)
     endif
   catch /E37:/
-    echoerr 'E37: Can''t open link before you''ve saved the current buffer.'
+    call wiki#log#error(
+          \ "Can't open link before you've saved the current buffer.")
   endtry
 endfunction
 
@@ -199,8 +194,10 @@ function! wiki#link#template(url, text) abort " {{{1
   try
     return wiki#link#{g:wiki_link_target_type}#template(a:url, a:text)
   catch /E117:/
-      echoerr 'Link target type does not exist: ' . g:wiki_link_target_type
-      echoerr 'See ":help g:wiki_link_target_type" for help'
+    call wiki#log#warn(
+          \ 'Link target type does not exist: ' . g:wiki_link_target_type,
+          \ 'See ":help g:wiki_link_target_type" for help'
+          \)
   endtry
 endfunction
 

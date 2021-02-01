@@ -18,7 +18,7 @@ function! wiki#graph#find_backlinks() abort "{{{1
   endfor
 
   if empty(l:results)
-    echomsg 'wiki: No other file links to this file'
+    call wiki#log#info('wiki: No other file links to this file')
   else
     call setloclist(0, l:results, 'r')
     lopen
@@ -137,9 +137,7 @@ function! s:gather_nodes() abort " {{{1
   endif
 
   redraw
-  echohl ModeMsg
-  echo 'wiki: Scanning wiki graph nodes ... '
-  echohl NONE
+  call wiki#log#info('Scanning wiki graph nodes ... ')
   sleep 25m
 
   let l:cache = wiki#cache#open('graph', {
@@ -173,7 +171,7 @@ function! s:gather_nodes() abort " {{{1
     endif
 
     if has_key(l:gathered, l:node)
-      echoerr 'Not implemented!'
+      return wiki#log#error('Not implemented!')
     endif
 
     let l:gathered[l:node] = l:current
@@ -194,9 +192,7 @@ function! s:gather_nodes() abort " {{{1
     endfor
   endfor
 
-  echohl ModeMSG
-  echon 'DONE'
-  echohl NONE
+  call wiki#log#info('done!')
 
   let s:nodes[b:wiki.root] = l:gathered
   return l:gathered

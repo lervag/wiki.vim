@@ -4,6 +4,11 @@
 " Email:      karl.yngve@gmail.com
 "
 
+function! wiki#u#command(cmd) abort " {{{1
+  return split(execute(a:cmd, 'silent!'), "\n")
+endfunction
+
+" }}}1
 function! wiki#u#escape(string) abort "{{{1
   return escape(a:string, '~.*[]\^$')
 endfunction

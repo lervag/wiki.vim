@@ -31,7 +31,8 @@ function! wiki#get_root() abort " {{{1
     if isdirectory(l:root)
       return resolve(l:root)
     else
-      echoerr 'g:wiki_root is specified but the target path does not exist!'
+      call wiki#log#error(
+            \ 'g:wiki_root is specified but the target path does not exist!')
     endif
   endif
 

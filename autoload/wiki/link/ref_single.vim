@@ -28,11 +28,10 @@ function! s:matcher.parse(link) abort dict " {{{1
   let a:link.lnum_target = searchpos('^\[' . a:link.id . '\]: ', 'nW')[0]
   if a:link.lnum_target == 0
     function! a:link.toggle(_url, _text) abort dict
-      call wiki#ui#echof([
-            \ ['Title', 'wiki: '],
+      call wiki#log#warn(
             \ 'Could not locate reference ',
             \ ['ModeMsg', self.url]
-            \])
+            \)
     endfunction
     return a:link
   endif

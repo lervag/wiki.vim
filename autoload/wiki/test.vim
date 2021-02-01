@@ -47,7 +47,7 @@ endfunction
 " }}}1
 
 function! s:fail(...) abort " {{{1
-  echo 'Assertion failed!'
+  call wiki#log#warn('Assertion failed!')
 
   if a:0 > 0 && !empty(a:1)
     if type(a:1) == type('')

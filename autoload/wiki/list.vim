@@ -154,7 +154,7 @@ function! wiki#list#show_item(...) abort "{{{1
         \ : wiki#list#parser#get_current()
   if empty(l:current) | return | endif
 
-  echo join(l:current.to_string(), "\n")
+  call wiki#log#echo(join(l:current.to_string(), "\n"))
 endfunction
 
 " }}}1

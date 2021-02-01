@@ -21,11 +21,8 @@ function! wiki#zotero#search(string) " {{{1
   let l:files = systemlist(l:finder)
 
   if v:shell_error != 0
-    echom 'wiki:' l:finder
-    for l:line in l:files
-      echom l:line
-    endfor
-    throw 'wiki: error in wiki#zotero#search!'
+    return wiki#log#error('Error in wiki#zotero#search!',
+          \ l:finder, join(l:files, "\n"))
   endif
 
   return l:files
