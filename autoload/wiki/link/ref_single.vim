@@ -23,8 +23,19 @@ endfunction
 " }}}1
 function! s:matcher.parse(link) abort dict " {{{1
   let a:link.id = matchstr(a:link.full, self.rx_target)
+
+  " Locate target url
   let a:link.lnum_target = searchpos('^\[' . a:link.id . '\]: ', 'nW')[0]
-  if a:link.lnum_target == 0 | return a:link | endif
+  if a:link.lnum_target == 0
+    function! a:link.toggle(_url, _text) abort dict
+      call wiki#ui#echof([
+            \ ['Title', 'wiki: '],
+            \ 'Could not locate reference ',
+            \ ['ModeMsg', self.url]
+            \])
+    endfunction
+    return a:link
+  endif
 
   let a:link.url = matchstr(getline(a:link.lnum_target), g:wiki#rx#url)
   if !empty(a:link.url)

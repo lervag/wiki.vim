@@ -139,8 +139,9 @@ function! wiki#link#toggle(...) abort " {{{1
         \ : get(l:link, 'url', '')
   if empty(l:url) | return | endif
 
-  " Apply link template from toggle
+  " Apply link template from toggle (abort if empty!)
   let l:new = l:link.toggle(l:url, l:link.text)
+  if empty(l:new) | return | endif
 
   " Replace link in text
   let l:line = getline(l:link.lnum)
