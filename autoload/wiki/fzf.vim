@@ -20,8 +20,8 @@ function! wiki#fzf#pages() abort "{{{1
 
   call fzf#run(fzf#wrap({
         \ 'source': l:pages,
-        \ 'sink': funcref('s:accept_page'),
-        \ 'options': '-d"¤" --with-nth=-1 --prompt "WikiPages> " '
+        \ 'sink*': funcref('s:accept_page'),
+        \ 'options': '-d"¤" --with-nth=-1 --print-query --prompt "WikiPages> " '
         \}))
 endfunction
 
@@ -77,9 +77,17 @@ endfunction
 
 "}}}1
 
-function! s:accept_page(line) abort "{{{1
-  let l:file = split(a:line, '¤')[0]
-  execute 'edit ' . wiki#get_root() . l:file
+function! s:accept_page(lines) abort "{{{1
+  if len(a:lines) == 1
+    let l:page = a:lines[0]
+    redraw!
+    call wiki#log#info('Opening new page "' . l:page . '"')
+    sleep 1
+    call wiki#page#open(l:page)
+  else
+    let l:file = split(a:lines[1], '¤')[0]
+    execute 'edit ' . wiki#get_root() . l:file
+  endif
 endfunction
 
 " }}}1
