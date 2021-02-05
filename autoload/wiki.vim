@@ -8,6 +8,14 @@ function! wiki#get_root() abort " {{{1
   " If the root has been specified already, then simply return it
   if exists('b:wiki.root') | return b:wiki.root | endif
 
+  let l:root = wiki#get_root_local()
+  return !empty(l:root)
+        \ ? l:root
+        \ : wiki#get_root_global()
+endfunction
+
+" }}}1
+function! wiki#get_root_local() abort " {{{1
   " Search directory tree for an 'index.EXT' file
   for l:ext in g:wiki_filetypes
     let l:index = printf('%s.%s', g:wiki_index_name, l:ext)
@@ -19,27 +27,32 @@ function! wiki#get_root() abort " {{{1
     if !empty(l:root) | return l:root | endif
   endfor
 
-  " Try globally specified wiki
-  if !empty(g:wiki_root)
-    let l:root = s:is_function(g:wiki_root)
-      \ ? call(g:wiki_root, [])
-      \ : g:wiki_root
-    let l:root = fnamemodify(simplify(l:root), ':p')
-    if l:root[-1:-1] ==# '/'
-      let l:root = l:root[:-2]
-    endif
-    if isdirectory(l:root)
-      return resolve(l:root)
-    else
-      call wiki#log#error(
-            \ 'g:wiki_root is specified but the target path does not exist!')
-    endif
-  endif
-
   return ''
 endfunction
 
 " }}}1
+function! wiki#get_root_global() abort " {{{1
+  if empty(g:wiki_root) | return '' | endif
+
+  let l:root = s:is_function(g:wiki_root)
+    \ ? call(g:wiki_root, [])
+    \ : g:wiki_root
+  let l:root = fnamemodify(simplify(l:root), ':p')
+
+  if l:root[-1:-1] ==# '/'
+    let l:root = l:root[:-2]
+  endif
+
+  if isdirectory(l:root)
+    return resolve(l:root)
+  else
+    call wiki#log#error(
+          \ 'g:wiki_root is specified but the target path does not exist!')
+  endif
+endfunction
+
+" }}}1
+
 function! wiki#goto_index() abort " {{{1
   call wiki#url#parse('wiki:/index').open()
 endfunction
