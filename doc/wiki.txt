@@ -733,6 +733,12 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   Open |fzf| in find file mode for wiki files in current wiki or in the main
   wiki defined by |g:wiki_root|.
 
+  This can also also be used to create a new page similar to |WikiOpen|, if
+  the input search term does not have any results. E.g., if you searched for
+  "My Fzf Page", and this term does not exist, then it will instead open a new
+  page "My Fzf Page.wiki" (or similar, depending on the value of other
+  options).
+
 *<plug>(wiki-fzf-tags)*
 *WikiFzfTags*
   Open |fzf| and search for tags.
