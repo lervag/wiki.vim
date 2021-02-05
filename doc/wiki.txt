@@ -59,13 +59,14 @@ was initially based on vimwiki (https://github.com/vimwiki/vimwiki), but it is
 written mostly from scratch and is based on a more "do one thing and do it
 well" philosophy.
 
-The plugin will activate by default for `.wiki` files, but this may be
-customized with |g:wiki_filetypes|. One may also explicitly activate with
-|WikiEnable|. The wiki root is automatically detected as long as there is
-a top-level `index.wiki` file available. If no such file is found, it sets the
-root to the same directory as the current file. In addition, one may specify
-a main wiki with the |g:wiki_root| option. This allows convenient mappings and
-commands for opening the main wiki from anywhere.
+The plugin will activate by default for any `.wiki` files, but this may be
+customized with |g:wiki_filetypes| and |g:wiki_global_load|. One may also
+explicitly activate with |WikiEnable|. The wiki root is automatically detected
+as long as there is a top-level `index.wiki` file available. If no such file
+is found, it sets the root to the same directory as the current file. In
+addition, one may specify a main wiki with the |g:wiki_root| option. This
+allows convenient mappings and commands for opening the main wiki from
+anywhere.
 
 Note: |wiki.vim| is `not` a filetype plugin. It is designed so that it may be used
       along with filetype plugins, e.g. for dedicated Markdown plugins. One
@@ -179,6 +180,14 @@ OPTIONS                                                   *wiki-config-options*
         existing directory.
 
   Default: ''
+
+*g:wiki_global_load*
+  |wiki.vim| is inherently agnostic in that it assumes any recognized filetype
+  specifies a wiki. However, some people might want to load |wiki.vim| for
+  ONLY files within a globally specified directory |g:wiki_root|. To allow
+  this behaviour, one can set this option to 0.
+
+  Default: 1
 
 *g:wiki_filetypes*
   List of filetypes for which |wiki.vim| should be enabled.

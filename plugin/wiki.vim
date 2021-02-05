@@ -17,6 +17,7 @@ call wiki#init#option('wiki_export', {
       \ 'output' : fnamemodify(tempname(), ':h'),
       \})
 call wiki#init#option('wiki_filetypes', ['wiki'])
+call wiki#init#option('wiki_global_load', 1)
 call wiki#init#option('wiki_index_name', 'index')
 call wiki#init#option('wiki_journal', {
       \ 'name' : 'journal',
@@ -95,6 +96,13 @@ call wiki#init#apply_mappings_from_dict(s:mappings, '')
 augroup wiki
   autocmd!
   for s:ft in g:wiki_filetypes
-    execute 'autocmd BufRead,BufNewFile *.' . s:ft 'WikiEnable'
+    execute 'autocmd BufRead,BufNewFile *.' . s:ft 'call s:autoload()'
   endfor
 augroup END
+
+function! s:autoload() abort
+  if g:wiki_global_load
+        \ || wiki#get_root_local() ==# wiki#get_root_global()
+    WikiEnable
+  endif
+endfunction
