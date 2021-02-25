@@ -18,7 +18,7 @@ let s:candidates = wiki#test#completion('[[#2 Next chapter#', '')
 call wiki#test#assert_equal(3, len(s:candidates))
 
 " Profiling on @lervag's personal wiki
-" silent edit ~/wiki/index.wiki
+" silent edit ~/.local/wiki/index.wiki
 " profile start prof.log
 " profile func *
 " let s:candidates = wiki#test#completion('[[/', 'in')
