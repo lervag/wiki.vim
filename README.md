@@ -43,12 +43,12 @@ Or use some other plugin manager:
 This outlines the basic steps to get started:
 
 1. Create a wiki directory where the wiki files should be stored, for instance
-   `~/documents/wiki`.
+   `~/wiki`.
 
 2. Add the following to your `vimrc` file:
 
    ```vim
-   let g:wiki_root = '~/documents/wiki'
+   let g:wiki_root = '~/wiki'
    ```
 
 3. Now you can open the index file (by default `index.wiki`) with `<leader>ww`
