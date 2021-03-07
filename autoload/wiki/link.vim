@@ -5,6 +5,8 @@
 "
 
 function! wiki#link#get() abort " {{{1
+  if wiki#u#is_code() | return {} | endif
+
   for l:matcher in [
         \ wiki#link#wiki#matcher(),
         \ wiki#link#adoc#matcher(),
