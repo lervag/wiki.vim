@@ -35,6 +35,7 @@ let wiki#rx#date = '\d\d\d\d-\d\d-\d\d'
 let wiki#rx#url = '\<\l\+:\%(\/\/\)\?[^ \t()\[\]|]\+'
 let wiki#rx#reftext = '[^\\\[\]]\{-}'
 let wiki#rx#reftarget = '\%(\d\+\|\a[-_. [:alnum:]]\+\|\^\w\+\)'
+let wiki#rx#link_adoc_link = '\<link:\%(\[[^]]\+\]\|[^[]\+\)\[[^]]\+\]'
 let wiki#rx#link_adoc_xref_bracket = '<<[^>]\+>>'
 let wiki#rx#link_adoc_xref_inline = '\<xref:\%(\[[^]]\+\]\|[^[]\+\)\[[^]]\+\]'
 let wiki#rx#link_md = '\[[^\\\[\]]\{-}\]([^\\]\{-})'
@@ -51,6 +52,7 @@ let wiki#rx#link_shortcite = '\%(\s\|^\|\[\)\zs@[-_a-zA-Z0-9]\+\>'
 let wiki#rx#link_wiki = '\[\[\/\?[^\\\]]\{-}\%(|[^\\\]]\{-}\)\?\]\]'
 let wiki#rx#link = join([
       \ wiki#rx#link_wiki,
+      \ wiki#rx#link_adoc_link,
       \ wiki#rx#link_adoc_xref_bracket,
       \ wiki#rx#link_adoc_xref_inline,
       \ '!\?' . wiki#rx#link_md,

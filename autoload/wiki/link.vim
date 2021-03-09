@@ -11,6 +11,7 @@ function! wiki#link#get() abort " {{{1
         \ wiki#link#wiki#matcher(),
         \ wiki#link#adoc_xref_bracket#matcher(),
         \ wiki#link#adoc_xref_inline#matcher(),
+        \ wiki#link#adoc_link#matcher(),
         \ wiki#link#md_fig#matcher(),
         \ wiki#link#md#matcher(),
         \ wiki#link#ref_target#matcher(),
@@ -39,6 +40,7 @@ function! wiki#link#get_all(...) abort "{{{1
         \ wiki#link#wiki#matcher(),
         \ wiki#link#adoc_xref_bracket#matcher(),
         \ wiki#link#adoc_xref_inline#matcher(),
+        \ wiki#link#adoc_link#matcher(),
         \ wiki#link#md_fig#matcher(),
         \ wiki#link#md#matcher(),
         \ wiki#link#ref_target#matcher(),
@@ -240,7 +242,7 @@ function! s:parse_link(matcher, link) abort " {{{1
   let a:link.text = ''
   if has_key(a:matcher, 'toggle')
     let a:link.toggle = a:matcher.toggle
-  else
+  elseif has_key(g:wiki_link_toggles, a:link.type)
     let a:link.toggle = function(g:wiki_link_toggles[a:link.type])
   endif
 
