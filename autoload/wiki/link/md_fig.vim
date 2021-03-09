@@ -11,11 +11,11 @@ endfunction
 " }}}1
 
 let s:matcher = {
-        \ 'type' : 'md_fig',
-        \ 'rx' : g:wiki#rx#link_md_fig,
-        \ 'rx_url' : '!\[[^\\\[\]]\{-}\](\zs[^\\]\{-}\ze)',
-        \ 'rx_text' : '!\[\zs[^\\\[\]]\{-}\ze\]([^\\]\{-})',
-        \}
+      \ 'type' : 'md_fig',
+      \ 'rx' : g:wiki#rx#link_md_fig,
+      \ 'rx_url' : '!\[[^\\\[\]]\{-}\](\zs[^\\]\{-}\ze)',
+      \ 'rx_text' : '!\[\zs[^\\\[\]]\{-}\ze\]([^\\]\{-})',
+      \}
 
 function! s:matcher.parse(link) abort dict " {{{1
   if empty(matchstr(a:link.url, '\v^\w+:%(//)?'))

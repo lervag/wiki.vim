@@ -1,6 +1,6 @@
 source ../init.vim
 
-let g:wiki_link_target_type = 'adoc_bracket'
+let g:wiki_link_target_type = 'adoc_xref_bracket'
 let g:wiki_filetypes = ['adoc']
 
 runtime plugin/wiki.vim
@@ -35,8 +35,8 @@ call wiki#test#assert_equal(5, col('.'))
 
 " Test links within a document
 silent execute "normal \<Plug>(wiki-link-open)"
-" call wiki#test#assert_equal(7, line('.'))
-" call wiki#test#assert_equal(1, col('.'))
+call wiki#test#assert_equal(7, line('.'))
+call wiki#test#assert_equal(1, col('.'))
 
 
 if $QUIT | quitall! | endif
