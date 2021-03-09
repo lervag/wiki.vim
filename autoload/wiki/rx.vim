@@ -36,6 +36,7 @@ let wiki#rx#url = '\<\l\+:\%(\/\/\)\?[^ \t()\[\]|]\+'
 let wiki#rx#reftext = '[^\\\[\]]\{-}'
 let wiki#rx#reftarget = '\%(\d\+\|\a[-_. [:alnum:]]\+\|\^\w\+\)'
 let wiki#rx#link_adoc_bracket = '<<[^>]\+>>'
+let wiki#rx#link_adoc_inline = '\<xref:\%(\[[^]]\+\]\|[^[]\+\)\[[^]]\+\]'
 let wiki#rx#link_md = '\[[^\\\[\]]\{-}\]([^\\]\{-})'
 let wiki#rx#link_md_fig = '!' . wiki#rx#link_md
 let wiki#rx#link_ref_single = '[\]\[]\@<!\[' . wiki#rx#reftarget . '\][\]\[]\@!'

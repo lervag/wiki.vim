@@ -17,18 +17,18 @@ endfunction
 " }}}1
 function! wiki#link#adoc_bracket#template(url, text) abort " {{{1
   let l:parts = split(a:url, '#')
-
-  let l:url = l:parts[0]
-  if a:url !~# '\.adoc$'
-    let l:url .= '.adoc'
-  endif
-
   let l:anchors = len(l:parts) > 1
         \ ? join(l:parts[1:], '#')
         \ : ''
 
-  return printf('<<%s#%s,%s>>',
-        \ l:url, l:anchors, empty(a:text) ? a:url : a:text)
+  " Ensure there's an extension
+  let l:url = l:parts[0]
+  if l:url !~# '\.adoc$'
+    let l:url .= '.adoc'
+  endif
+  let l:url .= '#' . l:anchors
+
+  return printf('<<%s,%s>>', l:url, empty(a:text) ? a:url : a:text)
 endfunction
 
 " }}}1
