@@ -148,11 +148,11 @@ function! s:completer_mdlink.findstart(line) dict abort " {{{2
 endfunction
 
 " }}}1
-" {{{1 AdocLink
+" {{{1 AdocBracketLink
 
-let s:completer_adoclink = deepcopy(s:completer_wikilink)
+let s:completer_adocbracketlink = deepcopy(s:completer_wikilink)
 
-function! s:completer_adoclink.findstart(line) dict abort " {{{2
+function! s:completer_adocbracketlink.findstart(line) dict abort " {{{2
   let l:cnum = match(a:line, '<<\zs[^,]\{-}$')
   if l:cnum < 0 | return -1 | endif
 

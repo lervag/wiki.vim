@@ -4,18 +4,18 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#link#adoc#matcher() abort " {{{1
+function! wiki#link#adoc_bracket#matcher() abort " {{{1
   return {
-        \ 'type' : 'adoc',
+        \ 'type' : 'adoc_bracket',
         \ 'scheme' : 'adoc',
-        \ 'rx' : g:wiki#rx#link_adoc,
+        \ 'rx' : g:wiki#rx#link_adoc_bracket,
         \ 'rx_url' : '<<\zs\%([^,>]\{-}\ze,[^>]\{-}\|[^>]\{-}\ze\)>>',
         \ 'rx_text' : '<<[^,>]\{-},\zs[^>]\{-}\ze>>',
         \}
 endfunction
 
 " }}}1
-function! wiki#link#adoc#template(url, text) abort " {{{1
+function! wiki#link#adoc_bracket#template(url, text) abort " {{{1
   let l:parts = split(a:url, '#')
 
   let l:url = l:parts[0]

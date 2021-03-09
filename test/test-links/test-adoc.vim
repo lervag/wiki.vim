@@ -1,6 +1,6 @@
 source ../init.vim
 
-let g:wiki_link_target_type = 'adoc'
+let g:wiki_link_target_type = 'adoc_bracket'
 let g:wiki_filetypes = ['adoc']
 
 runtime plugin/wiki.vim

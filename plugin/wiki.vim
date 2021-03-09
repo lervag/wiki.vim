@@ -33,8 +33,8 @@ call wiki#init#option('wiki_link_target_type', 'wiki')
 call wiki#init#option('wiki_link_toggle_on_open', 1)
 call wiki#init#option('wiki_link_toggles', {
       \ 'wiki': 'wiki#link#md#template',
-      \ 'md': 'wiki#link#adoc#template',
-      \ 'adoc': 'wiki#link#wiki#template',
+      \ 'md': 'wiki#link#adoc_bracket#template',
+      \ 'adoc_bracket': 'wiki#link#wiki#template',
       \ 'date': 'wiki#link#wiki#template',
       \ 'shortcite': 'wiki#link#md#template',
       \ 'url': 'wiki#link#md#template',
