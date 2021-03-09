@@ -4,18 +4,18 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#link#adoc_inline#matcher() abort " {{{1
+function! wiki#link#adoc_xref_inline#matcher() abort " {{{1
   return {
-        \ 'type' : 'adoc_inline',
+        \ 'type' : 'adoc_xref_inline',
         \ 'scheme' : 'adoc',
-        \ 'rx' : g:wiki#rx#link_adoc_inline,
+        \ 'rx' : g:wiki#rx#link_adoc_xref_inline,
         \ 'rx_url' : '\<xref:\%(\[\zs[^]]\+\ze\]\|\zs[^[]\+\ze\)\[[^]]\+\]',
         \ 'rx_text' : '\<xref:\%(\[[^]]\+\]\|[^[]\+\)\[\zs[^]]\+\ze\]',
         \}
 endfunction
 
 " }}}1
-function! wiki#link#adoc_inline#template(url, text) abort " {{{1
+function! wiki#link#adoc_xref_inline#template(url, text) abort " {{{1
   let l:parts = split(a:url, '#')
   let l:anchors = len(l:parts) > 1
         \ ? join(l:parts[1:], '#')

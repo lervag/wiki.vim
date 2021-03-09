@@ -257,8 +257,8 @@ OPTIONS                                                   *wiki-config-options*
     `wiki` (|wiki-link-wiki|)
       Wiki style links.
 
-    `xref_bracket` (|wiki-link-adoc-xref|)
-    `xref_inline`
+    `adoc_xref_bracket` (|wiki-link-adoc-xref|)
+    `adoc_xref_inline`
       AsciiDoc cross-reference style links (angled brackets style or inline
       `xref:...` style).
 
