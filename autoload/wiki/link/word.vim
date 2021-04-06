@@ -51,15 +51,14 @@ function! wiki#link#word#template(_url, text) abort dict " {{{1
   if len(l:candidates) == 0
     return wiki#link#template(
           \ (b:wiki.in_journal ? '/' : '') . l:url_target, a:text)
-  elseif len(l:candidates) == 1 && l:candidates[0] ==# l:url_root
-    return wiki#link#template('/' . l:candidates[0], '')
   endif
 
   " Select with menu
-  let l:choice = wiki#ui#choose(l:candidates + ['New page at wiki root'])
+  let l:new = l:url_target . ' (NEW PAGE)'
+  let l:choice = wiki#ui#choose(l:candidates + [l:new])
   redraw!
   return empty(l:choice) ? l:url_target : (
-        \ l:choice ==# 'New page at wiki root'
+        \ l:choice ==# l:new
         \   ? wiki#link#template(l:url_target, a:text)
         \   : wiki#link#template('/' . l:choice, ''))
 endfunction
