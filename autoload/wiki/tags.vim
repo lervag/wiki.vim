@@ -112,8 +112,8 @@ function! s:output_scratch(cfg, lst) abort " {{{1
         \}
 
   for [l:file, l:lnum, l:col] in a:lst
-    call add(l:scratch.lines, '- ' . wiki#link#wiki#template('/' .
-          \ fnamemodify(wiki#paths#shorten_relative(l:file), ':r')))
+    let l:name = fnamemodify(wiki#paths#shorten_relative(l:file), ':r')
+    call add(l:scratch.lines, '- ' . wiki#link#wiki#template('/' . l:name, l:name))
   endfor
 
   function! l:scratch.print_content() abort dict
@@ -147,8 +147,8 @@ endfunction
 function! s:output_cursor(cfg, lst) abort " {{{1
   let l:lines = [printf('Wiki pages with tag: %s', a:cfg.tag)]
   for [l:file, l:lnum, l:col] in a:lst
-    call add(l:lines, '- ' . wiki#link#wiki#template('/' .
-          \ fnamemodify(wiki#paths#shorten_relative(l:file), ':r')))
+    let l:name = fnamemodify(wiki#paths#shorten_relative(l:file), ':r')
+    call add(l:lines, '- ' . wiki#link#wiki#template('/' . l:name, l:name))
   endfor
   call add(l:lines, '')
 
