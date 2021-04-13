@@ -171,7 +171,7 @@ function! s:gather_nodes() abort " {{{1
     endif
 
     if has_key(l:gathered, l:node)
-      return wiki#log#error('Not implemented!')
+      call wiki#log#error('Not implemented!')
     endif
 
     let l:gathered[l:node] = l:current
