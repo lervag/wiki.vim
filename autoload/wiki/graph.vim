@@ -170,10 +170,6 @@ function! s:gather_nodes() abort " {{{1
       endfor
     endif
 
-    if has_key(l:gathered, l:node)
-      call wiki#log#error('Not implemented!')
-    endif
-
     let l:gathered[l:node] = l:current
   endfor
 
@@ -202,7 +198,7 @@ let s:nodes = {}
 
 " }}}1
 function! s:file_to_node(file) abort " {{{1
-  return fnamemodify(a:file, ':t:r')
+  return fnamemodify(wiki#paths#shorten_relative(a:file), ':r')
 endfunction
 
 " }}}1
