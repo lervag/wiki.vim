@@ -172,6 +172,7 @@ endfunction
 " }}}1
 function! s:tags.reload() abort dict " {{{1
   let self.parsed = 0
+  let self.collection = {}
   call self.gather()
 endfunction
 
