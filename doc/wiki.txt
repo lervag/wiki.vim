@@ -156,31 +156,60 @@ OPTIONS                                                   *wiki-config-options*
 
   Default value: 1
 
-*g:wiki_root*
-  Option to specify the wiki root path, i.e. the wiki that is opened with the
-  `<leader>ww` mapping. The option value must be a string that is either
+*g:wiki_date_exe*
+  Specify the executable for `date`, which is used "behind the scenes" to
+  manipulate and calculate dates for the journal features.
 
-    i)   a specific path, or
-    ii)  the name of a function that returns a path.
+  On MacOS/OSX, one can install `coreutils` from Homebrew and then use the
+  `gdate` program with: >
 
-  The latter method allows more flexible determination of the root path, e.g.
-  project specific root paths. An example: >
+    let g:wiki_date_exe = 'gdate'
+<
+  Default: 'date'
 
-    function! WikiRoot()
-      let l:local = finddir('wiki', ';./')
-      return !empty(l:local) ? l:local : '~/wiki'
+*g:wiki_export*
+  A dictionary that specifies the default configuration for |WikiExport|
+  options. See the specifications for the options for more information.
+
+  Default: >
+    let g:wiki_export = {
+        \ 'args' : '',
+        \ 'from_format' : 'markdown',
+        \ 'ext' : 'pdf',
+        \ 'link_ext_replace': v:false,
+        \ 'view' : v:false,
+        \ 'output': fnamemodify(tempname(), ':h'),
+        \}
+
+*g:wiki_filetypes*
+  List of filetypes for which |wiki.vim| should be enabled.
+
+  Default: ['wiki']
+
+*g:wiki_file_open*
+  Name of a function or a |FuncRef| for a function that should be used to open
+  a file URL (see also |wiki-link-urls|). The function should give a non-zero
+  return value if it opens the URL. If not, the plugin falls back to opening
+  the URL with Vim. An example: >
+
+    let g:wiki_file_open = 'WikiFileOpen'
+
+    function! WikiFileOpen(...) abort dict
+      if self.path =~# 'pdf$'
+        silent execute '!zathura' fnameescape(self.path) '&'
+        return 1
+      endif
+
+      return 0
     endfunction
 
-    let g:wiki_root = 'WikiRoot'
-<
-  This setting would first search for a `wiki` directory in the current
-  relative directory, and fallback to a global `wiki` if the local wiki is not
-  found.
+*g:wiki_fzf_pages_force_create_key*
+  Key combination that, when pressed while searching with |WikiFzfPages|, will
+  create a new page with the name of the query. The value must be a string
+  recognized by fzf's `--expect` argument; see fzf's manual page for a list of
+  available keys.
 
-  Note: The (returned) path must be either a relative or absolute path to an
-        existing directory.
-
-  Default: ''
+  Default: `'alt-enter'`
 
 *g:wiki_global_load*
   |wiki.vim| is inherently agnostic in that it assumes any recognized filetype
@@ -190,47 +219,38 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: 1
 
-*g:wiki_filetypes*
-  List of filetypes for which |wiki.vim| should be enabled.
+*g:wiki_journal*
+  A dictionary for configuring the journal/diary feature. Available options
+  are:
 
-  Default: ['wiki']
+    name~
+      Name of journal (used to set journal path).
 
-*g:wiki_map_create_page*
-  This option may be used to specify a map or transformation for page names
-  provided to |WikiOpen|. For example: >
+    frequency~
+      One of 'daily', 'weekly', or 'monthly'.
 
-    let g:wiki_map_create_page = 'MyFunction'
+    date_format~
+      Dictionary of file name formats for the 'daily', 'weekly', and 'monthly'
+      frequencies. The formats may contain the following keys:
 
-    function MyFunction(name) abort
-      let l:name = wiki#get_root() . '/' . a:name
+        %y  year (two digits)
+        %Y  year (four digits)
+        %m  month (01..12)
+        %d  day of month (01..31)
+        %V  ISO week number with Monday as first day of week
+        %U  week number with Sunday as first day of week
 
-      " If the file is new, then append the current date
-      return filereadable(l:name)
-            \ ? a:name
-            \ : a:name . '_' . strftime('%Y%m%d')
-    endfunction
-<
-  With the above setting, if one enters a page name "foo" for |WikiOpen| on
-  the date 2020-04-11, the page "foo_20200411" will be created.
+  Default: >
 
-  Default: ''
-
-*g:wiki_map_link_create*
-  This option may be used to transform text before creating a new link. An
-  example: >
-
-    let g:wiki_map_link_create = 'MyFunction'
-
-    function MyFunction(text) abort
-      return substitute(tolower(a:text), '\s\+', '-', 'g')
-    endfunction
-<
-  With the above setting, links created with |WikiLinkOpen| or
-  |WikiLinkToggle| (or related mappings) will be transformed by `MyFunction`.
-  As an example, if one creates a link from the text "Some text", the link
-  becomes "[[some-text|Some text]]".
-
-  Default: ''
+    let g:wiki_journal = {
+        \ 'name': 'journal',
+        \ 'frequency': 'daily',
+        \ 'date_format': {
+        \   'daily' : '%Y-%m-%d',
+        \   'weekly' : '%Y_w%V',
+        \   'monthly' : '%Y_m%m',
+        \ },
+        \}
 
 *g:wiki_link_extension*
   Specify the extension that should be applied to wiki links. This should be
@@ -299,49 +319,48 @@ OPTIONS                                                   *wiki-config-options*
           \ 'url': 'wiki#link#md#template',
           \}
 
-*g:wiki_date_exe*
-  Specify the executable for `date`, which is used "behind the scenes" to
-  manipulate and calculate dates for the journal features.
+*g:wiki_list_todos*
+  A list of TODO toggles that may be toggled with |<plug>(wiki-list-toggle)|,
+  which is by default mapped to `<c-s>`.
 
-  On MacOS/OSX, one can install `coreutils` from Homebrew and then use the
-  `gdate` program with: >
+  Default: `['TODO', 'DONE']`
 
-    let g:wiki_date_exe = 'gdate'
+*g:wiki_map_create_page*
+  This option may be used to specify a map or transformation for page names
+  provided to |WikiOpen|. For example: >
+
+    let g:wiki_map_create_page = 'MyFunction'
+
+    function MyFunction(name) abort
+      let l:name = wiki#get_root() . '/' . a:name
+
+      " If the file is new, then append the current date
+      return filereadable(l:name)
+            \ ? a:name
+            \ : a:name . '_' . strftime('%Y%m%d')
+    endfunction
 <
-  Default: 'date'
+  With the above setting, if one enters a page name "foo" for |WikiOpen| on
+  the date 2020-04-11, the page "foo_20200411" will be created.
 
-*g:wiki_journal*
-  A dictionary for configuring the journal/diary feature. Available options
-  are:
+  Default: ''
 
-    name~
-      Name of journal (used to set journal path).
+*g:wiki_map_link_create*
+  This option may be used to transform text before creating a new link. An
+  example: >
 
-    frequency~
-      One of 'daily', 'weekly', or 'monthly'.
+    let g:wiki_map_link_create = 'MyFunction'
 
-    date_format~
-      Dictionary of file name formats for the 'daily', 'weekly', and 'monthly'
-      frequencies. The formats may contain the following keys:
+    function MyFunction(text) abort
+      return substitute(tolower(a:text), '\s\+', '-', 'g')
+    endfunction
+<
+  With the above setting, links created with |WikiLinkOpen| or
+  |WikiLinkToggle| (or related mappings) will be transformed by `MyFunction`.
+  As an example, if one creates a link from the text "Some text", the link
+  becomes "[[some-text|Some text]]".
 
-        %y  year (two digits)
-        %Y  year (four digits)
-        %m  month (01..12)
-        %d  day of month (01..31)
-        %V  ISO week number with Monday as first day of week
-        %U  week number with Sunday as first day of week
-
-  Default: >
-
-    let g:wiki_journal = {
-        \ 'name': 'journal',
-        \ 'frequency': 'daily',
-        \ 'date_format': {
-        \   'daily' : '%Y-%m-%d',
-        \   'weekly' : '%Y_w%V',
-        \   'monthly' : '%Y_m%m',
-        \ },
-        \}
+  Default: ''
 
 *g:wiki_mappings_use_defaults*
   Whether or not to use default mappings (see |wiki-mappings-default|). The
@@ -386,58 +405,36 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: `['January', 'February', ..., 'December']`
 
-*g:wiki_list_todos*
-  A list of TODO toggles that may be toggled with |<plug>(wiki-list-toggle)|,
-  which is by default mapped to `<c-s>`.
-
-  Default: `['TODO', 'DONE']`
-
 *g:wiki_toc_title*
   The title of TOC listings.
 
   Default: `'Contents'`
 
-*g:wiki_file_open*
-  Name of a function or a |FuncRef| for a function that should be used to open
-  a file URL (see also |wiki-link-urls|). The function should give a non-zero
-  return value if it opens the URL. If not, the plugin falls back to opening
-  the URL with Vim. An example: >
+*g:wiki_root*
+  Option to specify the wiki root path, i.e. the wiki that is opened with the
+  `<leader>ww` mapping. The option value must be a string that is either
 
-    let g:wiki_file_open = 'WikiFileOpen'
+    i)   a specific path, or
+    ii)  the name of a function that returns a path.
 
-    function! WikiFileOpen(...) abort dict
-      if self.path =~# 'pdf$'
-        silent execute '!zathura' fnameescape(self.path) '&'
-        return 1
-      endif
+  The latter method allows more flexible determination of the root path, e.g.
+  project specific root paths. An example: >
 
-      return 0
+    function! WikiRoot()
+      let l:local = finddir('wiki', ';./')
+      return !empty(l:local) ? l:local : '~/wiki'
     endfunction
 
-*g:wiki_viewer*
-  A dictionary that specifies which viewer to use for a given filetype. The
-  entry `_` specifies the fallback or generic viewer. This option thus allows
-  one to setup different viewers for different file types that are used by the
-  generic link scheme opener (see |wiki-link-url|) and by |WikiExport|.
+    let g:wiki_root = 'WikiRoot'
+<
+  This setting would first search for a `wiki` directory in the current
+  relative directory, and fallback to a global `wiki` if the local wiki is not
+  found.
 
-  Default: >
-    let g:wiki_viewer = {
-        \ '_' : OS Dependent: 'xdg-open' (Linux) | 'open' (OSX),
-        \}
+  Note: The (returned) path must be either a relative or absolute path to an
+        existing directory.
 
-*g:wiki_export*
-  A dictionary that specifies the default configuration for |WikiExport|
-  options. See the specifications for the options for more information.
-
-  Default: >
-    let g:wiki_export = {
-        \ 'args' : '',
-        \ 'from_format' : 'markdown',
-        \ 'ext' : 'pdf',
-        \ 'link_ext_replace': v:false,
-        \ 'view' : v:false,
-        \ 'output': fnamemodify(tempname(), ':h'),
-        \}
+  Default: ''
 
 *g:wiki_tags*
   A dictionary that specifies the default configuration for |WikiTagSearch|
@@ -493,11 +490,16 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: `'# Summary, %(year) week %(week)'`
 
-*g:wiki_zotero_root*
-  A string that specifies the Zotero root folder used for the zotero URL
-  scheme, see |wiki-link-url|.
+*g:wiki_viewer*
+  A dictionary that specifies which viewer to use for a given filetype. The
+  entry `_` specifies the fallback or generic viewer. This option thus allows
+  one to setup different viewers for different file types that are used by the
+  generic link scheme opener (see |wiki-link-url|) and by |WikiExport|.
 
-  Default: `'~/.local/zotero'`
+  Default: >
+    let g:wiki_viewer = {
+        \ '_' : OS Dependent: 'xdg-open' (Linux) | 'open' (OSX),
+        \}
 
 *g:wiki_write_on_nav*
   Option to specify whether or not to save the current file automatically
@@ -505,13 +507,11 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: 0
 
-*g:wiki_fzf_pages_force_create_key*
-  Key combination that, when pressed while searching with |WikiFzfPages|, will
-  create a new page with the name of the query. The value must be a string
-  recognized by fzf's `--expect` argument; see fzf's manual page for a list of
-  available keys.
+*g:wiki_zotero_root*
+  A string that specifies the Zotero root folder used for the zotero URL
+  scheme, see |wiki-link-url|.
 
-  Default: `'alt-enter'`
+  Default: `'~/.local/zotero'`
 
 ------------------------------------------------------------------------------
 EVENTS                                                     *wiki-config-events*
