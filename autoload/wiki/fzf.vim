@@ -18,7 +18,7 @@ function! wiki#fzf#pages() abort "{{{1
   call map(l:pages, '"/" . substitute(v:val, l:root . "/" , "", "")')
   call map(l:pages, {_, x -> x . "¤" . fnamemodify(x, ':r')})
 
-  let fzf_opts = join([
+  let l:fzf_opts = join([
         \ '-d"¤" --with-nth=-1 --print-query --prompt "WikiPages> "',
         \ '--expect=' . get(g:, 'wiki_fzf_pages_force_create_key', 'alt-enter')
         \])
@@ -26,7 +26,7 @@ function! wiki#fzf#pages() abort "{{{1
   call fzf#run(fzf#wrap({
         \ 'source': l:pages,
         \ 'sink*': funcref('s:accept_page'),
-        \ 'options': fzf_opts
+        \ 'options': l:fzf_opts
         \}))
 endfunction
 
