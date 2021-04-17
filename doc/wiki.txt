@@ -505,6 +505,14 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: 0
 
+*g:wiki_fzf_pages_force_create_key*
+  Key combination that, when pressed while searching with |WikiFzfPages|, will
+  create a new page with the name of the query. The value must be a string
+  recognized by fzf's `--expect` argument; see fzf's manual page for a list of
+  available keys.
+
+  Default: `'alt-enter'`
+
 ------------------------------------------------------------------------------
 EVENTS                                                     *wiki-config-events*
 
@@ -750,13 +758,18 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   Open |fzf| in find file mode for wiki files in current wiki or in the main
   wiki defined by |g:wiki_root|.
 
-  This can also also be used to create a new page. If a query is typed and
-  alt-enter is pressed, a new page with name equal to the query will be
-  created if it doesn't already exist. For example, suppose you search for "My
-  Fzf Page", and there is already a page named "My Favorite Fzf Page". fzf
-  will show the latter as a possible selection. If the enter key is pressed,
-  the existing "My Favorite Fzf Page" will be opened. If alt-enter is pressed
-  instead, a new page titled "My Fzf Page" will be created and opened.
+  This can also be used to create a new page. If a query is typed and the key
+  specified by |g:wiki_fzf_pages_force_create_key| is pressed (alt-enter, by
+  default), a page whose name is equal to the query will be created if it
+  doesn't already exist. If the page does already exist, it will be opened.
+  If |g:wiki_map_create_page| is defined, the new page name is determined by
+  first applying that function to the query.
+
+  For example, suppose you search for "foo", and there is one result: an
+  already-existing page named "foobar". If the enter key is pressed, the
+  existing "foobar" will be opened, as usual. However, if
+  |g:wiki_fzf_pages_force_create_key| is pressed instead, a new page titled
+  "foo" will be created and opened.
 
   For convenience, if the input query does not have any results, simply
   pressing enter will also create a page.  E.g., if you searched for "My Fzf

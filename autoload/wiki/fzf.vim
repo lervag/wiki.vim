@@ -17,10 +17,12 @@ function! wiki#fzf#pages() abort "{{{1
   let l:pages = globpath(l:root, l:pattern, v:false, v:true)
   call map(l:pages, '"/" . substitute(v:val, l:root . "/" , "", "")')
   call map(l:pages, {_, x -> x . "¤" . fnamemodify(x, ':r')})
+
   let fzf_opts = join([
         \ '-d"¤" --with-nth=-1 --print-query --prompt "WikiPages> "',
-        \ '--expect=alt-enter'
+        \ '--expect=' . get(g:, 'wiki_fzf_pages_force_create_key', 'alt-enter')
         \])
+
   call fzf#run(fzf#wrap({
         \ 'source': l:pages,
         \ 'sink*': funcref('s:accept_page'),
@@ -86,11 +88,7 @@ function! s:accept_page(lines) abort "{{{1
   " either empty or alt-enter, depending on if enter or alt-enter was used to
   " select, and the third line (possibly) contains the selection
   if len(a:lines) == 2 || !empty(a:lines[1])
-    let l:page = a:lines[0]
-    redraw!
-    call wiki#log#info('Opening page "' . l:page . '"')
-    sleep 1
-    call wiki#page#open(l:page)
+    call wiki#page#open(a:lines[0])
   else
     let l:file = split(a:lines[2], '¤')[0]
     execute 'edit ' . wiki#get_root() . l:file
