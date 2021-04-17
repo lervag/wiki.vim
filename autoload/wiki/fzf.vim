@@ -83,10 +83,11 @@ endfunction
 "}}}1
 
 function! s:accept_page(lines) abort "{{{1
-  " if the query was so narrow that no page names matched, there will be two
-  " lines -- otherwise, three. The first line is the query, the second is
-  " either empty or alt-enter, depending on if enter or alt-enter was used to
-  " select, and the third line (possibly) contains the selection
+  " a:lines is a list with two or three elements. Two if there were no matches,
+  " and three if there is one or more matching names. The first element is the
+  " search query; the second is either an empty string or the alternative key
+  " specified by g:wiki_fzf_pages_force_create_key (e.g. 'alt-enter') if this
+  " was pressed; the third element contains the selected item.
   if len(a:lines) == 2 || !empty(a:lines[1])
     call wiki#page#open(a:lines[0])
   else
