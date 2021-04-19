@@ -39,6 +39,7 @@ endfunction
 function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiCodeRun            call wiki#u#run_code_snippet()
   command! -buffer WikiGraphFindBacklinks call wiki#graph#find_backlinks()
+  command! -buffer WikiGraphCheckLinks call wiki#graph#check_links()
   command! -buffer -count=99 WikiGraphIn  call wiki#graph#in(<count>)
   command! -buffer -count=99 WikiGraphOut call wiki#graph#out(<count>)
   command! -buffer WikiJournalIndex       call wiki#journal#make_index()
@@ -81,6 +82,7 @@ endfunction
 function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-code-run)             :WikiCodeRun<cr>
   nnoremap <silent><buffer> <plug>(wiki-graph-find-backlinks) :WikiGraphFindBacklinks<cr>
+  nnoremap <silent><buffer> <plug>(wiki-graph-check-links)    :WikiGraphCheckLinks<cr>
   nnoremap <silent><buffer> <plug>(wiki-graph-in)             :WikiGraphIn<cr>
   nnoremap <silent><buffer> <plug>(wiki-graph-out)            :WikiGraphOut<cr>
   nnoremap <silent><buffer> <plug>(wiki-journal-index)        :WikiJournalIndex<cr>
@@ -141,6 +143,7 @@ function! s:init_buffer_mappings() abort " {{{1
     let l:mappings = {
           \ '<plug>(wiki-code-run)' : '<leader>wc',
           \ '<plug>(wiki-graph-find-backlinks)' : '<leader>wb',
+          \ '<plug>(wiki-graph-check-links)' : '<leader>wlc',
           \ '<plug>(wiki-graph-in)' : '<leader>wg',
           \ '<plug>(wiki-graph-out)' : '<leader>wG',
           \ '<plug>(wiki-link-next)' : '<tab>',
