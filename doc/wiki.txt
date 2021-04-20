@@ -577,7 +577,9 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 
 *<plug>(wiki-graph-check-links)*
 *WikiGraphCheckLinks*
-  Check for broken links.
+  Check the wiki for broken links. If any broken links are found, they are
+  added to the location list (|location-list|) and the location list is
+  opened.
 
 *<plug>(wiki-graph-in)*
 *<plug>(wiki-graph-out)*

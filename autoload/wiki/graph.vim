@@ -36,23 +36,23 @@ function! wiki#graph#check_links() abort "{{{1
 
   for l:file in globpath(b:wiki.root, '**/*.' . b:wiki.extension, 0, 1)
     for l:link in filter(wiki#link#get_all(l:file),
-                \ 'get(v:val, ''scheme'', '''') ==# ''wiki''')
-        if !filereadable(l:link.path)
-            call add(l:broken_links, {
-                        \ 'filename' : l:file,
-                        \ 'text' : get(l:link, 'full'),
-                        \ 'anchor' : l:link.anchor,
-                        \ 'lnum' : l:link.lnum,
-                        \ 'col' : l:link.c1
-                        \})
-        endif
+          \ 'get(v:val, ''scheme'', '''') ==# ''wiki''')
+      if !filereadable(l:link.path)
+        call add(l:broken_links, {
+              \ 'filename': l:file,
+              \ 'text': get(l:link, 'full'),
+              \ 'anchor': l:link.anchor,
+              \ 'lnum': l:link.lnum,
+              \ 'col': l:link.c1
+              \})
+      endif
     endfor
   endfor
 
   call wiki#log#info('Done!')
 
   if empty(l:broken_links)
-    call wiki#log#info('No broken links exist')
+    call wiki#log#info('No broken links found.')
   else
     call setloclist(0, l:broken_links, 'r')
     lopen
