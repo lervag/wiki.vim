@@ -575,6 +575,10 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *WikiGraphFindBacklinks*
   Find backlinks to current page.
 
+*<plug>(wiki-graph-check-links)*
+*WikiGraphCheckLinks*
+  Check for broken links.
+
 *<plug>(wiki-graph-in)*
 *<plug>(wiki-graph-out)*
 *WikiGraphIn*
@@ -829,6 +833,7 @@ information about the different modes.
    `n`     <leader>wx          |<plug>(wiki-reload)|              [GLOBAL]
    `n`     <leader>wc          |<plug>(wiki-code-run)|
    `n`     <leader>wb          |<plug>(wiki-graph-find-backlinks)|
+   `n`     <leader>wlc         |<plug>(wiki-graph-check-links)|
    `n`     <leader>wg          |<plug>(wiki-graph-in)|
    `n`     <leader>wG          |<plug>(wiki-graph-out)|
    `n`     <leader>wf          |<plug>(wiki-link-toggle)|
