@@ -513,6 +513,13 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: `'~/.local/zotero'`
 
+*WikiSearchCommand*
+  Funcref that takes wiki_root and filename and its return is the file to open
+  relative to the wiki_root. Define function in vimrc to override wiki page
+  lookup.
+  
+  Default: Undefined
+
 ------------------------------------------------------------------------------
 EVENTS                                                     *wiki-config-events*
 

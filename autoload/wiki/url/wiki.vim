@@ -20,6 +20,10 @@ function! wiki#url#wiki#parse(url) abort " {{{1
           \ . (l:anchors[0] =~# '/$' ? b:wiki.index_name : '')
   endif
 
+  if exists('*WikiSearchCommand')
+    let l:fname = WikiSearchCommand(g:wiki_root, l:fname)
+  endif
+
   " Extract the full path
   let l:url.path = l:fname[0] ==# '/'
         \ ? wiki#get_root() . l:fname
