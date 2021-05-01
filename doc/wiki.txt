@@ -405,10 +405,28 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: `['January', 'February', ..., 'December']`
 
-*g:wiki_toc_title*
-  The title of TOC listings.
+*g:wiki_resolver*
+  The name of the function to resolve wiki-schemed links, i.e., the standard
+  link scheme. The default should work well for most people, but this option
+  allows to adjust the resolver to ones own liking.
 
-  Default: `'Contents'`
+  The function takes two arguments:
+
+    fname~
+      The unresolved file name. This may be empty, which is typically the case
+      for inter-page links (e.g. `[[#SomeSection]]`).
+
+    origin~
+      The path of the origin file, i.e. the file from which the link was
+      activated. This may be empty if a link is opened programmatically from
+      an empty buffer.
+
+  The function must return an absolute path to the destination file.
+
+  Note: The function `wiki#get_root()` can be useful to get the path to the
+        wiki root.
+
+  Default: `'wiki#url#wiki#url#wiki#resolver'`
 
 *g:wiki_root*
   Option to specify the wiki root path, i.e. the wiki that is opened with the
@@ -435,6 +453,11 @@ OPTIONS                                                   *wiki-config-options*
         existing directory.
 
   Default: ''
+
+*g:wiki_toc_title*
+  The title of TOC listings.
+
+  Default: `'Contents'`
 
 *g:wiki_tags*
   A dictionary that specifies the default configuration for |WikiTagSearch|
