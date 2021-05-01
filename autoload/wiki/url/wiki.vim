@@ -7,52 +7,55 @@
 function! wiki#url#wiki#parse(url) abort " {{{1
   let l:url = deepcopy(s:parser)
 
-  " Extract anchor
+  " Extract the anchor
   let l:anchors = split(a:url.stripped, '#', 1)
   let l:url.anchor = len(l:anchors) > 1 ? join(l:anchors[1:], '#') : ''
   let l:url.anchor = substitute(l:url.anchor, '#$', '', '')
 
-  " Parse the file path relative to wiki root
-  if empty(l:anchors[0])
-    let l:fname = fnamemodify(a:url.origin, ':p:t:r')
-  else
-    let l:fname = l:anchors[0]
-          \ . (l:anchors[0] =~# '/$' ? b:wiki.index_name : '')
+  " Extract the target filename
+  let l:fname = l:anchors[0]
+  if l:fname =~# '/$'
+    let l:fname .= get(get(b:, 'wiki', {}), 'index_name', '')
   endif
 
-  if exists('*WikiSearchCommand')
-    let l:fname = WikiSearchCommand(g:wiki_root, l:fname)
-  endif
+  let l:url.path = call(g:wiki_resolver, [l:fname, a:url.origin])
+  let l:url.dir = fnamemodify(l:url.path, ':p:h')
+
+  return l:url
+endfunction
+
+" }}}1
+function! wiki#url#wiki#resolver(fname, origin) abort " {{{1
+  if empty(a:fname) | return a:origin | endif
 
   " Extract the full path
-  let l:url.path = l:fname[0] ==# '/'
-        \ ? wiki#get_root() . l:fname
-        \ : (empty(a:url.origin)
+  let l:path = a:fname[0] ==# '/'
+        \ ? wiki#get_root() . a:fname
+        \ : (empty(a:origin)
         \   ? wiki#get_root()
-        \   : fnamemodify(a:url.origin, ':p:h')) . '/' . l:fname
-  let l:url.path = simplify(l:url.path)
-  let l:url.dir = fnamemodify(l:url.path, ':p:h')
+        \   : fnamemodify(a:origin, ':p:h')) . '/' . a:fname
+  let l:path = simplify(l:path)
 
   " Determine the proper extension (if necessary)
   let l:extensions = wiki#u#uniq_unsorted(
         \ (exists('b:wiki.extension') ? [b:wiki.extension] : [])
         \ + g:wiki_filetypes)
-  if index(l:extensions, fnamemodify(l:fname, ':e')) < 0
-    let l:path = l:url.path
-    let l:url.path .= '.' . l:extensions[0]
+  if index(l:extensions, fnamemodify(a:fname, ':e')) < 0
+    let l:path = l:path
+    let l:path .= '.' . l:extensions[0]
 
-    if !filereadable(l:url.path) && len(l:extensions) > 1
+    if !filereadable(l:path) && len(l:extensions) > 1
       for l:ext in l:extensions[1:]
         let l:newpath = l:path . '.' . l:ext
         if filereadable(l:newpath)
-          let l:url.path = l:newpath
+          let l:path = l:newpath
           break
         endif
       endfor
     endif
   endif
 
-  return l:url
+  return l:path
 endfunction
 
 " }}}1

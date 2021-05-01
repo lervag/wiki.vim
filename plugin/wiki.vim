@@ -47,6 +47,7 @@ call wiki#init#option('wiki_month_names', [
       \ 'January', 'February', 'March', 'April', 'May', 'June', 'July',
       \ 'August', 'September', 'October', 'November', 'December'
       \])
+call wiki#init#option('wiki_resolver', 'wiki#url#wiki#resolver')
 call wiki#init#option('wiki_root', '')
 call wiki#init#option('wiki_tags', { 'output' : 'loclist' })
 call wiki#init#option('wiki_tags_format_pattern', '\v%(^|\s):\zs[^: ]+\ze:')
