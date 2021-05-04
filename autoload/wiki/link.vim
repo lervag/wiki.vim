@@ -160,7 +160,7 @@ function! wiki#link#toggle_visual() abort " {{{1
         \ 'scheme' : '',
         \ 'lnum' : line('.'),
         \ 'c1' : getpos("'<")[2],
-        \ 'c2' : s:handle_multibyte(getpos("'>")[2]),
+        \ 'c2' : wiki#u#cnum_to_byte(getpos("'>")[2]),
         \ 'toggle' : function('wiki#link#word#template'),
         \}
 
@@ -225,7 +225,7 @@ function! s:matchstr_at_cursor(regex) abort " {{{1
   let l:c2 = searchpos(a:regex, 'nce',  l:lnum)[1]
   if l:c2 == 0 | return {} | endif
 
-  let l:c2 = s:handle_multibyte(l:c2)
+  let l:c2 = wiki#u#cnum_to_byte(l:c2)
 
   return {
         \ 'full' : strpart(getline('.'), l:c1-1, l:c2-l:c1+1),
@@ -294,13 +294,6 @@ function! s:matchstrpos(...) abort " {{{1
       return [l:match, l:pos, l:pos+strlen(l:match)]
     endif
   endif
-endfunction
-
-" }}}1
-function! s:handle_multibyte(cnum) abort " {{{1
-  if a:cnum <= 0 | return a:cnum | endif
-  let l:bytes = len(strcharpart(getline('.')[a:cnum-1:], 0, 1))
-  return a:cnum + l:bytes - 1
 endfunction
 
 " }}}1
