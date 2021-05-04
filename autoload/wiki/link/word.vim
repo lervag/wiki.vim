@@ -5,7 +5,9 @@
 "
 
 function! wiki#link#word#matcher() abort " {{{1
-  return deepcopy(s:matcher)
+  return extend(
+        \ wiki#link#_template#matcher(),
+        \ deepcopy(s:matcher))
 endfunction
 
 " }}}1
@@ -65,6 +67,7 @@ endfunction
 
 " }}}1
 
+
 let s:matcher = {
       \ 'type' : 'word',
       \ 'toggle' : function('wiki#link#word#template'),
@@ -75,6 +78,7 @@ function! s:matcher.parse(link) abort dict " {{{1
   let a:link.scheme = ''
   let a:link.text = a:link.full
   let a:link.url = 'N/A'
+
   return a:link
 endfunction
 

@@ -5,27 +5,22 @@
 "
 
 function! wiki#link#md_fig#matcher() abort " {{{1
-  return deepcopy(s:matcher)
+  return extend(
+        \ wiki#link#_template#matcher(),
+        \ deepcopy(s:matcher))
 endfunction
 
 " }}}1
+
 
 let s:matcher = {
-      \ 'type' : 'md_fig',
-      \ 'rx' : g:wiki#rx#link_md_fig,
-      \ 'rx_url' : '!\[[^\\\[\]]\{-}\](\zs[^\\]\{-}\ze)',
-      \ 'rx_text' : '!\[\zs[^\\\[\]]\{-}\ze\]([^\\]\{-})',
+      \ 'scheme': 'file',
+      \ 'type': 'md_fig',
+      \ 'rx': g:wiki#rx#link_md_fig,
+      \ 'rx_url': '!\[[^\\\[\]]\{-}\](\zs[^\\]\{-}\ze)',
+      \ 'rx_text': '!\[\zs[^\\\[\]]\{-}\ze\]([^\\]\{-})',
       \}
 
-function! s:matcher.parse(link) abort dict " {{{1
-  if empty(matchstr(a:link.url, '\v^\w+:%(//)?'))
-    let a:link.url = 'file:' . a:link.url
-  endif
-  return extend(a:link, wiki#url#parse(a:link.url,
-        \ has_key(a:link, 'origin') ? {'origin': a:link.origin} : {}))
-endfunction
-
-" }}}1
 function! s:matcher.toggle(url, text) abort " {{{1
   return printf('![%s](%s)', empty(a:text) ? a:url : a:text, a:url)
 endfunction

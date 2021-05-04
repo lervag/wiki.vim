@@ -7,25 +7,9 @@
 function! wiki#link#get() abort " {{{1
   if wiki#u#is_code() | return {} | endif
 
-  for l:matcher in [
-        \ wiki#link#wiki#matcher(),
-        \ wiki#link#adoc_xref_bracket#matcher(),
-        \ wiki#link#adoc_xref_inline#matcher(),
-        \ wiki#link#adoc_link#matcher(),
-        \ wiki#link#md_fig#matcher(),
-        \ wiki#link#md#matcher(),
-        \ wiki#link#ref_target#matcher(),
-        \ wiki#link#ref_single#matcher(),
-        \ wiki#link#ref_double#matcher(),
-        \ wiki#link#url#matcher(),
-        \ wiki#link#shortcite#matcher(),
-        \ wiki#link#date#matcher(),
-        \ wiki#link#word#matcher(),
-        \]
-    let l:link = s:matchstr_at_cursor(l:matcher.rx)
-    if !empty(l:link)
-      return s:parse_link(l:matcher, l:link)
-    endif
+  for l:matcher in s:matchers
+    let l:link = l:matcher.match_at_cursor()
+    if !empty(l:link) | return l:link | endif
   endfor
 
   return {}
@@ -48,42 +32,27 @@ function! wiki#link#get_all(...) abort "{{{1
   let l:file = a:0 > 0 ? a:1 : expand('%')
   if !filereadable(l:file) | return [] | endif
 
-  let l:matchers = [
-        \ wiki#link#wiki#matcher(),
-        \ wiki#link#adoc_xref_bracket#matcher(),
-        \ wiki#link#adoc_xref_inline#matcher(),
-        \ wiki#link#adoc_link#matcher(),
-        \ wiki#link#md_fig#matcher(),
-        \ wiki#link#md#matcher(),
-        \ wiki#link#ref_target#matcher(),
-        \ wiki#link#ref_single#matcher(),
-        \ wiki#link#ref_double#matcher(),
-        \ wiki#link#url#matcher(),
-        \ wiki#link#shortcite#matcher(),
-        \]
   let l:links = []
   let l:lnum = 0
   for l:line in readfile(l:file)
     let l:lnum += 1
     let l:col = 0
-    while 1
+    while v:true
       let l:c1 = match(l:line, g:wiki#rx#link, l:col) + 1
       if l:c1 == 0 | break | endif
 
-      " Create link
-      let l:link = {}
-      let l:link.full = matchstr(l:line, g:wiki#rx#link, l:col)
-      let l:link.lnum = l:lnum
-      let l:link.c1 = l:c1
-      let l:link.c2 = l:c1 + strlen(l:link.full)
-      let l:link.origin = l:file
-      let l:col = l:link.c2
+      let l:match = {}
+      let l:match.full = matchstr(l:line, g:wiki#rx#link, l:col)
+      let l:match.lnum = l:lnum
+      let l:match.c1 = l:c1
+      let l:match.c2 = l:c1 + strlen(l:match.full)
+      let l:match.origin = l:file
+      let l:col = l:match.c2
 
       " Match link to type and add details
-      for l:matcher in l:matchers
-        if l:matcher.type ==# 'ref' | continue | endif
-        if l:link.full =~# substitute(l:matcher.rx, '^^\?', '^', '')
-          call add(l:links, s:parse_link(l:matcher, l:link))
+      for l:matcher in s:matchers_real
+        if l:match.full =~# l:matcher.rx
+          call add(l:links, l:matcher.create_link(l:match))
           break
         endif
       endfor
@@ -211,90 +180,34 @@ endfunction
 " }}}1
 
 
-function! s:matchstr_at_cursor(regex) abort " {{{1
-  let l:lnum = line('.')
+" {{{1 Initialize matchers
 
-  " Seach backwards for current regex
-  let l:c1 = searchpos(a:regex, 'ncb',  l:lnum)[1]
-  if l:c1 == 0 | return {} | endif
+let s:matchers = [
+      \ wiki#link#wiki#matcher(),
+      \ wiki#link#adoc_xref_bracket#matcher(),
+      \ wiki#link#adoc_xref_inline#matcher(),
+      \ wiki#link#adoc_link#matcher(),
+      \ wiki#link#md_fig#matcher(),
+      \ wiki#link#md#matcher(),
+      \ wiki#link#ref_target#matcher(),
+      \ wiki#link#ref_single#matcher(),
+      \ wiki#link#ref_double#matcher(),
+      \ wiki#link#url#matcher(),
+      \ wiki#link#shortcite#matcher(),
+      \ wiki#link#date#matcher(),
+      \ wiki#link#word#matcher(),
+      \]
 
-  " Ensure that the cursor is positioned on top of the match
-  let l:c1e = searchpos(a:regex, 'ncbe', l:lnum)[1]
-  if l:c1e >= l:c1 && l:c1e < col('.') | return {} | endif
-
-  " Find the end of the match
-  let l:c2 = searchpos(a:regex, 'nce',  l:lnum)[1]
-  if l:c2 == 0 | return {} | endif
-
-  let l:c2 = wiki#u#cnum_to_byte(l:c2)
-
-  return {
-        \ 'full' : strpart(getline('.'), l:c1-1, l:c2-l:c1+1),
-        \ 'lnum' : l:lnum,
-        \ 'c1' : l:c1,
-        \ 'c2' : l:c2,
-        \}
-endfunction
-
-"}}}1
-function! s:parse_link(matcher, link) abort " {{{1
-  let a:link.type = a:matcher.type
-  let a:link.url = a:link.full
-  let a:link.text = ''
-  if has_key(a:matcher, 'toggle')
-    let a:link.toggle = a:matcher.toggle
-  elseif has_key(g:wiki_link_toggles, a:link.type)
-    let a:link.toggle = function(g:wiki_link_toggles[a:link.type])
-  endif
-
-  " Get link text
-  if has_key(a:matcher, 'rx_text')
-    let [l:text, l:c1, l:c2] = s:matchstrpos(a:link.full, a:matcher.rx_text)
-    if !empty(l:text)
-      let a:link.text = l:text
-      let a:link.text_c1 = a:link.c1 + l:c1
-      let a:link.text_c2 = a:link.c1 + l:c2 - 1
-    endif
-  endif
-
-  " Get link url
-  if has_key(a:matcher, 'rx_url')
-    let [l:url, l:c1, l:c2] = s:matchstrpos(a:link.full, a:matcher.rx_url)
-    if !empty(l:url)
-      let a:link.url = l:url
-      let a:link.url_c1 = a:link.c1 + l:c1
-      let a:link.url_c2 = a:link.c1 + l:c2 - 1
-    endif
-  endif
-
-  if has_key(a:matcher, 'parse')
-    return a:matcher.parse(a:link)
-  else
-    let l:url = has_key(a:matcher, 'scheme')
-          \ ? a:matcher.scheme . ':'
-          \ : ''
-    let l:url .= a:link.url
-
-    return extend(a:link, wiki#url#parse(l:url,
-          \ has_key(a:link, 'origin') ? {'origin': a:link.origin} : {}))
-  endif
-endfunction
-
-" }}}1
-function! s:matchstrpos(...) abort " {{{1
-  if exists('*matchstrpos')
-    return call('matchstrpos', a:000)
-  else
-    let [l:expr, l:pat] = a:000[:1]
-
-    let l:pos = match(l:expr, l:pat)
-    if l:pos < 0
-      return ['', -1, -1]
-    else
-      let l:match = matchstr(l:expr, l:pat)
-      return [l:match, l:pos, l:pos+strlen(l:match)]
-    endif
-  endif
-endfunction
+let s:matchers_real = [
+      \ wiki#link#wiki#matcher(),
+      \ wiki#link#adoc_xref_bracket#matcher(),
+      \ wiki#link#adoc_xref_inline#matcher(),
+      \ wiki#link#adoc_link#matcher(),
+      \ wiki#link#md_fig#matcher(),
+      \ wiki#link#md#matcher(),
+      \ wiki#link#ref_target#matcher(),
+      \ wiki#link#url#matcher(),
+      \ wiki#link#shortcite#matcher(),
+      \]
 
 " }}}1

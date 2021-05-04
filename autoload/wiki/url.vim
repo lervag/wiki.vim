@@ -44,3 +44,12 @@ function! wiki#url#parse(string, ...) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#url#extend(link) abort " {{{1
+  let l:options = has_key(a:link, 'origin')
+        \ ? {'origin': a:link.origin}
+        \ : {}
+
+  return extend(a:link, wiki#url#parse(a:link.url, l:options))
+endfunction
+
+" }}}1

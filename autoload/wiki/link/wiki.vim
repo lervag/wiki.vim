@@ -5,12 +5,12 @@
 "
 
 function! wiki#link#wiki#matcher() abort " {{{1
-  return {
+  return extend(wiki#link#_template#matcher(), {
         \ 'type' : 'wiki',
         \ 'rx' : g:wiki#rx#link_wiki,
         \ 'rx_url' : '\[\[\zs\/\?[^\\\]]\{-}\ze\%(|[^\\\]]\{-}\)\?\]\]',
         \ 'rx_text' : '\[\[\/\?[^\\\]]\{-}|\zs[^\\\]]\{-}\ze\]\]',
-        \}
+        \})
 endfunction
 
 " }}}1

@@ -5,19 +5,23 @@
 "
 
 function! wiki#link#shortcite#matcher() abort " {{{1
-  return deepcopy(s:matcher)
+  return extend(
+        \ wiki#link#_template#matcher(),
+        \ deepcopy(s:matcher))
 endfunction
 
 " }}}1
 
+
 let s:matcher = {
-      \ 'type' : 'url',
-      \ 'rx' : wiki#rx#link_shortcite,
+      \ 'type': 'url',
+      \ 'rx': wiki#rx#link_shortcite,
       \}
 
 function! s:matcher.parse(link) abort dict " {{{1
-  return extend(a:link, wiki#url#parse('zot:' . strpart(a:link.full, 1),
-        \ has_key(a:link, 'origin') ? {'origin': a:link.origin} : {}))
+  let a:link.url = 'zot:' . strpart(a:link.full, 1)
+
+  return wiki#url#extend(a:link)
 endfunction
 
 " }}}1

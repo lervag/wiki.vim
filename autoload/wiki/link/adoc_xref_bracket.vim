@@ -5,13 +5,13 @@
 "
 
 function! wiki#link#adoc_xref_bracket#matcher() abort " {{{1
-  return {
-        \ 'type' : 'adoc_xref_bracket',
-        \ 'scheme' : 'adoc',
-        \ 'rx' : g:wiki#rx#link_adoc_xref_bracket,
-        \ 'rx_url' : '<<\zs\%([^,>]\{-}\ze,[^>]\{-}\|[^>]\{-}\ze\)>>',
-        \ 'rx_text' : '<<[^,>]\{-},\zs[^>]\{-}\ze>>',
-        \}
+  return extend(wiki#link#_template#matcher(), {
+        \ 'type': 'adoc_xref_bracket',
+        \ 'scheme': 'adoc',
+        \ 'rx': g:wiki#rx#link_adoc_xref_bracket,
+        \ 'rx_url': '<<\zs\%([^,>]\{-}\ze,[^>]\{-}\|[^>]\{-}\ze\)>>',
+        \ 'rx_text': '<<[^,>]\{-},\zs[^>]\{-}\ze>>',
+        \})
 endfunction
 
 " }}}1

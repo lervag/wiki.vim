@@ -5,11 +5,11 @@
 "
 
 function! wiki#link#date#matcher() abort " {{{1
-  return {
-        \ 'type' : 'date',
-        \ 'scheme' : 'journal',
-        \ 'rx' : g:wiki#rx#date,
-        \}
+  return extend(wiki#link#_template#matcher(), {
+        \ 'type': 'date',
+        \ 'scheme': 'journal',
+        \ 'rx': g:wiki#rx#date,
+        \})
 endfunction
 
 " }}}1
