@@ -7,7 +7,7 @@
 function! wiki#journal#make_note(...) abort " {{{1
   let l:date = (a:0 > 0 ? a:1
         \ : strftime(g:wiki_journal.date_format[g:wiki_journal.frequency]))
-  call wiki#url#parse('journal:' . l:date).open()
+  call wiki#url#parse('journal:' . l:date).follow()
 endfunction
 
 " }}}1
@@ -20,7 +20,7 @@ function! wiki#journal#copy_note() abort " {{{1
     execute 'write' l:next_entry
   endif
 
-  call wiki#url#parse('journal:' . l:next).open()
+  call wiki#url#parse('journal:' . l:next).follow()
 endfunction
 
 " }}}1
@@ -33,7 +33,7 @@ function! wiki#journal#go(step) abort " {{{1
     return
   endif
 
-  call wiki#url#parse('journal:' . l:links[l:target]).open()
+  call wiki#url#parse('journal:' . l:links[l:target]).follow()
 endfunction
 
 " }}}1
@@ -54,7 +54,7 @@ function! wiki#journal#freq(frq) abort " {{{1
   let l:date = l:filedate =~# l:rx ? l:filedate : strftime(l:fmt)
 
   call wiki#url#parse('journal:'
-        \ . wiki#date#format(l:date, g:wiki_journal.date_format[a:frq])).open()
+        \ . wiki#date#format(l:date, g:wiki_journal.date_format[a:frq])).follow()
 endfunction
 
 " }}}1

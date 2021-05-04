@@ -7,9 +7,9 @@
 function! wiki#url#file#parse(url) abort " {{{1
   let l:url = {}
 
-  function! l:url.open(...) abort dict
+  function! l:url.follow(...) abort dict
     try
-      if call(get(g:, 'wiki_file_open', ''), a:000, self)
+      if call(get(g:, 'wiki_file_handler', ''), a:000, self)
         return
       endif
     catch /E117:/

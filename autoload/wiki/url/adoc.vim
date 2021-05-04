@@ -27,7 +27,7 @@ endfunction
 " }}}1
 
 let s:parser = {}
-function! s:parser.open(...) abort dict " {{{1
+function! s:parser.follow(...) abort dict " {{{1
   let l:cmd = a:0 > 0 ? a:1 : 'edit'
 
   " Open wiki file
@@ -61,7 +61,7 @@ function! s:parser.open(...) abort dict " {{{1
       normal! m'
     endif
 
-    call self.open_anchor()
+    call self.follow_anchor()
   endif
 
   " Focus
@@ -73,13 +73,13 @@ function! s:parser.open(...) abort dict " {{{1
     endif
   endif
 
-  if exists('#User#WikiLinkOpened')
-    doautocmd <nomodeline> User WikiLinkOpened
+  if exists('#User#WikiLinkFollowed')
+    doautocmd <nomodeline> User WikiLinkFollowed
   endif
 endfunction
 
 "}}}1
-function! s:parser.open_anchor() abort dict " {{{1
+function! s:parser.follow_anchor() abort dict " {{{1
   let l:match = matchlist(self.anchor, '\(.*\)[- _]\(\d\+\)$')
   if empty(l:match)
     let l:re = self.anchor

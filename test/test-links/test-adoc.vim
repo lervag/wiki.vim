@@ -21,7 +21,7 @@ call wiki#test#assert_equal('Some text, cf. <<foo.adoc#,foo>>.', getline('.'))
 
 " Test link to other document
 set hidden
-silent execute "normal \<Plug>(wiki-link-open)"
+silent execute "normal \<Plug>(wiki-link-follow)"
 call wiki#test#assert_equal('foo.adoc', expand('%:t'))
 
 
@@ -34,7 +34,7 @@ call wiki#test#assert_equal(5, col('.'))
 
 
 " Test links within a document
-silent execute "normal \<Plug>(wiki-link-open)"
+silent execute "normal \<Plug>(wiki-link-follow)"
 call wiki#test#assert_equal(7, line('.'))
 call wiki#test#assert_equal(1, col('.'))
 

@@ -6,7 +6,7 @@
 
 function! wiki#url#generic#parse(url) abort " {{{1
   let l:parser = {}
-  function! l:parser.open(...) abort dict
+  function! l:parser.follow(...) abort dict
     call system(g:wiki_viewer['_'] . ' ' . shellescape(self.url) . '&')
   endfunction
 

@@ -7,12 +7,12 @@
 function! wiki#url#zot#parse(url) abort " {{{1
   let l:parser = {}
 
-  function! l:parser.open(...) abort dict
+  function! l:parser.follow(...) abort dict
     let l:files = wiki#zotero#search(self.stripped)
 
     if len(l:files) > 0
       let l:choice = wiki#ui#choose(
-            \ ['Open in Zotero: ' . self.stripped]
+            \ ['Follow in Zotero: ' . self.stripped]
             \   + map(copy(l:files), 's:menu_open_pdf(v:val)'),
             \ {
             \   'prompt': 'Please select desired action:',

@@ -39,7 +39,7 @@ function! s:matcher.parse(link) abort dict " {{{1
 
   " The url is not recognized, so we fall back to a link to the reference
   " position.
-  function! a:link.open(...) abort dict
+  function! a:link.follow(...) abort dict
     normal! m'
     call cursor(self.lnum_target, 1)
   endfunction

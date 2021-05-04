@@ -186,15 +186,15 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: ['wiki']
 
-*g:wiki_file_open*
-  Name of a function or a |FuncRef| for a function that should be used to open
-  a file URL (see also |wiki-link-urls|). The function should give a non-zero
-  return value if it opens the URL. If not, the plugin falls back to opening
-  the URL with Vim. An example: >
+*g:wiki_file_handler*
+  Name of a function or a |FuncRef| for a function that should be used to
+  handle local files (see also |wiki-link-urls|). The function should give
+  a non-zero return value if it properly handled the URL. If not, the plugin
+  falls back to opening the URL with Vim. An example: >
 
-    let g:wiki_file_open = 'WikiFileOpen'
+    let g:wiki_file_handler = 'WikiFileHandler'
 
-    function! WikiFileOpen(...) abort dict
+    function! WikiFileHandler(...) abort dict
       if self.path =~# 'pdf$'
         silent execute '!zathura' fnameescape(self.path) '&'
         return 1
@@ -258,8 +258,8 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: ''
 
-*g:wiki_link_toggle_on_open*
-  This option allows to disable the toggle behaviour in |WikiLinkOpen| where
+*g:wiki_link_toggle_on_follow*
+  This option allows to disable the toggle behaviour in |WikiLinkFollow| where
   "normal" text under the cursor is transformed into links. The behaviour is
   enabled by default. If disabled, one may still use |WikiLinkToggle| to
   transform text into links.
@@ -355,7 +355,7 @@ OPTIONS                                                   *wiki-config-options*
       return substitute(tolower(a:text), '\s\+', '-', 'g')
     endfunction
 <
-  With the above setting, links created with |WikiLinkOpen| or
+  With the above setting, links created with |WikiLinkFollow| or
   |WikiLinkToggle| (or related mappings) will be transformed by `MyFunction`.
   As an example, if one creates a link from the text "Some text", the link
   becomes "[[some-text|Some text]]".
@@ -418,7 +418,7 @@ OPTIONS                                                   *wiki-config-options*
 
     origin~
       The path of the origin file, i.e. the file from which the link was
-      activated. This may be empty if a link is opened programmatically from
+      activated. This may be empty if a link is followed programmatically from
       an empty buffer.
 
   The function must return an absolute path to the destination file.
@@ -517,7 +517,7 @@ OPTIONS                                                   *wiki-config-options*
   A dictionary that specifies which viewer to use for a given filetype. The
   entry `_` specifies the fallback or generic viewer. This option thus allows
   one to setup different viewers for different file types that are used by the
-  generic link scheme opener (see |wiki-link-url|) and by |WikiExport|.
+  generic link scheme handler (see |wiki-link-url|) and by |WikiExport|.
 
   Default: >
     let g:wiki_viewer = {
@@ -544,17 +544,17 @@ how to use this: >
 
   augroup MyWikiAutocmds
     autocmd!
-    autocmd User WikiLinkOpened normal! zz
+    autocmd User WikiLinkFollowed normal! zz
     autocmd User WikiBufferInitialized
-          \ nmap <buffer> gf <plug>(wiki-link-open)
+          \ nmap <buffer> gf <plug>(wiki-link-follow)
   augroup END
 
 *WikiBufferInitialized*
   Event is triggered after the buffer features are initialized. This event
   allows one to apply custom mappings and similar.
 
-*WikiLinkOpened*
-  Event is triggered after a link has been opened.
+*WikiLinkFollowed*
+  Event is triggered after a link has been followed.
 
 *WikiReloadPost*
   Event is triggered after wiki.vim has been reloaded with |WikiReload|.
@@ -620,26 +620,26 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *WikiLinkPrev*
   Go to previous link.
 
-*<plug>(wiki-link-open)*
-*WikiLinkOpen*
-  Open/follow link. Will create a new link if the text under the cursor is not
+*<plug>(wiki-link-follow)*
+*WikiLinkFollow*
+  Follow link. Will create a new link if the text under the cursor is not
   already a link. If |g:wiki_map_link_create| is specified, it will be used to
   transform the link when creating it.
 
-                                                         *#User#WikiLinkOpened*
-  The user autocommand `WikiLinkOpened` is triggered after a wiki link has
-  been triggered. This allows the user to add custom functionality after
-  opening wiki links. The following example will center the cursor inside the
-  window after following a link: >
+                                                       *#User#WikiLinkFollowed*
+  The user autocommand `WikiLinkFollowed` is triggered after a wiki link has
+  been followed. This allows the user to add custom functionality after
+  following wiki links. For example, to center the cursor inside the window
+  after following a link: >
 
     augroup MyWikiAutocmds
       autocmd!
-      autocmd User WikiLinkOpened normal! zz
+      autocmd User WikiLinkFollowed normal! zz
     augroup END
 
-*<plug>(wiki-link-open-split)*
-*WikiLinkOpenSplit*
-  Similar to |WikiLinkOpen|, except wiki links are opened in a |vsplit|.
+*<plug>(wiki-link-follow-split)*
+*WikiLinkFollowSplit*
+  Similar to |WikiLinkfollow|, except wiki links are followed in a |vsplit|.
 
 *<plug>(wiki-link-return)*
 *WikiLinkReturn*
@@ -877,8 +877,8 @@ information about the different modes.
    `n`     <leader>wsr         |<plug>(wiki-tag-reload)|
    `n`     <leader>wss         |<plug>(wiki-tag-search)|
    `n`     <tab>               |<plug>(wiki-link-next)|
-   `n`     <cr>                |<plug>(wiki-link-open)|
-   `n`     <c-w><cr>           |<plug>(wiki-link-open-split)|
+   `n`     <cr>                |<plug>(wiki-link-follow)|
+   `n`     <c-w><cr>           |<plug>(wiki-link-follow-split)|
    `n`     <s-tab>             |<plug>(wiki-link-prev)|
    `n`     <bs>                |<plug>(wiki-link-return)|
    `n`     gl                  |<plug>(wiki-link-toggle-operator)|
@@ -897,10 +897,10 @@ LINKS                                                               *wiki-link*
 
 Links are one of the most essential features of a wiki, and as such, requires
 particular attention.  A link is a structure that consists of an URL (see
-|wiki-link-url|) and a possibly empty description.  Any link may be
-activated with the mapping `<cr>` or `<c-cr>`, where the latter will open the
-link in a split (if it is an internal link).  One may use `<bs>` to navigate
-back after following a link.
+|wiki-link-url|) and a possibly empty description.  It may be followed with
+the mappings `<cr>` or `<c-cr>`, where the latter will open the link in a split
+(if it is an internal link).  One may use `<bs>` to navigate back after
+following a link.
 
 These are the link formats that are currently supported with some examples:
 
@@ -935,7 +935,7 @@ An URL, which is short for Uniform Resource Locator, has the general format
   `[scheme:]address`
 
 The `scheme` specifies which kind of link it is. When the URL is typed
-directly and with a proper scheme, it will typically be possible to open the
+directly and with a proper scheme, it will typically be possible to follow the
 link directly without putting it inside a fuller link type.
 
 When the scheme is not specified for URLs inside one of the other link types,
@@ -945,7 +945,7 @@ The following schemes are supported:
 
   wiki~
   journal~
-    Links to an internal wiki page.  The address can be both relative and
+    Links to internal wiki pages.  The address can be both relative and
     absolute.  Absolute addresses are relative to the wiki root.  Further, the
     addresses may include anchors to specific sections of the wiki entry.
     Some examples might be enlightening: >
@@ -963,8 +963,8 @@ The following schemes are supported:
       For convenience, an ISO date will also work as a journal link.
 <
   file~
-    Links to a file on the system and opens it.  This can be customized with
-    |g:wiki_file_open|, but falls back to opening the file with Vim. This
+    Links to a local file.  The file handler can be customized with
+    |g:wiki_file_handler|, but falls back to opening the file with Vim. This
     scheme is the default scheme for |wiki-link-image|.
 
   doi~
@@ -982,10 +982,10 @@ The following schemes are supported:
     |g:wiki_zotero_root|.
 
   generic~
-    If the scheme is not recognized, the link is opened with the system
+    If the scheme is not recognized, the link is followed with the system
     handler, which is defined by |g:wiki_viewer| on Linux.  Currently,
     only Linux is supported here.  This will work quite well on standard Linux
-    distributions, e.g. for opening `http` and `https` URLs.
+    distributions, e.g. for following `http` and `https` URLs.
 
 Schemes are defined in `autoload/wiki/url/{scheme}.vim`, which means it is
 relatively easy to define new custom schemes. See the generic scheme for
@@ -1046,8 +1046,8 @@ explained through an example: >
   [Target]: URL 2
   [Ref 3]: URL 3
 
-Reference style links may be opened with `<cr>` both on the reference location
-and on the link line.
+Reference style links may be followed with `<cr>` both on the reference
+location and on the link line.
 
 ------------------------------------------------------------------------------
 ZOTERO SHORTLINKS                                            *wiki-link-zotero*

@@ -4,12 +4,12 @@ runtime plugin/wiki.vim
 silent edit ../wiki-basic/a.wiki
 set hidden
 
-silent execute "normal \<plug>(wiki-link-open)"
+silent execute "normal \<plug>(wiki-link-follow)"
 call wiki#test#assert_equal(
       \ fnamemodify('../wiki-basic/b.wiki', ':p'),
       \ expand('%:p'))
 
-silent execute "normal \<plug>(wiki-link-open)"
+silent execute "normal \<plug>(wiki-link-follow)"
 call wiki#test#assert_equal(
       \ fnamemodify('../wiki-basic/c.wiki', ':p'),
       \ expand('%:p'))
@@ -26,12 +26,12 @@ call wiki#test#assert_equal(
 
 set nohidden
 
-silent execute "normal \<plug>(wiki-link-open)"
+silent execute "normal \<plug>(wiki-link-follow)"
 call wiki#test#assert_equal(
       \ fnamemodify('../wiki-basic/b.wiki', ':p'),
       \ expand('%:p'))
 
-silent execute "normal \<plug>(wiki-link-open)"
+silent execute "normal \<plug>(wiki-link-follow)"
 call wiki#test#assert_equal(
       \ fnamemodify('../wiki-basic/c.wiki', ':p'),
       \ expand('%:p'))

@@ -30,7 +30,7 @@ call wiki#init#option('wiki_journal', {
       \})
 call wiki#init#option('wiki_link_extension', '')
 call wiki#init#option('wiki_link_target_type', 'wiki')
-call wiki#init#option('wiki_link_toggle_on_open', 1)
+call wiki#init#option('wiki_link_toggle_on_follow', 1)
 call wiki#init#option('wiki_link_toggles', {
       \ 'wiki': 'wiki#link#md#template',
       \ 'md': 'wiki#link#wiki#template',

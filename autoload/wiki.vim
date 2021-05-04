@@ -54,7 +54,7 @@ endfunction
 " }}}1
 
 function! wiki#goto_index() abort " {{{1
-  call wiki#url#parse('wiki:/index').open()
+  call wiki#url#parse('wiki:/index').follow()
 endfunction
 
 " }}}1

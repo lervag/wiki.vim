@@ -83,19 +83,19 @@ function! wiki#link#show(...) abort "{{{1
 endfunction
 
 " }}}1
-function! wiki#link#open(...) abort "{{{1
+function! wiki#link#follow(...) abort "{{{1
   let l:link = wiki#link#get()
 
   try
-    if has_key(l:link, 'open')
+    if has_key(l:link, 'follow')
       if g:wiki_write_on_nav | update | endif
-      call call(l:link.open, a:000, l:link)
-    elseif g:wiki_link_toggle_on_open
+      call call(l:link.follow, a:000, l:link)
+    elseif g:wiki_link_toggle_on_follow
       call wiki#link#toggle(l:link)
     endif
   catch /E37:/
     call wiki#log#error(
-          \ "Can't open link before you've saved the current buffer.")
+          \ "Can't follow link before you've saved the current buffer.")
   endtry
 endfunction
 

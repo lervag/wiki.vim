@@ -7,7 +7,7 @@
 function! wiki#url#man#parse(url) abort " {{{1
   let l:url = {}
 
-  function! l:url.open(...) abort dict
+  function! l:url.follow(...) abort dict
     execute 'edit' fnameescape(self.path)
   endfunction
 

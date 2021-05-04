@@ -14,7 +14,7 @@ function! wiki#url#parse(string, ...) abort " {{{1
   "     'scheme'   : The scheme of the url
   "     'stripped' : The url without the preceding scheme
   "     'origin'   : Where the url originates
-  "     'open'     : Method to open the url
+  "     'follow'   : Method to follow the url
   "   }
   "
   let l:options = a:0 > 0 ? a:1 : {}

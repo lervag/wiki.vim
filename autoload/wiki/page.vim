@@ -17,7 +17,7 @@ function! wiki#page#open(page) abort "{{{1
     sleep 1
   end
 
-  call l:url.open()
+  call l:url.follow()
 endfunction
 
 "}}}1

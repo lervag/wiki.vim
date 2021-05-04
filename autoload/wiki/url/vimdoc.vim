@@ -5,7 +5,7 @@
 "
 
 function! wiki#url#vimdoc#parse(url) abort " {{{1
-  function! a:url.open(...) abort dict
+  function! a:url.follow(...) abort dict
     try
       execute 'help' self.stripped
       execute winnr('#') 'hide'

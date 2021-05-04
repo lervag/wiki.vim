@@ -8,14 +8,14 @@ runtime plugin/wiki.vim
 " Test open existing wiki with no settings
 silent edit ../wiki-markdown/README.md
 silent execute "normal \<Plug>(wiki-link-next)"
-silent execute "normal \<Plug>(wiki-link-open)"
+silent execute "normal \<Plug>(wiki-link-follow)"
 call wiki#test#assert_equal(expand('%:t'), 'test.md')
 
 " Test toggle normal on regular markdown links
 silent bwipeout!
 silent edit ../wiki-markdown/README.md
 normal! 03G3w
-silent execute "normal \<Plug>(wiki-link-open)"
+silent execute "normal \<Plug>(wiki-link-follow)"
 call wiki#test#assert_equal(expand('<cWORD>'), '[[simple.md|simple]]')
 
 " Test toggle visual on regular markdown links
