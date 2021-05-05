@@ -18,7 +18,6 @@ a list of available features. For more details, please confer the
 
 * [Quick Start](#quick-start)
 * [Features](#features)
-* [TODO](#todo)
 * [Related projects](#related-projects)
 * [Acknowledgements](#acknowledgements)
 
