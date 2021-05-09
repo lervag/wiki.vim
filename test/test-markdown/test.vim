@@ -9,25 +9,25 @@ runtime plugin/wiki.vim
 silent edit ../wiki-markdown/README.md
 silent execute "normal \<Plug>(wiki-link-next)"
 silent execute "normal \<Plug>(wiki-link-follow)"
-call wiki#test#assert_equal(expand('%:t'), 'test.md')
+call wiki#test#assert_equal('test.md', expand('%:t'))
 
 " Test toggle normal on regular markdown links
 silent bwipeout!
 silent edit ../wiki-markdown/README.md
 normal! 03G3w
 silent execute "normal \<Plug>(wiki-link-follow)"
-call wiki#test#assert_equal(expand('<cWORD>'), '[[simple.md|simple]]')
+call wiki#test#assert_equal('[[simple.md|simple]]', expand('<cWORD>'))
 
 " Test toggle visual on regular markdown links
 silent bwipeout!
 silent edit ../wiki-markdown/README.md
 normal! 3G3w
 silent execute "normal viw\<Plug>(wiki-link-toggle-visual)"
-call wiki#test#assert_equal(expand('<cWORD>'), '[[simple.md|simple]]')
+call wiki#test#assert_equal('[[simple.md|simple]]', expand('<cWORD>'))
 
 " Test toggle operator on regular markdown links
 silent normal! u
 silent execute "normal \<Plug>(wiki-link-toggle-operator)w"
-call wiki#test#assert_equal(expand('<cWORD>'), '[[simple.md|simple]]')
+call wiki#test#assert_equal('[[simple.md|simple]]', expand('<cWORD>'))
 
 if $QUIT | quitall! | endif
