@@ -19,32 +19,30 @@ let s:matcher = {
       \ 'rx_target': '\[\zs' . wiki#rx#reftarget . '\ze\]',
       \}
 
-function! s:matcher.parse(link) abort dict " {{{1
-  let a:link.id = matchstr(a:link.full, self.rx_target)
+function! s:matcher.parse_url() dict abort " {{{1
+  let self.id = matchstr(self.content, self.rx_target)
 
   " Locate target url
-  let a:link.lnum_target = searchpos('^\[' . a:link.id . '\]: ', 'nW')[0]
-  if a:link.lnum_target == 0
-    function! a:link.toggle(_url, _text) abort dict
+  let self.lnum_target = searchpos('^\[' . self.id . '\]: ', 'nW')[0]
+  if self.lnum_target == 0
+    function! self.toggle(_url, _text) abort dict
       call wiki#log#warn(
             \ 'Could not locate reference ',
             \ ['ModeMsg', self.url]
             \)
     endfunction
-    return a:link
   endif
 
-  let a:link.url = matchstr(getline(a:link.lnum_target), g:wiki#rx#url)
-  if !empty(a:link.url) | return wiki#url#extend(a:link) | endif
+  let self.url = matchstr(getline(self.lnum_target), g:wiki#rx#url)
+  if !empty(self.url) | return | endif
 
-  " The url is not recognized, so we fall back to a link to the reference
-  " position.
-  function! a:link.follow(...) abort dict
+
+  " The url is not recognized, so we add a fallback follower to link to the
+  " reference position.
+  function! self.follow(...) abort dict
     normal! m'
     call cursor(self.lnum_target, 1)
   endfunction
-
-  return a:link
 endfunction
 
 " }}}1

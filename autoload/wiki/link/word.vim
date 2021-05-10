@@ -69,17 +69,15 @@ endfunction
 
 
 let s:matcher = {
+      \ 'scheme' : '',
       \ 'type' : 'word',
       \ 'toggle' : function('wiki#link#word#template'),
       \ 'rx' : wiki#rx#word,
       \}
 
-function! s:matcher.parse(link) abort dict " {{{1
-  let a:link.scheme = ''
-  let a:link.text = a:link.full
-  let a:link.url = 'N/A'
-
-  return a:link
+function! s:matcher.parse_url() abort dict " {{{1
+  let self.text = self.content
+  let self.url = ''
 endfunction
 
 " }}}1

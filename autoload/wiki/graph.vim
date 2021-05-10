@@ -14,7 +14,7 @@ function! wiki#graph#find_backlinks() abort "{{{1
 
   for l:link in l:results
     let l:link.filename = l:link.filename_from
-    let l:link.text = readfile(l:link.filename, 0, l:link.lnum)[-1]
+    let l:link.text = readfile(l:link.filename, 0, l:link.pos_start[0])[-1]
   endfor
 
   if empty(l:results)
@@ -40,10 +40,10 @@ function! wiki#graph#check_links() abort "{{{1
       if !filereadable(l:link.path)
         call add(l:broken_links, {
               \ 'filename': l:file,
-              \ 'text': get(l:link, 'full'),
+              \ 'text': l:link.content,
               \ 'anchor': l:link.anchor,
-              \ 'lnum': l:link.lnum,
-              \ 'col': l:link.c1
+              \ 'lnum': l:link.pos_start[0],
+              \ 'col': l:link.pos_start[1]
               \})
       endif
     endfor
@@ -198,8 +198,8 @@ function! s:gather_nodes() abort " {{{1
               \ 'filename_to' : resolve(l:link.path),
               \ 'text' : get(l:link, 'text'),
               \ 'anchor' : l:link.anchor,
-              \ 'lnum' : l:link.lnum,
-              \ 'col' : l:link.c1
+              \ 'lnum' : l:link.pos_start[0],
+              \ 'col' : l:link.pos_start[1]
               \})
       endfor
     endif

@@ -18,10 +18,8 @@ let s:matcher = {
       \ 'rx': wiki#rx#link_shortcite,
       \}
 
-function! s:matcher.parse(link) abort dict " {{{1
-  let a:link.url = 'zot:' . strpart(a:link.full, 1)
-
-  return wiki#url#extend(a:link)
+function! s:matcher.parse_url() abort dict " {{{1
+  let self.url = 'zot:' . strpart(self.content, 1)
 endfunction
 
 " }}}1

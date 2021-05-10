@@ -13,17 +13,17 @@ function! wiki#text_obj#link(is_inner, vmode) abort " {{{1
     return
   endif
 
-  if a:is_inner && has_key(l:link, 'url_c1')
-    let l:c1 = l:link.url_c1
-    let l:c2 = l:link.url_c2
+  if a:is_inner && has_key(l:link, 'url_pos_start')
+    let l:p1 = l:link.url_pos_start
+    let l:p2 = l:link.url_pos_end
   else
-    let l:c1 = l:link.c1
-    let l:c2 = l:link.c2
+    let l:p1 = l:link.pos_start
+    let l:p2 = l:link.pos_end
   endif
 
-  call cursor(l:link.lnum, l:c1)
+  call cursor(l:p1)
   normal! v
-  call cursor(l:link.lnum, l:c2)
+  call cursor(l:p2)
 endfunction
 
 " }}}1
@@ -36,14 +36,15 @@ function! wiki#text_obj#link_text(is_inner, vmode) abort " {{{1
     return
   endif
 
-  let l:c1 = l:link.text_c1
+  let l:p1 = l:link.text_pos_start
+  let l:p2 = l:link.text_pos_end
   if !a:is_inner && l:link.type ==# 'wiki'
-    let l:c1 -= 1
+    let l:p1[1] -= 1
   endif
 
-  call cursor(l:link.lnum, l:c1)
+  call cursor(l:p1)
   normal! v
-  call cursor(l:link.lnum, l:link.text_c2)
+  call cursor(l:p2)
 endfunction
 
 " }}}1

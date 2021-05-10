@@ -19,4 +19,3 @@ function! wiki#link#ref_double#matcher() abort " {{{1
 endfunction
 
 " }}}1
-

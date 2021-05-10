@@ -36,23 +36,22 @@ function! wiki#link#get_all(...) abort "{{{1
   let l:lnum = 0
   for l:line in readfile(l:file)
     let l:lnum += 1
-    let l:col = 0
+    let l:c2 = 0
     while v:true
-      let l:c1 = match(l:line, g:wiki#rx#link, l:col) + 1
+      let l:c1 = match(l:line, g:wiki#rx#link, l:c2) + 1
       if l:c1 == 0 | break | endif
 
       let l:match = {}
-      let l:match.full = matchstr(l:line, g:wiki#rx#link, l:col)
+      let l:match.content = matchstr(l:line, g:wiki#rx#link, l:c2)
       let l:match.filename = l:file
-      let l:match.lnum = l:lnum
-      let l:match.c1 = l:c1
-      let l:match.c2 = l:c1 + strlen(l:match.full)
-      let l:match.origin = l:file
-      let l:col = l:match.c2
+
+      let l:c2 = l:c1 + strlen(l:match.content)
+      let l:match.pos_start = [l:lnum, l:c1]
+      let l:match.pos_end = [l:lnum, l:c2]
 
       " Match link to type and add details
       for l:matcher in s:matchers_real
-        if l:match.full =~# l:matcher.rx
+        if l:match.content =~# l:matcher.rx
           call add(l:links, l:matcher.create_link(l:match))
           break
         endif
@@ -71,15 +70,7 @@ function! wiki#link#show(...) abort "{{{1
   if empty(l:link) || l:link.type ==# 'word'
     call wiki#log#info('No link detected')
   else
-    call wiki#log#info(
-          \ 'Link info',
-          \ {
-          \   'type': l:link.type,
-          \   'scheme': get(l:link, 'scheme', 'NONE'),
-          \   'url': l:link.url,
-          \   'text': get(l:link, 'text', ''),
-          \ }
-          \)
+    call wiki#log#info('Link info', l:link.pprint())
   endif
 endfunction
 
@@ -109,32 +100,29 @@ function! wiki#link#toggle(...) abort " {{{1
   let l:url = get(l:link, 'scheme', '') ==# 'wiki'
         \ ? l:link.stripped
         \ : get(l:link, 'url', '')
-  if empty(l:url) | return | endif
+  if l:link.type !=# 'word' && empty(l:url) | return | endif
 
   " Apply link template from toggle (abort if empty!)
   let l:new = l:link.toggle(l:url, l:link.text)
   if empty(l:new) | return | endif
 
-  " Replace link in text
-  let l:line = getline(l:link.lnum)
-  call setline(l:link.lnum,
-        \ strpart(l:line, 0, l:link.c1-1) . l:new . strpart(l:line, l:link.c2))
+  call l:link.replace(l:new)
 endfunction
 
 " }}}1
 function! wiki#link#toggle_visual() abort " {{{1
   normal! gv"wy
 
-  let l:link = {
-        \ 'url' : 'N/A',
-        \ 'text' : wiki#u#trim(getreg('w')),
-        \ 'scheme' : '',
+  let l:lnum = line('.')
+  let l:c1 = getpos("'<")[2]
+  let l:c2 = wiki#u#cnum_to_byte(getpos("'>")[2])
+
+  let l:link = wiki#link#word#matcher().create_link({
+        \ 'content': wiki#u#trim(getreg('w')),
         \ 'filename': expand('%:p'),
-        \ 'lnum' : line('.'),
-        \ 'c1' : getpos("'<")[2],
-        \ 'c2' : wiki#u#cnum_to_byte(getpos("'>")[2]),
-        \ 'toggle' : function('wiki#link#word#template'),
-        \}
+        \ 'pos_start': [l:lnum, l:c1],
+        \ 'pos_end': [l:lnum, l:c2],
+        \})
 
   call wiki#link#toggle(l:link)
 endfunction
@@ -147,16 +135,16 @@ function! wiki#link#toggle_operator(type) abort " {{{1
   let l:diff = strlen(@@) - strlen(l:word)
   let @@ = l:save
 
-  let l:link = {
-        \ 'url' : 'N/A',
-        \ 'text' : l:word,
-        \ 'scheme' : '',
+  let l:lnum = line('.')
+  let l:c1 = getpos("'<")[2]
+  let l:c2 = getpos("'>")[2] - l:diff
+
+  let l:link = wiki#link#word#matcher().create_link({
+        \ 'content': l:word,
         \ 'filename': expand('%:p'),
-        \ 'lnum' : line('.'),
-        \ 'c1' : getpos("'<")[2],
-        \ 'c2' : getpos("'>")[2] - l:diff,
-        \ 'toggle' : function('wiki#link#word#template'),
-        \}
+        \ 'pos_start': [l:lnum, l:c1],
+        \ 'pos_end': [l:lnum, l:c2],
+        \})
 
   let g:wiki#ui#buffered = v:true
   call wiki#link#toggle(l:link)
