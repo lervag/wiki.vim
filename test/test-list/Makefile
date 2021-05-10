@@ -1,3 +1,4 @@
+MYVIM ?= nvim --headless
 export QUIT = 1
 
 tests := $(wildcard test-*.vim)
@@ -7,5 +8,4 @@ tests := $(wildcard test-*.vim)
 test: $(tests)
 
 $(tests):
-	@nvim --headless -u $@
-	@vim -T dumb --not-a-term --noplugin -n -u $@
+	@$(MYVIM) -u $@

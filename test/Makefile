@@ -1,11 +1,15 @@
 MYVIM ?= nvim --headless
+# MYVIM ?= vim -T dumb --not-a-term --noplugin -n
 MAKEFLAGS+=--no-print-directory
 
 TESTS := $(wildcard test-*)
 
-.PHONY: test $(TESTS)
+.PHONY: test sysinfo $(TESTS)
 
 test: $(TESTS)
+
+$(TESTS):
+	$(MAKE) -C $@
 
 sysinfo:
 	@echo "**** SYSTEM INFORMATION ****"
@@ -13,13 +17,9 @@ sysinfo:
 	@-$(MYVIM) --version
 	@echo "**** SYSTEM INFORMATION ****"
 
-$(TESTS):
-	$(MAKE) -C $@
-
 #
 # Ensure that some goals are run first/last
 #
 ifndef MAKECMDGOALS
-test: sysinfo
 $(TESTS): sysinfo
 endif
