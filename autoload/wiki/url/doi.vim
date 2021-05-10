@@ -4,14 +4,10 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#url#doi#parse(url) abort " {{{1
-  let l:url = {
-        \ 'scheme' : 'http',
-        \ 'stripped' : 'dx.doi.org/' . a:url.stripped,
+function! wiki#url#doi#handler(url) abort " {{{1
+  return wiki#url#generic#handler({
         \ 'url' : 'http://dx.doi.org/' . a:url.stripped,
-        \}
-
-  return extend(l:url, wiki#url#generic#parse(l:url))
+        \})
 endfunction
 
 " }}}1

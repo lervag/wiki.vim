@@ -4,52 +4,54 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#url#parse(string, ...) abort " {{{1
+function! wiki#url#parse(url, ...) abort " {{{1
+  " This function parses a URL and returns a URL handler.
   "
-  " The following is a description of a typical url object
+  " The URL scheme specifies the desired handler with a generic handler as
+  " a fallback. The handler is created with the following input:
   "
   "   url = {
-  "     'string'   : The original url string (unaltered)
-  "     'url'      : The full url (after parsing)
-  "     'scheme'   : The scheme of the url
-  "     'stripped' : The url without the preceding scheme
-  "     'origin'   : Where the url originates
-  "     'follow'   : Method to follow the url
+  "     'origin':   Where the url originates
+  "     'scheme':   The scheme of the url
+  "     'stripped': The url without the preceding scheme
+  "     'url':      The full url
   "   }
   "
-  let l:options = a:0 > 0 ? a:1 : {}
+  " A handler is a dictionary object:
+  "
+  "   handler = {
+  "     'follow': Method to follow the url
+  "     '...':    Necessary state vars
+  "   }
 
   let l:url = {}
-  let l:url.string = a:string
-  let l:url.url = a:string
-  let l:url.origin = get(l:options, 'origin', expand('%:p'))
+  let l:url.url = a:url
+  let l:url.origin = a:0 > 0 ? a:1 : expand('%:p')
 
-  " Decompose string into its scheme and stripped url
-  let l:parts = matchlist(a:string, '\v((\w+):%(//)?)?(.*)')
+  " Decompose the url into its scheme and stripped url
+  let l:parts = matchlist(a:url, '\v((\w+):%(//)?)?(.*)')
   let l:url.stripped = l:parts[3]
   if empty(l:parts[2])
     let l:url.scheme = 'wiki'
-    let l:url.url = l:url.scheme . ':' . a:string
+    let l:url.url = l:url.scheme . ':' . a:url
   else
-    let l:url.scheme = l:parts[2]
+    let l:url.scheme = tolower(l:parts[2])
   endif
 
   try
-    call extend(l:url, wiki#url#{tolower(l:url.scheme)}#parse(l:url))
+    let l:handler = wiki#url#{l:url.scheme}#handler(l:url)
   catch /E117:/
-    call extend(l:url, wiki#url#generic#parse(l:url))
+    let l:handler = wiki#url#generic#handler(l:url)
   endtry
 
-  return l:url
+  let l:handler.scheme = l:url.scheme
+  return l:handler
 endfunction
 
 " }}}1
 function! wiki#url#extend(link) abort " {{{1
-  let l:options = has_key(a:link, 'origin')
-        \ ? {'origin': a:link.origin}
-        \ : {}
-
-  return extend(a:link, wiki#url#parse(a:link.url, l:options))
+  return extend(a:link,
+        \ wiki#url#parse(a:link.url, a:link.filename))
 endfunction
 
 " }}}1

@@ -4,40 +4,45 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#url#zot#parse(url) abort " {{{1
-  let l:parser = {}
-
-  function! l:parser.follow(...) abort dict
-    let l:files = wiki#zotero#search(self.stripped)
-
-    if len(l:files) > 0
-      let l:choice = wiki#ui#choose(
-            \ ['Follow in Zotero: ' . self.stripped]
-            \   + map(copy(l:files), 's:menu_open_pdf(v:val)'),
-            \ {
-            \   'prompt': 'Please select desired action:',
-            \   'return': 'index',
-            \ })
-      if l:choice < 0
-        return wiki#log#warn('Aborted')
-      endif
-
-      if l:choice > 0
-        let l:file = l:files[l:choice-1]
-        call system(g:wiki_viewer['_'] . ' ' . shellescape(l:file) . '&')
-        return
-      endif
-    endif
-
-    " Fall back to zotero://select/items/bbt:citekey
-    call system(printf('%s zotero://select/items/bbt:%s &',
-          \ g:wiki_viewer['_'], self.stripped))
-  endfunction
-
-  return l:parser
+function! wiki#url#zot#handler(url) abort " {{{1
+  let l:handler = deepcopy(s:handler)
+  let l:handler.key = a:url.stripped
+  return l:handler
 endfunction
 
 " }}}1
+
+
+let s:handler = {}
+function! s:handler.follow(...) abort dict " {{{1
+  let l:files = wiki#zotero#search(self.key)
+
+  if len(l:files) > 0
+    let l:choice = wiki#ui#choose(
+          \ ['Follow in Zotero: ' . self.key]
+          \   + map(copy(l:files), 's:menu_open_pdf(v:val)'),
+          \ {
+          \   'prompt': 'Please select desired action:',
+          \   'return': 'index',
+          \ })
+    if l:choice < 0
+      return wiki#log#warn('Aborted')
+    endif
+
+    if l:choice > 0
+      let l:file = l:files[l:choice-1]
+      call system(g:wiki_viewer['_'] . ' ' . shellescape(l:file) . '&')
+      return
+    endif
+  endif
+
+  " Fall back to zotero://select/items/bbt:citekey
+  call system(printf('%s zotero://select/items/bbt:%s &',
+        \ g:wiki_viewer['_'], self.key))
+endfunction
+
+" }}}¡
+
 
 function! s:menu_open_pdf(val) abort " {{{1
   let l:filename = fnamemodify(a:val, ':t')

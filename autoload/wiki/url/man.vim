@@ -4,20 +4,24 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#url#man#parse(url) abort " {{{1
-  let l:url = {}
-
-  function! l:url.follow(...) abort dict
-    execute 'edit' fnameescape(self.path)
-  endfunction
-
-  let l:url.path = 'man://' . matchstr(a:url.url, 'man:\(\/\/\)\?\zs[^-]*')
+function! wiki#url#man#handler(url) abort " {{{1
+  let l:path = 'man://' . matchstr(a:url.url, 'man:\(\/\/\)\?\zs[^-]*')
   let l:section = matchstr(a:url.url, '-\zs\d$')
   if !empty(l:section)
-    let l:url.path .= '(' . l:section . ')'
+    let l:path .= '(' . l:section . ')'
   endif
 
-  return l:url
+  let l:handler = deepcopy(s:handler)
+  let l:handler.path = l:path
+  return l:handler
+endfunction
+
+" }}}1
+
+
+let s:handler = {}
+function! s:handler.follow(...) abort dict " {{{1
+  execute 'edit' fnameescape(self.path)
 endfunction
 
 " }}}1

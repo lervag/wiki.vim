@@ -43,6 +43,7 @@ function! wiki#link#get_all(...) abort "{{{1
 
       let l:match = {}
       let l:match.full = matchstr(l:line, g:wiki#rx#link, l:col)
+      let l:match.filename = l:file
       let l:match.lnum = l:lnum
       let l:match.c1 = l:c1
       let l:match.c2 = l:c1 + strlen(l:match.full)
@@ -128,6 +129,7 @@ function! wiki#link#toggle_visual() abort " {{{1
         \ 'url' : 'N/A',
         \ 'text' : wiki#u#trim(getreg('w')),
         \ 'scheme' : '',
+        \ 'filename': expand('%:p'),
         \ 'lnum' : line('.'),
         \ 'c1' : getpos("'<")[2],
         \ 'c2' : wiki#u#cnum_to_byte(getpos("'>")[2]),
@@ -149,6 +151,7 @@ function! wiki#link#toggle_operator(type) abort " {{{1
         \ 'url' : 'N/A',
         \ 'text' : l:word,
         \ 'scheme' : '',
+        \ 'filename': expand('%:p'),
         \ 'lnum' : line('.'),
         \ 'c1' : getpos("'<")[2],
         \ 'c2' : getpos("'>")[2] - l:diff,

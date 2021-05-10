@@ -4,30 +4,32 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#url#adoc#parse(url) abort " {{{1
-  let l:parts = split(a:url.stripped, '#', 1)
-  let l:url = deepcopy(s:parser)
+function! wiki#url#adoc#handler(url) abort " {{{1
+  let l:handler = deepcopy(s:handler)
+  let l:handler.origin = a:url.origin
 
   " Extract path and anchor/ID
+  let l:parts = split(a:url.stripped, '#', 1)
   if len(l:parts) == 1
-    let l:url.path = ''
-    let l:url.anchor = l:parts[0]
+    let l:handler.path = ''
+    let l:handler.anchor = l:parts[0]
   else
     let l:root = empty(a:url.origin)
           \ ? wiki#get_root()
           \ : fnamemodify(a:url.origin, ':p:h')
-    let l:url.path = simplify(printf('%s/%s', l:root, l:parts[0]))
-    let l:url.dir = fnamemodify(l:url.path, ':p:h')
-    let l:url.anchor = l:parts[1]
+    let l:handler.path = simplify(printf('%s/%s', l:root, l:parts[0]))
+    let l:handler.dir = fnamemodify(l:handler.path, ':p:h')
+    let l:handler.anchor = l:parts[1]
   endif
 
-  return l:url
+  return l:handler
 endfunction
 
 " }}}1
 
-let s:parser = {}
-function! s:parser.follow(...) abort dict " {{{1
+
+let s:handler = {}
+function! s:handler.follow(...) abort dict " {{{1
   let l:cmd = a:0 > 0 ? a:1 : 'edit'
 
   " Open wiki file
@@ -79,7 +81,7 @@ function! s:parser.follow(...) abort dict " {{{1
 endfunction
 
 "}}}1
-function! s:parser.follow_anchor() abort dict " {{{1
+function! s:handler.follow_anchor() abort dict " {{{1
   let l:match = matchlist(self.anchor, '\(.*\)[- _]\(\d\+\)$')
   if empty(l:match)
     let l:re = self.anchor

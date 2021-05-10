@@ -4,11 +4,9 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#url#journal#parse(url) abort " {{{1
-  let a:url.scheme = 'wiki'
+function! wiki#url#journal#handler(url) abort " {{{1
   let a:url.stripped = printf('/%s/%s', g:wiki_journal.name, a:url.stripped)
-
-  return wiki#url#wiki#parse(a:url)
+  return wiki#url#wiki#handler(a:url)
 endfunction
 
 " }}}1

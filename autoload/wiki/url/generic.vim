@@ -4,13 +4,19 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#url#generic#parse(url) abort " {{{1
-  let l:parser = {}
-  function! l:parser.follow(...) abort dict
-    call system(g:wiki_viewer['_'] . ' ' . shellescape(self.url) . '&')
-  endfunction
+function! wiki#url#generic#handler(url) abort " {{{1
+  let l:handler = deepcopy(s:handler)
+  let l:handler.url = a:url.url
 
-  return deepcopy(l:parser)
+  return l:handler
+endfunction
+
+" }}}1
+
+
+let s:handler = {}
+function! s:handler.follow(...) abort dict " {{{1
+  call system(g:wiki_viewer['_'] . ' ' . shellescape(self.url) . '&')
 endfunction
 
 " }}}1

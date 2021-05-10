@@ -4,17 +4,23 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#url#vimdoc#parse(url) abort " {{{1
-  function! a:url.follow(...) abort dict
-    try
-      execute 'help' self.stripped
-      execute winnr('#') 'hide'
-    catch
-      call wiki#log#warn('can''t find vimdoc page "' . self.stripped . '"')
-    endtry
-  endfunction
+function! wiki#url#vimdoc#handler(url) abort " {{{1
+  let l:handler = deepcopy(s:handler)
+  let l:handler.page = self.stripped
+  return l:handler
+endfunction
 
-  return a:url
+" }}}1
+
+
+let s:handler = {}
+function! s:handler.follow(...) abort dict " {{{1
+  try
+    execute 'help' self.page
+    execute winnr('#') 'hide'
+  catch
+    call wiki#log#warn('can''t find vimdoc page "' . self.page . '"')
+  endtry
 endfunction
 
 " }}}1

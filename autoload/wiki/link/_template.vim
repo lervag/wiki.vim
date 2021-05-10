@@ -11,8 +11,7 @@ endfunction
 " }}}1
 
 
-let s:matcher = {
-      \}
+let s:matcher = {}
 function! s:matcher.match_at_cursor() dict abort " {{{1
   let l:lnum = line('.')
 
@@ -32,6 +31,7 @@ function! s:matcher.match_at_cursor() dict abort " {{{1
 
   let l:match = {
         \ 'full': strpart(getline('.'), l:c1-1, l:c2-l:c1+1),
+        \ 'filename': expand('%:p'),
         \ 'lnum': l:lnum,
         \ 'c1': l:c1,
         \ 'c2': l:c2,

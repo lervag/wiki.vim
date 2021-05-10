@@ -4,37 +4,41 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#url#file#parse(url) abort " {{{1
-  let l:url = {}
+function! wiki#url#file#handler(url) abort " {{{1
+  let l:handler = deepcopy(s:handler)
 
-  function! l:url.follow(...) abort dict
-    try
-      if call(get(g:, 'wiki_file_handler', ''), a:000, self)
-        return
-      endif
-    catch /E117:/
-      " Pass
-    endtry
-
-    if has_key(g:wiki_viewer, self.ext)
-      call system(g:wiki_viewer[self.ext] . ' ' . shellescape(self.url) . '&')
-    else
-      execute 'edit' fnameescape(self.path)
-    endif
-  endfunction
-
-  let l:url.ext = fnamemodify(a:url.origin, ':e')
-
+  let l:handler.url = a:url.url
+  let l:handler.ext = fnamemodify(a:url.stripped, ':e')
   if a:url.stripped[0] ==# '/'
-    let l:url.path = a:url.stripped
+    let l:handler.path = a:url.stripped
   elseif a:url.stripped =~# '\~\w*\/'
-    let l:url.path = simplify(fnamemodify(a:url.stripped, ':p'))
+    let l:handler.path = simplify(fnamemodify(a:url.stripped, ':p'))
   else
-    let l:url.path = simplify(
+    let l:handler.path = simplify(
           \ fnamemodify(a:url.origin, ':p:h') . '/' . a:url.stripped)
   endif
 
-  return l:url
+  return l:handler
+endfunction
+
+" }}}1
+
+
+let s:handler = {}
+function! s:handler.follow(...) abort dict " {{{1
+  try
+    if call(get(g:, 'wiki_file_handler', ''), a:000, self)
+      return
+    endif
+  catch /E117:/
+    " Pass
+  endtry
+
+  if has_key(g:wiki_viewer, self.ext)
+    call system(g:wiki_viewer[self.ext] . ' ' . shellescape(self.url) . '&')
+  else
+    execute 'edit' fnameescape(self.path)
+  endif
 endfunction
 
 " }}}1

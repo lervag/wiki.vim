@@ -4,13 +4,15 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#url#wiki#parse(url) abort " {{{1
-  let l:url = deepcopy(s:parser)
+function! wiki#url#wiki#handler(url) abort " {{{1
+  let l:handler = deepcopy(s:handler)
+  let l:handler.stripped = a:url.stripped
+  let l:handler.origin = a:url.origin
 
   " Extract the anchor
   let l:anchors = split(a:url.stripped, '#', 1)
-  let l:url.anchor = len(l:anchors) > 1 ? join(l:anchors[1:], '#') : ''
-  let l:url.anchor = substitute(l:url.anchor, '#$', '', '')
+  let l:handler.anchor = len(l:anchors) > 1 ? join(l:anchors[1:], '#') : ''
+  let l:handler.anchor = substitute(l:handler.anchor, '#$', '', '')
 
   " Extract the target filename
   let l:fname = l:anchors[0]
@@ -18,10 +20,10 @@ function! wiki#url#wiki#parse(url) abort " {{{1
     let l:fname .= get(get(b:, 'wiki', {}), 'index_name', '')
   endif
 
-  let l:url.path = call(g:wiki_resolver, [l:fname, a:url.origin])
-  let l:url.dir = fnamemodify(l:url.path, ':p:h')
+  let l:handler.path = call(g:wiki_resolver, [l:fname, a:url.origin])
+  let l:handler.dir = fnamemodify(l:handler.path, ':p:h')
 
-  return l:url
+  return l:handler
 endfunction
 
 " }}}1
@@ -60,8 +62,9 @@ endfunction
 
 " }}}1
 
-let s:parser = {}
-function! s:parser.follow(...) abort dict " {{{1
+
+let s:handler = {}
+function! s:handler.follow(...) abort dict " {{{1
   let l:cmd = a:0 > 0 ? a:1 : 'edit'
 
   " Check if dir exists
@@ -113,7 +116,7 @@ function! s:parser.follow(...) abort dict " {{{1
 endfunction
 
 "}}}1
-function! s:parser.follow_anchor() abort dict " {{{1
+function! s:handler.follow_anchor() abort dict " {{{1
   let l:old_pos = getpos('.')
   call cursor(1, 1)
 
