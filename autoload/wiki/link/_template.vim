@@ -120,7 +120,7 @@ function! s:link.replace(text) dict abort " {{{1
 endfunction
 
 " }}}1
-function! s:link.pprint(text) dict abort " {{{1
+function! s:link.pprint() dict abort " {{{1
   return {
           \ 'type': self.type,
           \ 'scheme': get(self, 'scheme', 'NONE'),
