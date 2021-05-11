@@ -884,8 +884,8 @@ information about the different modes.
    `n`     <s-tab>             |<plug>(wiki-link-prev)|
    `n`     <bs>                |<plug>(wiki-link-return)|
    `n`     gl                  |<plug>(wiki-link-toggle-operator)|
-   `ni`    <c-s>               |<plug>(wiki-list-toggle)|
    `x`     <cr>                |<plug>(wiki-link-toggle-visual)|
+   `ni`    <c-s>               |<plug>(wiki-list-toggle)|
    `ox`    au                  |<plug>(wiki-au)|
    `ox`    iu                  |<plug>(wiki-iu)|
    `ox`    at                  |<plug>(wiki-at)|
