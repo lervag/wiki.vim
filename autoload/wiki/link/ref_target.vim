@@ -20,7 +20,7 @@ let s:matcher = {
       \ 'rx_text': '^\s*\[\zs' . wiki#rx#reftarget . '\ze\]',
       \}
 
-function! s:matcher.toggle(url, id) abort " {{{1
+function! s:matcher.toggle_template(url, id) abort " {{{1
   let l:id = empty(a:id) ? input('Input id: ') : a:id
   return '[' . l:id . '] ' . a:url
 endfunction

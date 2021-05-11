@@ -49,7 +49,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiLinkFollowSplit    call wiki#link#follow('vsplit')
   command! -buffer WikiLinkPrev           call wiki#nav#prev_link()
   command! -buffer WikiLinkReturn         call wiki#nav#return()
-  command! -buffer WikiLinkToggle         call wiki#link#toggle()
+  command! -buffer WikiLinkToggle         call wiki#link#toggle_current()
   command! -buffer WikiListMoveUp         call wiki#list#move(0)
   command! -buffer WikiListMoveDown       call wiki#list#move(1)
   command! -buffer WikiListToggle         call wiki#list#toggle()

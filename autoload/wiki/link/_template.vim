@@ -64,13 +64,15 @@ function! s:matcher.create_link(match) dict abort " {{{1
       let l:match.url_pos_end = [l:match.pos_start[0], l:match.pos_start[1] + l:c2 - 1]
     endif
   endif
+  let l:match.url_raw = l:match.url
 
   " Matcher specific url parsing
   call l:match.parse_url()
 
   " Add toggle function
-  if !has_key(l:match, 'toggle') && has_key(g:wiki_link_toggles, self.type)
-    let l:match.toggle = function(g:wiki_link_toggles[self.type])
+  if !has_key(l:match, 'toggle_template')
+        \ && has_key(g:wiki_link_toggles, self.type)
+    let l:match.toggle_template = function(g:wiki_link_toggles[self.type])
   endif
 
   " Clean up
@@ -87,7 +89,7 @@ endfunction
 
 "}}}1
 function! s:matcher.parse_url() dict abort " {{{1
-  if has_key(self, 'scheme') && empty(matchstr(self.url, '^\w\+:'))
+  if !empty(get(self, 'scheme', '')) && empty(matchstr(self.url, '^\w\+:'))
     let self.url = self.scheme . ':' . self.url
   endif
 endfunction
@@ -101,7 +103,7 @@ function! s:link.new(match) dict abort " {{{1
   unlet l:link.new
 
   " Extend link with URL handler
-  if !has_key(l:link, 'follow') && !empty(l:link.url)
+  if !has_key(l:link, 'follow') && l:link.type !=# 'word'
     let l:link = wiki#url#extend(l:link)
   endif
 
@@ -125,6 +127,17 @@ function! s:link.pprint(text) dict abort " {{{1
           \ 'url': self.url,
           \ 'text': get(self, 'text', ''),
           \}
+endfunction
+
+" }}}1
+function! s:link.toggle() dict abort " {{{1
+  if empty(self.url_raw) | return | endif
+
+  " Apply link template from toggle (abort if empty!)
+  let l:new = self.toggle_template(self.url_raw, self.text)
+  if empty(l:new) | return | endif
+
+  call self.replace(l:new)
 endfunction
 
 " }}}1

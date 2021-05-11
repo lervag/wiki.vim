@@ -21,7 +21,7 @@ let s:matcher = {
       \ 'rx_text': '!\[\zs[^\\\[\]]\{-}\ze\]([^\\]\{-})',
       \}
 
-function! s:matcher.toggle(url, text) abort " {{{1
+function! s:matcher.toggle_template(url, text) abort " {{{1
   return printf('![%s](%s)', empty(a:text) ? a:url : a:text, a:url)
 endfunction
 

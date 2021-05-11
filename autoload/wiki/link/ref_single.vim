@@ -25,7 +25,7 @@ function! s:matcher.parse_url() dict abort " {{{1
   " Locate target url
   let self.lnum_target = searchpos('^\[' . self.id . '\]: ', 'nW')[0]
   if self.lnum_target == 0
-    function! self.toggle(_url, _text) abort dict
+    function! self.toggle_template(_url, _text) abort dict
       call wiki#log#warn(
             \ 'Could not locate reference ',
             \ ['ModeMsg', self.url]
@@ -46,7 +46,7 @@ function! s:matcher.parse_url() dict abort " {{{1
 endfunction
 
 " }}}1
-function! s:matcher.toggle(_url, _text) dict abort " {{{1
+function! s:matcher.toggle_template(_url, _text) dict abort " {{{1
   return wiki#link#md#template(self.url, self.id)
 endfunction
 

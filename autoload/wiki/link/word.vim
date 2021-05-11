@@ -11,16 +11,24 @@ function! wiki#link#word#matcher() abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#link#word#template(_url, text) abort dict " {{{1
+
+
+let s:matcher = {
+      \ 'rx' : wiki#rx#word,
+      \ 'scheme' : '',
+      \ 'type' : 'word',
+      \}
+
+function! s:matcher.toggle_template(words, _text) abort " {{{1
   " This template returns a wiki template for the provided word(s). It does
   " a smart search for likely candidates and if there is no unique match, it
   " asks for target link.
 
-  " Allow map from text -> url (without extension)
+  " Allow map from word -> url (without extension)
   if !empty(g:wiki_map_link_create) && exists('*' . g:wiki_map_link_create)
-    let l:url_target = call(g:wiki_map_link_create, [a:text])
+    let l:url_target = call(g:wiki_map_link_create, [a:words])
   else
-    let l:url_target = a:text
+    let l:url_target = a:words
   endif
 
   " Append extension if wanted
@@ -35,12 +43,12 @@ function! wiki#link#word#template(_url, text) abort dict " {{{1
 
   " First try local page
   if filereadable(printf('%s/%s', expand('%:p:h'), l:url_actual))
-    return wiki#link#template(l:url_target, a:text)
+    return wiki#link#template(l:url_target, a:words)
   endif
 
   " Next try at wiki root
   if filereadable(printf('%s/%s', b:wiki.root, l:url_actual))
-    return wiki#link#template('/' . l:url_target, a:text)
+    return wiki#link#template('/' . l:url_target, a:words)
   endif
 
   " Finally we see if there are completable candidates
@@ -52,7 +60,7 @@ function! wiki#link#word#template(_url, text) abort dict " {{{1
   " Solve trivial cases first
   if len(l:candidates) == 0
     return wiki#link#template(
-          \ (b:wiki.in_journal ? '/' : '') . l:url_target, a:text)
+          \ (b:wiki.in_journal ? '/' : '') . l:url_target, a:words)
   endif
 
   " Select with menu
@@ -61,23 +69,8 @@ function! wiki#link#word#template(_url, text) abort dict " {{{1
   redraw!
   return empty(l:choice) ? l:url_target : (
         \ l:choice ==# l:new
-        \   ? wiki#link#template(l:url_target, a:text)
+        \   ? wiki#link#template(l:url_target, a:words)
         \   : wiki#link#template('/' . l:choice, ''))
-endfunction
-
-" }}}1
-
-
-let s:matcher = {
-      \ 'scheme' : '',
-      \ 'type' : 'word',
-      \ 'toggle' : function('wiki#link#word#template'),
-      \ 'rx' : wiki#rx#word,
-      \}
-
-function! s:matcher.parse_url() abort dict " {{{1
-  let self.text = self.content
-  let self.url = ''
 endfunction
 
 " }}}1

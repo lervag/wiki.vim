@@ -83,7 +83,7 @@ function! wiki#link#follow(...) abort "{{{1
       if g:wiki_write_on_nav | update | endif
       call call(l:link.follow, a:000, l:link)
     elseif g:wiki_link_toggle_on_follow
-      call wiki#link#toggle(l:link)
+      call l:link.toggle()
     endif
   catch /E37:/
     call wiki#log#error(
@@ -92,21 +92,11 @@ function! wiki#link#follow(...) abort "{{{1
 endfunction
 
 " }}}1
-function! wiki#link#toggle(...) abort " {{{1
-  let l:link = a:0 > 0 ? a:1 : wiki#link#get()
+function! wiki#link#toggle_current() abort " {{{1
+  let l:link = wiki#link#get()
   if empty(l:link) | return | endif
 
-  " Use stripped url for wiki links
-  let l:url = get(l:link, 'scheme', '') ==# 'wiki'
-        \ ? l:link.stripped
-        \ : get(l:link, 'url', '')
-  if l:link.type !=# 'word' && empty(l:url) | return | endif
-
-  " Apply link template from toggle (abort if empty!)
-  let l:new = l:link.toggle(l:url, l:link.text)
-  if empty(l:new) | return | endif
-
-  call l:link.replace(l:new)
+  call l:link.toggle()
 endfunction
 
 " }}}1
@@ -124,7 +114,7 @@ function! wiki#link#toggle_visual() abort " {{{1
         \ 'pos_end': [l:lnum, l:c2],
         \})
 
-  call wiki#link#toggle(l:link)
+  call l:link.toggle()
 endfunction
 
 " }}}1
@@ -147,7 +137,7 @@ function! wiki#link#toggle_operator(type) abort " {{{1
         \})
 
   let g:wiki#ui#buffered = v:true
-  call wiki#link#toggle(l:link)
+  call l:link.toggle()
   let g:wiki#ui#buffered = v:false
 endfunction
 
