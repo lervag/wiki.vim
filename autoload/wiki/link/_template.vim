@@ -121,12 +121,32 @@ endfunction
 
 " }}}1
 function! s:link.pprint() dict abort " {{{1
-  return {
-          \ 'type': self.type,
-          \ 'scheme': get(self, 'scheme', 'NONE'),
-          \ 'url': self.url,
-          \ 'text': get(self, 'text', ''),
-          \}
+  let l:out = {
+        \ 'type': self.type,
+        \ 'scheme': get(self, 'scheme', 'NONE'),
+        \ 'text': get(self, 'text', ''),
+        \ 'url': self.url,
+        \ 'raw_url': self.url_raw,
+        \ 'raw': self.content,
+        \ 'follow': string(get(self, 'follow', '')),
+        \ 'toggle_template': string(get(self, 'toggle_template', '')),
+        \}
+  if l:out.raw_url ==# l:out.url
+    unlet l:out.raw_url
+  endif
+  if l:out.raw ==# l:out.url
+    unlet l:out.raw
+  endif
+  if empty(l:out.text)
+    unlet l:out.text
+  endif
+  if empty(l:out.follow)
+    unlet l:out.follow
+  endif
+  if empty(l:out.toggle_template)
+    unlet l:out.toggle_template
+  endif
+  return l:out
 endfunction
 
 " }}}1
