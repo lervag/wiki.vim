@@ -17,7 +17,7 @@ function! wiki#url#adoc#handler(url) abort " {{{1
     let l:root = empty(a:url.origin)
           \ ? wiki#get_root()
           \ : fnamemodify(a:url.origin, ':p:h')
-    let l:handler.path = simplify(printf('%s/%s', l:root, l:parts[0]))
+    let l:handler.path = wiki#paths#s(printf('%s/%s', l:root, l:parts[0]))
     let l:handler.dir = fnamemodify(l:handler.path, ':p:h')
     let l:handler.anchor = l:parts[1]
   endif

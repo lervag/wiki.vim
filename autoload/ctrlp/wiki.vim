@@ -36,5 +36,6 @@ function! ctrlp#wiki#init()
 endfunction
 
 function! ctrlp#wiki#accept(md, path)
-  call ctrlp#acceptfile(a:md, printf('%s/%s.%s', s:root, a:path, s:extension))
+  call ctrlp#acceptfile(a:md,
+        \ wiki#paths#s(printf('%s/%s.%s', s:root, a:path, s:extension)))
 endfunction

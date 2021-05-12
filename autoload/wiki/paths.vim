@@ -23,6 +23,16 @@ endfunction
 
 " }}}1
 
+function! wiki#paths#s(path) abort " {{{1
+  " Handle shellescape issues and simplify path
+  let l:path = exists('+shellslash') && !&shellslash
+        \ ? tr(a:path, '/', '\')
+        \ : a:path
+
+  return simplify(l:path)
+endfunction
+
+" }}}1
 function! wiki#paths#is_abs(path) abort " {{{1
   return a:path =~# s:re_abs
 endfunction

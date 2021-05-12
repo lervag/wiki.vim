@@ -42,12 +42,12 @@ function! s:matcher.toggle_template(words, _text) abort " {{{1
 
 
   " First try local page
-  if filereadable(printf('%s/%s', expand('%:p:h'), l:url_actual))
+  if filereadable(wiki#paths#s(printf('%s/%s', expand('%:p:h'), l:url_actual)))
     return wiki#link#template(l:url_target, a:words)
   endif
 
   " Next try at wiki root
-  if filereadable(printf('%s/%s', b:wiki.root, l:url_actual))
+  if filereadable(wiki#paths#s(printf('%s/%s', b:wiki.root, l:url_actual)))
     return wiki#link#template('/' . l:url_target, a:words)
   endif
 

@@ -56,7 +56,7 @@ function! wiki#page#rename(newname, ...) abort "{{{1
   end
 
   let l:oldpath = expand('%:p')
-  let l:newpath = simplify(printf('%s/%s.%s',
+  let l:newpath = wiki#paths#s(printf('%s/%s.%s',
         \ expand('%:p:h'), a:newname, b:wiki.extension))
 
   " Check if current file exists
@@ -377,8 +377,8 @@ function! wiki#page#export(line1, line2, ...) abort " {{{1
 
   " Determine output filename and extension
   if empty(l:cfg.fname)
-    let l:cfg.fname = printf('%s/%s.%s',
-          \ l:cfg.output, expand('%:t:r'), l:cfg.ext)
+    let l:cfg.fname = wiki#paths#s(printf('%s/%s.%s',
+          \ l:cfg.output, expand('%:t:r'), l:cfg.ext))
   else
     let l:cfg.ext = fnamemodify(l:cfg.fname, ':e')
   endif

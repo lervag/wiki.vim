@@ -36,7 +36,7 @@ function! wiki#url#wiki#resolver(fname, origin) abort " {{{1
         \ : (empty(a:origin)
         \   ? wiki#get_root()
         \   : fnamemodify(a:origin, ':p:h')) . '/' . a:fname
-  let l:path = simplify(l:path)
+  let l:path = wiki#paths#s(l:path)
 
   " Determine the proper extension (if necessary)
   let l:extensions = wiki#u#uniq_unsorted(
