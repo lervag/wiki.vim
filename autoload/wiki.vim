@@ -39,7 +39,7 @@ function! wiki#get_root_global() abort " {{{1
     \ : g:wiki_root
   let l:root = fnamemodify(simplify(l:root), ':p')
 
-  if l:root[-1:-1] ==# '/'
+  if l:root[-1:-1] ==# (exists('+shellslash') && !&shellslash ? '\' : '/')
     let l:root = l:root[:-2]
   endif
 
