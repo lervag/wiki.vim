@@ -10,12 +10,13 @@ function! wiki#fzf#pages() abort "{{{1
     return
   endif
 
-  let l:pattern = '**/*.' . (len(g:wiki_filetypes) == 1
-        \ ? g:wiki_filetypes[0] : '{' . join(g:wiki_filetypes, ',') . '}')
-
-  let l:root = wiki#get_root()
+  let l:root = wiki#get_root() . s:slash
+  let l:extension = len(g:wiki_filetypes) == 1
+        \ ? g:wiki_filetypes[0]
+        \ : '{' . join(g:wiki_filetypes, ',') . '}'
+  let l:pattern = '**' . s:slash . '*.' . l:extension
   let l:pages = globpath(l:root, l:pattern, v:false, v:true)
-  call map(l:pages, '"/" . substitute(v:val, l:root . "/" , "", "")')
+  call map(l:pages, '"/" . substitute(v:val, l:root, "", "")')
   call map(l:pages, {_, x -> x . "¤" . fnamemodify(x, ':r')})
 
   let l:fzf_opts = join([
@@ -29,6 +30,8 @@ function! wiki#fzf#pages() abort "{{{1
         \ 'options': l:fzf_opts
         \}))
 endfunction
+
+let s:slash = exists('+shellslash') && !&shellslash ? '\' : '/'
 
 " }}}1
 function! wiki#fzf#tags() abort "{{{1
