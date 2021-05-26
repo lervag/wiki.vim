@@ -8,6 +8,11 @@ if exists('g:wiki_loaded') | finish | endif
 let g:wiki_loaded = 1
 
 " Initialize options
+call wiki#init#option('wiki_cache_persistent', 1)
+call wiki#init#option('wiki_cache_root',
+      \ wiki#u#get_os() ==# 'win'
+      \ ? fnamemodify(tempname(), ':h')
+      \ : $HOME . '/.cache/wiki.vim')
 call wiki#init#option('wiki_export', {
       \ 'args' : '',
       \ 'from_format' : 'markdown',

@@ -151,7 +151,10 @@ OPTIONS                                                   *wiki-config-options*
 *g:wiki_cache_root*
   Specify the cache directory for |wiki.vim|.
 
-  Default value: '~/.cache/wiki.vim/'
+  Default value: OS dependent
+
+    `Linux and MacOS`: '~/.cache/wiki.vim/'
+    `Windows`:         Standard temporary folder (based on |tempname()|)
 
 *g:wiki_cache_persistent*
   Specify whether to use persistant caching.

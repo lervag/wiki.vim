@@ -44,6 +44,19 @@ function! wiki#u#extend_recursive(dict1, dict2, ...) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#u#get_os() abort " {{{1
+  if has('win32') || has('win32unix')
+    return 'win'
+  elseif has('unix')
+    if has('mac') || system('uname') =~# 'Darwin'
+      return 'mac'
+    else
+      return 'linux'
+    endif
+  endif
+endfunction
+
+" }}}1
 function! wiki#u#in_syntax(name, ...) abort " {{{1
   let l:pos = [0, 0]
   let l:pos[0] = a:0 > 0 ? a:1 : line('.')

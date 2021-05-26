@@ -75,16 +75,16 @@ function! s:cache.init(name, opts) dict abort " {{{1
   let new = deepcopy(self)
   unlet new.init
 
-  let l:root = get(g:, 'wiki_cache_root', $HOME . '/.cache/wiki.vim')
-  if !isdirectory(l:root)
-    call mkdir(l:root, 'p')
+  if !isdirectory(g:wiki_cache_root)
+    call mkdir(g:wiki_cache_root, 'p')
   endif
 
+  let l:slash = exists('+shellslash') && !&shellslash ? '\' : '/'
+
   let new.name = a:name
-  let new.path = l:root . '/' . a:name . '.json'
+  let new.path = g:wiki_cache_root . l:slash . a:name . '.json'
   let new.local = get(a:opts, 'local')
-  let new.persistent = get(a:opts, 'persistent',
-        \ get(g:, 'wiki_cache_persistent', 1))
+  let new.persistent = get(a:opts, 'persistent', g:wiki_cache_persistent)
 
   if has_key(a:opts, 'default')
     let new.default = a:opts.default
@@ -167,7 +167,12 @@ function! s:local_name(name) abort " {{{1
         \ ? b:wiki.root
         \ : expand('%:p:h')
   let l:filename = substitute(l:filename, '\s\+', '_', 'g')
-  let l:filename = substitute(l:filename, '\/', '%', 'g')
+  if exists('+shellslash') && !&shellslash
+    let l:filename = substitute(l:filename, '^\(\u\):', '-\1-', '')
+    let l:filename = substitute(l:filename, '\\', '-', 'g')
+  else
+    let l:filename = substitute(l:filename, '\/', '%', 'g')
+  endif
   return a:name . l:filename
 endfunction
 
