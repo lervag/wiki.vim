@@ -6,7 +6,7 @@
 
 function! wiki#url#vimdoc#handler(url) abort " {{{1
   let l:handler = deepcopy(s:handler)
-  let l:handler.page = self.stripped
+  let l:handler.page = a:url.stripped
   return l:handler
 endfunction
 

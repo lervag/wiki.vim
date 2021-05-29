@@ -14,7 +14,7 @@ function! wiki#graph#find_backlinks() abort "{{{1
 
   for l:link in l:results
     let l:link.filename = l:link.filename_from
-    let l:link.text = readfile(l:link.filename, 0, l:link.pos_start[0])[-1]
+    let l:link.text = readfile(l:link.filename, 0, l:link.lnum)[-1]
   endfor
 
   if empty(l:results)
