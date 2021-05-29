@@ -17,10 +17,10 @@ function! wiki#fzf#pages() abort "{{{1
   let l:pattern = '**' . s:slash . '*.' . l:extension
   let l:pages = globpath(l:root, l:pattern, v:false, v:true)
   call map(l:pages, {_, x -> '/' . substitute(x, escape(l:root, '\'), '', '')})
-  call map(l:pages, {_, x -> x . "¤" . fnamemodify(x, ':r')})
+  call map(l:pages, {_, x -> x . "#####" . fnamemodify(x, ':r')})
 
   let l:fzf_opts = join([
-        \ '-d"¤" --with-nth=-1 --print-query --prompt "WikiPages> "',
+        \ '-d"#####" --with-nth=-1 --print-query --prompt "WikiPages> "',
         \ '--expect=' . get(g:, 'wiki_fzf_pages_force_create_key', 'alt-enter')
         \])
 
@@ -96,7 +96,7 @@ function! s:accept_page(lines) abort "{{{1
   if len(a:lines) == 2 || !empty(a:lines[1])
     call wiki#page#open(a:lines[0])
   else
-    let l:file = split(a:lines[2], '¤')[0]
+    let l:file = split(a:lines[2], '#####')[0]
     execute 'edit ' . wiki#get_root() . l:file
   endif
 endfunction
