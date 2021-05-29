@@ -91,6 +91,8 @@ function! s:accept_page(lines) abort "{{{1
   " search query; the second is either an empty string or the alternative key
   " specified by g:wiki_fzf_pages_force_create_key (e.g. 'alt-enter') if this
   " was pressed; the third element contains the selected item.
+  if len(a:lines) < 2 | return | endif
+
   if len(a:lines) == 2 || !empty(a:lines[1])
     call wiki#page#open(a:lines[0])
   else
