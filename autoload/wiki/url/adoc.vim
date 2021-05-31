@@ -10,7 +10,7 @@ function! wiki#url#adoc#handler(url) abort " {{{1
 
   " Extract path and anchor/ID
   let l:parts = split(a:url.stripped, '#', 1)
-  if len(l:parts) == 1
+  if len(l:parts) == 1 && l:parts[0] !~# '\.adoc$'
     let l:handler.path = ''
     let l:handler.anchor = l:parts[0]
   else
@@ -19,7 +19,7 @@ function! wiki#url#adoc#handler(url) abort " {{{1
           \ : fnamemodify(a:url.origin, ':p:h')
     let l:handler.path = wiki#paths#s(printf('%s/%s', l:root, l:parts[0]))
     let l:handler.dir = fnamemodify(l:handler.path, ':p:h')
-    let l:handler.anchor = l:parts[1]
+    let l:handler.anchor = get(l:parts, 1, '')
   endif
 
   return l:handler
@@ -93,7 +93,7 @@ function! s:handler.follow_anchor() abort dict " {{{1
 
   let l:re = substitute(l:re, '^_', '', '')
   let l:re = substitute(l:re, '[- _]', '[- _]', 'g')
-  let l:re = '\C^=\{1,6}\s*' . l:re
+  let l:re = '\c^=\{1,6}\s*' . l:re
 
   let l:old_pos = getpos('.')
   call cursor(1, 1)
