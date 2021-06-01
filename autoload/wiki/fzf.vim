@@ -14,8 +14,7 @@ function! wiki#fzf#pages() abort "{{{1
   let l:extension = len(g:wiki_filetypes) == 1
         \ ? g:wiki_filetypes[0]
         \ : '{' . join(g:wiki_filetypes, ',') . '}'
-  let l:pattern = '**' . s:slash . '*.' . l:extension
-  let l:pages = globpath(l:root, l:pattern, v:false, v:true)
+  let l:pages = globpath(l:root, '**/*.' . l:extension, v:false, v:true)
   call map(l:pages, {_, x -> '/' . substitute(x, escape(l:root, '\'), '', '')})
   call map(l:pages, {_, x -> x . "#####" . fnamemodify(x, ':r')})
 
