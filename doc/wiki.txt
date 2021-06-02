@@ -804,6 +804,10 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   Open |fzf| in find file mode for wiki files in current wiki or in the main
   wiki defined by |g:wiki_root|.
 
+  One may pass additional options to fzf with the |g:wiki_fzf_pages_opts|
+  option. This allows more fine grained control of fzf, e.g. to add
+  a previewer.
+
   This can also be used to create a new page. If a query is typed and the key
   specified by |g:wiki_fzf_pages_force_create_key| is pressed (alt-enter, by
   default), a page whose name is equal to the query will be created if it
