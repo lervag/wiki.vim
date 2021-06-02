@@ -92,6 +92,22 @@ function! wiki#link#follow(...) abort "{{{1
 endfunction
 
 " }}}1
+function! wiki#link#set_text_from_header() abort "{{{1
+  let l:link = wiki#link#get()
+  if l:link.scheme !=# 'wiki' | return | endif
+
+  let l:title = wiki#page#get_title(l:link)
+
+  try
+    let l:new = wiki#link#{l:link.type}#template(l:link.url_raw, l:title)
+  catch /E117:/
+    let l:new = wiki#link#wiki#template(l:link.url_raw, l:title)
+  endtry
+
+  call l:link.replace(l:new)
+endfunction
+
+" }}}1
 function! wiki#link#toggle_current() abort " {{{1
   let l:link = wiki#link#get()
   if empty(l:link) | return | endif

@@ -333,6 +333,26 @@ function! wiki#page#get_anchors(...) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#page#get_title(...) abort " {{{1
+  let l:filename = s:get_anchors_filename(a:000)
+
+  let preblock = 0
+  for l:line in readfile(l:filename)
+    " Ignore fenced code blocks
+    if line =~# '^\s*```'
+      let l:preblock += 1
+    endif
+    if l:preblock % 2 | continue | endif
+
+    " Parse headers
+    let l:match_header = matchlist(line, g:wiki#rx#header_items)
+    if empty(l:match_header) | continue | endif
+
+    return l:match_header[2]
+  endfor
+endfunction
+
+" }}}1
 function! wiki#page#export(line1, line2, ...) abort " {{{1
   let l:cfg = deepcopy(g:wiki_export)
   let l:cfg.fname = ''
@@ -509,7 +529,7 @@ function! s:get_anchors_filename(input) abort " {{{1
   endif
 
   if type(l:arg) != type('')
-    return expand('%:p')
+    return l:current
   endif
 
   if filereadable(l:arg)
