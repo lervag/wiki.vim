@@ -15,12 +15,16 @@ function! wiki#fzf#pages() abort "{{{1
         \ ? g:wiki_filetypes[0]
         \ : '{' . join(g:wiki_filetypes, ',') . '}'
   let l:pages = globpath(l:root, '**/*.' . l:extension, v:false, v:true)
-  call map(l:pages, {_, x -> '/' . substitute(x, escape(l:root, '\'), '', '')})
-  call map(l:pages, {_, x -> x . "#####" . fnamemodify(x, ':r')})
+  call map(l:pages, {_, x -> x . '#####'
+        \ .'/' . fnamemodify(
+        \   substitute(x, escape(l:root, '\'), '', ''),
+        \   ':r')
+        \})
 
   let l:fzf_opts = join([
         \ '-d"#####" --with-nth=-1 --print-query --prompt "WikiPages> "',
-        \ '--expect=' . get(g:, 'wiki_fzf_pages_force_create_key', 'alt-enter')
+        \ '--expect=' . get(g:, 'wiki_fzf_pages_force_create_key', 'alt-enter'),
+        \ g:wiki_fzf_pages_opts,
         \])
 
   call fzf#run(fzf#wrap({
@@ -96,7 +100,7 @@ function! s:accept_page(lines) abort "{{{1
     call wiki#page#open(a:lines[0])
   else
     let l:file = split(a:lines[2], '#####')[0]
-    execute 'edit ' . wiki#get_root() . l:file
+    execute 'edit ' . l:file
   endif
 endfunction
 

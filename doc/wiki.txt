@@ -216,6 +216,17 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: `'alt-enter'`
 
+*g:wiki_fzf_pages_opts*
+  A string with additional user options for |WikiFzfPages|. This can be used
+  e.g. to add a previewer. Users should be aware that the page candidates are
+  "prettified" with the `--with-nth=1` and `-d` options for fzf, so to obtain
+  the page path in a previewer option one must use the field index expression 1.
+  E.g.: >
+
+    let g:wiki_fzf_pages_opts = '--preview "cat {1}"'
+<
+  Default: `''`
+
 *g:wiki_global_load*
   |wiki.vim| is inherently agnostic in that it assumes any recognized filetype
   specifies a wiki. However, some people might want to load |wiki.vim| for
