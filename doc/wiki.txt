@@ -668,6 +668,10 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   Toggle wiki link. If |g:wiki_map_link_create| is specified, it will be used
   to transform the link when creating it.
 
+*<plug>(wiki-link-show)*
+*WikiLinkShow*
+  Show some info on link under cursor.
+
 *<plug>(wiki-list-toggle)*
 *WikiListToggle*
   Toggle a list item. Map works in both normal and insert mode.
@@ -889,6 +893,7 @@ information about the different modes.
    `n`     <leader>wT          |<plug>(wiki-page-toc-local)|
    `n`     <leader>wp          |<plug>(wiki-export)|
    `x`     <leader>wp          |<plug>(wiki-export)|
+   `n`     <leader>wll         |<plug>(wiki-link-show)|
    `n`     <leader>wlk         |<plug>(wiki-list-moveup)|
    `n`     <leader>wlj         |<plug>(wiki-list-movedown)|
    `n`     <leader>wlu         |<plug>(wiki-list-uniq)|
