@@ -335,6 +335,7 @@ endfunction
 " }}}1
 function! wiki#page#get_title(...) abort " {{{1
   let l:filename = s:get_anchors_filename(a:000)
+  if !filereadable(l:filename) | return '' | endif
 
   let preblock = 0
   for l:line in readfile(l:filename)

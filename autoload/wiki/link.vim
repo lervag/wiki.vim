@@ -97,6 +97,7 @@ function! wiki#link#set_text_from_header() abort "{{{1
   if l:link.scheme !=# 'wiki' | return | endif
 
   let l:title = wiki#page#get_title(l:link)
+  if empty(l:title) | return | endif
 
   try
     let l:new = wiki#link#{l:link.type}#template(l:link.url_raw, l:title)

@@ -672,6 +672,10 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *WikiLinkShow*
   Show some info on link under cursor.
 
+*<plug>(wiki-link-extract-header)*
+*WikiLinkExtractHeader*
+  Set link title from the first header of the target file.
+
 *<plug>(wiki-list-toggle)*
 *WikiListToggle*
   Toggle a list item. Map works in both normal and insert mode.
@@ -894,6 +898,7 @@ information about the different modes.
    `n`     <leader>wp          |<plug>(wiki-export)|
    `x`     <leader>wp          |<plug>(wiki-export)|
    `n`     <leader>wll         |<plug>(wiki-link-show)|
+   `n`     <leader>wlh         |<plug>(wiki-link-extract-header)|
    `n`     <leader>wlk         |<plug>(wiki-list-moveup)|
    `n`     <leader>wlj         |<plug>(wiki-list-movedown)|
    `n`     <leader>wlu         |<plug>(wiki-list-uniq)|
