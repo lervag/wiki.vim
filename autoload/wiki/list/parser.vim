@@ -89,7 +89,7 @@ function! s:get_list_items(opts) abort " {{{1
 endfunction
 
 " }}}1
-function! s:get_tree_from_items(items) abort " 
+function! s:get_tree_from_items(items) abort " {{{1
   if empty(a:items) | return {} | endif
 
   " Create root node
@@ -134,7 +134,11 @@ function! s:get_tree_from_items(items) abort "
 
     " Update parent
     call add(l:parent.children, l:current)
-    let l:parent.lnum_last = l:current.lnum_end
+    let l:p = l:parent
+    while !empty(l:p)
+      let l:p.lnum_last = l:current.lnum_end
+      let l:p = l:p.parent
+    endwhile
 
     " Update total counter
     let l:counter += 1
