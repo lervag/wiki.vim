@@ -26,7 +26,7 @@ function! wiki#init#apply_mappings_from_dict(dict, arg) abort " {{{1
       let l:mode = 'n'
     endif
 
-    if hasmapto(l:rhs, l:mode)
+    if hasmapto(l:rhs, l:mode) || !empty(maparg(l:lhs, l:mode))
       continue
     endif
 
