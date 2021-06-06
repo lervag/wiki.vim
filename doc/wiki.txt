@@ -112,7 +112,6 @@ FEATURES                                                  *wiki-intro-features*
     summaries. The parsed result needs manual editing for good results.
 - Utility functionality
   - |WikiExport| command for exporting to e.g. `pdf` with `pandoc`
-  - Running code snippets (Note: This needs work)
 - Third-party support
   - |CtrlP|: |CtrlPWiki| command (https://github.com/ctrlpvim/ctrlp.vim)
   - |fzf|: |WikiFzfPages|, |WikiFzfToc|, and |WikiFzfTags| commands
@@ -596,10 +595,6 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *WikiReload*
   Reload the wiki plugin. Mostly useful for plugin development.
 
-*<plug>(wiki-code-run)*
-*WikiCodeRun*
-  Run current code snippet (this does not currently work properly).
-
 *<plug>(wiki-graph-find-backlinks)*
 *WikiGraphFindBacklinks*
   Find backlinks to current page.
@@ -851,7 +846,6 @@ information about the different modes.
    `n`     <leader>wn          |<plug>(wiki-open)|                [GLOBAL]
    `n`     <leader>w<leader>w  |<plug>(wiki-journal)|             [GLOBAL]
    `n`     <leader>wx          |<plug>(wiki-reload)|              [GLOBAL]
-   `n`     <leader>wc          |<plug>(wiki-code-run)|
    `n`     <leader>wb          |<plug>(wiki-graph-find-backlinks)|
    `n`     <leader>wlc         |<plug>(wiki-graph-check-links)|
    `n`     <leader>wg          |<plug>(wiki-graph-in)|

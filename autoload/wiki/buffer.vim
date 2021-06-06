@@ -36,7 +36,6 @@ endfunction
 
 
 function! s:init_buffer_commands() abort " {{{1
-  command! -buffer WikiCodeRun            call wiki#u#run_code_snippet()
   command! -buffer WikiGraphFindBacklinks call wiki#graph#find_backlinks()
   command! -buffer WikiGraphCheckLinks    call wiki#graph#check_links()
   command! -buffer -count=99 WikiGraphIn  call wiki#graph#in(<count>)
@@ -74,7 +73,6 @@ endfunction
 
 " }}}1
 function! s:init_buffer_mappings() abort " {{{1
-  nnoremap <silent><buffer> <plug>(wiki-code-run)             :WikiCodeRun<cr>
   nnoremap <silent><buffer> <plug>(wiki-graph-find-backlinks) :WikiGraphFindBacklinks<cr>
   nnoremap <silent><buffer> <plug>(wiki-graph-check-links)    :WikiGraphCheckLinks<cr>
   nnoremap <silent><buffer> <plug>(wiki-graph-in)             :WikiGraphIn<cr>
@@ -125,7 +123,6 @@ function! s:init_buffer_mappings() abort " {{{1
   let l:mappings = {}
   if index(['all', 'local'], g:wiki_mappings_use_defaults) >= 0
     let l:mappings = {
-          \ '<plug>(wiki-code-run)': '<leader>wc',
           \ '<plug>(wiki-graph-find-backlinks)': '<leader>wb',
           \ '<plug>(wiki-graph-check-links)': '<leader>wlc',
           \ '<plug>(wiki-graph-in)': '<leader>wg',

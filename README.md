@@ -73,7 +73,6 @@ This outlines the basic steps to get started:
     summaries. The parsed result needs manual editing for good results.
 - Utility functionality
   - `:WikiExport` command for exporting to e.g. `pdf` with `pandoc`
-  - Running code snippets (Note: This needs work)
 - Third-party support
   - [CtrlP](https://github.com/ctrlpvim/ctrlp.vim): `CtrlPWiki` command
   - [unite](https://github.com/Shougo/unite.vim)
