@@ -4,8 +4,8 @@ runtime plugin/wiki.vim
 silent edit ../wiki-basic/index.wiki
 
 let s:tags = wiki#tags#get_all()
-call wiki#test#assert_equal(len(s:tags), 2)
-call wiki#test#assert_equal(len(s:tags.tagged), 2)
-call wiki#test#assert_equal(len(s:tags.marked), 2)
+call assert_equal(2, len(s:tags))
+call assert_equal(2, len(s:tags.tagged))
+call assert_equal(2, len(s:tags.marked))
 
-if $QUIT | quitall! | endif
+call wiki#test#finished()

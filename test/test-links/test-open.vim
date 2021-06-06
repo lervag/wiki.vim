@@ -12,9 +12,9 @@ let g:wiki_root = g:testroot . '/wiki-basic'
 runtime plugin/wiki.vim
 
 silent WikiIndex
-call wiki#test#assert_equal(g:wiki_root . '/index.md', expand('%'))
+call assert_equal(g:wiki_root . '/index.md', expand('%'))
 
 silent call wiki#page#open('Test this stuff')
-call wiki#test#assert_equal(g:wiki_root . '/test-this-stuff.md', expand('%'))
+call assert_equal(g:wiki_root . '/test-this-stuff.md', expand('%'))
 
-if $QUIT | quitall! | endif
+call wiki#test#finished()

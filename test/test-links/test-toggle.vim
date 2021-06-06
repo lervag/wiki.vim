@@ -20,9 +20,8 @@ runtime plugin/wiki.vim
 silent edit ../wiki-basic/index.wiki
 execute "normal \<plug>(wiki-link-next)"
 silent execute "normal \<Plug>(wiki-link-toggle)"
-call wiki#test#assert_equal('[NewPage](NewPage.wiki)', getline('.'))
+call assert_equal('[NewPage](NewPage.wiki)', getline('.'))
 silent execute "normal \<Plug>(wiki-link-toggle)"
-call wiki#test#assert_equal('[[NewPage]]', getline('.'))
+call assert_equal('[[NewPage]]', getline('.'))
 
-
-if $QUIT | quitall! | endif
+call wiki#test#finished()

@@ -13,6 +13,6 @@ augroup END
 silent edit ../wiki-basic/index.wiki
 silent execute "normal \<Plug>(wiki-link-next)"
 silent execute "normal \<Plug>(wiki-link-follow)"
-call wiki#test#assert_equal(g:it_works, 1)
+call assert_equal(g:it_works, 1)
 
-if $QUIT | quitall! | endif
+call wiki#test#finished()

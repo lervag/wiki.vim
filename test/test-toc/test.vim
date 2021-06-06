@@ -8,8 +8,8 @@ set expandtab
 silent edit ../wiki-basic/ToC.wiki
 
 WikiPageToc
-call wiki#test#assert_equal(
+call assert_equal(
       \ getline(1, '$'),
       \ readfile('../wiki-basic/ToC-reference.wiki'))
 
-if $QUIT | quitall! | endif
+call wiki#test#finished()
