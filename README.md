@@ -72,10 +72,8 @@ This outlines the basic steps to get started:
   - Support for parsing journal entries in order to make weekly and monthly
     summaries. The parsed result needs manual editing for good results.
 - Utility functionality
-  - Toggling lists (marking as done/undone or add/remove TODO)
+  - `:WikiExport` command for exporting to e.g. `pdf` with `pandoc`
   - Running code snippets (Note: This needs work)
-  - Text objects
-    - `il al` List items
 - Third-party support
   - [CtrlP](https://github.com/ctrlpvim/ctrlp.vim): `CtrlPWiki` command
   - [unite](https://github.com/Shougo/unite.vim)

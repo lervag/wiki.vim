@@ -48,7 +48,6 @@ CONTENTS                                                        *wiki-contents*
     Zotero shortlinks                              |wiki-link-zotero|
     AsciiDoc cross references                      |wiki-link-adoc-xref|
     AsciiDoc link macro                            |wiki-link-adoc-link|
-  Lists                                            |wiki-lists|
   Completion                                       |wiki-completion|
   Tags                                             |wiki-tags|
 
@@ -112,11 +111,8 @@ FEATURES                                                  *wiki-intro-features*
   - Support for parsing journal entries in order to make weekly and monthly
     summaries. The parsed result needs manual editing for good results.
 - Utility functionality
-  - Toggling lists (marking as done/undone or add/remove TODO)
-  - Running code snippets (Note: This needs work)
   - |WikiExport| command for exporting to e.g. `pdf` with `pandoc`
-  - Text objects
-    - `il al` List items
+  - Running code snippets (Note: This needs work)
 - Third-party support
   - |CtrlP|: |CtrlPWiki| command (https://github.com/ctrlpvim/ctrlp.vim)
   - |fzf|: |WikiFzfPages|, |WikiFzfToc|, and |WikiFzfTags| commands
@@ -335,12 +331,6 @@ OPTIONS                                                   *wiki-config-options*
           \ 'url': 'wiki#link#md#template',
           \}
 
-*g:wiki_list_todos*
-  A list of TODO toggles that may be toggled with |<plug>(wiki-list-toggle)|,
-  which is by default mapped to `<c-s>`.
-
-  Default: `['TODO', 'DONE']`
-
 *g:wiki_map_create_page*
   This option may be used to specify a map or transformation for page names
   provided to |WikiOpen|. For example: >
@@ -405,12 +395,12 @@ OPTIONS                                                   *wiki-config-options*
   case, one can use the following syntax: >
 
     let g:wiki_mappings_local = {
-          \ '<plug>(wiki-list-toggle)' : '<c-w>',
-          \ 'i_<plug>(wiki-list-toggle)' : '<c-w>',
+          \ '<plug>(wiki-export)' : '<c-p>',
+          \ 'x_<plug>(wiki-export)' : '<c-p>',
           \}
 <
-  Here `<c-w>` is mapped to |<plug>(wiki-list-toggle)| in normal mode and
-  insert mode, respectively. The available `<plug>` mappings are listed in
+  Here `<c-p>` is mapped to |<plug>(wiki-export)| in normal mode and
+  visual mode, respectively. The available `<plug>` mappings are listed in
   |wiki-mappings|.
 
   Default: Undefined
@@ -676,24 +666,6 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *WikiLinkExtractHeader*
   Set link title from the first header of the target file.
 
-*<plug>(wiki-list-toggle)*
-*WikiListToggle*
-  Toggle a list item. Map works in both normal and insert mode.
-
-*<plug>(wiki-list-moveup)*
-*<plug>(wiki-list-movedown)*
-*WikiListMoveUp*
-*WikiListMoveDown*
-  Move current list item up/down through a list.
-
-*<plug>(wiki-list-uniq)*
-*WikiListUniq*
-  Parse the current list and remove repeated entries recursively.
-
-*<plug>(wiki-list-uniq-local)*
-*WikiListUniqLocal*
-  Similar to |WikiListUniq|, but only within the current list depth.
-
 *<plug>(wiki-page-delete)*
 *WikiPageDelete*
   Delete wiki page.
@@ -863,12 +835,6 @@ mappings, i.e. |xmap| and |omap|.
 *<plug>(wiki-it)*
   Text object for link texts.
 
-*<plug>(wiki-al)*
-*<plug>(wiki-il)*
-  Text object for list items. The inner object is the current list item
-  including children, the outer object is the parent list item including all
-  its children.
-
 ------------------------------------------------------------------------------
 DEFAULT MAPPINGS                                        *wiki-mappings-default*
 
@@ -899,10 +865,6 @@ information about the different modes.
    `x`     <leader>wp          |<plug>(wiki-export)|
    `n`     <leader>wll         |<plug>(wiki-link-show)|
    `n`     <leader>wlh         |<plug>(wiki-link-extract-header)|
-   `n`     <leader>wlk         |<plug>(wiki-list-moveup)|
-   `n`     <leader>wlj         |<plug>(wiki-list-movedown)|
-   `n`     <leader>wlu         |<plug>(wiki-list-uniq)|
-   `n`     <leader>wlU         |<plug>(wiki-list-uniq-local)|
    `n`     <leader>wsl         |<plug>(wiki-tag-list)|
    `n`     <leader>wsr         |<plug>(wiki-tag-reload)|
    `n`     <leader>wss         |<plug>(wiki-tag-search)|
@@ -913,13 +875,10 @@ information about the different modes.
    `n`     <bs>                |<plug>(wiki-link-return)|
    `n`     gl                  |<plug>(wiki-link-toggle-operator)|
    `x`     <cr>                |<plug>(wiki-link-toggle-visual)|
-   `ni`    <c-s>               |<plug>(wiki-list-toggle)|
    `ox`    au                  |<plug>(wiki-au)|
    `ox`    iu                  |<plug>(wiki-iu)|
    `ox`    at                  |<plug>(wiki-at)|
    `ox`    it                  |<plug>(wiki-it)|
-   `ox`    al                  |<plug>(wiki-al)|
-   `ox`    il                  |<plug>(wiki-il)|
   ---------------------------------------------------------------------~
 
 ==============================================================================
@@ -1119,15 +1078,6 @@ The `[<attrlist>]` will be recognized by wiki.vim as the link text.
 [0]: https://docs.asciidoctor.org/asciidoc/latest/macros/link-macro/
 
 ==============================================================================
-LISTS                                                              *wiki-lists*
-
-It is common to write lists inside wikis, and so there is some support for
-working with lists:
-
-- Use `<c-s>` in both insert and normal mode to toggle a TODO at the beginning
-  of the list item, or to toggle the checkbox if it is present.
-
-==============================================================================
 COMPLETION                                                    *wiki-completion*
 
 This plugin provides an |omni-complete| function that completes internal link
@@ -1159,4 +1109,4 @@ Related settings:
 - |g:wiki_tags|
 
 ==============================================================================
- vim:tw=78:ts=8:ft=help:norl:
+ vim:tw=78:ts=8:ft=help:norl:fdm=marker:

@@ -8,9 +8,7 @@ function! wiki#buffer#init() abort " {{{1
   " Convenience: Set completion function
   setlocal omnifunc=wiki#complete#omnicomplete
 
-  " Convenience: Set 'comments' option for list
-  setlocal comments+=fb:*,f:*\ TODO:,b:*\ [\ ],b:*\ [x]
-  setlocal comments+=fb:-,f:-\ TODO:,b:-\ [\ ],b:-\ [x]
+  " Convenience: Set 'comments' option for quotes
   setlocal comments+=nb:>
 
   " Initialize the b:wiki state
@@ -52,12 +50,6 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiLinkPrev           call wiki#nav#prev_link()
   command! -buffer WikiLinkReturn         call wiki#nav#return()
   command! -buffer WikiLinkToggle         call wiki#link#toggle_current()
-  command! -buffer WikiListMoveUp         call wiki#list#move(0)
-  command! -buffer WikiListMoveDown       call wiki#list#move(1)
-  command! -buffer WikiListToggle         call wiki#list#toggle()
-  command! -buffer WikiListUniq           call wiki#list#uniq(0)
-  command! -buffer WikiListUniqLocal      call wiki#list#uniq(1)
-  command! -buffer WikiListShowItem       call wiki#list#show_item()
   command! -buffer WikiPageDelete         call wiki#page#delete()
   command! -buffer WikiPageRename         call wiki#page#rename_ask()
   command! -buffer WikiPageToc            call wiki#page#create_toc(0)
@@ -96,12 +88,6 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-link-prev)            :WikiLinkPrev<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-return)          :WikiLinkReturn<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-toggle)          :WikiLinkToggle<cr>
-  nnoremap <silent><buffer> <plug>(wiki-list-moveup)          :WikiListMoveUp<cr>
-  nnoremap <silent><buffer> <plug>(wiki-list-movedown)        :WikiListMoveDown<cr>
-  nnoremap <silent><buffer> <plug>(wiki-list-toggle)          :WikiListToggle<cr>
-  nnoremap <silent><buffer> <plug>(wiki-list-uniq)            :WikiListUniq<cr>
-  nnoremap <silent><buffer> <plug>(wiki-list-uniq-local)      :WikiListUniqLocal<cr>
-  nnoremap <silent><buffer> <plug>(wiki-list-show-item)       :WikiListShowItem<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-delete)          :WikiPageDelete<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-rename)          :WikiPageRename<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-toc)             :WikiPageToc<cr>
@@ -115,7 +101,6 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-fzf-toc)              :WikiFzfToc<cr>
   inoremap <silent><buffer> <plug>(wiki-fzf-toc)              <esc>:WikiFzfToc<cr>
 
-  inoremap <silent><buffer> <plug>(wiki-list-toggle)          <esc>:call wiki#list#new_item()<cr>
   xnoremap <silent><buffer> <plug>(wiki-link-toggle-visual)   :<c-u>call wiki#link#toggle_visual()<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-toggle-operator) :set opfunc=wiki#link#toggle_operator<cr>g@
 
@@ -127,10 +112,6 @@ function! s:init_buffer_mappings() abort " {{{1
   xnoremap <silent><buffer> <plug>(wiki-at) :<c-u>call wiki#text_obj#link_text(0, 1)<cr>
   onoremap <silent><buffer> <plug>(wiki-it) :call wiki#text_obj#link_text(1, 0)<cr>
   xnoremap <silent><buffer> <plug>(wiki-it) :<c-u>call wiki#text_obj#link_text(1, 1)<cr>
-  onoremap <silent><buffer> <plug>(wiki-al) :call wiki#text_obj#list_element(0, 0)<cr>
-  xnoremap <silent><buffer> <plug>(wiki-al) :<c-u>call wiki#text_obj#list_element(0, 1)<cr>
-  onoremap <silent><buffer> <plug>(wiki-il) :call wiki#text_obj#list_element(1, 0)<cr>
-  xnoremap <silent><buffer> <plug>(wiki-il) :<c-u>call wiki#text_obj#list_element(1, 1)<cr>
 
   if b:wiki.in_journal
     nnoremap <silent><buffer> <plug>(wiki-journal-prev)        :WikiJournalPrev<cr>
@@ -158,12 +139,6 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-link-return)': '<bs>',
           \ '<plug>(wiki-link-toggle)': '<leader>wf',
           \ '<plug>(wiki-link-toggle-operator)': 'gl',
-          \ '<plug>(wiki-list-toggle)': '<c-s>',
-          \ '<plug>(wiki-list-moveup)': '<leader>wlk',
-          \ '<plug>(wiki-list-movedown)': '<leader>wlj',
-          \ '<plug>(wiki-list-uniq)': '<leader>wlu',
-          \ '<plug>(wiki-list-uniq-local)': '<leader>wlU',
-          \ '<plug>(wiki-list-show-item)': '<leader>wls',
           \ '<plug>(wiki-page-delete)': '<leader>wd',
           \ '<plug>(wiki-page-rename)': '<leader>wr',
           \ '<plug>(wiki-page-toc)': '<leader>wt',
@@ -173,7 +148,6 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-tag-list)': '<leader>wsl',
           \ '<plug>(wiki-tag-reload)': '<leader>wsr',
           \ '<plug>(wiki-tag-search)': '<leader>wss',
-          \ 'i_<plug>(wiki-list-toggle)': '<c-s>',
           \ 'x_<plug>(wiki-link-toggle-visual)': '<cr>',
           \ 'o_<plug>(wiki-au)': 'au',
           \ 'x_<plug>(wiki-au)': 'au',
@@ -183,10 +157,6 @@ function! s:init_buffer_mappings() abort " {{{1
           \ 'x_<plug>(wiki-at)': 'at',
           \ 'o_<plug>(wiki-it)': 'it',
           \ 'x_<plug>(wiki-it)': 'it',
-          \ 'o_<plug>(wiki-al)': 'al',
-          \ 'x_<plug>(wiki-al)': 'al',
-          \ 'o_<plug>(wiki-il)': 'il',
-          \ 'x_<plug>(wiki-il)': 'il',
           \}
 
     if b:wiki.in_journal
