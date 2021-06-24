@@ -52,6 +52,7 @@ CONTENTS                                                        *wiki-contents*
     Autocomplete                             |wiki-completion-auto|
   Tags                                       |wiki-tags|
   Templates                                  |wiki-templates|
+    Template function context                |wiki-templates-context|
     Template file format                     |wiki-templates-format|
     Journal summaries                        |wiki-templates-journal-summaries|
 
@@ -246,7 +247,7 @@ OPTIONS                                                   *wiki-config-options*
       One of 'daily', 'weekly', or 'monthly'.
 
     date_format~
-      Dictionary of file name formats for the 'daily', 'weekly', and 'monthly'
+      Dictionary of filename formats for the 'daily', 'weekly', and 'monthly'
       frequencies. The formats may contain the following keys:
 
         %y  year (two digits)
@@ -423,7 +424,7 @@ OPTIONS                                                   *wiki-config-options*
   The function takes two arguments:
 
     fname~
-      The unresolved file name. This may be empty, which is typically the case
+      The unresolved filename. This may be empty, which is typically the case
       for inter-page links (e.g. `[[#SomeSection]]`).
 
     origin~
@@ -504,26 +505,60 @@ OPTIONS                                                   *wiki-config-options*
   Default: >
     let g:wiki_tags_scan_num_lines = 15
 
-*g:wiki_template_files*
-  A list template files for new pages. Each file should be specified either as
-  an absolute path or as a path relative to the location of the new page.
-  The files are searched in order, and the first matching template file will
-  be used. The format of template files is specified in |wiki-templates-format|.
+*g:wiki_templates*
+  A list of templates for prefilling new pages. Each template should be
+  specified as a dictionary with a matcher and a source. Matching may be done
+  with regular expressions or with user functions. Similarly, sources can be
+  specified as a file source as specified in |wiki-templates-format|, or as
+  a user function with a single argument `context` as specified in
+  |wiki-templates-context|.
 
-  If the template file path ends with `;`, then the file is searched upwards
-  similar to the description in the second type of search in |file-searching|.
+  The possible dictionary keys of a template are:
+
+    match_re~
+      |String|
+      A regular expression that will be matched against the new page name.
+
+    match_func~
+      |Funcref|
+      A function that should return |v:true| if the template should be applied
+      or |v:false| if it should not apply.
+
+    source_filename~
+      |String|
+      The name of a template file. If filename ends with `;`, then the file is
+      searched upwards similar to the description in the second type of search
+      in |file-searching|. Note: If the template file is not found, then the
+      template will not be applied and the next template in the list will be
+      tried.
+
+    source_func~
+      |Funcref|
+      A user function that can use e.g. |append()| to add lines to the file.
+
   For example: >
 
-    let g:wiki_template_files = [
-          \ '.mytemplate.md;',
-          \ '/home/user/templates/fallback.md',
+    function! TemplateFallback(context)
+      call append(0, '# ' . a:context.name)
+      call append(1, '')
+      call append(2, 'Foobar')
+    endfunction
+
+    let g:wiki_templates = [
+          \ { 'match_re': 'index\.md',
+          \   'source_filename': '/home/user/templates/index.md'},
+          \ { 'match_re': 'foo\.md',
+          \   'source_filename': '.footemplate.md;'},
+          \ { 'match_func': {x -> v:true},
+          \   'source_func': function('TemplateFallback')},
           \]
 <
-  Here `.mytemplate.md` file is first searched for in the current directory of
-  the new page, then in the parent directory, and so on. If it is not found,
-  then the file `/home/user/templates/fallback.md` is used (if it exists).
+  Notice that in the second template, the `;` is appended to the source
+  filename. This means the template file is first searched for in the current
+  directory of the new page, then in the parent directory, and so on. If the
+  template file is not found, then the next template will be tried.
 
-  Default: `['.template.md']`
+  Default: `[]`
 
 *g:wiki_template_title_month*
   A string that specifies the title of the month template. The following keys
@@ -1171,17 +1206,36 @@ Related settings:
 TEMPLATES                                                      *wiki-templates*
 
 New pages are empty by default. However, it is possible to define templates
-for prefilling new pages. Template files are specified in the option
-|g:wiki_template_files|, and if any of these files are found, then they are
-used to prefill a new page.
+for prefilling new pages. Templates are specified with the option
+|g:wiki_templates|, and if a template matches the new page it will be applied.
+Only the first template that matches will be applied.
 
-Template files are formatted as described in |wiki-templates-format|.
+The templates can be specified as user functions or as template files. User
+functions assume a single variable such as described in
+|wiki-templates-context|. The template files should be formatted as described
+in |wiki-templates-format|.
 
 There is also a special kind of journal summary template which is described in
 |wiki-templates-journal-summaries|.
 
 Related settings:
-- |g:wiki_template_files|
+- |g:wiki_templates|
+
+------------------------------------------------------------------------------
+TEMPLATE FUNCTION CONTEXT                              *wiki-templates-context*
+
+The functions in |g:wiki_templates| assume a single argument `context` which
+is a dictionary with the following values:
+
+  Key          Description              Example~
+  ===          ===========              =======
+  `name`         Filename (no extension)  "New Page"
+  `path`         Full path                "/path/to/wiki/sub/New Page.md"
+  `path_wiki`    Wiki path                "/sub/New Page.md"
+  `origin_file`  Previous file            "/path/to/wiki/index.md"
+  `origin_lnum`  Previous lnum            123
+  `date`         ISO date                 2021-07-01
+  `time`         Time (24h format)        19:30
 
 ------------------------------------------------------------------------------
 TEMPLATE FILE FORMAT                                    *wiki-templates-format*
@@ -1190,20 +1244,12 @@ A template file is essentially a simple text file to your liking. There are
 two rules that allow dynamic templates:
 
   1. Variable substitution with `{variable}` strings. The allowed variables
-     are restricted to a set of pre-defined variables, see below.
+     are the same as those available in |wiki-templates-context|.
   2. Function substitution with `{{Function Arg1 Arg2 ...}}` strings. The
      function is assumed to return either a string or a list of strings.
 
 The first rule is applied first, which allows the arguments in Rule 2 to be
 variable substitutions.
-
-Pre-defined variables:~
-  `{date}`
-  `{time}`
-  `{pagetitle}`
-  `{pagesection}`
-  `{last_pagetitle}`
-  `{last_pagesection}`
 
 Pre-defined functions:~
   `wiki#template#case_title(string)`
@@ -1212,7 +1258,7 @@ An example of how these templates could be useful: If you keep a separate blog
 directory in your wiki, you could add a `.template.md` file with the following
 content to ensure that you follow the same structure: >
 
-  # {{wiki#template#case_title {pagetitle}}}
+  # {{wiki#template#case_title {name}}}
   Created: {date} {time}
 
   # Introduction
@@ -1248,4 +1294,4 @@ Related commands:
 - |WikiJournalToMonth|
 
 ==============================================================================
- vim:tw=78:ts=8:ft=help:norl:fdm=marker:
+ vim:tw=78:ts=8:ft=help:norl:fdm=marker:cole=2:
