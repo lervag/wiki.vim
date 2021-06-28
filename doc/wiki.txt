@@ -49,6 +49,7 @@ CONTENTS                                                        *wiki-contents*
     AsciiDoc cross references                      |wiki-link-adoc-xref|
     AsciiDoc link macro                            |wiki-link-adoc-link|
   Completion                                       |wiki-completion|
+    Autocomplete                                   |wiki-completion-auto|
   Tags                                             |wiki-tags|
 
 ==============================================================================
@@ -1077,6 +1078,40 @@ COMPLETION                                                    *wiki-completion*
 This plugin provides an |omni-complete| function that completes internal link
 targets, including anchors.  This should work both for markdown and wiki
 style links (see |wiki-link|).
+
+------------------------------------------------------------------------------
+AUTOCOMPLETE                                             *wiki-completion-auto*
+
+Vim does not provide automatic completion by itself, but there exist at least
+several good plugins that provide this: |coc-nvim|, |deoplete|, |neocomplete|,
+|ncm2|, |nvim-completion-manager|, |youcompleteme|, and |nvim-compe|.
+Moreover, there is |VimCompletesMe| that overrides <tab> to trigger different
+built-in completions, such as omni completion, depending on the
+context. Below are instructiongs for how to setup some of these autocomplete
+plugins for wiki.vim.
+
+ncm2~
+|ncm2| is a modern remake and replacement of |nvim-completion-manager| and is
+supposed to be a "Slim, Fast and Hackable Completion Framework for Neovim":
+https://github.com/ncm2/ncm2
+
+The following configuration shows how to enable autocompletion of wiki style
+links after `[[`: >
+
+  augroup my_cm_setup
+    autocmd!
+    autocmd BufEnter * call ncm2#enable_for_buffer()
+    autocmd User WikiBufferInitialized call ncm2#register_source({
+          \ 'name': 'wiki',
+          \ 'priority': 9,
+          \ 'scope': ['wiki'],
+          \ 'word_pattern': '\w+',
+          \ 'complete_pattern': '\[\[',
+          \ 'on_complete': ['ncm2#on_complete#delay', 200,
+          \                 'ncm2#on_complete#omni',
+          \                 'wiki#complete#omnicomplete'],
+          \})
+  augroup END
 
 ==============================================================================
 TAGS                                                                *wiki-tags*
