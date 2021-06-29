@@ -85,6 +85,11 @@ function! s:handler.follow(...) abort dict " {{{1
 
     execute l:cmd fnameescape(self.path)
 
+    if !filereadable(self.path)
+      redraw!
+      call wiki#log#info('Opened new page "' . self.stripped . '"')
+    end
+
     if exists('l:old_position')
       let b:wiki = get(b:, 'wiki', {})
       call wiki#nav#add_to_stack(l:old_position)

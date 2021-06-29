@@ -98,6 +98,7 @@ function! s:accept_page(lines) abort "{{{1
 
   if len(a:lines) == 2 || !empty(a:lines[1])
     call wiki#page#open(a:lines[0])
+    sleep 1
   else
     let l:file = split(a:lines[2], '#####')[0]
     execute 'edit ' . l:file

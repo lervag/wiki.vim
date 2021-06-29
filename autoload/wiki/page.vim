@@ -9,15 +9,7 @@ function! wiki#page#open(page) abort "{{{1
         \ !empty(g:wiki_map_create_page) && exists('*' . g:wiki_map_create_page)
         \ ? call(g:wiki_map_create_page, [a:page])
         \ : a:page
-  let l:url = wiki#url#parse('wiki:/' . l:page)
-
-  if !filereadable(l:url.path)
-    redraw!
-    call wiki#log#info('Opening new page "' . l:page . '"')
-    sleep 1
-  end
-
-  call l:url.follow()
+  call wiki#url#parse('wiki:/' . l:page).follow()
 endfunction
 
 "}}}1
