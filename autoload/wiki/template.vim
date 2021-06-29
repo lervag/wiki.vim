@@ -7,6 +7,21 @@
 function! wiki#template#init() abort " {{{1
   if filereadable(expand('%')) | return | endif
 
+  let l:context = {
+        \ 'date': strftime("%F"),
+        \ 'name': expand('%:t:r'),
+        \ 'origin': wiki#nav#get_previous(),
+        \ 'path': expand('%:p'),
+        \ 'path_wiki': wiki#paths#shorten_relative(expand('%:p')),
+        \ 'time': strftime("%H:%M"),
+        \}
+
+  for l:template in g:wiki_templates
+    if s:template_match(l:template, l:context)
+      return s:template_apply(l:template, l:context)
+    endif
+  endfor
+
   let l:match = matchlist(expand('%:t:r'), '^\(\d\d\d\d\)_\(\w\)\(\d\d\)$')
   if empty(l:match) | return | endif
   let [l:year, l:type, l:number] = l:match[1:3]
@@ -16,6 +31,28 @@ function! wiki#template#init() abort " {{{1
   elseif l:type ==# 'm'
     call wiki#template#monthly_summary(l:year, l:number)
   endif
+endfunction
+
+" }}}1
+
+function! s:template_match(t, ctx) abort " {{{1
+  if has_key(a:t, 'match_re')
+    return a:ctx.name =~# a:t.match_re
+  elseif has_key(a:t, 'match_func')
+    return a:t.match_func(a:ctx)
+  endif
+endfunction
+
+" }}}1
+function! s:template_apply(t, ctx) abort " {{{1
+  if has_key(a:t, 'source_func')
+    return a:t.source_func(a:ctx)
+  endif
+
+  let l:source = get(a:t, 'source_filename', '')
+  if !filereadable(l:source) | return | endif
+
+  call append(0, readfile(l:source))
 endfunction
 
 " }}}1

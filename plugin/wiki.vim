@@ -58,6 +58,7 @@ call wiki#init#option('wiki_root', '')
 call wiki#init#option('wiki_tags', { 'output' : 'loclist' })
 call wiki#init#option('wiki_tags_format_pattern', '\v%(^|\s):\zs[^: ]+\ze:')
 call wiki#init#option('wiki_tags_scan_num_lines', 15)
+call wiki#init#option('wiki_templates', [])
 call wiki#init#option('wiki_template_title_month',
       \ '# Summary, %(year) %(month-name)')
 call wiki#init#option('wiki_template_title_week',
