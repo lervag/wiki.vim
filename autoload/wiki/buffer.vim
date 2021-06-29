@@ -25,7 +25,7 @@ function! wiki#buffer#init() abort " {{{1
   call s:init_buffer_commands()
   call s:init_buffer_mappings()
 
-  call s:apply_template()
+  call wiki#template#init()
 
   if exists('#User#WikiBufferInitialized')
     doautocmd <nomodeline> User WikiBufferInitialized
@@ -170,22 +170,6 @@ function! s:init_buffer_mappings() abort " {{{1
   call extend(l:mappings, get(g:, 'wiki_mappings_local', {}))
 
   call wiki#init#apply_mappings_from_dict(l:mappings, '<buffer>')
-endfunction
-
-" }}}1
-
-function! s:apply_template() abort " {{{1
-  if filereadable(expand('%')) | return | endif
-
-  let l:match = matchlist(expand('%:t:r'), '^\(\d\d\d\d\)_\(\w\)\(\d\d\)$')
-  if empty(l:match) | return | endif
-  let [l:year, l:type, l:number] = l:match[1:3]
-
-  if l:type ==# 'w'
-    call wiki#template#weekly_summary(l:year, l:number)
-  elseif l:type ==# 'm'
-    call wiki#template#monthly_summary(l:year, l:number)
-  endif
 endfunction
 
 " }}}1

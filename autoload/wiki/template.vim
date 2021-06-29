@@ -4,6 +4,22 @@
 " Email:      karl.yngve@gmail.com
 "
 
+function! wiki#template#init() abort " {{{1
+  if filereadable(expand('%')) | return | endif
+
+  let l:match = matchlist(expand('%:t:r'), '^\(\d\d\d\d\)_\(\w\)\(\d\d\)$')
+  if empty(l:match) | return | endif
+  let [l:year, l:type, l:number] = l:match[1:3]
+
+  if l:type ==# 'w'
+    call wiki#template#weekly_summary(l:year, l:number)
+  elseif l:type ==# 'm'
+    call wiki#template#monthly_summary(l:year, l:number)
+  endif
+endfunction
+
+" }}}1
+
 function! wiki#template#weekly_summary(year, week) abort " {{{1
   let l:parser = s:summary.new()
 
