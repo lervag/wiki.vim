@@ -19,6 +19,22 @@ endfunction
 
 " }}}1
 
+function! wiki#nav#add_to_stack(link) abort " {{{1
+  let s:position_stack += [a:link]
+endfunction
+
+let s:position_stack = []
+
+" }}}1
+function! wiki#nav#get_previous() abort "{{{1
+  let l:previous = get(s:position_stack, -1, [])
+  if !empty(l:previous) | return l:previous | endif
+
+  let l:file = expand('#:p')
+  if filereadable(l:file) | return [l:file, 1] | endif
+endfunction
+
+" }}}1
 function! wiki#nav#return() abort "{{{1
   if g:wiki_write_on_nav | update | endif
 
@@ -30,12 +46,5 @@ function! wiki#nav#return() abort "{{{1
     silent! execute "normal! \<c-o>"
   endif
 endfunction
-
-" }}}1
-function! wiki#nav#add_to_stack(link) abort " {{{1
-  let s:position_stack += [a:link]
-endfunction
-
-let s:position_stack = []
 
 " }}}1
