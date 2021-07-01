@@ -56,7 +56,8 @@ endfunction
 " }}}1
 function! s:template_apply(t, ctx) abort " {{{1
   if has_key(a:t, 'source_func')
-    return a:t.source_func(a:ctx)
+    call a:t.source_func(a:ctx)
+    return 1
   endif
 
   let l:source = get(a:t, 'source_filename', '')
@@ -75,7 +76,7 @@ function! s:template_apply(t, ctx) abort " {{{1
     let l:func = l:parts[1]
     let l:arg = l:parts[2]
     try
-      let l:value = call(l:func, [l:arg])
+      let l:value = call(l:func, [l:arg, a:ctx])
     catch /E117:/
       let l:value = ''
     endtry

@@ -1,6 +1,6 @@
 source ../init.vim
 
-function! UserFunc(string) abort " {{{1
+function! UserFunc(string, ctx) abort " {{{1
   return toupper(a:string)
 endfunction
 
