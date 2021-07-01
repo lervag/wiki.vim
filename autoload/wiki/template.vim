@@ -7,10 +7,13 @@
 function! wiki#template#init() abort " {{{1
   if filereadable(expand('%')) | return | endif
 
+  let l:origin = wiki#nav#get_previous()
+
   let l:context = {
         \ 'date': strftime("%F"),
         \ 'name': expand('%:t:r'),
-        \ 'origin': wiki#nav#get_previous(),
+        \ 'origin_file': l:origin[0],
+        \ 'origin_lnum': l:origin[1],
         \ 'path': expand('%:p'),
         \ 'path_wiki': wiki#paths#shorten_relative(expand('%:p')),
         \ 'time': strftime("%H:%M"),
@@ -18,7 +21,7 @@ function! wiki#template#init() abort " {{{1
 
   for l:template in g:wiki_templates
     if s:template_match(l:template, l:context)
-      return s:template_apply(l:template, l:context)
+      if s:template_apply(l:template, l:context) | return | endif
     endif
   endfor
 
@@ -57,7 +60,7 @@ function! s:template_apply(t, ctx) abort " {{{1
   endif
 
   let l:source = get(a:t, 'source_filename', '')
-  if !filereadable(l:source) | return | endif
+  if !filereadable(l:source) | return 0 | endif
 
   " Interpolate the context "variables"
   let l:lines = join(readfile(l:source), "\n")
@@ -86,6 +89,8 @@ function! s:template_apply(t, ctx) abort " {{{1
   endwhile
 
   call append(0, split(l:lines, "\n"))
+
+  return 1
 endfunction
 
 " }}}1
