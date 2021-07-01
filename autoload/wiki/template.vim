@@ -7,6 +7,21 @@
 function! wiki#template#init() abort " {{{1
   if filereadable(expand('%')) | return | endif
 
+  let l:context = {
+        \ 'date': strftime("%F"),
+        \ 'name': expand('%:t:r'),
+        \ 'origin': wiki#nav#get_previous(),
+        \ 'path': expand('%:p'),
+        \ 'path_wiki': wiki#paths#shorten_relative(expand('%:p')),
+        \ 'time': strftime("%H:%M"),
+        \}
+
+  for l:template in g:wiki_templates
+    if s:template_match(l:template, l:context)
+      return s:template_apply(l:template, l:context)
+    endif
+  endfor
+
   let l:match = matchlist(expand('%:t:r'), '^\(\d\d\d\d\)_\(\w\)\(\d\d\)$')
   if empty(l:match) | return | endif
   let [l:year, l:type, l:number] = l:match[1:3]
@@ -16,6 +31,61 @@ function! wiki#template#init() abort " {{{1
   elseif l:type ==# 'm'
     call wiki#template#monthly_summary(l:year, l:number)
   endif
+endfunction
+
+" }}}1
+
+function! wiki#template#case_title(text, ...) abort " {{{1
+  return join(map(split(a:text), {_, x -> toupper(x[0]) . strpart(x, 1)}))
+endfunction
+
+" }}}1
+
+
+function! s:template_match(t, ctx) abort " {{{1
+  if has_key(a:t, 'match_re')
+    return a:ctx.name =~# a:t.match_re
+  elseif has_key(a:t, 'match_func')
+    return a:t.match_func(a:ctx)
+  endif
+endfunction
+
+" }}}1
+function! s:template_apply(t, ctx) abort " {{{1
+  if has_key(a:t, 'source_func')
+    return a:t.source_func(a:ctx)
+  endif
+
+  let l:source = get(a:t, 'source_filename', '')
+  if !filereadable(l:source) | return | endif
+
+  " Interpolate the context "variables"
+  let l:lines = join(readfile(l:source), "\n")
+  for [l:key, l:value] in items(a:ctx)
+    let l:lines = substitute(l:lines, '{' . l:key . '}', l:value, 'g')
+  endfor
+
+  " Interpolate user functions
+  let [l:match, l:c1, l:c2] = matchstrpos(l:lines, '{{[a-zA-Z#_]\+\s\+[^}]*}}')
+  while !empty(l:match)
+    let l:parts = matchlist(l:match, '{{\([a-zA-Z#_]\+\)\s\+\([^}]*\)}}')
+    let l:func = l:parts[1]
+    let l:arg = l:parts[2]
+    try
+      let l:value = call(l:func, [l:arg])
+    catch /E117:/
+      let l:value = ''
+    endtry
+
+    let l:pre = l:lines[:l:c1-1]
+    let l:post = l:lines[l:c2:]
+    let l:lines = l:pre . l:value . l:post
+
+    let [l:match, l:c1, l:c2] = matchstrpos(
+          \ l:lines, '{{[a-zA-Z#_]\+\s\+[^}]*}}', l:c2+1)
+  endwhile
+
+  call append(0, split(l:lines, "\n"))
 endfunction
 
 " }}}1

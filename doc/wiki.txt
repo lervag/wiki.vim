@@ -29,28 +29,32 @@ License: MIT license {{{
 ==============================================================================
 CONTENTS                                                        *wiki-contents*
 
-  Introduction                                     |wiki-intro|
-    Requirements                                   |wiki-intro-requirements|
-    Features                                       |wiki-intro-features|
-  Configuration                                    |wiki-config|
-    Options                                        |wiki-config-options|
-    Events                                         |wiki-config-events|
-  Mappings                                         |wiki-mappings|
-    Text objects                                   |wiki-mappings-text-obj|
-    Journal mappings                               |wiki-mappings-default|
-  Commands                                         |wiki-commands|
-  Links                                            |wiki-link|
-    Link URLs                                      |wiki-link-urls|
-    Wiki links                                     |wiki-link-wiki|
-    Markdown links                                 |wiki-link-markdown|
-    Markdown image links                           |wiki-link-image|
-    Reference links                                |wiki-link-reference|
-    Zotero shortlinks                              |wiki-link-zotero|
-    AsciiDoc cross references                      |wiki-link-adoc-xref|
-    AsciiDoc link macro                            |wiki-link-adoc-link|
-  Completion                                       |wiki-completion|
-    Autocomplete                                   |wiki-completion-auto|
-  Tags                                             |wiki-tags|
+  Introduction                               |wiki-intro|
+    Requirements                             |wiki-intro-requirements|
+    Features                                 |wiki-intro-features|
+  Configuration                              |wiki-config|
+    Options                                  |wiki-config-options|
+    Events                                   |wiki-config-events|
+  Mappings                                   |wiki-mappings|
+    Text objects                             |wiki-mappings-text-obj|
+    Journal mappings                         |wiki-mappings-default|
+  Commands                                   |wiki-commands|
+  Links                                      |wiki-link|
+    Link URLs                                |wiki-link-urls|
+    Wiki links                               |wiki-link-wiki|
+    Markdown links                           |wiki-link-markdown|
+    Markdown image links                     |wiki-link-image|
+    Reference links                          |wiki-link-reference|
+    Zotero shortlinks                        |wiki-link-zotero|
+    AsciiDoc cross references                |wiki-link-adoc-xref|
+    AsciiDoc link macro                      |wiki-link-adoc-link|
+  Completion                                 |wiki-completion|
+    Autocomplete                             |wiki-completion-auto|
+  Tags                                       |wiki-tags|
+  Templates                                  |wiki-templates|
+    Template function context                |wiki-templates-context|
+    Template file format                     |wiki-templates-format|
+    Journal summaries                        |wiki-templates-journal-summaries|
 
 ==============================================================================
 INTRODUCTION                                                       *wiki-intro*
@@ -106,6 +110,7 @@ FEATURES                                                  *wiki-intro-features*
   - Text objects
     - `iu au` Link URL
     - `it at` Link text
+  - New page templates
 - Support for journal entries
   - Navigating the journal back and forth with `<Plug>(wiki-journal-next)`
     and `<Plug>(wiki-journal-prev)`.
@@ -242,7 +247,7 @@ OPTIONS                                                   *wiki-config-options*
       One of 'daily', 'weekly', or 'monthly'.
 
     date_format~
-      Dictionary of file name formats for the 'daily', 'weekly', and 'monthly'
+      Dictionary of filename formats for the 'daily', 'weekly', and 'monthly'
       frequencies. The formats may contain the following keys:
 
         %y  year (two digits)
@@ -419,7 +424,7 @@ OPTIONS                                                   *wiki-config-options*
   The function takes two arguments:
 
     fname~
-      The unresolved file name. This may be empty, which is typically the case
+      The unresolved filename. This may be empty, which is typically the case
       for inter-page links (e.g. `[[#SomeSection]]`).
 
     origin~
@@ -500,6 +505,61 @@ OPTIONS                                                   *wiki-config-options*
   Default: >
     let g:wiki_tags_scan_num_lines = 15
 
+*g:wiki_templates*
+  A list of templates for prefilling new pages. Each template should be
+  specified as a dictionary with a matcher and a source. Matching may be done
+  with regular expressions or with user functions. Similarly, sources can be
+  specified as a file source as specified in |wiki-templates-format|, or as
+  a user function with a single argument `context` as specified in
+  |wiki-templates-context|.
+
+  The possible dictionary keys of a template are:
+
+    match_re~
+      |String|
+      A regular expression that will be matched against the new page name.
+
+    match_func~
+      |Funcref|
+      A function that should return |v:true| if the template should be applied
+      or |v:false| if it should not apply.
+
+    source_filename~
+      |String|
+      The path to a template file. If this is a relative path, then it will be
+      relative to whichever path Vim or neovim is currently at when the
+      template is executed. If the template file is not found, then the
+      template will not be applied and the next template in the list will be
+      tried.
+
+    source_func~
+      |Funcref|
+      A user function that can use e.g. |append()| to add lines to the file.
+
+  For example: >
+
+    function! TemplateFallback(context)
+      call append(0, '# ' . a:context.name)
+      call append(1, '')
+      call append(2, 'Foobar')
+    endfunction
+
+    let g:wiki_templates = [
+          \ { 'match_re': 'index\.md',
+          \   'source_filename': '/home/user/templates/index.md'},
+          \ { 'match_re': 'foo\.md',
+          \   'source_filename': '.footemplate.md'},
+          \ { 'match_func': {x -> v:true},
+          \   'source_func': function('TemplateFallback')},
+          \]
+<
+  Notice that in the second template, the `;` is appended to the source
+  filename. This means the template file is first searched for in the current
+  directory of the new page, then in the parent directory, and so on. If the
+  template file is not found, then the next template will be tried.
+
+  Default: `[]`
+
 *g:wiki_template_title_month*
   A string that specifies the title of the month template. The following keys
   are interpolated:
@@ -507,6 +567,8 @@ OPTIONS                                                   *wiki-config-options*
     `%(month)`         Month number
     `%(month-name)`    Name of month (see |g:wiki_month_names|)
     `%(year)`          Year (4 digits)
+
+  See |wiki-templates-journal-summaries| for more info.
 
   Default: `'# Summary, %(year) %(month-name)'`
 
@@ -516,6 +578,8 @@ OPTIONS                                                   *wiki-config-options*
 
     `%(week)`    Week number
     `%(year)`    Year (4 digits)
+
+  See |wiki-templates-journal-summaries| for more info.
 
   Default: `'# Summary, %(year) week %(week)'`
 
@@ -699,13 +763,14 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *<plug>(wiki-journal-toweek)*
 *WikiJournalToWeek*
   Go to week summary. If not existing, then parse the day entries to make
-  a first draft. The title is given by |g:wiki_template_title_week|.
+  a first draft. The title is given by |g:wiki_template_title_week|. For more
+  info, see |wiki-templates-journal-summaries|.
 
 *<plug>(wiki-journal-tomonth)*
 *WikiJournalToMonth*
   Go to month summary. If not existing, then parse the day entries and
   relevant week summaries to make a first draft. The title is given by
-  |g:wiki_template_title_month|.
+  |g:wiki_template_title_month|. See also |wiki-templates-journal-summaries|.
 
 *<plug>(wiki-export)*
 [range]*WikiExport*  [options] [fname]
@@ -1119,8 +1184,8 @@ TAGS                                                                *wiki-tags*
 Wiki pages may be tagged with keywords for organization. By default, tags use
 the syntax `:tag-name:`. Multiple tags may be specified both with `:tag1: :tag2:`
 and with the short form `:tag1:tag2:`. The tag name must consist of purely
-non-space characters. By default, all tags added in the top 15 lines of a file will be
-recognized.
+non-space characters. By default, all tags added in the top 15 lines of a file
+will be recognized.
 
 You may customize the format of tags by modifying the
 |g:wiki_tags_format_pattern| variable.
@@ -1138,4 +1203,97 @@ Related settings:
 - |g:wiki_tags|
 
 ==============================================================================
- vim:tw=78:ts=8:ft=help:norl:fdm=marker:
+TEMPLATES                                                      *wiki-templates*
+
+New pages are empty by default. However, it is possible to define templates
+for prefilling new pages. Templates are specified with the option
+|g:wiki_templates|, and if a template matches the new page it will be applied.
+Only the first template that matches will be applied.
+
+The templates can be specified as user functions or as template files. User
+functions assume a single variable such as described in
+|wiki-templates-context|. The template files should be formatted as described
+in |wiki-templates-format|.
+
+There is also a special kind of journal summary template which is described in
+|wiki-templates-journal-summaries|.
+
+Related settings:
+- |g:wiki_templates|
+
+------------------------------------------------------------------------------
+TEMPLATE FUNCTION CONTEXT                              *wiki-templates-context*
+
+The functions in |g:wiki_templates| assume a single argument `context` which
+is a dictionary with the following values:
+
+  Key          Description              Example~
+  ===          ===========              =======
+  `name`         Filename (no extension)  "New Page"
+  `path`         Full path                "/path/to/wiki/sub/New Page.md"
+  `path_wiki`    Wiki path                "/sub/New Page.md"
+  `origin_file`  Previous file            "/path/to/wiki/index.md"
+  `origin_lnum`  Previous lnum            123
+  `date`         ISO date                 2021-07-01
+  `time`         Time (24h format)        19:30
+
+------------------------------------------------------------------------------
+TEMPLATE FILE FORMAT                                    *wiki-templates-format*
+
+A template file is essentially a simple text file to your liking. There are
+two rules that allow dynamic templates:
+
+  1. Variable substitution with `{variable}` strings. The allowed variables
+     are the same as those available in |wiki-templates-context|.
+  2. Function substitution with `{{Function Text String Here}}` strings. The
+     text string is passed as a single string argument. The context dictionary
+     (|wiki-templates-context|) is also passed as the second argument. The
+     function is assumed to return either a string or a list of strings.
+
+The first rule is applied first, which allows the arguments in Rule 2 to be
+variable substitutions.
+
+Pre-defined functions:~
+  `wiki#template#case_title(string)`
+
+An example of how these templates could be useful: If you keep a separate blog
+directory in your wiki, you could add a `.template.md` file with the following
+content to ensure that you follow the same structure: >
+
+  # {{wiki#template#case_title {name}}}
+  Created: {date} {time}
+
+  # Introduction
+
+  # Conclusion
+
+------------------------------------------------------------------------------
+JOURNAL SUMMARIES                            *wiki-templates-journal-summaries*
+
+|wiki.vim| supports parsing the journal entries in order to make weekly and
+monthly summaries. A summary is automatically created when a summary file is
+opened; the format is given by `g:wiki_journal.date_format.weekly` and
+`g:wiki_journal.date_format.monthly`. One may also move from a daily entry to
+the corresponding week with |WikiJournalToWeek|, and similarly to the
+corresponding month with |WikiJournalToMonth|. Again, if these entries do not
+exist, they are automatically created and journal entries are parsed to fill
+the contents.
+
+The parsed results typically need manual editing, and it currently only works
+for a very specific format of journals.
+
+Related settings:
+- |g:wiki_journal|
+  Note: The date format specifies the format for the weekly and monthly
+        entries.
+- |g:wiki_template_title_week|
+  A string that specifies the title of the weekly summary.
+- |g:wiki_template_title_month|
+  A string that specifies the title of the monthly summary.
+
+Related commands:
+- |WikiJournalToWeek|
+- |WikiJournalToMonth|
+
+==============================================================================
+ vim:tw=78:ts=8:ft=help:norl:fdm=marker:cole=2:
