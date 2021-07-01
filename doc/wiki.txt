@@ -526,9 +526,9 @@ OPTIONS                                                   *wiki-config-options*
 
     source_filename~
       |String|
-      The name of a template file. If filename ends with `;`, then the file is
-      searched upwards similar to the description in the second type of search
-      in |file-searching|. Note: If the template file is not found, then the
+      The path to a template file. If this is a relative path, then it will be
+      relative to whichever path Vim or neovim is currently at when the
+      template is executed. If the template file is not found, then the
       template will not be applied and the next template in the list will be
       tried.
 
@@ -548,7 +548,7 @@ OPTIONS                                                   *wiki-config-options*
           \ { 'match_re': 'index\.md',
           \   'source_filename': '/home/user/templates/index.md'},
           \ { 'match_re': 'foo\.md',
-          \   'source_filename': '.footemplate.md;'},
+          \   'source_filename': '.footemplate.md'},
           \ { 'match_func': {x -> v:true},
           \   'source_func': function('TemplateFallback')},
           \]
