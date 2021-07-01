@@ -1,5 +1,10 @@
 source ../init.vim
 
+function! UserFunc(string) abort " {{{1
+  return toupper(a:string)
+endfunction
+
+" }}}1
 function! TemplateB(context) abort " {{{1
   call append(0, [
         \ 'Hello from TemplateB function!',
@@ -20,6 +25,10 @@ let g:wiki_templates = [
       \   'source_func': function('TemplateB')
       \ },
       \ {
+      \   'match_re': '^case titled template',
+      \   'source_filename': g:testroot . '/test-templates/template-d.md'
+      \ },
+      \ {
       \   'match_func': {_ -> v:true},
       \   'source_func': {_ -> append(0, ['Fallback'])}
       \ },
@@ -27,6 +36,13 @@ let g:wiki_templates = [
 
 runtime plugin/wiki.vim
 
+silent call wiki#page#open('Template A')
+call assert_equal([
+      \ '# TEMPLATE A',
+      \ 'Created: ' . strftime("%F") . ' ' . strftime("%H:%M"),
+      \], getline(1, line('$') - 1))
+
+bwipeout
 silent call wiki#page#open('Template B')
 call assert_equal([
       \ 'Hello from TemplateB function!',
@@ -37,5 +53,9 @@ call assert_equal([
 bwipeout
 silent call wiki#page#open('Template C')
 call assert_equal('Fallback', getline(1))
+
+bwipeout
+silent call wiki#page#open('case titled template')
+call assert_equal(['# Case Titled Template'], getline(1, line('$') - 1))
 
 call wiki#test#finished()

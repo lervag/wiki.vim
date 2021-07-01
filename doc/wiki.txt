@@ -1245,7 +1245,9 @@ two rules that allow dynamic templates:
 
   1. Variable substitution with `{variable}` strings. The allowed variables
      are the same as those available in |wiki-templates-context|.
-  2. Function substitution with `{{Function Arg1 Arg2 ...}}` strings. The
+  2. Function substitution with `{{Function Text String Here}}` strings. The
+     text string is passed as a single string argument. The context dictionary
+     (|wiki-templates-context|) is also passed as the second argument. The
      function is assumed to return either a string or a list of strings.
 
 The first rule is applied first, which allows the arguments in Rule 2 to be

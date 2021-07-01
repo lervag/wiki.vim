@@ -35,6 +35,13 @@ endfunction
 
 " }}}1
 
+function! wiki#template#case_title(text, ...) abort " {{{1
+  return join(map(split(a:text), {_, x -> toupper(x[0]) . strpart(x, 1)}))
+endfunction
+
+" }}}1
+
+
 function! s:template_match(t, ctx) abort " {{{1
   if has_key(a:t, 'match_re')
     return a:ctx.name =~# a:t.match_re
@@ -52,7 +59,33 @@ function! s:template_apply(t, ctx) abort " {{{1
   let l:source = get(a:t, 'source_filename', '')
   if !filereadable(l:source) | return | endif
 
-  call append(0, readfile(l:source))
+  " Interpolate the context "variables"
+  let l:lines = join(readfile(l:source), "\n")
+  for [l:key, l:value] in items(a:ctx)
+    let l:lines = substitute(l:lines, '{' . l:key . '}', l:value, 'g')
+  endfor
+
+  " Interpolate user functions
+  let [l:match, l:c1, l:c2] = matchstrpos(l:lines, '{{[a-zA-Z#_]\+\s\+[^}]*}}')
+  while !empty(l:match)
+    let l:parts = matchlist(l:match, '{{\([a-zA-Z#_]\+\)\s\+\([^}]*\)}}')
+    let l:func = l:parts[1]
+    let l:arg = l:parts[2]
+    try
+      let l:value = call(l:func, [l:arg])
+    catch /E117:/
+      let l:value = ''
+    endtry
+
+    let l:pre = l:lines[:l:c1-1]
+    let l:post = l:lines[l:c2:]
+    let l:lines = l:pre . l:value . l:post
+
+    let [l:match, l:c1, l:c2] = matchstrpos(
+          \ l:lines, '{{[a-zA-Z#_]\+\s\+[^}]*}}', l:c2+1)
+  endwhile
+
+  call append(0, split(l:lines, "\n"))
 endfunction
 
 " }}}1

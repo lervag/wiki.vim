@@ -1,1 +1,2 @@
-Hello World
+# {{UserFunc {name}}}
+Created: {date} {time}
