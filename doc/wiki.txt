@@ -437,7 +437,7 @@ OPTIONS                                                   *wiki-config-options*
   Note: The function `wiki#get_root()` can be useful to get the path to the
         wiki root.
 
-  Default: `'wiki#url#wiki#url#wiki#resolver'`
+  Default: `'wiki#url#wiki#resolver'`
 
 *g:wiki_root*
   Option to specify the wiki root path, i.e. the wiki that is opened with the
