@@ -519,6 +519,10 @@ OPTIONS                                                   *wiki-config-options*
       |String|
       A regular expression that will be matched against the new page name.
 
+      Note: The name is not the same as the path and it does not include the
+            file name extension. For more advanced matching, you need a custom
+            matcher function, i.e. the next key.
+
     match_func~
       |Funcref|
       A function that should return |v:true| if the template should be applied
