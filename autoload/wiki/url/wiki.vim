@@ -83,7 +83,10 @@ function! s:handler.follow(...) abort dict " {{{1
       let l:old_position = [self.origin, []]
     endif
 
-    execute l:cmd fnameescape(self.path)
+    try
+      execute l:cmd fnameescape(self.path)
+    catch /E325:/
+    endtry
 
     if !filereadable(self.path)
       redraw!
