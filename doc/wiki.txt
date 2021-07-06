@@ -549,9 +549,9 @@ OPTIONS                                                   *wiki-config-options*
     endfunction
 
     let g:wiki_templates = [
-          \ { 'match_re': 'index\.md',
+          \ { 'match_re': 'index',
           \   'source_filename': '/home/user/templates/index.md'},
-          \ { 'match_re': 'foo\.md',
+          \ { 'match_re': 'foo',
           \   'source_filename': '.footemplate.md'},
           \ { 'match_func': {x -> v:true},
           \   'source_func': function('TemplateFallback')},
