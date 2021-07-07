@@ -35,16 +35,3 @@ function! wiki#init#apply_mappings_from_dict(dict, arg) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#init#get_os() abort " {{{1
-  if has('win32')
-    return 'win'
-  elseif has('unix')
-    if has('mac') || has('ios') || system('uname') =~# 'Darwin'
-      return 'mac'
-    else
-      return 'linux'
-    endif
-  endif
-endfunction
-
-" }}}1
