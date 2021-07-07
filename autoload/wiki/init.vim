@@ -39,7 +39,7 @@ function! wiki#init#get_os() abort " {{{1
   if has('win32')
     return 'win'
   elseif has('unix')
-    if system('uname') =~# 'Darwin'
+    if has('mac') || has('ios') || system('uname') =~# 'Darwin'
       return 'mac'
     else
       return 'linux'
