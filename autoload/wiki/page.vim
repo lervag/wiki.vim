@@ -99,7 +99,7 @@ function! wiki#page#rename(newname, ...) abort "{{{1
   endif
 
   " Rename current file to l:newpath
-  let l:bufnr = bufnr()
+  let l:bufnr = bufnr('')
   try
     call wiki#log#info(
           \ printf('wiki: Renaming "%s" to "%s" ...',
@@ -115,7 +115,7 @@ function! wiki#page#rename(newname, ...) abort "{{{1
   " Open new file and remove old buffer
   execute 'silent edit' l:newpath
   execute 'silent bwipeout' l:bufnr
-  let l:bufnr = bufnr()
+  let l:bufnr = bufnr('')
 
   " Get list of open wiki buffers
   let l:bufs =
