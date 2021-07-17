@@ -253,7 +253,7 @@ function! wiki#page#gather_toc_entries(local) abort " {{{1
     " Parse current header
     let l:level = len(matchstr(l:line, '^#*'))
     let l:header = matchlist(l:line, g:wiki#rx#header_items)[2]
-    if l:header ==# 'Innhald' | continue | endif
+    if l:header ==# g:wiki_toc_title | continue | endif
 
     " Update header stack in order to have well defined anchor
     let l:depth = len(l:anchor_stack)
