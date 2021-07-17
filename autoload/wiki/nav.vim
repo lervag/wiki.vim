@@ -31,9 +31,10 @@ function! wiki#nav#get_previous() abort "{{{1
   if !empty(l:previous) | return l:previous | endif
 
   let l:file = expand('#:p')
-  if filereadable(l:file) | return [l:file, 1] | endif
+  let l:pos = [0, 1, 1, 0, 1]
+  if filereadable(l:file) | return [l:file, l:pos] | endif
 
-  return ['', 0]
+  return ['', l:pos]
 endfunction
 
 " }}}1

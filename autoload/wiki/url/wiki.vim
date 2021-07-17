@@ -78,9 +78,9 @@ function! s:handler.follow(...) abort dict " {{{1
   if !l:same_file
     if !empty(self.origin)
           \ && resolve(self.origin) ==# resolve(expand('%:p'))
-      let l:old_position = [expand('%:p'), getpos('.')]
+      let l:old_position = [expand('%:p'), getcurpos()]
     elseif &filetype ==# 'wiki'
-      let l:old_position = [self.origin, []]
+      let l:old_position = [self.origin, [0, 1, 1, 0, 1]]
     endif
 
     try
