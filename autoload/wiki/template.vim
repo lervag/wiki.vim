@@ -13,7 +13,7 @@ function! wiki#template#init() abort " {{{1
         \ 'date': strftime("%F"),
         \ 'name': expand('%:t:r'),
         \ 'origin_file': l:origin[0],
-        \ 'origin_lnum': l:origin[1],
+        \ 'origin_lnum': l:origin[1][1],
         \ 'path': expand('%:p'),
         \ 'path_wiki': wiki#paths#shorten_relative(expand('%:p')),
         \ 'time': strftime("%H:%M"),
