@@ -67,7 +67,7 @@ call wiki#init#option('wiki_viewer', {
       \ '_' : get({
       \   'linux' : 'xdg-open',
       \   'mac' : 'open',
-      \ }, wiki#init#get_os(), ''),
+      \ }, wiki#u#get_os(), ''),
       \})
 call wiki#init#option('wiki_write_on_nav', 0)
 call wiki#init#option('wiki_zotero_root', '~/.local/zotero')

@@ -40,7 +40,7 @@ CONTENTS                                                        *wiki-contents*
     Journal mappings                         |wiki-mappings-default|
   Commands                                   |wiki-commands|
   Links                                      |wiki-link|
-    Link URLs                                |wiki-link-urls|
+    Link URLs                                |wiki-link-url|
     Wiki links                               |wiki-link-wiki|
     Markdown links                           |wiki-link-markdown|
     Markdown image links                     |wiki-link-image|
@@ -194,7 +194,7 @@ OPTIONS                                                   *wiki-config-options*
 
 *g:wiki_file_handler*
   Name of a function or a |FuncRef| for a function that should be used to
-  handle local files (see also |wiki-link-urls|). The function should give
+  handle local files (see also |wiki-link-url|). The function should give
   a non-zero return value if it properly handled the URL. If not, the plugin
   falls back to opening the URL with Vim. An example: >
 
@@ -591,7 +591,7 @@ OPTIONS                                                   *wiki-config-options*
   A dictionary that specifies which viewer to use for a given filetype. The
   entry `_` specifies the fallback or generic viewer. This option thus allows
   one to setup different viewers for different file types that are used by the
-  generic link scheme handler (see |wiki-link-url|) and by |WikiExport|.
+  generic link scheme handler (|wiki-link-url|) and by |WikiExport|.
 
   Default: >
     let g:wiki_viewer = {
@@ -1016,9 +1016,11 @@ The following schemes are supported:
       For convenience, an ISO date will also work as a journal link.
 <
   file~
-    Links to a local file.  The file handler can be customized with
-    |g:wiki_file_handler|, but falls back to opening the file with Vim. This
-    scheme is the default scheme for |wiki-link-image|.
+    Links to a local file. |g:wiki_viewer| is used by default to open a file.
+    For more user flexibility, one can implement a custom file handler with
+    |g:wiki_file_handler|.
+
+    This scheme is the default scheme for |wiki-link-image|.
 
   doi~
     Will use the `generic` scheme handler on an expanded URL of the form
@@ -1036,9 +1038,9 @@ The following schemes are supported:
 
   generic~
     If the scheme is not recognized, the link is followed with the system
-    handler, which is defined by |g:wiki_viewer| on Linux.  Currently,
-    only Linux is supported here.  This will work quite well on standard Linux
-    distributions, e.g. for following `http` and `https` URLs.
+    handler, which is defined by the `_` key of |g:wiki_viewer| on Linux.
+    Currently, only Linux is supported here.  This will work quite well on
+    standard Linux distributions, e.g. for following `http` and `https` URLs.
 
 Schemes are defined in `autoload/wiki/url/{scheme}.vim`, which means it is
 relatively easy to define new custom schemes. See the generic scheme for

@@ -34,11 +34,8 @@ function! s:handler.follow(...) abort dict " {{{1
     " Pass
   endtry
 
-  if has_key(g:wiki_viewer, self.ext)
-    call system(g:wiki_viewer[self.ext] . ' ' . shellescape(self.url) . '&')
-  else
-    execute 'edit' fnameescape(self.path)
-  endif
+  let l:cmd = get(g:wiki_viewer, self.ext, g:wiki_viewer._)
+  call system(l:cmd . ' ' . shellescape(self.url) . '&')
 endfunction
 
 " }}}1
