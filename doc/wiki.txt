@@ -158,7 +158,7 @@ OPTIONS                                                   *wiki-config-options*
     `Windows`:         Standard temporary folder (based on |tempname()|)
 
 *g:wiki_cache_persistent*
-  Specify whether to use persistant caching.
+  Specify whether to use persistent caching.
 
   Default value: 1
 
