@@ -26,8 +26,8 @@ function! s:matcher.toggle_template(words, _text) abort " {{{1
 
   " Allow map from word -> url (without extension)
   if !empty(g:wiki_map_link_create)
-        \ && (exists('*' . g:wiki_map_link_create)
-        \     || type(g:wiki_map_link_create) == v:t_func)
+        \ && (type(g:wiki_map_link_create) == v:t_func
+        \     || exists('*' . g:wiki_map_link_create))
     let l:url_target = call(g:wiki_map_link_create, [a:words])
   else
     let l:url_target = a:words
