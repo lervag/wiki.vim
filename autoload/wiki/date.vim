@@ -157,7 +157,7 @@ function! s:date(date, format) abort " {{{1
           \ . ' +"%s" -d "%s"', a:format, a:date))[0]
   else
     return systemlist(printf(s:cmd_date
-          \ . ' -j -f "%s" "%s" +"%s"', "%Y-%m-%d", a:date, a:format))[0]
+          \ . ' -j -f "%s" "%s" +"%s"', '%Y-%m-%d', a:date, a:format))[0]
   endif
 endfunction
 
