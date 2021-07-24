@@ -200,7 +200,20 @@ function! s:completer_tags.findstart(line) dict abort " {{{2
 	let l:pat = l:idx >= 0 ? strpart(g:wiki_tags_format_pattern, 0, l:idx) :
 			\ g:wiki_tags_format_pattern
 
-	return match(a:line, l:pat)
+	let l:start = 0
+	while 1
+		let l:mp = match(a:line, l:pat, l:start)
+		if l:mp > 0
+			let l:start = l:mp
+		else
+			break
+		endif
+	endwhile
+	return l:start > 0 ? l:start : -1
+
+
+	return searchpos(l:pat, 'bcnz'
+	return match(a:line, '\%('.l:pat.'\){-}')
 endfunction
 
 function! s:completer_tags.complete(regex) dict abort " {{{2
