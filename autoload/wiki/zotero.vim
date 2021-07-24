@@ -5,6 +5,8 @@
 "
 
 function! wiki#zotero#search(string) " {{{1
+  if !isdirectory(g:wiki_zotero_root) | return [] | endif
+
   if executable('fd') || executable('fdfind')
     let l:finder = (executable('fd') ? 'fd ' : 'fdfind ')
           \ . '-t f -e pdf '
