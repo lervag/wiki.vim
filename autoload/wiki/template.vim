@@ -38,7 +38,7 @@ endfunction
 
 " }}}1
 
-function! wiki#template#case_title(text, ...) abort " {{{1
+function! wiki#template#case_title(ctx, text) abort " {{{1
   return join(map(split(a:text), {_, x -> toupper(x[0]) . strpart(x, 1)}))
 endfunction
 
@@ -70,13 +70,14 @@ function! s:template_apply(t, ctx) abort " {{{1
   endfor
 
   " Interpolate user functions
-  let [l:match, l:c1, l:c2] = matchstrpos(l:lines, '{{[a-zA-Z#_]\+\s\+[^}]*}}')
+  let [l:match, l:c1, l:c2] = matchstrpos(l:lines, '{{[a-zA-Z#_0-9]\+\s*[^}]*}}')
   while !empty(l:match)
-    let l:parts = matchlist(l:match, '{{\([a-zA-Z#_]\+\)\s\+\([^}]*\)}}')
+    let l:parts = matchlist(l:match, '{{\([a-zA-Z#_0-9]\+\)\s*\([^}]*\)}}')
     let l:func = l:parts[1]
-    let l:arg = l:parts[2]
+    let l:arg = trim(l:parts[2])
+    let l:args = [a:ctx] + (!empty(l:arg) ? [l:arg] : [])
     try
-      let l:value = call(l:func, [l:arg, a:ctx])
+      let l:value = call(l:func, l:args)
     catch /E117:/
       let l:value = ''
     endtry
@@ -86,7 +87,7 @@ function! s:template_apply(t, ctx) abort " {{{1
     let l:lines = l:pre . l:value . l:post
 
     let [l:match, l:c1, l:c2] = matchstrpos(
-          \ l:lines, '{{[a-zA-Z#_]\+\s\+[^}]*}}', l:c2+1)
+          \ l:lines, '{{[a-zA-Z#_0-9]\+\s*[^}]*}}', l:c2+1)
   endwhile
 
   call append(0, split(l:lines, "\n"))

@@ -1252,21 +1252,22 @@ two rules that allow dynamic templates:
   1. Variable substitution with `{variable}` strings. The allowed variables
      are the same as those available in |wiki-templates-context|.
   2. Function substitution with `{{Function Text String Here}}` strings. The
-     text string is passed as a single string argument. The context dictionary
-     (|wiki-templates-context|) is also passed as the second argument. The
-     function is assumed to return either a string or a list of strings.
+     context dictionary (|wiki-templates-context|) is always passed as the
+     first argument. The text string, if it is not empty, is passed as
+     a single string argument. The function is assumed to return either
+     a string or a list of strings.
 
 The first rule is applied first, which allows the arguments in Rule 2 to be
 variable substitutions.
 
 Pre-defined functions:~
-  `wiki#template#case_title(string)`
+  `wiki#template#case_title(ctx, string)`
 
 An example of how these templates could be useful: If you keep a separate blog
 directory in your wiki, you could add a `.template.md` file with the following
 content to ensure that you follow the same structure: >
 
-  # {{wiki#template#case_title {name}}}
+  # {{wiki#template#case_title {name} main title}}
   Created: {date} {time}
 
   # Introduction

@@ -1,7 +1,12 @@
 source ../init.vim
 
-function! UserFunc(string, ctx) abort " {{{1
+function! UserFunc1(ctx, string) abort " {{{1
   return toupper(a:string)
+endfunction
+
+" }}}1
+function! UserFunc2(ctx) abort " {{{1
+  return 'TEST'
 endfunction
 
 " }}}1
@@ -40,6 +45,8 @@ silent call wiki#page#open('Template A')
 call assert_equal([
       \ '# TEMPLATE A',
       \ 'Created: ' . strftime("%F") . ' ' . strftime("%H:%M"),
+      \ '',
+      \ 'TEST',
       \], getline(1, line('$') - 1))
 
 bwipeout
