@@ -1260,6 +1260,17 @@ two rules that allow dynamic templates:
 The first rule is applied first, which allows the arguments in Rule 2 to be
 variable substitutions.
 
+Function substitution:
+The following predefined function serves as an example substitution-function.
+Here the varialbe `ctx` denotes the context dictionary from 
+|wiki-templates-context| as the first argument and 'text' is the text-string 
+supplied in the template. The shown function applies title-casing to 'text' 
+and returns it as a string. >
+
+  function! wiki#template#case_title(ctx, text) abort
+    return join(map(split(a:text), {_, x -> toupper(x[0]) . strpart(x, 1)}))
+  endfunction
+
 Pre-defined functions:~
   `wiki#template#case_title(ctx, string)`
 
