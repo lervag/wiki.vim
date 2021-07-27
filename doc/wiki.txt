@@ -1260,30 +1260,33 @@ two rules that allow dynamic templates:
 The first rule is applied first, which allows the arguments in Rule 2 to be
 variable substitutions.
 
-Function substitution:
-The following predefined function serves as an example substitution-function.
-Here the varialbe `ctx` denotes the context dictionary from 
-|wiki-templates-context| as the first argument and 'text' is the text-string 
-supplied in the template. The shown function applies title-casing to 'text' 
-and returns it as a string. >
-
-  function! wiki#template#case_title(ctx, text) abort
-    return join(map(split(a:text), {_, x -> toupper(x[0]) . strpart(x, 1)}))
-  endfunction
-
 Pre-defined functions:~
   `wiki#template#case_title(ctx, string)`
 
-An example of how these templates could be useful: If you keep a separate blog
-directory in your wiki, you could add a `.template.md` file with the following
-content to ensure that you follow the same structure: >
+An example~
+It may be hard to fully understand how all of the above works, so an example
+is in order. Let's assume you keep a separate blog directory in your wiki,
+then you could add a `.template.md` file with the following content to ensure
+that you follow the same structure: >
 
-  # {{wiki#template#case_title {name} main title}}
+  # {{wiki#template#case_title {name}}}
   Created: {date} {time}
+
+  {{CustomUserFunc A new blog post}}
 
   # Introduction
 
   # Conclusion
+
+Here `CustomUserFunc` must be defined, e.g. in your vimrc file. As explained,
+the first argument is `ctx` - the context dictionary from
+|wiki-templates-context|. The text "A new blog post" is passed as the the
+second argument as a string. The full content of the function is of course up
+to the user, but it would look something like this: >
+
+  function! CustomUserFunc(ctx, text) abort
+    return a:ctx.name . ': ' . substitute(a:text, 'A new', 'An old', '')
+  endfunction
 
 ------------------------------------------------------------------------------
 JOURNAL SUMMARIES                            *wiki-templates-journal-summaries*
