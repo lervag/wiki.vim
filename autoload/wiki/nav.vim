@@ -30,23 +30,23 @@ function! wiki#nav#get_previous() abort "{{{1
   let l:previous = get(s:position_stack, -1, [])
   if !empty(l:previous) | return l:previous | endif
 
-  let l:file = expand('#:p')
-  let l:pos = [0, 1, 1, 0, 1]
-  if filereadable(l:file) | return [l:file, l:pos] | endif
-
-  return ['', l:pos]
+  return {}
 endfunction
 
 " }}}1
 function! wiki#nav#return() abort "{{{1
   if g:wiki_write_on_nav | update | endif
+  if empty(s:position_stack) | return | endif
 
-  if !empty(s:position_stack)
-    let [l:file, l:pos] = remove(s:position_stack, -1)
-    silent execute ':e ' . substitute(l:file, '\s', '\\\0', 'g')
-    call setpos('.', l:pos)
-  else
-    silent! execute "normal! \<c-o>"
+  let l:link = remove(s:position_stack, -1)
+  if empty(l:link.origin) | return | endif
+
+  silent execute ':e ' . substitute(l:link.origin, '\s', '\\\0', 'g')
+
+  if has_key(l:link, 'curpos')
+    call cursor(l:link.curpos[1:])
+  elseif has_key(l:link, 'pos_start')
+    call cursor(l:link.pos_start)
   endif
 endfunction
 

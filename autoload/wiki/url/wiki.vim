@@ -76,32 +76,26 @@ function! s:handler.follow(...) abort dict " {{{1
   " Open wiki file
   let l:same_file = resolve(self.path) ==# resolve(expand('%:p'))
   if !l:same_file
-    if !empty(self.origin)
-          \ && resolve(self.origin) ==# resolve(expand('%:p'))
-      let l:old_position = [expand('%:p'), getcurpos()]
-    elseif &filetype ==# 'wiki'
-      let l:old_position = [self.origin, [0, 1, 1, 0, 1]]
-    endif
+    let l:origin = deepcopy(self)
+    let l:origin.curpos = getcurpos()
+    call wiki#nav#add_to_stack(l:origin)
 
     try
       execute l:cmd fnameescape(self.path)
     catch /E325:/
     endtry
 
+    let b:wiki = get(b:, 'wiki', {})
+
     if !filereadable(self.path)
       redraw!
       call wiki#log#info('Opened new page "' . self.stripped . '"')
     end
-
-    if exists('l:old_position')
-      let b:wiki = get(b:, 'wiki', {})
-      call wiki#nav#add_to_stack(l:old_position)
-    endif
   endif
 
   " Go to anchor
   if !empty(self.anchor)
-    " Manually add position to jumplist (necessary if we in same file)
+    " Manually add position to jumplist (necessary if we're in same file)
     if l:same_file
       normal! m'
     endif

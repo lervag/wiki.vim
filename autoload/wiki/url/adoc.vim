@@ -32,28 +32,30 @@ let s:handler = {}
 function! s:handler.follow(...) abort dict " {{{1
   let l:cmd = a:0 > 0 ? a:1 : 'edit'
 
+  " Check if dir exists
+  let l:dir = fnamemodify(self.path, ':p:h')
+  if !isdirectory(l:dir)
+    call mkdir(l:dir, 'p')
+  endif
+
   " Open wiki file
   let l:same_file = resolve(self.path) ==# resolve(expand('%:p'))
   if !l:same_file
-    " Check if dir exists
-    let l:dir = fnamemodify(self.path, ':p:h')
-    if !isdirectory(l:dir)
-      call mkdir(l:dir, 'p')
-    endif
+    let l:origin = deepcopy(self)
+    let l:origin.curpos = getcurpos()
+    call wiki#nav#add_to_stack(l:origin)
 
-    if !empty(self.origin)
-          \ && resolve(self.origin) ==# resolve(expand('%:p'))
-      let l:old_position = [expand('%:p'), getcurpos()]
-    elseif &filetype ==# 'wiki'
-      let l:old_position = [self.origin, [0, 1, 1, 0, 1]]
-    endif
+    try
+      execute l:cmd fnameescape(self.path)
+    catch /E325:/
+    endtry
 
-    execute l:cmd fnameescape(self.path)
+    let b:wiki = get(b:, 'wiki', {})
 
-    if exists('l:old_position')
-      let b:wiki = get(b:, 'wiki', {})
-      call wiki#nav#add_to_stack(l:old_position)
-    endif
+    if !filereadable(self.path)
+      redraw!
+      call wiki#log#info('Opened new page "' . self.stripped . '"')
+    end
   endif
 
   " Go to anchor

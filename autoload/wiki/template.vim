@@ -7,13 +7,10 @@
 function! wiki#template#init() abort " {{{1
   if filereadable(expand('%')) | return | endif
 
-  let l:origin = wiki#nav#get_previous()
-
   let l:context = {
         \ 'date': strftime("%F"),
         \ 'name': expand('%:t:r'),
-        \ 'origin_file': l:origin[0],
-        \ 'origin_lnum': l:origin[1][1],
+        \ 'origin': wiki#nav#get_previous(),
         \ 'path': expand('%:p'),
         \ 'path_wiki': wiki#paths#shorten_relative(expand('%:p')),
         \ 'time': strftime("%H:%M"),

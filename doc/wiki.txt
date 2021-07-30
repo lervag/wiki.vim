@@ -713,7 +713,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 
 *<plug>(wiki-link-return)*
 *WikiLinkReturn*
-  Go back to previous page.
+  Go back to previous page, i.e. undo the last follow operation.
 
 *<plug>(wiki-link-toggle)*
 *<plug>(wiki-link-toggle-visual)*    |xmap|
@@ -1238,10 +1238,22 @@ is a dictionary with the following values:
   `name`         Filename (no extension)  "New Page"
   `path`         Full path                "/path/to/wiki/sub/New Page.md"
   `path_wiki`    Wiki path                "/sub/New Page.md"
-  `origin_file`  Previous file            "/path/to/wiki/index.md"
-  `origin_lnum`  Previous lnum            123
+  `origin`       Origin link              `{...}`
   `date`         ISO date                 2021-07-01
   `time`         Time (24h format)        19:30
+
+The origin link is a a dictionary that represents the link that was followed
+to create the page. One may expect it to have one or more of the following
+keys:
+
+  origin~
+    Filename of file that contains the link.
+
+  pos_start~
+    List of line number and column number where the link starts.
+
+  curpos~
+    Cursor position when the link was followed/activated.
 
 ------------------------------------------------------------------------------
 TEMPLATE FILE FORMAT                                    *wiki-templates-format*
