@@ -1274,7 +1274,7 @@ variable substitutions.
 
   Pre-defined functions                     Description~
   =====================                     ===========
-  `wiki#template#case_title(ctx, string)`   Returns `string` title cased
+  `wiki#template#case_title(ctx, string)`   Returns 'string' title cased
 
 An example~
 It may be hard to fully understand how all of the above works, so an example
