@@ -1,5 +1,5 @@
 # Intro
-:tagged:
+:tagged: :tagged2: :tagged3:
 
 This is a wiki.
 
