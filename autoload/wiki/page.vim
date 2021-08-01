@@ -178,9 +178,10 @@ function! wiki#page#create_toc(local) abort " {{{1
   endif
 
   let l:start = max([l:entries[0].lnum, 0])
-  let l:title = get(g:, 'wiki_toc_title', 'Contents')
-  let l:header = '*' . l:title . '*'
-  let l:re = '\v^(' . repeat('#', l:level) . ' ' . l:title . '|\*' . l:title . '\*)$'
+  let l:header = '*' . g:wiki_toc_title . '*'
+  let l:re = printf(
+        \ '\v^%(%s %s|\*%s\*)$',
+        \ repeat('#', l:level), g:wiki_toc_title, g:wiki_toc_title)
 
   " Save the window view and syntax setting and disable syntax (makes things
   " much faster)
