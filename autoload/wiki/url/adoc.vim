@@ -6,6 +6,7 @@
 
 function! wiki#url#adoc#handler(url) abort " {{{1
   let l:handler = deepcopy(s:handler)
+  let l:handler.stripped = a:url.stripped
   let l:handler.origin = a:url.origin
 
   " Extract path and anchor/ID
