@@ -89,11 +89,11 @@ backslashes versus forward slashes.
 The following is a list of external tools that are used for some of the
 features:
 
-  | Program                      | Feature                        |
-  | ---------------------------- + ------------------------------ |
-  | `date`                         | for journal related stuff      |
-  | `xdg-open`                     | for opening `pdf` files on Linux |
-  | `pandoc` (https://pandoc.org/) | for |WikiExport|                 |
+  Program                       Feature~
+  =======                       =======
+  `date`                          Journal related stuff
+  `xdg-open`                      Opening `pdf` files on Linux
+  `pandoc` (https://pandoc.org/)  |WikiExport|
 
 ------------------------------------------------------------------------------
 FEATURES                                                  *wiki-intro-features*
@@ -909,41 +909,39 @@ mapping. The mode specifier is a single letter which indicates which mode the
 mapping is valid in. See e.g. |nmap|, |imap|, |omap| or |xmap| for more
 information about the different modes.
 
-  ---------------------------------------------------------------------~
-   MODE  LHS                 RHS~
-  ---------------------------------------------------------------------~
-   `n`     <leader>ww          |<plug>(wiki-index)|               [GLOBAL]
-   `n`     <leader>wn          |<plug>(wiki-open)|                [GLOBAL]
-   `n`     <leader>w<leader>w  |<plug>(wiki-journal)|             [GLOBAL]
-   `n`     <leader>wx          |<plug>(wiki-reload)|              [GLOBAL]
-   `n`     <leader>wb          |<plug>(wiki-graph-find-backlinks)|
-   `n`     <leader>wlc         |<plug>(wiki-graph-check-links)|
-   `n`     <leader>wg          |<plug>(wiki-graph-in)|
-   `n`     <leader>wG          |<plug>(wiki-graph-out)|
-   `n`     <leader>wf          |<plug>(wiki-link-toggle)|
-   `n`     <leader>wd          |<plug>(wiki-page-delete)|
-   `n`     <leader>wr          |<plug>(wiki-page-rename)|
-   `n`     <leader>wt          |<plug>(wiki-page-toc)|
-   `n`     <leader>wT          |<plug>(wiki-page-toc-local)|
-   `n`     <leader>wp          |<plug>(wiki-export)|
-   `x`     <leader>wp          |<plug>(wiki-export)|
-   `n`     <leader>wll         |<plug>(wiki-link-show)|
-   `n`     <leader>wlh         |<plug>(wiki-link-extract-header)|
-   `n`     <leader>wsl         |<plug>(wiki-tag-list)|
-   `n`     <leader>wsr         |<plug>(wiki-tag-reload)|
-   `n`     <leader>wss         |<plug>(wiki-tag-search)|
-   `n`     <tab>               |<plug>(wiki-link-next)|
-   `n`     <cr>                |<plug>(wiki-link-follow)|
-   `n`     <c-w><cr>           |<plug>(wiki-link-follow-split)|
-   `n`     <s-tab>             |<plug>(wiki-link-prev)|
-   `n`     <bs>                |<plug>(wiki-link-return)|
-   `n`     gl                  |<plug>(wiki-link-toggle-operator)|
-   `x`     <cr>                |<plug>(wiki-link-toggle-visual)|
-   `ox`    au                  |<plug>(wiki-au)|
-   `ox`    iu                  |<plug>(wiki-iu)|
-   `ox`    at                  |<plug>(wiki-at)|
-   `ox`    it                  |<plug>(wiki-it)|
-  ---------------------------------------------------------------------~
+  MODE  LHS                 RHS~
+  ====  ===                 ===
+  `n`     <leader>ww          |<plug>(wiki-index)|                 [GLOBAL]
+  `n`     <leader>wn          |<plug>(wiki-open)|                  [GLOBAL]
+  `n`     <leader>w<leader>w  |<plug>(wiki-journal)|               [GLOBAL]
+  `n`     <leader>wx          |<plug>(wiki-reload)|                [GLOBAL]
+  `n`     <leader>wb          |<plug>(wiki-graph-find-backlinks)|
+  `n`     <leader>wlc         |<plug>(wiki-graph-check-links)|
+  `n`     <leader>wg          |<plug>(wiki-graph-in)|
+  `n`     <leader>wG          |<plug>(wiki-graph-out)|
+  `n`     <leader>wf          |<plug>(wiki-link-toggle)|
+  `n`     <leader>wd          |<plug>(wiki-page-delete)|
+  `n`     <leader>wr          |<plug>(wiki-page-rename)|
+  `n`     <leader>wt          |<plug>(wiki-page-toc)|
+  `n`     <leader>wT          |<plug>(wiki-page-toc-local)|
+  `n`     <leader>wp          |<plug>(wiki-export)|
+  `x`     <leader>wp          |<plug>(wiki-export)|
+  `n`     <leader>wll         |<plug>(wiki-link-show)|
+  `n`     <leader>wlh         |<plug>(wiki-link-extract-header)|
+  `n`     <leader>wsl         |<plug>(wiki-tag-list)|
+  `n`     <leader>wsr         |<plug>(wiki-tag-reload)|
+  `n`     <leader>wss         |<plug>(wiki-tag-search)|
+  `n`     <tab>               |<plug>(wiki-link-next)|
+  `n`     <cr>                |<plug>(wiki-link-follow)|
+  `n`     <c-w><cr>           |<plug>(wiki-link-follow-split)|
+  `n`     <s-tab>             |<plug>(wiki-link-prev)|
+  `n`     <bs>                |<plug>(wiki-link-return)|
+  `n`     gl                  |<plug>(wiki-link-toggle-operator)|
+  `x`     <cr>                |<plug>(wiki-link-toggle-visual)|
+  `ox`    au                  |<plug>(wiki-au)|
+  `ox`    iu                  |<plug>(wiki-iu)|
+  `ox`    at                  |<plug>(wiki-at)|
+  `ox`    it                  |<plug>(wiki-it)|
 
 ==============================================================================
 LINKS                                                               *wiki-link*
@@ -1272,8 +1270,8 @@ two rules that allow dynamic templates:
 The first rule is applied first, which allows the arguments in Rule 2 to be
 variable substitutions.
 
-  Pre-defined functions                     Description~
-  =====================                     ===========
+  Pre-defined functions                   Description~
+  =====================                   ===========
   `wiki#template#case_title(ctx, string)`   Returns `string` title cased
 
 An example~
