@@ -1260,7 +1260,9 @@ A template file is essentially a simple text file to your liking. There are
 two rules that allow dynamic templates:
 
   1. Variable substitution with `{variable}` strings. The allowed variables
-     are the same as those available in |wiki-templates-context|.
+     are the same as those available in |wiki-templates-context|. To access
+     the contents of the `origin` dictionary, one may use dot notation, e.g.
+     `{origin.origin}` and `{origin.pos_start}`.
   2. Function substitution with `{{Function Text String Here}}` strings. The
      context dictionary (|wiki-templates-context|) is always passed as the
      first argument. The text string, if it is not empty, is passed as

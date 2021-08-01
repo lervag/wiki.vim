@@ -63,7 +63,16 @@ function! s:template_apply(t, ctx) abort " {{{1
   " Interpolate the context "variables"
   let l:lines = join(readfile(l:source), "\n")
   for [l:key, l:value] in items(a:ctx)
-    let l:lines = substitute(l:lines, '{' . l:key . '}', l:value, 'g')
+    if type(l:value) == v:t_string
+      let l:lines = substitute(l:lines, '{' . l:key . '}', l:value, 'g')
+    elseif type(l:value) == v:t_dict
+      for [l:sub_key, l:Sub_value] in items(l:value)
+        let l:lines = substitute(l:lines,
+              \ printf('{%s\.%s}', l:key, l:sub_key),
+              \ string(l:Sub_value), 'g')
+        unlet! l:Sub_value
+      endfor
+    endif
   endfor
 
   " Interpolate user functions
