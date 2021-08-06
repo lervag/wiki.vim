@@ -491,6 +491,9 @@ OPTIONS                                                   *wiki-config-options*
 <
   Default: >
     let g:wiki_tags_format_pattern = '\v%(^|\s):\zs[^: ]+\ze:'
+<
+  Tag completion uses the pattern up to the pattern end atom `\ze` to detect
+  the start of an incomplete tag (|wiki-completion|).
 
 *g:wiki_tags_scan_num_lines*
   A number of lines to read from the top of a page when scanning tags. To scan
@@ -1144,9 +1147,15 @@ The `[<attrlist>]` will be recognized by wiki.vim as the link text.
 ==============================================================================
 COMPLETION                                                    *wiki-completion*
 
-This plugin provides an |omni-complete| function that completes internal link
-targets, including anchors.  This should work both for markdown and wiki
-style links (see |wiki-link|).
+This plugin provides an |omni-complete| function that completes intern link
+targets, including anchors, and tags.
+
+Link completion should work both for markdown and wiki style links for
+inter-wiki URLs (i.e. the `wiki` scheme, which is also the default scheme).
+See |wiki-link| for more info on links and the URL schemes.
+
+Tag completion uses |g:wiki_tags_format_pattern| to detect the start of an
+incomplete tag.
 
 ------------------------------------------------------------------------------
 AUTOCOMPLETE                                             *wiki-completion-auto*

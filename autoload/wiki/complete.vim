@@ -189,6 +189,41 @@ function! s:completer_zotero.complete(regex) dict abort " {{{2
 endfunction
 
 " }}}1
+" {{{1 Tags
+
+let s:completer_tags = {}
+
+function! s:completer_tags.findstart(line) dict abort " {{{2
+  " Construct a proper tag pattern.
+  " * Extract the pre-defined tag regex up to the \ze to avoid picking up the
+  "   tag-end marker.
+  " * If we can't find \ze, try the whole pattern.
+  let l:idx = stridx(g:wiki_tags_format_pattern, '\ze')
+  let l:pat = l:idx >= 0
+        \ ? strpart(g:wiki_tags_format_pattern, 0, l:idx)
+        \ : g:wiki_tags_format_pattern
+
+  " Match the last tag-start on the line
+  let l:start = 0
+  let l:current = 0
+  while l:current >= 0
+    let l:start = l:current
+    let l:current = match(a:line, l:pat, l:start)
+  endwhile
+
+  return l:start > 0 ? l:start : -1
+endfunction
+
+function! s:completer_tags.complete(regex) dict abort " {{{2
+  let l:candidates = keys(wiki#tags#get_all())
+  call filter(l:candidates, {_, x -> stridx(x, a:regex) >= 0})
+  return map(sort(l:candidates), {_, x -> {
+        \ 'word': x,
+        \ 'kind': '[tag]'
+        \}})
+endfunction
+
+" }}}1
 
 "
 " Initialize module

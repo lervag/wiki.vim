@@ -1,5 +1,5 @@
 # This page is new
-:tagged:
+:tag1: :tag2:
 
 ## Next section
 :marked:
