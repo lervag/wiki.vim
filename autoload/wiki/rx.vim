@@ -9,7 +9,7 @@ function! wiki#rx#surrounded(word, chars) abort " {{{1
         \ . '\zs'
         \ . escape(a:chars, '*')
         \ . a:word
-        \ . escape(join(reverse(split(a:chars, '')), ''), '*')
+        \ . escape(join(reverse(split(a:chars, '\zs')), ''), '*')
         \ . '\ze'
         \ . '\%([[:punct:]]\|\s\|$\)\@='
 endfunction
@@ -31,6 +31,10 @@ let wiki#rx#bold = wiki#rx#surrounded(
       \ '[^*`[:space:]]\%([^*`]*[^*`[:space:]]\)\?', '*')
 let wiki#rx#italic = wiki#rx#surrounded(
       \ '[^_`[:space:]]\%([^_`]*[^_`[:space:]]\)\?', '_')
+let wiki#rx#bolditalic = wiki#rx#surrounded(
+      \ '[^*_`[:space:]]\%([^*_`]*[^*_`[:space:]]\)\?', '*_')
+let wiki#rx#italicbold = wiki#rx#surrounded(
+      \ '[^_*`[:space:]]\%([^_*`]*[^_*`[:space:]]\)\?', '_*')
 let wiki#rx#date = '\d\d\d\d-\d\d-\d\d'
 let wiki#rx#url = '\<\l\+:\%(\/\/\)\?[^ \t()\[\]|]\+'
 let wiki#rx#reftext = '[^\\\[\]]\{-}'
