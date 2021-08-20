@@ -5,7 +5,7 @@
 "
 
 function! wiki#zotero#search(string) " {{{1
-  if !isdirectory(g:wiki_zotero_root) | return [] | endif
+  if !isdirectory(fnamemodify(g:wiki_zotero_root, ':p')) | return [] | endif
 
   if executable('fd') || executable('fdfind')
     let l:finder = (executable('fd') ? 'fd ' : 'fdfind ')
