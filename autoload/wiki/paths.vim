@@ -43,6 +43,7 @@ function! wiki#paths#shorten_relative(path) abort " {{{1
   " Input: An absolute path
   " Output: Relative path with respect to the wiki root, unless absolute path
   "         is shorter
+  if !wiki#paths#is_abs(a:path) | return a:path | endif
 
   let l:relative = wiki#paths#relative(a:path, wiki#get_root())
   return strlen(l:relative) < strlen(a:path)
