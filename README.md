@@ -53,6 +53,8 @@ This outlines the basic steps to get started:
 3. Now you can open the index file (by default `index.wiki`) with `<leader>ww`
    and start to add your notes as desired.
 
+Please also read the `Guide` section in the [documentation](doc/wiki.txt).
+
 # Features
 
 - Wiki functionality
@@ -79,11 +81,6 @@ This outlines the basic steps to get started:
   - [denite](https://github.com/Shougo/denite.nvim)
   - [ncm2](https://github.com/ncm2/ncm2): SubscopeDetector for nested completion
   - [fzf](https://github.com/junegunn/fzf): `WikiFzfPages`, `WikiFzfTags`, and `WikiFzfToc` commands
-
-# Related projects
-
-* [vimwiki](https://github.com/vimwiki/vimwiki)
-* [vim-waikiki](https://github.com/fcpg/vim-waikiki)
 
 # Acknowledgements
 

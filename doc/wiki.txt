@@ -32,13 +32,16 @@ CONTENTS                                                        *wiki-contents*
   Introduction                               |wiki-intro|
     Requirements                             |wiki-intro-requirements|
     Features                                 |wiki-intro-features|
+    Usage                                    |wiki-intro-usage|
+    Guide                                    |wiki-intro-guide|
+    Alternatives                             |wiki-intro-alternatives|
   Configuration                              |wiki-config|
     Options                                  |wiki-config-options|
     Events                                   |wiki-config-events|
+  Commands                                   |wiki-commands|
   Mappings                                   |wiki-mappings|
     Text objects                             |wiki-mappings-text-obj|
     Journal mappings                         |wiki-mappings-default|
-  Commands                                   |wiki-commands|
   Links                                      |wiki-link|
     Link URLs                                |wiki-link-url|
     Wiki links                               |wiki-link-wiki|
@@ -59,9 +62,13 @@ CONTENTS                                                        *wiki-contents*
 ==============================================================================
 INTRODUCTION                                                       *wiki-intro*
 
-This is a Vim plugin for writing and maintaining a personal wiki. The plugin
-was initially based on vimwiki (https://github.com/vimwiki/vimwiki), but it is
-written mostly from scratch and is based on a more "do one thing and do it
+This is a Vim plugin for writing and maintaining a personal wiki, i.e.
+a personal knowledge base. Please see |wiki-intro-usage| for a simple
+quick-start guide, and |wiki-intro-guide| for more in-depth info on what this
+is and how one could use such a system efficiently.
+
+The plugin was initially based on https://github.com/vimwiki/vimwiki, but it
+is written mostly from scratch and is based on a more "do one thing and do it
 well" philosophy.
 
 The plugin will activate by default for any `.wiki` files, but this may be
@@ -139,6 +146,163 @@ This outlines the basic steps to get started:
 
 3. Now you can open the index file (by default `index.wiki`) with `<leader>ww`
    and start to add your notes as desired.
+
+------------------------------------------------------------------------------
+GUIDE                                                        *wiki-intro-guide*
+
+Executive summary~
+* Speed is key - make sure you have a fast workflow.
+  * Use a global keyboard shortcut to open the wiki index, e.g. <alt-n>.
+  * Use |:WikiFzfPages| and `ripgrep` (with e.g. ctrlsf.vim) for searching.
+* Write short pages and use links between related pages.
+* Don't obsess about the wiki structure.
+
+
+The following guide is more or less an essay on how I personally use
+`wiki.vim` for structuring and writing my notes. I take the liberty of writing
+in the first tense, as this is clearly a subjective matter. An initial version
+of was posted as a comment in an issue thread [0] (note: the links are listed
+at the bottom). I recommend anyone interested to read the entire thread
+(although it is quite long!). But first, a quote that I think captures the
+most important concept in a single sentence (by @mgoral [1]):
+
+> I think that the most important thing is to not overthink things and just
+> keep writing stuff down.
+
+
+People write things down. Take notes. Why? Because people, or at least most of
+us, don't remember things for too long. From my point of view, taking notes
+is a way to extend my memory. And writing the notes is itself a useful
+process, because it often helps both to learn and to remember things in
+itself.
+
+I find the idea of keeping my notes linked and easily searchable in pure text
+to be extremely potent. With wiki.vim, I can very quickly locate relevant
+notes for a topic. I believe strongly that speed or efficiency is the key
+aspect of a good personal-knowledge system. However, before I continue, I want
+to stress that `wiki.vim` is just one such system. There are probably
+countless, and I encourage everyone to find a system that works for them. Some
+alternatives are listed under |wiki-intro-alternatives|.
+
+So, some context: My personal wiki consists per 2021-08-29 of 1714 pages with
+a total of 71474 lines, excluding my journal. I first started taking notes in
+2007, so this is perhaps 14 years worth of writing. I use Syncthing [2] to
+keep my notes synchronized across my computers, phones, tablets. I've
+previously also used Dropbox, and I think
+
+With a lot of content, it is important to be able to find things fast. I use
+|:WikiFzfPages| to find a specific page, and it usually takes just a couple of
+seconds from I think of something until I have opened the relevant note. A key
+here is to use simple names for the pages. I prefer several short pages
+instead of one long, if possible.
+
+Sometimes I search for things within pages. For this, I rely on `ripgrep` [3].
+I use `ctrlsf.vim` [4] (which uses `ripgrep` as a backend). This makes it easy
+and fast to search the wiki. And if my search has too many hits, I can either
+narrow it down by changing the search pattern, or I can search within the
+result buffer of `ctrlsf.vim`. This has generally not failed me in finding
+information I'm looking for. I don't spend a lot of time searching for things.
+If I know I've written about something, I always find it with |:WikiFzfPages|
+and/or ":CtrlSF", and it typically goes very fast (both of the commands are
+properly mapped).
+
+How do I write my notes? I make sure to write down what I feel like at the
+moment. I then clean it up and rince/repeat as something is developing. I add
+links to relevant external and internal pages/resources. I often add examples,
+for instance tools I discover or libraries I learn about.
+
+With time, I've started to adopt an unstructured approach where I avoid
+complicated structure and subdirectories. I try to use the proper names of
+things as the name of a page. The simple structure makes it easy to convert
+text to the correct links and it makes it easy to remember the relevant page
+names.
+
+I don't worry about having many pages. I don't worry about almost empty pages.
+I don't worry about keeping my pages in a hierarchy. I've found it can be
+useful to split information into separate pages, as it makes it easier to link
+things. I sometimes find the graph features useful, e.g. |wiki-graph-in|, but
+I don't use them much.
+
+However, sometimes I write down stuff that I don't know where to put. This is
+where I use my `index.wiki`. I have a global keyboard shortcut on all my
+computers to open Vim with the index (<alt-n>). Here I either add this loose
+content, or I make a link to some new scratch buffer with the new content.
+With time, I work through this index (often slowly) and move content into more
+dedicated pages. For this workflow to work well, it is crucial that my
+index.wiki is extremely accessible. That is, it takes less than a second from
+I have a thought until I can add it to my `index.wiki` for later processing.
+This is what makes it important.
+
+Although I do add a lot of text to my wiki, I've also realized that I should
+not add all data there. For instance, I've come to use Zotero [5] for managing
+my literature database. This is also why there is now some support for Zotero
+within wiki.vim (see |wiki-link-zotero|).
+
+For some topics, I may write a wiki page about stuff where I have links to
+data files in which I can append new data and to scripts I can run to
+visualize. the data. Thus, I don't keep everything in the wiki, instead, I may
+write the "metadata" and general overview in the wiki, and then keep the real
+data and relevant tools as a "third party".
+
+Finally, I again stress that these are my personal experiences and opinions,
+and I very much acknowledge that what works for me probably does not work for
+everyone else.
+
+[0]: https://github.com/lervag/wiki.vim/issues/101#issuecomment-709571804
+[1]: https://github.com/lervag/wiki.vim/issues/101#issuecomment-718284921
+[2]: https://syncthing.net/
+[3]: https://github.com/BurntSushi/ripgrep
+[4]: https://github.com/dyng/ctrlsf.vim
+[5]: https://www.zotero.org/
+
+------------------------------------------------------------------------------
+ALTERNATIVES                                          *wiki-intro-alternatives*
+
+There exists a lot of alternatives to `wiki.vim`. Within the Vim ecosystem,
+the main alternative is vimwiki. But there are also a lot of other
+alternatives. The following list is probably not very comprehensive. It may be
+useful if only as an inspiration to read about alternative approaches. The
+descriptions are mostly a copy of the initial text from the relevant home
+pages.
+
+Vimwiki~
+https://github.com/vimwiki/vimwiki
+Type: Plugin; Vim
+Vimwiki is a personal wiki system for Vim. It relies on its own filetype,
+although recent versions also supports more traditional markdown formats.
+
+Waikiki~
+https://github.com/fcpg/vim-waikiki
+Type: Plugin; Vim
+Waikiki is a "fisherman's wiki": it provides a minimal set of features to
+navigate pages and create links and pages.
+
+Foam~
+https://foambubble.github.io/foam/
+Type: Plugin; Visual Studio Code
+Foam is a personal knowledge management and sharing system inspired by Roam
+Research, built on Visual Studio Code and GitHub.
+
+Roam Research~
+https://roamresearch.com/
+Type: Software
+A note-taking tool for networked thought. As easy to use as a document. As
+powerful as a graph database. Roam helps you organize your research for the
+long haul.
+
+Emacs Org Mode~
+https://orgmode.org/
+Type: Plugin; Emacs
+A GNU Emacs major mode for convenient plain text markup — and much more. Org
+mode is for keeping notes, maintaining to-do lists, planning projects,
+authoring documents, computational notebooks, literate programming and more
+— in a fast and effective plain text system.
+
+Obsidian.md~
+https://obsidian.md/
+Type: Software
+"A second brain, for you, forever." Obsidian is a powerful knowledge base on
+top of a local folder of plain text Markdown files.
 
 ==============================================================================
 CONFIGURATION                                                     *wiki-config*
