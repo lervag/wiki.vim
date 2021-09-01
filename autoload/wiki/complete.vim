@@ -194,24 +194,14 @@ endfunction
 let s:completer_tags = {}
 
 function! s:completer_tags.findstart(line) dict abort " {{{2
-  " Construct a proper tag pattern.
-  " * Extract the pre-defined tag regex up to the \ze to avoid picking up the
-  "   tag-end marker.
-  " * If we can't find \ze, try the whole pattern.
-  let l:idx = stridx(g:wiki_tags_format_pattern, '\ze')
-  let l:pat = l:idx >= 0
-        \ ? strpart(g:wiki_tags_format_pattern, 0, l:idx)
-        \ : g:wiki_tags_format_pattern
+  for l:parser in g:wiki_tags_parsers
+    if !has_key(l:parser, 're_findstart') | continue | endif
 
-  " Match the last tag-start on the line
-  let l:start = 0
-  let l:current = 0
-  while l:current >= 0
-    let l:start = l:current
-    let l:current = match(a:line, l:pat, l:start)
-  endwhile
+    let l:col = match(a:line, l:parser.re_findstart)
+    if l:col > 0 | return l:col | endif
+  endfor
 
-  return l:start > 0 ? l:start : -1
+  return -1
 endfunction
 
 function! s:completer_tags.complete(regex) dict abort " {{{2

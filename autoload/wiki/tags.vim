@@ -234,17 +234,22 @@ endfunction
 
 
 " {{{1 let g:wiki#tags#default_parser = ...
-let g:wiki#tags#default_parser = {}
-function! g:wiki#tags#default_parser.match(line)
-  return a:line =~# g:wiki_tags_format_pattern
+let g:wiki#tags#default_parser = {
+      \ 're_match': '\v%(^|\s):\zs[^: ]+\ze:',
+      \ 're_findstart': '\v%(^|\s):\zs[^: ]+$'
+      \}
+
+function! g:wiki#tags#default_parser.match(line) dict abort
+  return a:line =~# self.re_match
 endfunction
-function! g:wiki#tags#default_parser.parse(line)
+
+function! g:wiki#tags#default_parser.parse(line) dict abort
   let l:tags = []
-  let l:tag = matchstr(a:line, g:wiki_tags_format_pattern, 0)
+  let l:tag = matchstr(a:line, self.re_match, 0)
 
   while !empty(l:tag)
     call add(l:tags, l:tag)
-    let l:tag = matchstr(a:line, g:wiki_tags_format_pattern, 0, len(l:tags) + 1)
+    let l:tag = matchstr(a:line, self.re_match, 0, len(l:tags) + 1)
   endwhile
 
   return l:tags

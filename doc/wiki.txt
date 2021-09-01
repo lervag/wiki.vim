@@ -645,11 +645,24 @@ OPTIONS                                                   *wiki-config-options*
         }
 
 *g:wiki_tags_parsers*
-  A list of parsers used to source the tags. The parsers are tried in order
-  specified, and if a parser matches, then it is selected and used.
+  A list of parsers used to source the tags. The parsers are tried in the
+  order they're specified. If a parser matches, then it is selected and used.
 
-  See also |g:wiki#tags#default_parser| for more info on the default tag
-  parser.
+  A tag parser is a dictionary object with the following keys:
+
+    match~
+      A function (|FuncRef|) that takes a single argument, the current line.
+      It should return |v:true| or 1 if the line contains any tags.
+
+    parse~
+      A function (|FuncRef|) that takes a single argument, the current line.
+      It should return a list of the tags in the given line.
+
+    re_findstart~
+      `OPTIONAL`
+      A regular expression (|String|) that should match the start of the
+      current tag for tag completion (|wiki-completion|). See
+      |g:wiki#tags#default_parser| for an example.
 
   As an example, one can use the following to parse tags in lines that match
   `tags: keyword1, keyword2` in addition to the default parser: >
@@ -660,25 +673,11 @@ OPTIONS                                                   *wiki-config-options*
           \   'parse': {x -> split(matchstr(x, '^tags:\zs.*'), '[ ,]\+')}}
           \]
 <
+  See |g:wiki#tags#default_parser| for details on the default tag parser.
+
   Default: >
     let g:wiki_tags_parsers = [g:wiki#tags#default_parser]
 <
-*g:wiki_tags_format_pattern*
-  A regular expression describing the search pattern for the default parser,
-  see |g:wiki#tags#default_parser|.
-
-  The default pattern recognizes tags confined inside `:`s, e.g. `:mytag:`. To
-  change the format to recognize hashed tags like `#tag1` and `#my-other-tag`,
-  one can use something like this: >
-
-    let g:wiki_tags_format_pattern = '\v%(^|\s)#\zs[^# ]+'
-<
-  Note: Tag completion uses this pattern up to the pattern end atom `\ze` to
-        detect the start of an incomplete tag (|wiki-completion|).
-
-  Default: >
-    let g:wiki_tags_format_pattern = '\v%(^|\s):\zs[^: ]+\ze:'
-
 *g:wiki_tags_scan_num_lines*
   A number of lines to read from the top of a page when scanning tags. To scan
   lines from the bottom, use a negative number, e.g. >
@@ -1338,8 +1337,8 @@ Link completion should work both for markdown and wiki style links for
 inter-wiki URLs (i.e. the `wiki` scheme, which is also the default scheme).
 See |wiki-link| for more info on links and the URL schemes.
 
-Tag completion uses |g:wiki_tags_format_pattern| to detect the start of an
-incomplete tag.
+Tag completion completes tags where the tag parser's `re_findstar` value
+matches the current line. See |g:wiki#tags#default_parser| for more info.
 
 ------------------------------------------------------------------------------
 AUTOCOMPLETE                                             *wiki-completion-auto*
@@ -1400,12 +1399,43 @@ Related settings:
 DEFAULT TAG PARSER                                          *wiki-tags-default*
                                                    *g:wiki#tags#default_parser*
 
-The default tag parser detects tags within colons, i.e. `:tag-name:`. Multiple
-tags may be specified both with `:tag1: :tag2:` and with the short form
-`:tag1:tag2:`. The tag name must consist of purely non-space characters.
+The default tag parser adds support for tags within colons, i.e. `:tag-name:`.
+Multiple tags may be specified both with `:tag1: :tag2:` and with the short
+form `:tag1:tag2:`. The tag name must consist of purely non-space characters.
 
-You may customize the format of tags detected by the default parser by
-modifying the |g:wiki_tags_format_pattern| variable.
+The full implementation is given in `autoload/wiki/tags.vim`, repeated here
+for convenience: >
+
+  let g:wiki#tags#default_parser = {
+        \ 're_match': '\v%(^|\s):\zs[^: ]+\ze:',
+        \ 're_findstart': '\v%(^|\s):\zs[^: ]+$'
+        \}
+
+  function! g:wiki#tags#default_parser.match(line) dict abort
+    return a:line =~# self.re_match
+  endfunction
+
+  function! g:wiki#tags#default_parser.parse(line) dict abort
+    let l:tags = []
+    let l:tag = matchstr(a:line, self.re_match, 0)
+
+    while !empty(l:tag)
+      call add(l:tags, l:tag)
+      let l:tag = matchstr(a:line, self.re_match, 0, len(l:tags) + 1)
+    endwhile
+
+    return l:tags
+  endfunction
+
+One may customize the default parser by adjusting the `re_match` and
+`re_findstart` strings. E.g., to instead recognize hashed tags like `#tag1`
+and `#my-other-tag`, one could add the following in ones vimrc: >
+
+  let s:tag_parser = deepcopy(g:wiki#tags#default_parser)
+  let s:tag_parser.re_match = '\v%(^|\s)#\zs[^# ]+'
+  let s:tag_parser.re_findstart = '\v%(^|\s)#\zs[^# ]+'
+
+  let g:wiki_tags_parsers = [s:tag_parser]
 
 ==============================================================================
 TEMPLATES                                                      *wiki-templates*
