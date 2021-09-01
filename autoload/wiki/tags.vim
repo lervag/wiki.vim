@@ -193,11 +193,12 @@ endfunction
 
 " }}}1
 function! s:tags.gather_from_file(file) abort dict " {{{1
-  let l:lnum = 0
-  let l:is_code = 0
   let l:lines = g:wiki_tags_scan_num_lines ==# 'all'
         \ ? readfile(a:file)
         \ : readfile(a:file, 0, g:wiki_tags_scan_num_lines)
+
+  let l:lnum = 0
+  let l:is_code = v:false
   for l:line in l:lines
     let l:lnum += 1
     let l:col = 0
@@ -207,7 +208,7 @@ function! s:tags.gather_from_file(file) abort dict " {{{1
       let l:is_code = l:line !~# '^\s*```\s*$'
       continue
     elseif l:line =~# '^\s*```\w*\s*$'
-      let l:is_code = 1
+      let l:is_code = v:true
       continue
     endif
 
