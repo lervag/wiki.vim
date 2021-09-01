@@ -635,16 +635,16 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: `'Contents'`
 
-*g:wiki_tags*
+*g:wiki_tag_search*
   A dictionary that specifies the default configuration for |WikiTagSearch|
   options. See the specifications for the options for more information.
 
   Default: >
-    let g:wiki_tags = {
+    let g:wiki_tag_search = {
         \ 'output' : 'loclist',
         }
 
-*g:wiki_tags_parsers*
+*g:wiki_tag_parsers*
   A list of parsers used to source the tags. The parsers are tried in the
   order they're specified. If a parser matches, then it is selected and used.
 
@@ -667,7 +667,7 @@ OPTIONS                                                   *wiki-config-options*
   As an example, one can use the following to parse tags in lines that match
   `tags: keyword1, keyword2` in addition to the default parser: >
 
-    let g:wiki_tags_parsers = [
+    let g:wiki_tag_parsers = [
           \ g:wiki#tags#default_parser,
           \ { 'match': {x -> x =~# '^tags: '},
           \   'parse': {x -> split(matchstr(x, '^tags:\zs.*'), '[ ,]\+')}}
@@ -676,20 +676,20 @@ OPTIONS                                                   *wiki-config-options*
   See |g:wiki#tags#default_parser| for details on the default tag parser.
 
   Default: >
-    let g:wiki_tags_parsers = [g:wiki#tags#default_parser]
+    let g:wiki_tag_parsers = [g:wiki#tags#default_parser]
 <
-*g:wiki_tags_scan_num_lines*
+*g:wiki_tag_scan_num_lines*
   A number of lines to read from the top of a page when scanning tags. To scan
   lines from the bottom, use a negative number, e.g. >
 
-    let g:wiki_tags_scan_num_lines = -10
+    let g:wiki_tag_scan_num_lines = -10
 <
   To scan the entire files, use: >
 
-    let g:wiki_tags_scan_num_lines = 'all'
+    let g:wiki_tag_scan_num_lines = 'all'
 <
   Default: >
-    let g:wiki_tags_scan_num_lines = 15
+    let g:wiki_tag_scan_num_lines = 15
 
 *g:wiki_templates*
   A list of templates for prefilling new pages. Each template should be
@@ -1016,7 +1016,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   information of the tags feature and |WikiFzfTags| for an alternative search
   mechanism.
 
-  Available options are (use |g:wiki_tags| to set default values):
+  Available options are (use |g:wiki_tag_search| to set default values):
 
   -output TRG~
     Where to put the search result. `TRG` may be one of:
@@ -1378,12 +1378,11 @@ links after `[[`: >
 TAGS                                                                *wiki-tags*
 
 Wiki pages may be tagged with keywords for organization. It is relatively easy
-to define and specify custom tag parsers with |g:wiki_tags_parsers|. wiki.vim
-ships with a default parser that is automatically used, see below for more
-info.
+to define and specify custom tag parsers with |g:wiki_tag_parsers|. wiki.vim
+ships a default parser that is automatically used, see |wiki-tags-default|.
 
 The number of lines in which tags are recognized can be costumized by modifying
-the |g:wiki_tags_scan_num_lines| variable.
+the |g:wiki_tag_scan_num_lines| variable.
 
 Related commands:
 - |WikiTagList|
@@ -1392,8 +1391,8 @@ Related commands:
 - |WikiFzfTags|
 
 Related settings:
-- |g:wiki_tags|
-- |g:wiki_tags_parsers|
+- |g:wiki_tag_search|
+- |g:wiki_tag_parsers|
 
 ------------------------------------------------------------------------------
 DEFAULT TAG PARSER                                          *wiki-tags-default*
@@ -1435,7 +1434,7 @@ and `#my-other-tag`, one could add the following in ones vimrc: >
   let s:tag_parser.re_match = '\v%(^|\s)#\zs[^# ]+'
   let s:tag_parser.re_findstart = '\v%(^|\s)#\zs[^# ]+'
 
-  let g:wiki_tags_parsers = [s:tag_parser]
+  let g:wiki_tag_parsers = [s:tag_parser]
 
 ==============================================================================
 TEMPLATES                                                      *wiki-templates*

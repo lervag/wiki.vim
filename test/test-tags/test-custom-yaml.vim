@@ -3,7 +3,7 @@ runtime plugin/wiki.vim
 
 let g:wiki_filetypes = ['md']
 let g:wiki_link_extension = '.md'
-let g:wiki_tags_parsers = [
+let g:wiki_tag_parsers = [
       \ { 'match': {x -> x =~# '^tags: '},
       \   'parse': {x -> split(matchstr(x, '^tags:\zs.*'), '[ ,]\+')}}
       \]

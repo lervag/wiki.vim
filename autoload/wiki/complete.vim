@@ -194,7 +194,7 @@ endfunction
 let s:completer_tags = {}
 
 function! s:completer_tags.findstart(line) dict abort " {{{2
-  for l:parser in g:wiki_tags_parsers
+  for l:parser in g:wiki_tag_parsers
     if !has_key(l:parser, 're_findstart') | continue | endif
 
     let l:col = match(a:line, l:parser.re_findstart)

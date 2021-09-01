@@ -10,7 +10,7 @@ endfunction
 
 " }}}1
 function! wiki#tags#search(...) abort " {{{1
-  let l:cfg = deepcopy(g:wiki_tags)
+  let l:cfg = deepcopy(g:wiki_tag_search)
   let l:cfg.tag = ''
 
   let l:args = copy(a:000)
@@ -192,9 +192,9 @@ endfunction
 
 " }}}1
 function! s:tags.gather_from_file(file) abort dict " {{{1
-  let l:lines = g:wiki_tags_scan_num_lines ==# 'all'
+  let l:lines = g:wiki_tag_scan_num_lines ==# 'all'
         \ ? readfile(a:file)
-        \ : readfile(a:file, 0, g:wiki_tags_scan_num_lines)
+        \ : readfile(a:file, 0, g:wiki_tag_scan_num_lines)
 
   let l:lnum = 0
   let l:is_code = v:false
@@ -210,7 +210,7 @@ function! s:tags.gather_from_file(file) abort dict " {{{1
       continue
     endif
 
-    for l:parser in g:wiki_tags_parsers
+    for l:parser in g:wiki_tag_parsers
       if l:parser.match(l:line)
         for l:tag in l:parser.parse(l:line)
           call self.add(l:tag, a:file, l:lnum)
