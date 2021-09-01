@@ -54,6 +54,7 @@ CONTENTS                                                        *wiki-contents*
   Completion                                 |wiki-completion|
     Autocomplete                             |wiki-completion-auto|
   Tags                                       |wiki-tags|
+    Default tag parser                       |wiki-tags-default|
   Templates                                  |wiki-templates|
     Template function context                |wiki-templates-context|
     Template file format                     |wiki-templates-format|
@@ -643,21 +644,40 @@ OPTIONS                                                   *wiki-config-options*
         \ 'output' : 'loclist',
         }
 
-*g:wiki_tags_format_pattern*
-  A regular expression describing the search pattern for a single tag. See
-  also |wiki-tags| for more info on the tags feature.
+*g:wiki_tags_parsers*
+  A list of parsers used to source the tags. The parsers are tried in order
+  specified, and if a parser matches, then it is selected and used.
 
-  The default expression recognizes tags confined inside `:`s, e.g. `:mytag:`.
-  To change the format to recognize hashed tags like `#tag1` and `#my-other-tag`,
+  See also |g:wiki#tags#default_parser| for more info on the default tag
+  parser.
+
+  As an example, one can use the following to parse tags in lines that match
+  `tags: keyword1, keyword2` in addition to the default parser: >
+
+    let g:wiki_tags_parsers = [
+          \ g:wiki#tags#default_parser,
+          \ { 'match': {x -> x =~# '^tags: '},
+          \   'parse': {x -> split(matchstr(x, '^tags:\zs.*'), '[ ,]\+')}}
+          \]
+<
+  Default: >
+    let g:wiki_tags_parsers = [g:wiki#tags#default_parser]
+<
+*g:wiki_tags_format_pattern*
+  A regular expression describing the search pattern for the default parser,
+  see |g:wiki#tags#default_parser|.
+
+  The default pattern recognizes tags confined inside `:`s, e.g. `:mytag:`. To
+  change the format to recognize hashed tags like `#tag1` and `#my-other-tag`,
   one can use something like this: >
 
     let g:wiki_tags_format_pattern = '\v%(^|\s)#\zs[^# ]+'
 <
+  Note: Tag completion uses this pattern up to the pattern end atom `\ze` to
+        detect the start of an incomplete tag (|wiki-completion|).
+
   Default: >
     let g:wiki_tags_format_pattern = '\v%(^|\s):\zs[^: ]+\ze:'
-<
-  Tag completion uses the pattern up to the pattern end atom `\ze` to detect
-  the start of an incomplete tag (|wiki-completion|).
 
 *g:wiki_tags_scan_num_lines*
   A number of lines to read from the top of a page when scanning tags. To scan
@@ -1358,14 +1378,10 @@ links after `[[`: >
 ==============================================================================
 TAGS                                                                *wiki-tags*
 
-Wiki pages may be tagged with keywords for organization. By default, tags use
-the syntax `:tag-name:`. Multiple tags may be specified both with `:tag1: :tag2:`
-and with the short form `:tag1:tag2:`. The tag name must consist of purely
-non-space characters. By default, all tags added in the top 15 lines of a file
-will be recognized.
-
-You may customize the format of tags by modifying the
-|g:wiki_tags_format_pattern| variable.
+Wiki pages may be tagged with keywords for organization. It is relatively easy
+to define and specify custom tag parsers with |g:wiki_tags_parsers|. wiki.vim
+ships with a default parser that is automatically used, see below for more
+info.
 
 The number of lines in which tags are recognized can be costumized by modifying
 the |g:wiki_tags_scan_num_lines| variable.
@@ -1378,6 +1394,18 @@ Related commands:
 
 Related settings:
 - |g:wiki_tags|
+- |g:wiki_tags_parsers|
+
+------------------------------------------------------------------------------
+DEFAULT TAG PARSER                                          *wiki-tags-default*
+                                                   *g:wiki#tags#default_parser*
+
+The default tag parser detects tags within colons, i.e. `:tag-name:`. Multiple
+tags may be specified both with `:tag1: :tag2:` and with the short form
+`:tag1:tag2:`. The tag name must consist of purely non-space characters.
+
+You may customize the format of tags detected by the default parser by
+modifying the |g:wiki_tags_format_pattern| variable.
 
 ==============================================================================
 TEMPLATES                                                      *wiki-templates*

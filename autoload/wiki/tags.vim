@@ -81,11 +81,10 @@ endfunction
 
 function! s:output_loclist(cfg, lst) abort " {{{1
   let l:list = []
-  for [l:file, l:lnum, l:col] in a:lst
+  for [l:file, l:lnum] in a:lst
     call add(l:list, {
           \ 'filename' : l:file,
           \ 'lnum' : l:lnum,
-          \ 'col' : l:col,
           \ 'text' : a:cfg.tag,
           \})
   endfor
@@ -111,7 +110,7 @@ function! s:output_scratch(cfg, lst) abort " {{{1
         \ 'lines': [printf('Wiki pages with tag: %s', a:cfg.tag)],
         \}
 
-  for [l:file, l:lnum, l:col] in a:lst
+  for [l:file, l:lnum] in a:lst
     let l:name = fnamemodify(wiki#paths#shorten_relative(l:file), ':r')
     call add(l:scratch.lines, '- ' . wiki#link#wiki#template('/' . l:name, l:name))
   endfor
@@ -146,7 +145,7 @@ endfunction
 " }}}1
 function! s:output_cursor(cfg, lst) abort " {{{1
   let l:lines = [printf('Wiki pages with tag: %s', a:cfg.tag)]
-  for [l:file, l:lnum, l:col] in a:lst
+  for [l:file, l:lnum] in a:lst
     let l:name = fnamemodify(wiki#paths#shorten_relative(l:file), ':r')
     call add(l:lines, '- ' . wiki#link#wiki#template('/' . l:name, l:name))
   endfor
@@ -201,7 +200,6 @@ function! s:tags.gather_from_file(file) abort dict " {{{1
   let l:is_code = v:false
   for l:line in l:lines
     let l:lnum += 1
-    let l:col = 0
 
     " Ignore code fenced lines
     if l:is_code
@@ -212,13 +210,14 @@ function! s:tags.gather_from_file(file) abort dict " {{{1
       continue
     endif
 
-    while v:true
-      let [l:tag, l:pos, l:col]
-            \ = matchstrpos(l:line, g:wiki_tags_format_pattern, l:col)
-      if l:col == -1 | break | endif
-
-      call self.add(l:tag, a:file, l:lnum, l:pos)
-    endwhile
+    for l:parser in g:wiki_tags_parsers
+      if l:parser.match(l:line)
+        for l:tag in l:parser.parse(l:line)
+          call self.add(l:tag, a:file, l:lnum)
+        endfor
+        continue
+      endif
+    endfor
   endfor
 endfunction
 
@@ -229,6 +228,26 @@ function! s:tags.add(tag, ...) abort dict " {{{1
   endif
 
   call add(self.collection[a:tag], a:000)
+endfunction
+
+" }}}1
+
+
+" {{{1 let g:wiki#tags#default_parser = ...
+let g:wiki#tags#default_parser = {}
+function! g:wiki#tags#default_parser.match(line)
+  return a:line =~# g:wiki_tags_format_pattern
+endfunction
+function! g:wiki#tags#default_parser.parse(line)
+  let l:tags = []
+  let l:tag = matchstr(a:line, g:wiki_tags_format_pattern, 0)
+
+  while !empty(l:tag)
+    call add(l:tags, l:tag)
+    let l:tag = matchstr(a:line, g:wiki_tags_format_pattern, 0, len(l:tags) + 1)
+  endwhile
+
+  return l:tags
 endfunction
 
 " }}}1
