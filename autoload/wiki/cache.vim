@@ -4,6 +4,12 @@
 " Email:      karl.yngve@gmail.com
 "
 
+function! wiki#cache#init_buffer() abort " {{{1
+  command! -buffer -nargs=1 WikiClearCache call wiki#cache#clear(<q-args>)
+endfunction
+
+" }}}1
+
 function! wiki#cache#open(name, ...) abort " {{{1
   let l:opts = a:0 > 0 ? a:1 : {}
   let l:name = get(l:opts, 'local') ? s:local_name(a:name) : a:name
@@ -35,6 +41,10 @@ endfunction
 
 " }}}1
 function! wiki#cache#wrap(Func, name, ...) abort " {{{1
+  if !has('lambda')
+    throw 'error: wiki#cache#wrap requires +lambda'
+  endif
+
   let l:opts = a:0 > 0 ? a:1 : {}
   let l:cache = wiki#cache#open(a:name, l:opts)
 
@@ -50,13 +60,37 @@ function! wiki#cache#wrap(Func, name, ...) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#cache#clear(name, local) abort " {{{1
-  let l:cache = wiki#cache#open(a:name, {'local': a:local})
+function! wiki#cache#clear(name) abort " {{{1
+  if empty(a:name) | return | endif
 
-  call l:cache.read()
-  if !empty(l:cache.data)
-    let l:cache.data = {}
-    call l:cache.write()
+  if a:name ==# 'ALL'
+    let l:caches = globpath(s:root(),
+          \ (a:name ==# 'ALL' ? '' : a:name) . '*.json', 0, 1)
+    for l:file in map(l:caches, {_, x -> fnamemodify(x, ':t:r')})
+      let l:cache = wiki#cache#open(l:file)
+      call l:cache.clear()
+    endfor
+  else
+    let l:persistent = get(g:, 'wiki_cache_persistent', 1)
+    let s:caches = get(s:, 'caches', {})
+
+    " Clear global caches first (check if opened, then look for files)
+    let l:cache = get(s:caches, a:name, {})
+    if !empty(l:cache)
+      call l:cache.clear()
+    elseif l:persistent
+      let l:cache = wiki#cache#open(a:name)
+      call l:cache.clear()
+    endif
+
+    " Clear local caches
+    let l:cache = get(s:caches, s:local_name(a:name), {})
+    if !empty(l:cache)
+      call l:cache.clear()
+    elseif l:persistent
+      let l:cache = wiki#cache#open(a:name, {'local': 1})
+      call l:cache.clear()
+    endif
   endif
 endfunction
 
@@ -154,6 +188,17 @@ function! s:cache.read() dict abort " {{{1
     let self.ftime = getftime(self.path)
     call extend(self.data,
           \ json_decode(join(readfile(self.path))), 'keep')
+  endif
+endfunction
+
+" }}}1
+function! s:cache.clear() dict abort " {{{1
+  let self.data = {}
+  let self.ftime = -1
+  let self.modified = 0
+
+  if self.persistent
+    call delete(self.path)
   endif
 endfunction
 

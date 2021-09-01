@@ -12,7 +12,9 @@ call wiki#init#option('wiki_cache_persistent', 1)
 call wiki#init#option('wiki_cache_root',
       \ wiki#u#get_os() ==# 'win'
       \ ? fnamemodify(tempname(), ':h')
-      \ : $HOME . '/.cache/wiki.vim')
+      \ : (empty($XDG_CACHE_HOME)
+      \    ? $HOME . '/.cache'
+      \    : $XDG_CACHE_HOME) . '/wiki.vim')
 call wiki#init#option('wiki_export', {
       \ 'args' : '',
       \ 'from_format' : 'markdown',
