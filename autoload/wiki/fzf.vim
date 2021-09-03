@@ -47,7 +47,7 @@ function! wiki#fzf#tags() abort "{{{1
   let l:tags = wiki#tags#get_all()
   let l:results = []
   for [l:key, l:val] in items(l:tags)
-    for [l:file, l:lnum, l:col] in l:val
+    for [l:file, l:lnum] in l:val
       let l:results += [l:key . ': ' . l:file . ':' . l:lnum]
     endfor
   endfor
