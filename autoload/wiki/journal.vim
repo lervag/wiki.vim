@@ -78,7 +78,7 @@ function! wiki#journal#make_index() " {{{1
     endif
   endfor
 
-  for year in reverse(sort(keys(sorted_entries)))
+  for year in sort(keys(sorted_entries))
     let l:month_dict = sorted_entries[year]
     put ='# ' . year
     put =''
