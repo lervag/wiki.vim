@@ -31,8 +31,8 @@ CONTENTS                                                        *wiki-contents*
 
   Introduction                               |wiki-intro|
     Requirements                             |wiki-intro-requirements|
-    Features                                 |wiki-intro-features|
     Usage                                    |wiki-intro-usage|
+    Features                                 |wiki-intro-features|
     Guide                                    |wiki-intro-guide|
     Alternatives                             |wiki-intro-alternatives|
   Configuration                              |wiki-config|
@@ -104,6 +104,32 @@ features:
   `pandoc` (https://pandoc.org/)  |WikiExport|
 
 ------------------------------------------------------------------------------
+USAGE                                                        *wiki-intro-usage*
+
+This outlines the basic steps to get started:
+
+1. Create a wiki directory where the wiki files should be stored, for instance
+   `~/wiki`.
+
+2. Add the following to your `vimrc` file: >
+
+   let g:wiki_root = '~/wiki'
+
+3. Now you can open the index file (by default `index.wiki`) with `<leader>ww`
+   and start to add your notes as desired.
+
+Note: As one can see from the above, the default extension recognized by
+      |wiki.vim| is the `.wiki` extension. If one instead wants to use `.md`
+      (Markdown) as the default extension, then one usually wants to add the
+      following to `vimrc`: >
+
+        let g:wiki_filetypes = ['md']
+        let g:wiki_link_extension = '.md'
+<
+      See |g:wiki_filetypes| and |g:wiki_link_extension| for more details on
+      these options.
+
+------------------------------------------------------------------------------
 FEATURES                                                  *wiki-intro-features*
 
 - Wiki functionality
@@ -132,21 +158,6 @@ FEATURES                                                  *wiki-intro-features*
     (https://github.com/junegunn/fzf.vim)
   - |unite| source (https://github.com/Shougo/unite.vim)
   - |denite| source (https://github.com/Shougo/denite.nvim)
-
-------------------------------------------------------------------------------
-USAGE                                                        *wiki-intro-usage*
-
-This outlines the basic steps to get started:
-
-1. Create a wiki directory where the wiki files should be stored, for instance
-   `~/wiki`.
-
-2. Add the following to your `vimrc` file: >
-
-   let g:wiki_root = '~/wiki'
-
-3. Now you can open the index file (by default `index.wiki`) with `<leader>ww`
-   and start to add your notes as desired.
 
 ------------------------------------------------------------------------------
 GUIDE                                                        *wiki-intro-guide*
@@ -353,7 +364,13 @@ OPTIONS                                                   *wiki-config-options*
         \}
 
 *g:wiki_filetypes*
-  List of filetypes for which |wiki.vim| should be enabled.
+  List of filetypes for which |wiki.vim| should be enabled. If you want to
+  make Markdown the default filetype, add it as the first element to the list,
+  e.g.: >
+
+    let g:wiki_filetypes = ['md', 'wiki']
+<
+  See also |g:wiki_link_extension|, which is often relevant in many filetypes.
 
   Default: ['wiki']
 
