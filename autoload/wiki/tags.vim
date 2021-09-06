@@ -178,13 +178,27 @@ endfunction
 " }}}1
 function! s:tags.gather() abort dict " {{{1
   if !self.parsed
-    for l:type in g:wiki_filetypes
-      for l:file in globpath(wiki#get_root(),
-          \ '**/*.' . l:type , 0, 1)
-        call self.gather_from_file(l:file)
-      endfor
-    endfor
+    let l:t0 = reltime()
+    if !has_key(self, 'cache')
+      let self.cache = wiki#cache#open('tags', {
+            \ 'default': { 'ftime': -1 },
+            \ 'validate': {'opts': [
+            \   g:wiki_tag_scan_num_lines,
+            \   string(g:wiki_tag_parsers),
+            \  ]},
+            \})
+    endif
+
+    let l:files = filter(
+          \ globpath(wiki#get_root(), '**/*.*', 0, 1),
+          \ {_, x -> index(g:wiki_filetypes, fnamemodify(x, ':e')) >= 0})
+    call map(l:files, {_, x -> self.gather_from_file(x)})
+
+    call self.cache.write()
     let self.parsed = 1
+
+    let l:t1 = reltimefloat(reltime(l:t0))
+    call wiki#log#info('Parsed tags (took ' . string(l:t1) . ' seconds)')
   endif
 
   return self.collection
@@ -192,12 +206,39 @@ endfunction
 
 " }}}1
 function! s:tags.gather_from_file(file) abort dict " {{{1
+  let l:current = self.cache.get(a:file)
+
+  let l:ftime = getftime(a:file)
+  if l:ftime > l:current.ftime
+    let self.cache.modified = 1
+    let l:current.ftime = l:ftime
+    let l:current.tags = s:parse_tags_in_file(a:file)
+  endif
+
+  for [l:tag, l:lnum] in l:current.tags
+    call self.add(l:tag, a:file, l:lnum)
+  endfor
+endfunction
+
+" }}}1
+function! s:tags.add(tag, ...) abort dict " {{{1
+  if !has_key(self.collection, a:tag)
+    let self.collection[a:tag] = []
+  endif
+
+  call add(self.collection[a:tag], a:000)
+endfunction
+
+" }}}1
+
+function! s:parse_tags_in_file(file) abort " {{{1
+  let l:tags = []
+  let l:lnum = 0
+  let l:is_code = v:false
   let l:lines = g:wiki_tag_scan_num_lines ==# 'all'
         \ ? readfile(a:file)
         \ : readfile(a:file, 0, g:wiki_tag_scan_num_lines)
 
-  let l:lnum = 0
-  let l:is_code = v:false
   for l:line in l:lines
     let l:lnum += 1
 
@@ -213,21 +254,14 @@ function! s:tags.gather_from_file(file) abort dict " {{{1
     for l:parser in g:wiki_tag_parsers
       if l:parser.match(l:line)
         for l:tag in l:parser.parse(l:line)
-          call self.add(l:tag, a:file, l:lnum)
+          call add(l:tags, [l:tag, l:lnum])
         endfor
         continue
       endif
     endfor
   endfor
-endfunction
 
-" }}}1
-function! s:tags.add(tag, ...) abort dict " {{{1
-  if !has_key(self.collection, a:tag)
-    let self.collection[a:tag] = []
-  endif
-
-  call add(self.collection[a:tag], a:000)
+  return tags
 endfunction
 
 " }}}1
