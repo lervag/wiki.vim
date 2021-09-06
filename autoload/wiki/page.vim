@@ -142,6 +142,9 @@ function! wiki#page#rename(newname, ...) abort "{{{1
     edit
   endfor
 
+  " Refresh tags
+  silent call wiki#tags#reload()
+
   execute 'buffer' l:bufnr
 endfunction
 
