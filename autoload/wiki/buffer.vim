@@ -56,8 +56,8 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer -range=% -nargs=* WikiExport
         \ call wiki#page#export(<line1>, <line2>, <f-args>)
 
-  command! -buffer          WikiTagList   call wiki#tags#list()
   command! -buffer          WikiTagReload call wiki#tags#reload()
+  command! -buffer -nargs=* WikiTagList   call wiki#tags#list(<f-args>)
   command! -buffer -nargs=* WikiTagSearch call wiki#tags#search(<f-args>)
 
   command! -buffer          WikiFzfToc    call wiki#fzf#toc()

@@ -37,17 +37,32 @@ function! wiki#tags#search(...) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#tags#list() abort " {{{1
-  let l:tags = s:tags.list()
+function! wiki#tags#list(...) abort " {{{1
+  if empty(s:tags.gather()) | return wiki#log#info('No tags') | endif
 
-  if empty(l:tags)
-    return wiki#log#info('No tags')
-  endif
+  let l:cfg = deepcopy(g:wiki_tag_list)
 
-  call wiki#log#info('List of tags')
-  for l:tag in l:tags
-    call wiki#log#echo('- ' . l:tag)
-  endfor
+  let l:args = copy(a:000)
+  while !empty(l:args)
+    let l:arg = remove(l:args, 0)
+    if l:arg ==# '-output'
+      let l:cfg.output = remove(l:args, 0)
+    else
+      return wiki#log#error(
+            \ 'WikiTagList argument "' . l:arg . '" not recognized',
+            \ 'Please see :help WikiTagList',
+            \)
+    endif
+  endwhile
+
+  try
+    call s:list_output_{l:cfg.output}()
+  catch /E117:/
+    call wiki#log#error(
+          \ 'WikiTagList output type "' . l:cfg.output . '" not recognized!',
+          \ 'Please see :help WikiTagList'
+          \)
+  endtry
 endfunction
 
 " }}}1
@@ -68,7 +83,7 @@ function! s:search(cfg) abort " {{{1
   endif
 
   try
-    call s:output_{a:cfg.output}(a:cfg, l:tags)
+    call s:search_output_{a:cfg.output}(a:cfg, l:tags)
   catch /E117:/
     call wiki#log#warn(
           \ 'WikiTagSearch output type "' . l:cfg.output . '" not recognized!',
@@ -79,7 +94,7 @@ endfunction
 
 " }}}1
 
-function! s:output_loclist(cfg, lst) abort " {{{1
+function! s:search_output_loclist(cfg, lst) abort " {{{1
   let l:list = []
   for [l:file, l:lnum] in a:lst
     call add(l:list, {
@@ -95,7 +110,7 @@ function! s:output_loclist(cfg, lst) abort " {{{1
 endfunction
 
 " }}}1
-function! s:output_echo(cfg, lst) abort " {{{1
+function! s:search_output_echo(cfg, lst) abort " {{{1
   call wiki#log#info(printf('Pages with tag "%s"', a:cfg.tag))
   for l:file in map(copy(a:lst), 'v:val[0]')
     call wiki#log#echo(printf('- %s',
@@ -104,7 +119,7 @@ function! s:output_echo(cfg, lst) abort " {{{1
 endfunction
 
 " }}}1
-function! s:output_scratch(cfg, lst) abort " {{{1
+function! s:search_output_scratch(cfg, lst) abort " {{{1
   let l:scratch = {
         \ 'name': 'WikiTagSearch',
         \ 'lines': [printf('Wiki pages with tag: %s', a:cfg.tag)],
@@ -143,11 +158,102 @@ function! s:output_scratch(cfg, lst) abort " {{{1
 endfunction
 
 " }}}1
-function! s:output_cursor(cfg, lst) abort " {{{1
+function! s:search_output_cursor(cfg, lst) abort " {{{1
   let l:lines = [printf('Wiki pages with tag: %s', a:cfg.tag)]
   for [l:file, l:lnum] in a:lst
     let l:name = fnamemodify(wiki#paths#shorten_relative(l:file), ':r')
     call add(l:lines, '- ' . wiki#link#wiki#template('/' . l:name, l:name))
+  endfor
+  call add(l:lines, '')
+
+  for l:line in reverse(l:lines)
+    call append(line('.'), l:line)
+  endfor
+endfunction
+
+" }}}1
+
+
+function! s:list_output_loclist() abort " {{{1
+  let l:list = []
+  for [l:tag, l:locations] in items(s:tags.collection)
+    for [l:file, l:lnum] in l:locations
+      call add(l:list, {
+            \ 'filename' : l:file,
+            \ 'lnum' : l:lnum,
+            \ 'text' : l:tag,
+            \})
+    endfor
+  endfor
+
+  call setloclist(0, [], 'r', {'title': 'WikiTagSearch', 'items': l:list})
+  lopen
+  wincmd w
+endfunction
+
+" }}}1
+function! s:list_output_echo() abort " {{{1
+  call wiki#log#info('Tagged wiki pages')
+  for [l:tag, l:locations] in items(s:tags.collection)
+    call wiki#log#echo(l:tag)
+    for l:file in map(copy(l:locations), 'v:val[0]')
+      call wiki#log#echo(printf('- %s',
+            \ fnamemodify(wiki#paths#shorten_relative(l:file), ':r')))
+    endfor
+  endfor
+endfunction
+
+" }}}1
+function! s:list_output_scratch() abort " {{{1
+  let l:scratch = {
+        \ 'name': 'WikiTagList',
+        \ 'lines': ['# Tagged wiki pages'],
+        \}
+
+  for [l:tag, l:locations] in items(s:tags.collection)
+    call extend(l:scratch.lines, ['', l:tag])
+    for [l:file, l:lnum] in l:locations
+      let l:name = fnamemodify(wiki#paths#shorten_relative(l:file), ':r')
+      call add(l:scratch.lines, '- ' . wiki#link#wiki#template('/' . l:name, l:name))
+    endfor
+  endfor
+
+  function! l:scratch.print_content() abort dict
+    for l:line in self.lines
+      call append('$', l:line)
+    endfor
+  endfunction
+
+  function! l:scratch.syntax() abort dict
+    set conceallevel=2
+
+    execute 'syntax match wikiLinkWiki'
+          \ '/' . wiki#link#wiki#matcher().rx . '/'
+          \ 'display contains=@NoSpell,wikiLinkWikiConceal'
+    syntax match wikiLinkWikiConceal /\[\[\%(\/\|#\)\?\%([^\\\]]\{-}|\)\?/
+          \ contained transparent contains=NONE conceal
+    syntax match wikiLinkWikiConceal /\]\]/
+          \ contained transparent contains=NONE conceal
+
+    syntax match wikiTagSearchTitle /Wiki pages.*: / nextgroup=wikiTagSearchTag
+    syntax match wikiTagSearchTag /.*/ contained
+
+    highlight link wikiTagSearchTitle Title
+    highlight link wikiTagSearchTag Directory
+  endfunction
+
+  call wiki#scratch#new(l:scratch)
+endfunction
+
+" }}}1
+function! s:list_output_cursor() abort " {{{1
+  let l:lines = ['# Tagged wiki pages']
+  for [l:tag, l:locations] in items(s:tags.collection)
+    let l:lines += ['', printf('Tag: %s', l:tag)]
+    for [l:file, l:lnum] in l:locations
+      let l:name = fnamemodify(wiki#paths#shorten_relative(l:file), ':r')
+      call add(l:lines, '- ' . wiki#link#wiki#template('/' . l:name, l:name))
+    endfor
   endfor
   call add(l:lines, '')
 
@@ -164,11 +270,6 @@ let s:tags = {
       \ 'parsed' : 0,
       \}
 
-function! s:tags.list() abort dict " {{{1
-  return keys(self.gather())
-endfunction
-
-" }}}1
 function! s:tags.reload() abort dict " {{{1
   let self.parsed = 0
   let self.collection = {}

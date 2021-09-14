@@ -652,9 +652,16 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: `'Contents'`
 
+*g:wiki_tag_list*
+  A dictionary that specifies the default options for |WikiTagList|.
+
+  Default: >
+    let g:wiki_tag_list = {
+        \ 'output' : 'loclist',
+        }
+
 *g:wiki_tag_search*
-  A dictionary that specifies the default configuration for |WikiTagSearch|
-  options. See the specifications for the options for more information.
+  A dictionary that specifies the default options for |WikiTagSearch|.
 
   Default: >
     let g:wiki_tag_search = {
@@ -1020,7 +1027,18 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 
 *<plug>(wiki-tag-list)*
 *WikiTagList*
-  Show list of detected tags.
+  List all tags and the wiki pages that contain them.
+
+  Available options are (use |g:wiki_tag_list| to set default values):
+
+  -output TRG~
+    Where to put the search result. `TRG` may be one of:
+
+      * `loclist`   Use |location-list|
+      * `echo`      Display results on screen
+      * `scratch`   Add results to a scratch buffer
+      * `cursor`    Insert result below cursor
+
 
 *<plug>(wiki-tag-reload)*
 *WikiTagReload*
@@ -1408,6 +1426,7 @@ Related commands:
 - |WikiFzfTags|
 
 Related settings:
+- |g:wiki_tag_list|
 - |g:wiki_tag_search|
 - |g:wiki_tag_parsers|
 

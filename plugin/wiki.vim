@@ -57,6 +57,7 @@ call wiki#init#option('wiki_month_names', [
       \])
 call wiki#init#option('wiki_resolver', 'wiki#url#wiki#resolver')
 call wiki#init#option('wiki_root', '')
+call wiki#init#option('wiki_tag_list', { 'output' : 'loclist' })
 call wiki#init#option('wiki_tag_search', { 'output' : 'loclist' })
 call wiki#init#option('wiki_tag_parsers', [g:wiki#tags#default_parser])
 call wiki#init#option('wiki_tag_scan_num_lines', 15)
