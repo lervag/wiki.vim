@@ -322,7 +322,7 @@ function! wiki#page#get_anchors(...) abort " {{{1
         \ 'default': { 'ftime': -1 },
         \})
 
-  let l:filename = s:get_anchors_filename(a:000)
+  let l:filename = wiki#u#eval_filename(a:0 > 0 ? a:1 : '')
   let l:current = l:cache.get(l:filename)
   let l:ftime = getftime(l:filename)
   if l:ftime > l:current.ftime
@@ -337,7 +337,7 @@ endfunction
 
 " }}}1
 function! wiki#page#get_title(...) abort " {{{1
-  let l:filename = s:get_anchors_filename(a:000)
+  let l:filename = wiki#u#eval_filename(a:0 > 0 ? a:1 : '')
   if !filereadable(l:filename) | return '' | endif
 
   let preblock = 0
@@ -517,30 +517,6 @@ function! s:get_anchors(filename) abort " {{{1
   endfor
 
   return anchors
-endfunction
-
-" }}}1
-function! s:get_anchors_filename(input) abort " {{{1
-  let l:current = expand('%:p')
-  let l:arg = get(a:input, 0, '')
-
-  if empty(l:arg)
-    return l:current
-  endif
-
-  if type(l:arg) == type({})
-    return get(l:arg, 'path', l:current)
-  endif
-
-  if type(l:arg) != type('')
-    return l:current
-  endif
-
-  if filereadable(l:arg)
-    return l:arg
-  else
-    return get(wiki#url#parse(l:arg), 'path', l:current)
-  endif
 endfunction
 
 " }}}1

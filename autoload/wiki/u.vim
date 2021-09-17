@@ -21,6 +21,30 @@ function! wiki#u#escape(string) abort "{{{1
 endfunction
 
 "}}}1
+function! wiki#u#eval_filename(input) abort " {{{1
+  " Input:    Something that could indicate a target filename
+  " Output:   The filename
+  " Fallback: If we can't evaluate the input, then we return the current
+  "           buffers filename.
+  let l:current = expand('%:p')
+  if empty(a:input) | return l:current | endif
+
+  " Either it is an actual filename/path, or it is a string formatted link
+  if type(a:input) == v:t_string
+    return filereadable(a:input)
+          \ ? a:input
+          \ : get(wiki#url#parse(a:input), 'path', l:current)
+  endif
+
+  " A wiki and markdown link object should have the path attribute
+  if type(a:input) == v:t_dict
+    return get(a:input, 'path', l:current)
+  endif
+
+  return l:current
+endfunction
+
+" }}}1
 function! wiki#u#extend_recursive(dict1, dict2, ...) abort " {{{1
   let l:option = a:0 > 0 ? a:1 : 'force'
   if index(['force', 'keep', 'error'], l:option) < 0
