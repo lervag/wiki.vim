@@ -51,8 +51,8 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiLinkToggle         call wiki#link#toggle_current()
   command! -buffer WikiPageDelete         call wiki#page#delete()
   command! -buffer WikiPageRename         call wiki#page#rename_ask()
-  command! -buffer WikiPageToc            call wiki#page#create_toc(0)
-  command! -buffer WikiPageTocLocal       call wiki#page#create_toc(1)
+  command! -buffer WikiPageToc            call wiki#toc#create(0)
+  command! -buffer WikiPageTocLocal       call wiki#toc#create(1)
   command! -buffer -range=% -nargs=* WikiExport
         \ call wiki#page#export(<line1>, <line2>, <f-args>)
 

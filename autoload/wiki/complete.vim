@@ -98,7 +98,7 @@ function! s:completer_wikilink.complete_anchor(regex) dict abort " {{{2
   let l:base = '#' . (empty(l:url.anchor) ? '' : l:url.anchor . '#')
   let l:length = strlen(l:base)
 
-  let l:anchors = wiki#page#get_anchors(l:url)
+  let l:anchors = wiki#toc#gather_anchors(l:url)
   call filter(l:anchors, 'v:val =~# ''^'' . wiki#u#escape(l:base) . ''[^#]*$''')
   call map(l:anchors, 'strpart(v:val, l:length)')
   if !empty(a:regex)
@@ -163,7 +163,7 @@ function! s:completer_adocbracketlink.findstart(line) dict abort " {{{2
   " Completion of anchors is disabled because they won't be found for asciidoc
   " anyway: wiki#rx#header_items regex is used for search of anchors and it
   " requires Markdown-style headers. This could be resolved by passing a
-  " specific regular expression to wiki#page#get_anchors().
+  " specific regular expression to wiki#toc#gather_anchors().
   let self.is_anchor = 0
 
   return l:cnum
