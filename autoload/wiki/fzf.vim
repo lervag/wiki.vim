@@ -67,7 +67,7 @@ function! wiki#fzf#toc() abort "{{{1
     return
   endif
 
-  let l:toc = wiki#page#gather_toc_entries(v:false)
+  let l:toc = wiki#page#gather_toc_entries(getline(1, '$'), v:false)
   let l:lines = []
   for l:entry in l:toc
     let l:indent = repeat('.', l:entry.level - 1)

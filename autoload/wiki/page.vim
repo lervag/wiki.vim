@@ -165,7 +165,7 @@ endfunction
 
 " }}}1
 function! wiki#page#create_toc(local) abort " {{{1
-  let l:entries = wiki#page#gather_toc_entries(a:local)
+  let l:entries = wiki#page#gather_toc_entries(getline(1, '$'), a:local)
   if empty(l:entries) | return | endif
 
   if a:local
@@ -236,8 +236,9 @@ function! wiki#page#create_toc(local) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#page#gather_toc_entries(local) abort " {{{1
+function! wiki#page#gather_toc_entries(lines, local) abort " {{{1
   let l:start = 1
+  let l:is_code = v:false
   let l:entry = {}
   let l:entries = []
   let l:local = {}
@@ -247,11 +248,16 @@ function! wiki#page#gather_toc_entries(local) abort " {{{1
   "
   " Gather toc entries
   "
-  for l:lnum in range(1, line('$'))
-    if wiki#u#is_code(l:lnum) | continue | endif
+  let l:lnum = 0
+  for l:line in a:lines
+    let l:lnum += 1
+
+    if l:line =~# '^\s*```'
+      let l:is_code = !l:is_code
+    endif
+    if l:is_code | continue | endif
 
     " Get line - check for header
-    let l:line = getline(l:lnum)
     if l:line !~# g:wiki#rx#header | continue | endif
 
     " Parse current header
@@ -281,6 +287,7 @@ function! wiki#page#gather_toc_entries(local) abort " {{{1
           \ 'header_text': l:header,
           \ 'header' : repeat(' ', shiftwidth()*(l:level-1))
           \            . '* ' . wiki#link#template(l:anchor, l:header),
+          \ 'anchors' : copy(l:anchor_stack),
           \}
     call add(l:entries, l:entry)
 
