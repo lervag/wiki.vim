@@ -5,20 +5,26 @@
 "
 
 function! wiki#toc#create(local) abort " {{{1
-  let l:entries = wiki#toc#gather_entries(getline(1, '$'), a:local)
+  let l:entries = wiki#toc#gather_entries(getline(1, '$'))
   if empty(l:entries) | return | endif
 
   if a:local
-    let l:level = l:entries[0].level + 1
-    let l:lnum_top = l:entries[0].lnum
-    if len(l:entries) <= 1 | return | endif
-    let l:entries = l:entries[1:]
-    let l:lnum_bottom = l:entries[0].lnum
+    let [l:entries, l:local] = s:get_local_toc(l:entries, line('.'))
+    if empty(l:entries) | return | endif
+
+    let l:level = l:local.level
+    let l:lnum_top = l:local.lnum_top
+    let l:lnum_bottom = l:local.lnum_bottom
+    let l:print_depth = get(g:, 'wiki_toc_depth', 6) + l:level - 1
   else
     let l:level = 1
     let l:lnum_top = 1
     let l:lnum_bottom = get(get(l:entries, 1, {}), 'lnum', line('$'))
+    let l:print_depth = get(g:, 'wiki_toc_depth', 6)
   endif
+
+  " Only print entries to the desired depth
+  call filter(l:entries, 'v:val.level <= l:print_depth')
 
   let l:start = max([l:entries[0].lnum, 0])
   let l:header = '*' . g:wiki_toc_title . '*'
@@ -76,18 +82,15 @@ function! wiki#toc#create(local) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#toc#gather_entries(lines, local) abort " {{{1
+
+function! wiki#toc#gather_entries(lines) abort " {{{1
+  let l:entries = []
+  let l:entry = {}
   let l:start = 1
   let l:is_code = v:false
-  let l:entry = {}
-  let l:entries = []
-  let l:local = {}
   let l:anchor_stack = []
-  let l:lnum_current = line('.')
 
-  "
   " Gather toc entries
-  "
   let l:lnum = 0
   for l:line in a:lines
     let l:lnum += 1
@@ -113,13 +116,6 @@ function! wiki#toc#gather_entries(lines, local) abort " {{{1
     call add(l:anchor_stack, l:header)
     let l:anchor = '#' . join(l:anchor_stack, '#')
 
-    " Start local boundary container
-    if empty(l:local) && l:lnum >= l:lnum_current
-      let l:local.level = get(l:entry, 'level')
-      let l:local.lnum = get(l:entry, 'lnum')
-      let l:local.nstart = len(l:entries) - 1
-    endif
-
     " Add the new entry
     let l:entry = {
           \ 'lnum' : l:lnum,
@@ -130,29 +126,9 @@ function! wiki#toc#gather_entries(lines, local) abort " {{{1
           \ 'anchors' : copy(l:anchor_stack),
           \}
     call add(l:entries, l:entry)
-
-    " Set local boundaries
-    if !empty(l:local) && !get(l:local, 'done') && l:level <= l:local.level
-      let l:local.done = 1
-      let l:local.nend = len(l:entries) - 2
-    endif
   endfor
 
-  if !has_key(l:local, 'done')
-    let l:local.nend = len(l:entries) - 1
-  endif
-
-  let l:depth = get(g:, 'wiki_toc_depth', 6)
-
-  if a:local
-    let l:entries = l:entries[l:local.nstart : l:local.nend]
-    for l:entry in l:entries
-      let l:entry.header = strpart(l:entry.header, 2*l:local.level)
-    endfor
-    let l:depth += l:entries[0].level
-  endif
-
-  return filter(l:entries, 'v:val.level <= l:depth')
+  return l:entries
 endfunction
 
 " }}}1
@@ -177,6 +153,40 @@ endfunction
 
 " }}}1
 
+function! s:get_local_toc(entries, lnum_current) abort " {{{1
+    " Get ToC for the section for lnum_current
+    "
+    " Input: List of entries and a current line number
+    " Output: Current section entries and some metadata
+
+    let l:i_parent = -1
+    for l:e in a:entries
+      if l:e.lnum > a:lnum_current | break | endif
+      let l:i_parent += 1
+    endfor
+
+    let l:level = a:entries[l:i_parent].level
+    let l:i_first = l:i_parent+1
+    let l:i_last = l:i_parent
+    for l:e in a:entries[l:i_first:]
+      let l:e.header = strpart(l:e.header, 2*l:level)
+      if l:e.level <= l:level | break | endif
+      let l:i_last += 1
+    endfor
+
+    return l:i_last < l:i_first
+          \ ? [[], {}]
+          \ : [
+          \    a:entries[l:i_first : l:i_last],
+          \    {
+          \      'level': l:level + 1,
+          \      'lnum_top': a:entries[l:i_parent].lnum,
+          \      'lnum_bottom': a:entries[l:i_first].lnum,
+          \    }
+          \   ]
+endfunction
+
+" }}}1
 function! s:get_anchors(filename) abort " {{{1
   if !filereadable(a:filename) | return [] | endif
 
