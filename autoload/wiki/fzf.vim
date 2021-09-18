@@ -67,11 +67,11 @@ function! wiki#fzf#toc() abort "{{{1
     return
   endif
 
-  let l:toc = wiki#toc#gather_entries(getline(1, '$'))
+  let l:toc = wiki#toc#gather_entries()
   let l:lines = []
   for l:entry in l:toc
     let l:indent = repeat('.', l:entry.level - 1)
-    let l:line = l:entry.lnum . '|' . l:indent . l:entry.header_text
+    let l:line = l:entry.lnum . '|' . l:indent . l:entry.header
     call add(l:lines, l:line)
   endfor
 
