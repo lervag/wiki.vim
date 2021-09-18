@@ -5,7 +5,7 @@
 "
 
 function! wiki#toc#create(local) abort " {{{1
-  let l:entries = wiki#toc#gather_entries(getline(1, '$'))
+  let l:entries = wiki#toc#gather_entries()
   if empty(l:entries) | return | endif
 
   if a:local
@@ -83,16 +83,16 @@ endfunction
 
 " }}}1
 
-function! wiki#toc#gather_entries(lines) abort " {{{1
+function! wiki#toc#gather_entries(...) abort " {{{1
   let l:entries = []
   let l:entry = {}
-  let l:start = 1
+  let l:lines = a:0 > 0 ? a:1 : getline(1, '$')
   let l:is_code = v:false
   let l:anchor_stack = []
 
   " Gather toc entries
   let l:lnum = 0
-  for l:line in a:lines
+  for l:line in l:lines
     let l:lnum += 1
 
     if l:line =~# '^\s*```'
