@@ -28,4 +28,13 @@ call assert_equal(
       \ '[[subdir/GoodName]]',
       \ readfile('wiki-tmp/rename-links.wiki')[5])
 
+silent edit wiki-tmp/sub/Foo.wiki
+silent call wiki#page#rename('Bar')
+call assert_equal(
+      \ '[[sub/Bar]]',
+      \ readfile('wiki-tmp/index.wiki')[8])
+call assert_equal(
+      \ '[[Bar]]',
+      \ readfile('wiki-tmp/sub/index.wiki')[4])
+
 call wiki#test#finished()

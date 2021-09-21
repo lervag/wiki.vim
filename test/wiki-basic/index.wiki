@@ -6,3 +6,4 @@ CreateFullLineLink
 
 [[NewPage]]
 
+[[/sub/Foo]]
