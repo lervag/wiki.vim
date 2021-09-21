@@ -132,9 +132,7 @@ function! wiki#page#rename(newname, ...) abort "{{{1
   endfor
 
   " Update links
-  let l:oldlink = s:path_to_wiki_url(l:oldpath)
-  let l:newlink = s:path_to_wiki_url(l:newpath)
-  call s:rename_update_links(l:oldlink, l:newlink)
+  call s:update_links_in_wiki(l:oldpath, l:newpath)
 
   " Refresh other wiki buffers
   for l:bufname in l:bufs
@@ -256,27 +254,61 @@ endfunction
 
 " }}}1
 
-function! s:rename_update_links(old, new) abort " {{{1
-  let l:old_re = '(\.\/|\/)?' . escape(a:old, '.')
+function! s:update_links_in_wiki(path_old, path_new) abort " {{{1
+  let l:root = wiki#get_root()
+
+  " Update "absolute" links (i.e. assume link is rooted)
+  let l:old = s:abspath_to_wikipath(l:root, a:path_old)
+  let l:new = s:abspath_to_wikipath(l:root, a:path_new)
+  let [l:n_files, l:n_links] = s:update_links_from_root(l:root, l:old, l:new)
+
+  " Update "relative" links (look within the specific common subdir)
+  let l:subdirs = []
+  let l:old_subdirs = split(l:old, '\/')[:-2]
+  let l:new_subdirs = split(l:new, '\/')[:-2]
+  while !empty(l:old_subdirs)
+        \ && !empty(l:new_subdirs)
+        \ && l:old_subdirs[0] ==# l:new_subdirs[0]
+    call add(l:subdirs, remove(l:old_subdirs, 0))
+    call remove(l:new_subdirs, 0)
+  endwhile
+  if !empty(l:subdirs)
+    let l:root .= '/' . join(l:subdirs, '/')
+    let l:old = s:abspath_to_wikipath(l:root, a:path_old)
+    let l:new = s:abspath_to_wikipath(l:root, a:path_new)
+    let [l:n, l:m] = s:update_links_from_root(l:root, l:old, l:new)
+    let l:n_files += l:n
+    let l:n_links += l:m
+  endif
+
+  call wiki#log#info(
+        \ printf('Updated %d links in %d files', l:n_links, l:n_files))
+endfunction
+
+" }}}1
+function! s:update_links_from_root(root, oldlink, newlink) abort " {{{1
+  let l:re_oldlink = '(\.\/|\/)?' . escape(a:oldlink, '.')
 
   " Pattern to search for relevant links
-  let l:pattern  = '\v\[\[\zs' . l:old_re . '\ze%(#.*)?%(\|.*)?\]\]'
-  let l:pattern .= '|\[.*\]\(\zs' . l:old_re . '\ze%(#.*)?\)'
-  let l:pattern .= '|\[.*\]\[\zs' . l:old_re . '\ze%(#.*)?\]'
-  let l:pattern .= '|\[\zs' . l:old_re . '\ze%(#.*)?\]\[\]'
-  let l:pattern .= '\<\<\zs' . l:old_re . '\ze#,[^>]{-}\>\>'
+  let l:pattern = '\v' . join([
+        \ '\[\[\zs' . l:re_oldlink . '\ze%(#.*)?%(\|.*)?\]\]',
+        \ '\[.*\]\(\zs' . l:re_oldlink . '\ze%(#.*)?\)',
+        \ '\[.*\]\[\zs' . l:re_oldlink . '\ze%(#.*)?\]',
+        \ '\[\zs' . l:re_oldlink . '\ze%(#.*)?\]\[\]',
+        \ '\<\<\zs' . l:re_oldlink . '\ze#,[^>]{-}\>\>',
+        \], '|')
 
   let l:num_files = 0
   let l:num_links = 0
 
-  for l:file in glob(wiki#get_root() . '/**/*.' . b:wiki.extension, 0, 1)
+  for l:file in glob(a:root . '/**/*.' . b:wiki.extension, 0, 1)
     let l:updates = 0
     let l:lines = []
     for l:line in readfile(l:file)
       if match(l:line, l:pattern) != -1
         let l:updates = 1
         let l:num_links += 1
-        call add(l:lines, substitute(l:line, l:pattern, a:new, 'g'))
+        call add(l:lines, substitute(l:line, l:pattern, a:newlink, 'g'))
       else
         call add(l:lines, l:line)
       endif
@@ -290,19 +322,18 @@ function! s:rename_update_links(old, new) abort " {{{1
       let l:num_files += 1
     endif
   endfor
-  call wiki#log#info(
-        \ printf('Updated %d links in %d files', l:num_links, l:num_files))
+
+  return [l:num_files, l:num_links]
 endfunction
 
 " }}}1
-function! s:path_to_wiki_url(path) abort " {{{1
-  let l:path = wiki#paths#shorten_relative(a:path)
+function! s:abspath_to_wikipath(root, path) abort " {{{1
+  let l:path = wiki#paths#relative(a:path, a:root)
   let l:ext = '.' . fnamemodify(l:path, ':e')
-  if l:ext ==# g:wiki_link_extension
-    return l:path
-  else
-    return fnamemodify(l:path, ':r')
-  endif
+
+  return l:ext ==# g:wiki_link_extension
+        \ ? l:path
+        \ : fnamemodify(l:path, ':r')
 endfunction
 
 " }}}1
