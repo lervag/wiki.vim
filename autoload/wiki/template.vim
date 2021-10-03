@@ -93,7 +93,7 @@ function! s:template_apply(t, ctx) abort " {{{1
     let l:lines = l:pre . l:value . l:post
 
     let [l:match, l:c1, l:c2] = matchstrpos(
-          \ l:lines, '{{[a-zA-Z#_0-9]\+\s*[^}]*}}', l:c2+1)
+          \ l:lines, '{{[a-zA-Z#_0-9]\+\s*[^}]*}}', l:c1)
   endwhile
 
   call append(0, split(l:lines, "\n"))

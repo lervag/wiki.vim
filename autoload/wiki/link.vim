@@ -77,6 +77,7 @@ endfunction
 " }}}1
 function! wiki#link#follow(...) abort "{{{1
   let l:link = wiki#link#get()
+  if empty(l:link) | return | endif
 
   try
     if has_key(l:link, 'follow')
