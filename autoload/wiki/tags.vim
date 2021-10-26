@@ -9,6 +9,11 @@ function! wiki#tags#get_all() abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#tags#get_tag_names(...) abort " {{{1
+  return join(map(keys(wiki#tags#get_all()), 'escape(v:val, " ")'), "\n")
+endfunction
+
+" }}}1
 function! wiki#tags#search(...) abort " {{{1
   let l:cfg = deepcopy(g:wiki_tag_search)
   let l:cfg.tag = ''
@@ -71,8 +76,40 @@ function! wiki#tags#reload() abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#tags#rename(old_tag, new_tag='', rename_to_existing=0) abort " {{{1
+  if a:new_tag ==# ''
+    call wiki#tags#rename_ask(a:old_tag)
+  else
+    call s:tags.rename(a:old_tag, a:new_tag, a:rename_to_existing)
+  endif
+endfunction
 
+" }}}1
+function! wiki#tags#rename_ask(old_tag='', new_tag='', ...) abort " {{{1
+  let l:old_tag = a:old_tag ==# '' ?
+        \ input('Enter tag to rename (wihtout delimiters): ', '', 'custom,wiki#tags#get_tag_names') :
+        \ a:old_tag
+  if l:old_tag ==# '' | return | endif
 
+  if input('Rename "' . l:old_tag . '"'
+        \ . (a:new_tag ==# '' ? '' : ' to "' . a:new_tag . '"')
+        \ . ' [y]es/[N]o? ') !~? '^y'
+    return
+  endif
+
+  " Get new tag name
+  redraw!
+  if a:new_tag ==# ''
+    call wiki#log#info('Enter new tag name (without tag delimiters):')
+    let l:new_tag = input('> ')
+  else
+    let l:new_tag = a:new_tag
+  endif
+
+  call wiki#tags#rename(l:old_tag, l:new_tag)
+endfunction
+
+" }}}1
 function! s:search(cfg) abort " {{{1
   call s:tags.gather()
   let l:tags = get(s:tags.collection, a:cfg.tag, [])
@@ -331,7 +368,92 @@ function! s:tags.add(tag, ...) abort dict " {{{1
 endfunction
 
 " }}}1
+function! s:tags.rename(old_tag, new_tag, rename_to_existing=0) abort dict " {{{1
+  redraw!
+  if !has_key(self.collection, a:old_tag)
+    call wiki#log#info('Old tag name "' . a:old_tag . '" not found in cache; reloading tags.')
+    call wiki#tags#reload()
+    if !has_key(self.collection, a:old_tag)
+      return wiki#log#warn('No tag named "' . a:old_tag . '", aborting rename.')
+    endif
+  endif
 
+  if has_key(self.collection, a:new_tag)
+    call wiki#log#warn('Tag "' . a:new_tag . '" already exists!')
+    if !a:rename_to_existing
+      if input('Rename anyway? [y]es/[N]o: ', 'N') ==? 'n'
+        return
+      endif
+    endif
+  endif
+
+  call wiki#log#info('Renaming tag "' . a:old_tag . '" to "' . a:new_tag . '".')
+
+  let l:tagpages = self.collection[a:old_tag]
+
+  let l:bufnr = bufnr('')
+  " Get list of open wiki buffers
+  let l:bufs =
+        \ map(
+        \   filter(
+        \     filter(range(1, bufnr('$')), 'buflisted(v:val)'),
+        \     '!empty(getbufvar(v:val, ''wiki''))'),
+        \   'fnamemodify(bufname(v:val), '':p'')')
+
+  " Save other wiki buffers
+  for l:bufname in l:bufs
+    execute 'buffer' fnameescape(l:bufname)
+    update
+  endfor
+
+  let l:num_files = 0
+
+  " We already know where the tag is in the file, thanks to the cache
+  for [l:file, l:lnum] in l:tagpages
+    if s:update_tag_in_wiki(l:file, l:lnum, a:old_tag, a:new_tag)
+      call self.add(a:new_tag, l:file, l:lnum)
+      call remove(self.collection, a:old_tag)
+      let l:num_files += 1
+    endif
+  endfor
+
+  " Refresh other wiki buffers
+  for l:bufname in l:bufs
+    execute 'buffer' fnameescape(l:bufname)
+    edit
+  endfor
+
+  " Refresh tags
+  silent call wiki#tags#reload()
+
+  execute 'buffer' l:bufnr
+
+  call wiki#log#info(printf('Renamed tags in %d files', l:num_files))
+
+endfunction
+
+" }}}1
+function! s:update_tag_in_wiki(path, lnum, old_tag, new_tag) abort
+  call wiki#log#info('Renaming tag in: ' . fnamemodify(a:path, ':t'))
+  let l:lines = readfile(a:path)
+  let l:tagline = l:lines[a:lnum-1]
+  for l:parser in g:wiki_tag_parsers
+    if l:parser.match(l:tagline)
+      let l:tags = l:parser.parse(l:tagline)
+      if index(l:tags, a:new_tag) >= 0
+        call filter(l:tags, {_, t -> t !=# a:old_tag})
+      else
+        call map(l:tags, {_, t -> t ==# a:old_tag ? a:new_tag : t})
+      endif
+      let l:lines[a:lnum-1] = l:parser.make(l:tags, l:tagline)
+      call writefile(l:lines, a:path)
+      return 1
+    endif
+  endfor
+  return wiki#log#error("Didn't match tagline " . a:path . ':' . a:lnum . ' with any parser')
+endfunction
+
+" }}}1
 function! s:parse_tags_in_file(file) abort " {{{1
   let l:tags = []
   let l:lnum = 0
@@ -388,6 +510,10 @@ function! g:wiki#tags#default_parser.parse(line) dict abort
   endwhile
 
   return l:tags
+endfunction
+
+function! g:wiki#tags#default_parser.make(taglist, curline='') dict abort
+  return empty(a:taglist) ? '' : join(map(a:taglist, '":" . v:val . ":"'))
 endfunction
 
 " }}}1
