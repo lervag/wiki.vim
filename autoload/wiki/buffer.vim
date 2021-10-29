@@ -60,7 +60,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer -nargs=* WikiTagList   call wiki#tags#list(<f-args>)
   command! -buffer -nargs=* WikiTagSearch call wiki#tags#search(<f-args>)
   command! -buffer -nargs=+ -complete=custom,wiki#tags#get_tag_names
-				\ WikiTagRename call wiki#tags#rename_ask(<f-args>)
+        \ WikiTagRename call wiki#tags#rename_ask(<f-args>)
 
   command! -buffer          WikiFzfToc    call wiki#fzf#toc()
 

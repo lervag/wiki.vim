@@ -703,7 +703,7 @@ OPTIONS                                                   *wiki-config-options*
           \ g:wiki#tags#default_parser,
           \ { 'match': {x -> x =~# '^tags: '},
           \   'parse': {x -> split(matchstr(x, '^tags:\zs.*'), '[ ,]\+')},
-          \   'make':  {t,x -> 'tags: ' . empty(t) ? '' : join(t, ', ')}}
+          \   'make':  {t, x -> 'tags: ' . empty(t) ? '' : join(t, ', ')}}
           \]
 <
   See |g:wiki#tags#default_parser| for details on the default tag parser.
@@ -1482,14 +1482,14 @@ for convenience: >
     return empty(a:taglist) ? '' : join(map(a:taglist, '":" . v:val . ":"'))
   endfunction
 
-One may customize the default parser by adjusting `re_match`, 
-`re_findstart`, and `make`. E.g., to instead recognize hashed tags like `#tag1`
-and `#my-other-tag`, one could add the following in one's vimrc: >
+One may customize the default parser by adjusting `re_match`, `re_findstart`,
+and `make`. E.g., to instead recognize hashed tags like `#tag1` and
+`#my-other-tag`, one could add the following in one's vimrc: >
 
   let s:tag_parser = deepcopy(g:wiki#tags#default_parser)
   let s:tag_parser.re_match = '\v%(^|\s)#\zs[^# ]+'
   let s:tag_parser.re_findstart = '\v%(^|\s)#\zs[^# ]+'
-  let s:tag_parser.make = {t,l -> empty(t) ? '' : join(map(t, '"#" . v:val))}
+  let s:tag_parser.make = {t, l -> empty(t) ? '' : join(map(t, '"#" . v:val))}
 
   let g:wiki_tag_parsers = [s:tag_parser]
 
