@@ -85,7 +85,7 @@ function! wiki#tags#reload() abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#tags#rename(old_tag, new_tag='', rename_to_existing=0) abort " {{{1
+function! wiki#tags#rename(old_tag, new_tag='', rename_to_existing=v:false) abort " {{{1
   if a:new_tag ==# ''
     call wiki#tags#rename_ask(a:old_tag)
   else
