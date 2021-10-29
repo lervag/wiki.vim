@@ -90,9 +90,11 @@ Note: |wiki.vim| is `not` a filetype plugin. It is designed so that it may be us
 REQUIREMENTS                                          *wiki-intro-requirements*
 
 This plugin is mainly developed on and for Linux. Some or most of the features
-should still work on Windows and OSX, but currently there are no guaranties.
+should still work on Windows and OSX, but currently there are no guarantees.
 On Windows, it is assumed that users enable 'shellslash' to avoid issues with
 backslashes versus forward slashes.
+
+Some features require a recent version of Vim (>= 8.1) or NeoVim (>= 0.5).
 
 The following is a list of external tools that are used for some of the
 features:

@@ -9,8 +9,17 @@ function! wiki#tags#get_all() abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#tags#get_tag_names(...) abort " {{{1
-  return join(map(keys(wiki#tags#get_all()), 'escape(v:val, " ")'), "\n")
+function! wiki#tags#get_tag_names() abort " {{{1
+  return keys(wiki#tags#get_all())
+endfunction
+
+" }}}1
+function! wiki#tags#complete_tag_names(...) abort " {{{1
+  " Returns tag names in newline separated string suitable for completion with
+  " the "custom" argument, see ":help :command-completion-custom". We could
+  " also have used "customlist", but with "custom", filtering is performed
+  " implicitly and may be more efficient (cf. documentation).
+  return join(map(wiki#tags#get_tag_names(), 'escape(v:val, " ")'), "\n")
 endfunction
 
 " }}}1
@@ -86,9 +95,10 @@ endfunction
 
 " }}}1
 function! wiki#tags#rename_ask(old_tag='', new_tag='', ...) abort " {{{1
-  let l:old_tag = a:old_tag ==# '' ?
-        \ input('Enter tag to rename (wihtout delimiters): ', '', 'custom,wiki#tags#get_tag_names') :
-        \ a:old_tag
+  let l:old_tag = a:old_tag ==# ''
+        \ ? input('Enter tag to rename (wihtout delimiters): ',
+                  '', 'custom,wiki#tags#get_tag_names')
+        \ : a:old_tag
   if l:old_tag ==# '' | return | endif
 
   if input('Rename "' . l:old_tag . '"'
@@ -110,6 +120,8 @@ function! wiki#tags#rename_ask(old_tag='', new_tag='', ...) abort " {{{1
 endfunction
 
 " }}}1
+
+
 function! s:search(cfg) abort " {{{1
   call s:tags.gather()
   let l:tags = get(s:tags.collection, a:cfg.tag, [])
@@ -368,7 +380,7 @@ function! s:tags.add(tag, ...) abort dict " {{{1
 endfunction
 
 " }}}1
-function! s:tags.rename(old_tag, new_tag, rename_to_existing=0) abort dict " {{{1
+function! s:tags.rename(old_tag, new_tag, rename_to_existing=v:false) abort dict " {{{1
   redraw!
   if !has_key(self.collection, a:old_tag)
     call wiki#log#info('Old tag name "' . a:old_tag . '" not found in cache; reloading tags.')
@@ -429,7 +441,6 @@ function! s:tags.rename(old_tag, new_tag, rename_to_existing=0) abort dict " {{{
   execute 'buffer' l:bufnr
 
   call wiki#log#info(printf('Renamed tags in %d files', l:num_files))
-
 endfunction
 
 " }}}1

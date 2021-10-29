@@ -37,6 +37,9 @@ Or use some other plugin manager:
 * [neobundle](https://github.com/Shougo/neobundle.vim)
 * [pathogen](https://github.com/tpope/vim-pathogen)
 
+Note that some features require a recent version of Vim (>= 8.1) or
+NeoVim (>= 0.5).
+
 ## Usage
 
 This outlines the basic steps to get started:

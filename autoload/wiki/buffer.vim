@@ -33,6 +33,8 @@ function! wiki#buffer#init() abort " {{{1
 endfunction
 
 " }}}1
+
+
 function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiGraphFindBacklinks call wiki#graph#find_backlinks()
   command! -buffer WikiGraphCheckLinks    call wiki#graph#check_links()
@@ -57,7 +59,8 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer          WikiTagReload call wiki#tags#reload()
   command! -buffer -nargs=* WikiTagList   call wiki#tags#list(<f-args>)
   command! -buffer -nargs=* WikiTagSearch call wiki#tags#search(<f-args>)
-  command! -buffer -nargs=+ -complete=custom,wiki#tags#get_tag_names WikiTagRename call wiki#tags#rename_ask(<f-args>)
+  command! -buffer -nargs=+ -complete=custom,wiki#tags#get_tag_names
+				\ WikiTagRename call wiki#tags#rename_ask(<f-args>)
 
   command! -buffer          WikiFzfToc    call wiki#fzf#toc()
 
