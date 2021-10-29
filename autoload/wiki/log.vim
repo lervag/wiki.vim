@@ -4,85 +4,6 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#log#echo(input, ...) abort " {{{1
-  let l:opts = extend({'indent': 0}, a:0 > 0 ? a:1 : {})
-
-  if type(a:input) == v:t_string
-    call s:echo_string(a:input, l:opts)
-  elseif type(a:input) == v:t_list
-    call s:echo_formatted(a:input, l:opts)
-  elseif type(a:input) == v:t_dict
-    call s:echo_dict(a:input, l:opts)
-  else
-    call wiki#log#warn('Argument not supported: ' . type(a:input))
-  endif
-endfunction
-
-" }}}1
-function! wiki#log#clear_buffer() abort " {{{1
-  if empty(s:buffer) | return | endif
-  let l:cmdheight = &cmdheight
-  let &cmdheight = len(s:buffer) + 2
-
-  echo repeat('-', winwidth(0)-1) . "\n" . join(s:buffer, "\n")
-  let s:buffer = []
-
-  let &cmdheight = l:cmdheight
-endfunction
-
-" }}}1
-
-function! s:echo_string(msg, opts) abort " {{{1
-  let l:msg = repeat(' ', a:opts.indent) . a:msg
-
-  if g:wiki#log#buffered
-    call add(s:buffer, l:msg)
-  else
-    echo l:msg
-  endif
-endfunction
-
-let g:wiki#log#buffered = get(g:, 'wiki#log#buffered', v:false)
-let s:buffer = []
-
-" }}}1
-function! s:echo_formatted(parts, opts) abort " {{{1
-  if g:wiki#log#buffered
-    let l:message = repeat(' ', a:opts.indent)
-    for l:part in a:parts
-      let l:message .= type(l:part) == v:t_list ? l:part[1] : l:part
-    endfor
-    call add(s:buffer, l:message)
-    return
-  endif
-
-  echo repeat(' ', a:opts.indent)
-  try
-    for l:part in a:parts
-      if type(l:part) == v:t_string
-        echohl None
-        echon l:part
-      else
-        execute 'echohl' l:part[0]
-        echon l:part[1]
-      endif
-      unlet l:part
-    endfor
-  finally
-    echohl None
-  endtry
-endfunction
-
-" }}}1
-function! s:echo_dict(dict, opts) abort " {{{1
-  for [l:key, l:val] in items(a:dict)
-    call s:echo_formatted([['Label', l:key . ': '], l:val], a:opts)
-  endfor
-endfunction
-
-" }}}1
-
-
 function! wiki#log#info(...) abort " {{{1
   call s:logger.add(a:000, 'info')
 endfunction
@@ -99,6 +20,23 @@ endfunction
 
 " }}}1
 
+function! wiki#log#toggle_verbose() abort " {{{1
+  let s:logger.verbose = !s:logger.verbose
+endfunction
+
+" }}}1
+function! wiki#log#set_silent() abort " {{{1
+  let s:logger.verbose_old = get(s:logger, 'verbose_old', s:logger.verbose)
+  let s:logger.verbose = 0
+endfunction
+
+" }}}1
+function! wiki#log#set_silent_restore() abort " {{{1
+  let s:logger.verbose = get(s:logger, 'verbose_old', s:logger.verbose)
+endfunction
+
+" }}}1
+
 
 let s:logger = {
       \ 'entries' : [],
@@ -107,21 +45,42 @@ let s:logger = {
       \   'warning' : 'WarningMsg',
       \   'error' : 'ErrorMsg',
       \ },
+      \ 'type_to_level': {
+      \   'info': 1,
+      \   'warning': 2,
+      \   'error': 3,
+      \ },
+      \ 'verbose': get(get(s:, 'logger', {}), 'verbose',
+      \                get(g:, 'wiki_log_verbose', 1)),
       \}
 function! s:logger.add(messages, type) abort dict " {{{1
   let l:entry = {}
   let l:entry.type = a:type
   let l:entry.time = strftime('%T')
-  let l:entry.callstack = wiki#debug#stacktrace()[1:]
   let l:entry.msg = a:messages
+  let l:entry.callstack = wiki#debug#stacktrace()[1:]
+  for l:level in l:entry.callstack
+    let l:level.nr -= 2
+  endfor
   call add(self.entries, l:entry)
 
-  call wiki#log#echo([
+  if self.verbose
+    if self.type_to_level[a:type] > 1
+      unsilent call self.notify(a:messages, a:type)
+    else
+      call self.notify(a:messages, a:type)
+    endif
+  endif
+endfunction
+
+" }}}1
+function! s:logger.notify(msg_list, type) abort dict " {{{1
+  call wiki#echo#echo([
         \ [self.type_to_highlight[a:type], 'wiki: '],
-        \ a:messages[0]
+        \ a:msg_list[0]
         \])
-  for l:msg in a:messages[1:]
-    call wiki#log#echo(l:msg, {'indent': 2})
+  for l:msg in a:msg_list[1:]
+    call wiki#echo#echo(l:msg, {'indent': 2})
   endfor
 endfunction
 

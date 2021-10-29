@@ -58,7 +58,7 @@ function! wiki#test#completion(context, ...) abort " {{{1
   catch
     call assert_report(
           \ printf("\n  Context: %s\n  Base: %s\n%s",
-          \        a:context, l:Base, v:exception))
+          \        a:context, l:base, v:exception))
   endtry
 endfunction
 

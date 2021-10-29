@@ -2,6 +2,7 @@ source ../init.vim
 runtime plugin/wiki.vim
 
 let g:wiki_cache_persistent = 0
+let g:wiki_log_verbose = 0
 
 let g:wiki_filetypes = ['md']
 let g:wiki_link_extension = '.md'
@@ -16,12 +17,12 @@ let g:wiki_tag_parsers = [
 
 silent edit wiki-tmp/index.md
 
-silent let s:tags = wiki#tags#get_all()
+let s:tags = wiki#tags#get_all()
 call assert_equal(['drink', 'good', 'life', 'work'], sort(keys(s:tags)))
 
-silent call wiki#tags#rename('drink', 'coffee', 1)
-silent call wiki#tags#rename('work', 'coffee', 1)
-silent call wiki#tags#rename('life', 'good', 1)
+call wiki#tags#rename('drink', 'coffee', 1)
+call wiki#tags#rename('work', 'coffee', 1)
+call wiki#tags#rename('life', 'good', 1)
 call assert_equal(
       \ 'tags: coffee, good',
       \ readfile('wiki-tmp/yaml-tags.md')[2])

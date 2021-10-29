@@ -63,9 +63,9 @@ function! s:choose_from(list, options) abort " {{{1
 
     call wiki#log#info(a:options.prompt)
     for l:line in l:menu
-      call wiki#log#echo(l:line)
+      call wiki#echo#echo(l:line)
     endfor
-    call wiki#log#clear_buffer()
+    call wiki#echo#clear_buffer()
 
     try
       let l:choice = s:get_number(l:length, l:digits, a:options.abort)
