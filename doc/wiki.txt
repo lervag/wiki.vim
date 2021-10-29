@@ -90,9 +90,11 @@ Note: |wiki.vim| is `not` a filetype plugin. It is designed so that it may be us
 REQUIREMENTS                                          *wiki-intro-requirements*
 
 This plugin is mainly developed on and for Linux. Some or most of the features
-should still work on Windows and OSX, but currently there are no guaranties.
+should still work on Windows and OSX, but currently there are no guarantees.
 On Windows, it is assumed that users enable 'shellslash' to avoid issues with
 backslashes versus forward slashes.
+
+Some features require a recent version of Vim (>= 8.1) or NeoVim (>= 0.5).
 
 The following is a list of external tools that are used for some of the
 features:
@@ -682,6 +684,12 @@ OPTIONS                                                   *wiki-config-options*
       A function (|FuncRef|) that takes a single argument, the current line.
       It should return a list of the tags in the given line.
 
+    make~
+      A function (|FuncRef|) that takes two arguments: a list of tags, and the
+      current line. It should return a new line with the list of tags
+      formatted appropriately. This new line will replace the current line.
+      This function is used by |WikiTagRename|.
+
     re_findstart~
       `OPTIONAL`
       A regular expression (|String|) that should match the start of the
@@ -694,7 +702,8 @@ OPTIONS                                                   *wiki-config-options*
     let g:wiki_tag_parsers = [
           \ g:wiki#tags#default_parser,
           \ { 'match': {x -> x =~# '^tags: '},
-          \   'parse': {x -> split(matchstr(x, '^tags:\zs.*'), '[ ,]\+')}}
+          \   'parse': {x -> split(matchstr(x, '^tags:\zs.*'), '[ ,]\+')},
+          \   'make':  {t, x -> 'tags: ' . empty(t) ? '' : join(t, ', ')}}
           \]
 <
   See |g:wiki#tags#default_parser| for details on the default tag parser.
@@ -1061,6 +1070,12 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
       * `scratch`   Add results to a scratch buffer
       * `cursor`    Insert result below cursor
 
+*<plug>(wiki-tag-rename)*
+*WikiTagRename*  [old_tag] [new_tag]
+  Rename `old_tag` to `new_tag` in all pages. If zero or one arguments are
+  supplied, the command asks for input. This command uses the `make` function
+  of |g:wiki_tag_parsers|.
+
 *CtrlPWiki*
   Open |CtrlP| in find file mode for wiki files in current wiki or in the main
   wiki defined by |g:wiki_root|.
@@ -1423,6 +1438,7 @@ Related commands:
 - |WikiTagList|
 - |WikiTagReload|
 - |WikiTagSearch|
+- |WikiTagRename|
 - |WikiFzfTags|
 
 Related settings:
@@ -1462,13 +1478,18 @@ for convenience: >
     return l:tags
   endfunction
 
-One may customize the default parser by adjusting the `re_match` and
-`re_findstart` strings. E.g., to instead recognize hashed tags like `#tag1`
-and `#my-other-tag`, one could add the following in ones vimrc: >
+  function! g:wiki#tags#default_parser.make(taglist, curline='') dict abort
+    return empty(a:taglist) ? '' : join(map(a:taglist, '":" . v:val . ":"'))
+  endfunction
+
+One may customize the default parser by adjusting `re_match`, `re_findstart`,
+and `make`. E.g., to instead recognize hashed tags like `#tag1` and
+`#my-other-tag`, one could add the following in one's vimrc: >
 
   let s:tag_parser = deepcopy(g:wiki#tags#default_parser)
   let s:tag_parser.re_match = '\v%(^|\s)#\zs[^# ]+'
   let s:tag_parser.re_findstart = '\v%(^|\s)#\zs[^# ]+'
+  let s:tag_parser.make = {t, l -> empty(t) ? '' : join(map(t, '"#" . v:val))}
 
   let g:wiki_tag_parsers = [s:tag_parser]
 

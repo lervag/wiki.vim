@@ -5,14 +5,16 @@ a personal wiki. The plugin was initially based on
 [vimwiki](https://github.com/vimwiki/vimwiki), but it is written mostly from
 scratch and is based on a more "do one thing and do it well" philosophy.
 
+This README file contains basic information on how to get started, as well as
+a list of available features. For more details, please confer the
+[full documentation](doc/wiki.txt).
+
 Note: `wiki.vim` is _not_ a filetype plugin. It is designed so that it may be used
       along with filetype plugins, e.g. for dedicated Markdown plugins. One may
       also use [wiki-ft.vim](https://github.com/lervag/wiki-ft.vim) for simple
       syntax highlighting and folding of `.wiki` files, if desired.
 
-This README file contains basic information on how to get started, as well as
-a list of available features. For more details, please confer the
-[full documentation](doc/wiki.txt).
+Note: Some features require a recent version of Vim (>= 8.1) or NeoVim (>= 0.5).
 
 ## Table of contents
 

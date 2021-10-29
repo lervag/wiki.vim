@@ -59,6 +59,8 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer          WikiTagReload call wiki#tags#reload()
   command! -buffer -nargs=* WikiTagList   call wiki#tags#list(<f-args>)
   command! -buffer -nargs=* WikiTagSearch call wiki#tags#search(<f-args>)
+  command! -buffer -nargs=+ -complete=custom,wiki#tags#get_tag_names
+        \ WikiTagRename call wiki#tags#rename_ask(<f-args>)
 
   command! -buffer          WikiFzfToc    call wiki#fzf#toc()
 
@@ -95,6 +97,7 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-tag-list)             :WikiTagList<cr>
   nnoremap <silent><buffer> <plug>(wiki-tag-reload)           :WikiTagReload<cr>
   nnoremap <silent><buffer> <plug>(wiki-tag-search)           :WikiTagSearch<cr>
+  nnoremap <silent><buffer> <plug>(wiki-tag-rename)           :WikiTagRename<cr>
 
   nnoremap <silent><buffer> <plug>(wiki-fzf-toc)              :WikiFzfToc<cr>
   inoremap <silent><buffer> <plug>(wiki-fzf-toc)              <esc>:WikiFzfToc<cr>
@@ -145,6 +148,7 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-tag-list)': '<leader>wsl',
           \ '<plug>(wiki-tag-reload)': '<leader>wsr',
           \ '<plug>(wiki-tag-search)': '<leader>wss',
+          \ '<plug>(wiki-tag-rename)': '<leader>wsn',
           \ 'x_<plug>(wiki-link-toggle-visual)': '<cr>',
           \ 'o_<plug>(wiki-au)': 'au',
           \ 'x_<plug>(wiki-au)': 'au',
