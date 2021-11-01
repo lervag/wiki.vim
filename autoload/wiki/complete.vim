@@ -113,7 +113,8 @@ function! s:completer_wikilink.complete_page(regex) dict abort " {{{2
   let l:pre = self.rooted ? '/' : ''
 
   let l:cands = executable('fd')
-        \ ? systemlist('fd -a -t f -e ' . b:wiki.extension . ' . ' . l:root)
+        \ ? wiki#jobs#capture(
+        \     'fd -a -t f -e ' . b:wiki.extension . ' . ' . l:root)
         \ : globpath(l:root, '**/*.' . b:wiki.extension, 0, 1)
 
   call map(l:cands, 'strpart(v:val, strlen(l:root)+1)')

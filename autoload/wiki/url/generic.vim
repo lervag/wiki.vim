@@ -16,7 +16,8 @@ endfunction
 
 let s:handler = {}
 function! s:handler.follow(...) abort dict " {{{1
-  call system(g:wiki_viewer['_'] . ' ' . shellescape(self.url) . '&')
+  call wiki#jobs#run(
+        \ g:wiki_viewer['_'] . ' ' . shellescape(self.url) . '&')
 endfunction
 
 " }}}1

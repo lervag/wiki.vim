@@ -362,7 +362,7 @@ function! s:export(start, end, cfg) abort " {{{1
 
   " Execute pandoc command
   call wiki#paths#pushd(fnamemodify(l:fwiki, ':h'))
-  let l:output = system(l:cmd)
+  let l:output = wiki#jobs#capture(l:cmd)
   call wiki#paths#popd()
 
   if v:shell_error == 127

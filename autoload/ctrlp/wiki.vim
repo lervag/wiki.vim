@@ -18,7 +18,7 @@ endfunction
 function! ctrlp#wiki#init()
   let s:root = wiki#get_root()
 
-  let l:files = systemlist(printf(
+  let l:files = wiki#jobs#capture(printf(
         \ (type(g:ctrlp_user_command) == type('')
         \  ? g:ctrlp_user_command
         \  : get(g:ctrlp_user_command, -1)),

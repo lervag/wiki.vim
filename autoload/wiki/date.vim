@@ -153,10 +153,10 @@ endfunction
 "
 function! s:date(date, format) abort " {{{1
   if s:gnu_date
-    return systemlist(printf(s:cmd_date
+    return wiki#jobs#capture(printf(s:cmd_date
           \ . ' +"%s" -d "%s"', a:format, a:date))[0]
   else
-    return systemlist(printf(s:cmd_date
+    return wiki#jobs#capture(printf(s:cmd_date
           \ . ' -j -f "%s" "%s" +"%s"', '%Y-%m-%d', a:date, a:format))[0]
   endif
 endfunction
@@ -164,7 +164,7 @@ endfunction
 " }}}1
 function! s:date_offset(date, offset) abort " {{{1
   if s:gnu_date
-    return systemlist(printf(s:cmd_date
+    return wiki#jobs#capture(printf(s:cmd_date
           \ . ' +%%F -d "%s +%s"', a:date, a:offset))[0]
   else
     throw 'Not implemented'
@@ -174,6 +174,6 @@ endfunction
 " }}}1
 
 let s:cmd_date = get(g:, 'wiki_date_exe', 'date')
-let s:gnu_date = match(system(s:cmd_date . ' --version'), 'GNU') >= 0
+let s:gnu_date = match(wiki#jobs#cached(s:cmd_date . ' --version'), 'GNU') >= 0
 
 " vim: fdm=marker sw=2

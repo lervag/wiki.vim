@@ -20,7 +20,7 @@ function! wiki#zotero#search(string) " {{{1
           \ . ' -name "' . a:string . '*.pdf" -type f'
   endif
 
-  let l:files = systemlist(l:finder)
+  let l:files = wiki#jobs#capture(l:finder)
 
   if v:shell_error != 0
     return wiki#log#error('Error in wiki#zotero#search!',

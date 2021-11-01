@@ -31,13 +31,13 @@ function! s:handler.follow(...) abort dict " {{{1
 
     if l:choice > 0
       let l:file = l:files[l:choice-1]
-      call system(g:wiki_viewer['_'] . ' ' . shellescape(l:file) . '&')
+      call wiki#jobs#run(g:wiki_viewer['_'] . ' ' . shellescape(l:file) . '&')
       return
     endif
   endif
 
   " Fall back to zotero://select/items/bbt:citekey
-  call system(printf('%s zotero://select/items/bbt:%s &',
+  call wiki#jobs#run(printf('%s zotero://select/items/bbt:%s &',
         \ g:wiki_viewer['_'], self.key))
 endfunction
 
