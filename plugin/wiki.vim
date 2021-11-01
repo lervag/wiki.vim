@@ -10,7 +10,7 @@ let g:wiki_loaded = 1
 " Initialize options
 call wiki#init#option('wiki_cache_persistent', 1)
 call wiki#init#option('wiki_cache_root',
-      \ wiki#u#get_os() ==# 'win'
+      \ wiki#u#is_win()
       \ ? fnamemodify(tempname(), ':h')
       \ : (empty($XDG_CACHE_HOME)
       \    ? $HOME . '/.cache'

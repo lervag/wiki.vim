@@ -72,12 +72,17 @@ function! wiki#u#get_os() abort " {{{1
   if has('win32') || has('win32unix')
     return 'win'
   elseif has('unix')
-    if has('mac') || has('ios') || system('uname') =~# 'Darwin'
+    if has('mac') || wiki#jobs#cached('uname')[0] =~# 'Darwin'
       return 'mac'
     else
       return 'linux'
     endif
   endif
+endfunction
+
+" }}}1
+function! wiki#u#is_win() abort " {{{1
+  return has('win32') || has('win32unix')
 endfunction
 
 " }}}1
