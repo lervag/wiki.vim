@@ -85,35 +85,43 @@ function! wiki#tags#reload() abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#tags#rename(old_tag, new_tag='', rename_to_existing=v:false) abort " {{{1
-  if a:new_tag ==# ''
+function! wiki#tags#rename(old_tag, ...) abort " {{{1
+  let l:new_tag = get(a:000, 0, '')
+  let l:rename_to_existing = get(a:000, 1, v:false)
+
+  if l:new_tag ==# ''
     call wiki#tags#rename_ask(a:old_tag)
   else
-    call s:tags.rename(a:old_tag, a:new_tag, a:rename_to_existing)
+    call s:tags.rename(a:old_tag, l:new_tag, l:rename_to_existing)
   endif
 endfunction
 
 " }}}1
-function! wiki#tags#rename_ask(old_tag='', new_tag='', ...) abort " {{{1
-  let l:old_tag = a:old_tag ==# ''
-        \ ? input('Enter tag to rename (wihtout delimiters): ',
-                  '', 'custom,wiki#tags#get_tag_names')
-        \ : a:old_tag
-  if l:old_tag ==# '' | return | endif
+function! wiki#tags#rename_ask(...) abort " {{{1
+  let l:old_tag = get(a:000, 0, '')
+  let l:new_tag = get(a:000, 1, '')
+
+  " Get old tag name
+  if empty(l:old_tag)
+    let l:old_tag = input(
+          \ 'Enter tag to rename (wihtout delimiters): ',
+          \ '', 'custom,wiki#tags#get_tag_names')
+  endif
+  if empty(l:old_tag) | return | endif
 
   if input('Rename "' . l:old_tag . '"'
-        \ . (a:new_tag ==# '' ? '' : ' to "' . a:new_tag . '"')
+        \ . (empty(l:new_tag) ? '' : ' to "' . l:new_tag . '"')
         \ . ' [y]es/[N]o? ') !~? '^y'
     return
   endif
 
   " Get new tag name
   redraw!
-  if a:new_tag ==# ''
+  if empty(l:new_tag)
     call wiki#log#info('Enter new tag name (without tag delimiters):')
     let l:new_tag = input('> ')
   else
-    let l:new_tag = a:new_tag
+    let l:new_tag = l:new_tag
   endif
 
   call wiki#tags#rename(l:old_tag, l:new_tag)
@@ -380,7 +388,9 @@ function! s:tags.add(tag, ...) abort dict " {{{1
 endfunction
 
 " }}}1
-function! s:tags.rename(old_tag, new_tag, rename_to_existing=v:false) abort dict " {{{1
+function! s:tags.rename(old_tag, new_tag, ...) abort dict " {{{1
+  let l:rename_to_existing = get(a:000, 0, v:false)
+
   redraw!
   if !has_key(self.collection, a:old_tag)
     call wiki#log#info('Old tag name "' . a:old_tag . '" not found in cache; reloading tags.')
@@ -392,7 +402,7 @@ function! s:tags.rename(old_tag, new_tag, rename_to_existing=v:false) abort dict
 
   if has_key(self.collection, a:new_tag)
     call wiki#log#warn('Tag "' . a:new_tag . '" already exists!')
-    if !a:rename_to_existing
+    if !l:rename_to_existing
       if input('Rename anyway? [y]es/[N]o: ', 'N') ==? 'n'
         return
       endif
@@ -523,7 +533,7 @@ function! g:wiki#tags#default_parser.parse(line) dict abort
   return l:tags
 endfunction
 
-function! g:wiki#tags#default_parser.make(taglist, curline='') dict abort
+function! g:wiki#tags#default_parser.make(taglist, ...) dict abort
   return empty(a:taglist) ? '' : join(map(a:taglist, '":" . v:val . ":"'))
 endfunction
 
