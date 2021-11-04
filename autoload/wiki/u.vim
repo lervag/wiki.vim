@@ -69,7 +69,7 @@ endfunction
 
 " }}}1
 function! wiki#u#get_os() abort " {{{1
-  if has('win32') || has('win32unix')
+  if wiki#u#is_win()
     return 'win'
   elseif has('unix')
     if has('mac') || has('ios') || wiki#jobs#cached('uname')[0] =~# 'Darwin'
