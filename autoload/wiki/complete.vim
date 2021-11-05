@@ -29,7 +29,8 @@ function! wiki#complete#link(lead, line, pos) abort " {{{1
   let l:candidates = s:completer_wikilink.complete(l:input)
   call map(l:candidates, 'v:val.word')
   if !s:completer_wikilink.is_anchor
-    return filter(l:candidates, 'stridx(v:val, l:input) == 0')
+    return filter(l:candidates, {_,x -> match(x,
+          \ (g:wiki_completion_case_sensitive ? '\C' : '\c') . l:input) == 0})
   endif
 
   return map(l:candidates, 'l:base . v:val')
@@ -99,10 +100,13 @@ function! s:completer_wikilink.complete_anchor(regex) dict abort " {{{2
   let l:length = strlen(l:base)
 
   let l:anchors = wiki#toc#gather_anchors(l:url)
-  call filter(l:anchors, 'v:val =~# ''^'' . wiki#u#escape(l:base) . ''[^#]*$''')
+  call filter(l:anchors, {_,x -> match(x,
+        \ (g:wiki_completion_case_sensitive ? '\C' : '\c')
+        \ . '^' . wiki#u#escape(l:base) . '[^#]*$') >= 0})
   call map(l:anchors, 'strpart(v:val, l:length)')
   if !empty(a:regex)
-    call filter(l:anchors, 'v:val =~# ''' . a:regex . '''')
+    call filter(l:anchors, {_,x -> match(x,
+        \ (g:wiki_completion_case_sensitive ? '\C' : '\c') . a:regex) >= 0})
   endif
 
   return l:anchors
@@ -122,7 +126,8 @@ function! s:completer_wikilink.complete_page(regex) dict abort " {{{2
         \ empty(b:wiki.link_extension)
         \ ? 'l:pre . fnamemodify(v:val, '':r'')'
         \ : 'l:pre . v:val')
-  call filter(l:cands, 'stridx(v:val, a:regex) >= 0')
+  call filter(l:cands, {_,x -> match(x,
+        \ (g:wiki_completion_case_sensitive ? '\C' : '\c') . a:regex) >= 0})
 
   call sort(l:cands)
 
@@ -207,7 +212,8 @@ endfunction
 
 function! s:completer_tags.complete(regex) dict abort " {{{2
   let l:candidates = keys(wiki#tags#get_all())
-  call filter(l:candidates, {_, x -> stridx(x, a:regex) >= 0})
+  call filter(l:candidates, {_, x -> match(x,
+        \ (g:wiki_completion_case_sensitive ? '\C' : '\c') . a:regex) >= 0})
   return map(sort(l:candidates), {_, x -> {
         \ 'word': x,
         \ 'kind': '[tag]'
