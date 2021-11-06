@@ -340,6 +340,12 @@ OPTIONS                                                   *wiki-config-options*
 
   Default value: 1
 
+*g:wiki_completion_case_sensitive*
+  Specify whether to use case-sensitive matching for omnicompletion of links
+  and tags.
+
+  Default value: 1
+
 *g:wiki_date_exe*
   Specify the executable for `date`, which is used "behind the scenes" to
   manipulate and calculate dates for the journal features.

@@ -15,6 +15,7 @@ call wiki#init#option('wiki_cache_root',
       \ : (empty($XDG_CACHE_HOME)
       \    ? $HOME . '/.cache'
       \    : $XDG_CACHE_HOME) . '/wiki.vim')
+call wiki#init#option('wiki_completion_case_sensitive', 1)
 call wiki#init#option('wiki_export', {
       \ 'args' : '',
       \ 'from_format' : 'markdown',
