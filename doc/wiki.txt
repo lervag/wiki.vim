@@ -426,6 +426,12 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: 1
 
+g:wiki_index_name
+  A string with the index page name for the wiki. The value should not include
+  the file extension.
+
+  Default: 'index'
+
 *g:wiki_journal*
   A dictionary for configuring the journal/diary feature. Available options
   are:
