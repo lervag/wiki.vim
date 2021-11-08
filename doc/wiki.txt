@@ -16,13 +16,13 @@ License: MIT license {{{
   The above copyright notice and this permission notice shall be included in
   all copies or substantial portions of the Software.
 
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-  IN THE SOFTWARE.
+  The software is provided "as is", without warranty of any kind, express or
+  implied, including but not limited to the warranties of merchantability,
+  fitness for a particular purpose and noninfringement.  In no event shall the
+  authors or copyright holders be liable for any claim, damages or other
+  liability, whether in an action of contract, tort or otherwise, arising
+  from, out of or in connection with the software or the use or other dealings
+  in the software.
 
 }}}
 
@@ -75,11 +75,11 @@ well" philosophy.
 The plugin will activate by default for any `.wiki` files, but this may be
 customized with |g:wiki_filetypes| and |g:wiki_global_load|. One may also
 explicitly activate with |WikiEnable|. The wiki root is automatically detected
-as long as there is a top-level `index.wiki` file available. If no such file
-is found, it sets the root to the same directory as the current file. In
-addition, one may specify a main wiki with the |g:wiki_root| option. This
-allows convenient mappings and commands for opening the main wiki from
-anywhere.
+as long as there is a top-level `index.wiki` file available (the index name
+may be changed with |g:wiki_index_name|). If no such file is found, it sets
+the root to the same directory as the current file. In addition, one may
+specify a main wiki with the |g:wiki_root| option. This allows convenient
+mappings and commands for opening the main wiki from anywhere.
 
 Note: |wiki.vim| is `not` a filetype plugin. It is designed so that it may be used
       along with filetype plugins, e.g. for dedicated Markdown plugins. One
@@ -117,8 +117,9 @@ This outlines the basic steps to get started:
 
    let g:wiki_root = '~/wiki'
 
-3. Now you can open the index file (by default `index.wiki`) with `<leader>ww`
-   and start to add your notes as desired.
+3. Now you can open the index file (by default `index.wiki`; see also
+   |g:wiki_index_name|) with `<leader>ww` and start to add your notes as
+   desired.
 
 Note: As one can see from the above, the default extension recognized by
       |wiki.vim| is the `.wiki` extension. If one instead wants to use `.md`
@@ -426,11 +427,11 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: 1
 
-g:wiki_index_name
+*g:wiki_index_name*
   A string with the index page name for the wiki. The value should not include
   the file extension.
 
-  Default: 'index'
+  Default: `'index'`
 
 *g:wiki_journal*
   A dictionary for configuring the journal/diary feature. Available options
@@ -878,7 +879,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *<plug>(wiki-index)*
 *WikiIndex*
   Go to wiki index. When not inside a wiki page, the index is specified by the
-  option |g:wiki_root|.
+  options |g:wiki_root| and |g:wiki_index_name|.
 
 *<plug>(wiki-open)*
 *WikiOpen*

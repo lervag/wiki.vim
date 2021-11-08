@@ -39,7 +39,7 @@ function! wiki#page#rename(newname, ...) abort "{{{1
   redraw!
 
   let l:dir_mode = get(a:, 1, 'abort')
-  if index (['abort', 'ask', 'create'], l:dir_mode) ==? -1
+  if index(['abort', 'ask', 'create'], l:dir_mode) ==? -1
     return wiki#log#error(
           \ 'The second argument to wiki#page#rename must be one of',
           \ '"abort", "ask", or "create"!',
