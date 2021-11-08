@@ -54,7 +54,8 @@ endfunction
 " }}}1
 
 function! wiki#goto_index() abort " {{{1
-  call wiki#url#parse('wiki:/index').follow()
+  let l:index_url = printf('wiki:/%s', g:wiki_index_name)
+  call wiki#url#parse(l:index_url).follow()
 endfunction
 
 " }}}1
