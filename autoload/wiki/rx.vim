@@ -31,10 +31,6 @@ let wiki#rx#bold = wiki#rx#surrounded(
       \ '[^*`[:space:]]\%([^*`]*[^*`[:space:]]\)\?', '*')
 let wiki#rx#italic = wiki#rx#surrounded(
       \ '[^_`[:space:]]\%([^_`]*[^_`[:space:]]\)\?', '_')
-let wiki#rx#bolditalic = wiki#rx#surrounded(
-      \ '[^*_`[:space:]]\%([^*_`]*[^*_`[:space:]]\)\?', '*_')
-let wiki#rx#italicbold = wiki#rx#surrounded(
-      \ '[^_*`[:space:]]\%([^_*`]*[^_*`[:space:]]\)\?', '_*')
 let wiki#rx#date = '\d\d\d\d-\d\d-\d\d'
 let wiki#rx#url = '\<\l\+:\%(\/\/\)\?[^ \t()\[\]|]\+'
 let wiki#rx#reftext = '[^\\\[\]]\{-}'
