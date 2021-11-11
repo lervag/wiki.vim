@@ -5,13 +5,11 @@
 "
 
 function! wiki#rx#surrounded(word, chars) abort " {{{1
-  return '\%(^\|\s\|[[:punct:]]\)\@<='
-        \ . '\zs'
+  return '\%(^\|\s\|[[:punct:]]\)\zs'
         \ . escape(a:chars, '*')
         \ . a:word
         \ . escape(join(reverse(split(a:chars, '\zs')), ''), '*')
-        \ . '\ze'
-        \ . '\%([[:punct:]]\|\s\|$\)\@='
+        \ . '\ze\%([[:punct:]]\|\s\|$\)'
 endfunction
 
 " }}}1
