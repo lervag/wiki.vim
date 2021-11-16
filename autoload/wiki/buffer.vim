@@ -46,6 +46,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiLinkExtractHeader  call wiki#link#set_text_from_header()
   command! -buffer WikiLinkFollow         call wiki#link#follow()
   command! -buffer WikiLinkFollowSplit    call wiki#link#follow('vsplit')
+  command! -buffer WikiLinkFollowTab      call wiki#link#follow('tabe')
   command! -buffer WikiLinkPrev           call wiki#nav#prev_link()
   command! -buffer WikiLinkReturn         call wiki#nav#return()
   command! -buffer WikiLinkToggle         call wiki#link#toggle_current()
