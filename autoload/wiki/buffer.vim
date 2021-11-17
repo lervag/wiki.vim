@@ -86,6 +86,7 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-link-extract-header)  :WikiLinkExtractHeader<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-follow)          :WikiLinkFollow<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-follow-split)    :WikiLinkFollowSplit<cr>
+  nnoremap <silent><buffer> <plug>(wiki-link-follow-tab)      :WikiLinkFollowTab<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-prev)            :WikiLinkPrev<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-return)          :WikiLinkReturn<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-toggle)          :WikiLinkToggle<cr>
@@ -137,6 +138,7 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-link-extract-header)': '<leader>wlh',
           \ '<plug>(wiki-link-follow)': '<cr>',
           \ '<plug>(wiki-link-follow-split)': '<c-w><cr>',
+          \ '<plug>(wiki-link-follow-tab)': '<c-w>u',
           \ '<plug>(wiki-link-return)': '<bs>',
           \ '<plug>(wiki-link-toggle)': '<leader>wf',
           \ '<plug>(wiki-link-toggle-operator)': 'gl',
