@@ -943,6 +943,10 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *WikiLinkFollowSplit*
   Similar to |WikiLinkfollow|, except wiki links are followed in a |vsplit|.
 
+*<plug>(wiki-link-follow-tab)*
+*WikiLinkFollowTab*
+  Similar to |WikiLinkfollow|, except wiki links are followed in a |tabedit|.
+
 *<plug>(wiki-link-return)*
 *WikiLinkReturn*
   Go back to previous page, i.e. undo the last follow operation.
@@ -1183,6 +1187,7 @@ information about the different modes.
   `n`     <tab>               |<plug>(wiki-link-next)|
   `n`     <cr>                |<plug>(wiki-link-follow)|
   `n`     <c-w><cr>           |<plug>(wiki-link-follow-split)|
+  `n`     <c-w>u              |<plug>(wiki-link-follow-tab)|
   `n`     <s-tab>             |<plug>(wiki-link-prev)|
   `n`     <bs>                |<plug>(wiki-link-return)|
   `n`     gl                  |<plug>(wiki-link-toggle-operator)|

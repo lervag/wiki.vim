@@ -46,6 +46,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiLinkExtractHeader  call wiki#link#set_text_from_header()
   command! -buffer WikiLinkFollow         call wiki#link#follow()
   command! -buffer WikiLinkFollowSplit    call wiki#link#follow('vsplit')
+  command! -buffer WikiLinkFollowTab      call wiki#link#follow('tabe')
   command! -buffer WikiLinkPrev           call wiki#nav#prev_link()
   command! -buffer WikiLinkReturn         call wiki#nav#return()
   command! -buffer WikiLinkToggle         call wiki#link#toggle_current()
@@ -85,6 +86,7 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-link-extract-header)  :WikiLinkExtractHeader<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-follow)          :WikiLinkFollow<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-follow-split)    :WikiLinkFollowSplit<cr>
+  nnoremap <silent><buffer> <plug>(wiki-link-follow-tab)      :WikiLinkFollowTab<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-prev)            :WikiLinkPrev<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-return)          :WikiLinkReturn<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-toggle)          :WikiLinkToggle<cr>
@@ -136,6 +138,7 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-link-extract-header)': '<leader>wlh',
           \ '<plug>(wiki-link-follow)': '<cr>',
           \ '<plug>(wiki-link-follow-split)': '<c-w><cr>',
+          \ '<plug>(wiki-link-follow-tab)': '<c-w>u',
           \ '<plug>(wiki-link-return)': '<bs>',
           \ '<plug>(wiki-link-toggle)': '<leader>wf',
           \ '<plug>(wiki-link-toggle-operator)': 'gl',
