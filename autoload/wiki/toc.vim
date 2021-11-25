@@ -21,17 +21,6 @@ function! wiki#toc#create(local) abort " {{{1
     let l:lnum_top = 1
     let l:lnum_bottom = get(get(l:entries, 1, {}), 'lnum', line('$'))
     let l:print_depth = get(g:, 'wiki_toc_depth', 6)
-
-    " Remove first entry if it is "trivial"
-    let l:count = -1
-    let l:lnum = line('.')
-    for l:e in l:entries
-      let l:count += 1
-      if (l:e.level == 1 && l:e.lnum > l:lnum) || l:count > 1 | break | endif
-    endfor
-    if l:count == 1
-      let l:entries = l:entries[1:]
-    endif
   endif
 
   " Only print entries to the desired depth
@@ -67,6 +56,18 @@ function! wiki#toc#create(local) abort " {{{1
       break
     endif
   endfor
+
+  " Remove the first entry if it is "trivial"
+  if !a:local
+    let l:count = -1
+    for l:e in l:entries
+      let l:count += 1
+      if (l:e.level == 1 && l:e.lnum > l:start) || l:count > 1 | break | endif
+    endfor
+    if l:count == 1
+      let l:entries = l:entries[1:]
+    endif
+  endif
 
   " Add updated TOC
   call append(l:start - 1, l:title)
