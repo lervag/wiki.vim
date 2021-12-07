@@ -454,17 +454,22 @@ OPTIONS                                                   *wiki-config-options*
         %V  ISO week number with Monday as first day of week
         %U  week number with Sunday as first day of week
 
+    index_use_journal_scheme~
+      Whether to use the `journal:` scheme when creating journal index with
+      |WikiJournalIndex|.
+
   Default: >
 
     let g:wiki_journal = {
-        \ 'name': 'journal',
-        \ 'frequency': 'daily',
-        \ 'date_format': {
-        \   'daily' : '%Y-%m-%d',
-        \   'weekly' : '%Y_w%V',
-        \   'monthly' : '%Y_m%m',
-        \ },
-        \}
+          \ 'name': 'journal',
+          \ 'frequency': 'daily',
+          \ 'date_format': {
+          \   'daily' : '%Y-%m-%d',
+          \   'weekly' : '%Y_w%V',
+          \   'monthly' : '%Y_m%m',
+          \ },
+          \ 'index_use_journal_scheme': v:true,
+          \}
 
 *g:wiki_link_extension*
   Specify the extension that should be applied to wiki links. This should be

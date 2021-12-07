@@ -78,6 +78,11 @@ function! wiki#journal#make_index() " {{{1
     endif
   endfor
 
+  " Specify the link prefix
+  let l:prefix = g:wiki_journal.index_use_journal_scheme
+        \ ? 'journal:'
+        \ : '/' . g:wiki_journal.name . '/'
+
   for year in sort(keys(sorted_entries))
     let l:month_dict = sorted_entries[year]
     put ='# ' . year
@@ -88,7 +93,7 @@ function! wiki#journal#make_index() " {{{1
       put ='## ' . mname
       put =''
       for entry in entries
-        put =wiki#link#template('journal:' . entry, entry)
+        put =wiki#link#template(l:prefix . entry, entry)
       endfor
       put =''
     endfor
