@@ -87,7 +87,8 @@ function! wiki#journal#make_index() " {{{1
     let l:month_dict = sorted_entries[year]
     put ='# ' . year
     put =''
-    for [month, entries] in items(month_dict)
+    for month in sort(keys(month_dict))
+      let entries = month_dict[month]
       let l:mname = wiki#date#get_month_name(month)
       let l:mname = toupper(strcharpart(mname, 0, 1)) . strcharpart(mname, 1)
       put ='## ' . mname
