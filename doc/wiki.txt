@@ -165,14 +165,6 @@ FEATURES                                                  *wiki-intro-features*
 ------------------------------------------------------------------------------
 GUIDE                                                        *wiki-intro-guide*
 
-Executive summary~
-* Speed is key - make sure you have a fast workflow.
-  * Use a global keyboard shortcut to open the wiki index, e.g. <alt-n>.
-  * Use |:WikiFzfPages| and `ripgrep` (with e.g. ctrlsf.vim) for searching.
-* Write short pages and use links between related pages.
-* Don't obsess about the wiki structure.
-
-
 The following guide is more or less an essay on how I personally use
 `wiki.vim` for structuring and writing my notes. I take the liberty of writing
 in the first tense, as this is clearly a subjective matter. An initial version
@@ -184,6 +176,13 @@ most important concept in a single sentence (by @mgoral [1]):
 > I think that the most important thing is to not overthink things and just
 > keep writing stuff down.
 
+Executive summary~
+* Speed is key - make sure you have a fast workflow.
+  * Use a global keyboard shortcut (e.g. <alt-n>) to open Vim with the wiki
+    index.
+  * Use |:WikiFzfPages| and `ripgrep` (with e.g. ctrlsf.vim) for searching.
+* Write short pages and use links between related pages.
+* Don't obsess about the wiki structure.
 
 People write things down. Take notes. Why? Because people, or at least most of
 us, don't remember things for too long. From my point of view, taking notes
@@ -238,14 +237,18 @@ things. I sometimes find the graph features useful, e.g. |wiki-graph-in|, but
 I don't use them much.
 
 However, sometimes I write down stuff that I don't know where to put. This is
-where I use my `index.wiki`. I have a global keyboard shortcut on all my
-computers to open Vim with the index (<alt-n>). Here I either add this loose
-content, or I make a link to some new scratch buffer with the new content.
-With time, I work through this index (often slowly) and move content into more
-dedicated pages. For this workflow to work well, it is crucial that my
-index.wiki is extremely accessible. That is, it takes less than a second from
-the moment I have a thought until I can add it to my `index.wiki` for later
-processing. This is what makes it important.
+where I use my `index.wiki`. That is, I either add loose content to the index,
+or I make a link to some new scratch buffer with the new content. With time,
+I work through this index (often slowly) and move content into more dedicated
+pages. For this workflow to work well, it is crucial that my `index.wiki` is
+extremely accessible. I therefore have a global keyboard shortcut on all my
+computers to open Vim with the index. Specifically, I map <alt-n> to the
+shell command `urxvt -e nvim +WikiIndex`, where `urxvt` is a well known
+terminal. This way, it takes less than a second from the moment I have
+a thought until I can start to add it to my `index.wiki` for later processing.
+The speed allows me to write down a thought immediately and then continue with
+the current work without being severely disrupted - this is what makes the
+concept so important.
 
 Although I do add a lot of text to my wiki, I've also realized that I should
 not add all data there. For instance, I've come to use Zotero [5] for managing
