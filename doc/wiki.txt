@@ -172,6 +172,7 @@ Executive summary~
 * Write short pages and use links between related pages.
 * Don't obsess about the wiki structure.
 
+
 The following guide is more or less an essay on how I personally use
 `wiki.vim` for structuring and writing my notes. I take the liberty of writing
 in the first tense, as this is clearly a subjective matter. An initial version
@@ -182,6 +183,7 @@ most important concept in a single sentence (by @mgoral [1]):
 
 > I think that the most important thing is to not overthink things and just
 > keep writing stuff down.
+
 
 People write things down. Take notes. Why? Because people, or at least most of
 us, don't remember things for too long. From my point of view, taking notes
