@@ -176,8 +176,8 @@ Executive summary~
 The following guide is more or less an essay on how I personally use
 `wiki.vim` for structuring and writing my notes. I take the liberty of writing
 in the first tense, as this is clearly a subjective matter. An initial version
-of was posted as a comment in an issue thread [0] (note: the links are listed
-at the bottom). I recommend anyone interested to read the entire thread
+of this was posted as a comment in an issue thread [0] (note: the links are
+listed at the bottom). I recommend anyone interested to read the entire thread
 (although it is quite long!). But first, a quote that I think captures the
 most important concept in a single sentence (by @mgoral [1]):
 
@@ -188,8 +188,7 @@ most important concept in a single sentence (by @mgoral [1]):
 People write things down. Take notes. Why? Because people, or at least most of
 us, don't remember things for too long. From my point of view, taking notes
 is a way to extend my memory. And writing the notes is itself a useful
-process, because it often helps both to learn and to remember things in
-itself.
+process, because it often helps both to learn and to remember things.
 
 I find the idea of keeping my notes linked and easily searchable in pure text
 to be extremely potent. With wiki.vim, I can very quickly locate relevant
@@ -203,13 +202,13 @@ So, some context: My personal wiki consists per 2021-08-29 of 1714 pages with
 a total of 71474 lines, excluding my journal. I first started taking notes in
 2007, so this is perhaps 14 years worth of writing. I use Syncthing [2] to
 keep my notes synchronized across my computers, phones, tablets. I've
-previously also used Dropbox, and I think
+previously also used Dropbox.
 
 With a lot of content, it is important to be able to find things fast. I use
 |:WikiFzfPages| to find a specific page, and it usually takes just a couple of
-seconds from I think of something until I have opened the relevant note. A key
-here is to use simple names for the pages. I prefer several short pages
-instead of one long, if possible.
+seconds from the moment I think of something until I have opened the relevant
+note. A key here is to use simple names for the pages. I prefer several short
+pages instead of one long, if possible.
 
 Sometimes I search for things within pages. For this, I rely on `ripgrep` [3].
 I use `ctrlsf.vim` [4] (which uses `ripgrep` as a backend). This makes it easy
@@ -222,7 +221,7 @@ and/or ":CtrlSF", and it typically goes very fast (both of the commands are
 properly mapped).
 
 How do I write my notes? I make sure to write down what I feel like at the
-moment. I then clean it up and rince/repeat as something is developing. I add
+moment. I then clean it up and rinse/repeat as something is developing. I add
 links to relevant external and internal pages/resources. I often add examples,
 for instance tools I discover or libraries I learn about.
 
@@ -245,8 +244,8 @@ content, or I make a link to some new scratch buffer with the new content.
 With time, I work through this index (often slowly) and move content into more
 dedicated pages. For this workflow to work well, it is crucial that my
 index.wiki is extremely accessible. That is, it takes less than a second from
-I have a thought until I can add it to my `index.wiki` for later processing.
-This is what makes it important.
+the moment I have a thought until I can add it to my `index.wiki` for later
+processing. This is what makes it important.
 
 Although I do add a lot of text to my wiki, I've also realized that I should
 not add all data there. For instance, I've come to use Zotero [5] for managing
@@ -273,7 +272,7 @@ everyone else.
 ------------------------------------------------------------------------------
 ALTERNATIVES                                          *wiki-intro-alternatives*
 
-There exists a lot of alternatives to `wiki.vim`. Within the Vim ecosystem,
+There exist a lot of alternatives to `wiki.vim`. Within the Vim ecosystem,
 the main alternative is vimwiki. But there are also a lot of other
 alternatives. The following list is probably not very comprehensive. It may be
 useful if only as an inspiration to read about alternative approaches. The
@@ -322,7 +321,7 @@ top of a local folder of plain text Markdown files.
 ==============================================================================
 CONFIGURATION                                                     *wiki-config*
 
-The following subsections presents a list of available options and events that
+The following subsections present a list of available options and events that
 can be used to customize the behaviour of wiki.vim.
 
 ------------------------------------------------------------------------------
@@ -598,7 +597,7 @@ OPTIONS                                                   *wiki-config-options*
 <
   This example maps `,wx` to |<plug>(wiki-reload)|. The other maps are kept at
   their default (unless |g:wiki_mappings_use_default| specifies otherwise).
-  Some mappings are defined in other mod s than normal mode. In this
+  Some mappings are defined in other modes than normal mode. In this
   case, one can use the following syntax: >
 
     let g:wiki_mappings_local = {
@@ -1454,7 +1453,7 @@ Wiki pages may be tagged with keywords for organization. It is relatively easy
 to define and specify custom tag parsers with |g:wiki_tag_parsers|. wiki.vim
 ships a default parser that is automatically used, see |wiki-tags-default|.
 
-The number of lines in which tags are recognized can be costumized by modifying
+The number of lines in which tags are recognized can be customized by modifying
 the |g:wiki_tag_scan_num_lines| variable.
 
 Related commands:
@@ -1550,7 +1549,7 @@ is a dictionary with the following values:
   `date`         ISO date                 2021-07-01
   `time`         Time (24h format)        19:30
 
-The origin link is a a dictionary that represents the link that was followed
+The origin link is a dictionary that represents the link that was followed
 to create the page. One may expect it to have one or more of the following
 keys:
 
