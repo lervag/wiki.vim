@@ -320,7 +320,7 @@ top of a local folder of plain text Markdown files.
 CONFIGURATION                                                     *wiki-config*
 
 The following subsections present a list of available options and events that
-can be used to customize the behavior of wiki.vim.
+can be used to customize the behaviour of wiki.vim.
 
 ------------------------------------------------------------------------------
 OPTIONS                                                   *wiki-config-options*
