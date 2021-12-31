@@ -167,8 +167,7 @@ GUIDE                                                        *wiki-intro-guide*
 
 Executive summary~
 * Speed is key - make sure you have a fast workflow.
-  * Use a global keyboard shortcut to map |:WikiIndex| to open the wiki index,
-    e.g. <alt-n>.
+  * Use a global keyboard shortcut to open the wiki index, e.g. <alt-n>.
   * Use |:WikiFzfPages| and `ripgrep` (with e.g. ctrlsf.vim) for searching.
 * Write short pages and use links between related pages.
 * Don't obsess about the wiki structure.
