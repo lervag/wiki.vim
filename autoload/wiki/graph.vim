@@ -5,6 +5,11 @@
 "
 
 function! wiki#graph#find_backlinks() abort "{{{1
+  if !filereadable(expand('%:p'))
+    call wiki#log#info("Can't get backlinks to unsaved file!")
+    return
+  endif
+
   if !has_key(b:wiki, 'graph')
     let b:wiki.graph = s:graph.init()
   endif
@@ -18,8 +23,9 @@ function! wiki#graph#find_backlinks() abort "{{{1
   endfor
 
   if empty(l:results)
-    call wiki#log#info('wiki: No other file links to this file')
+    call wiki#log#info('No other file links to this file')
   else
+    redraw
     call setloclist(0, l:results, 'r')
     lopen
   endif
