@@ -250,8 +250,9 @@ The speed allows me to write down a thought immediately and then continue with
 the current work without being severely disrupted - this is what makes the
 concept so important.
 
-Similarly, you could do the same thing with today's journal page with
-`urxvt -e nvim +WikiJournal`
+I also create a global shortcut <alt-j> mapped to `urxvt -e nvim +WikiJournal`
+to open today's journal page. This is also very useful, especially if one
+keeps a daily journal - as I do.
 
 Although I do add a lot of text to my wiki, I've also realized that I should
 not add all data there. For instance, I've come to use Zotero [5] for managing
