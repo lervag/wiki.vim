@@ -250,6 +250,9 @@ The speed allows me to write down a thought immediately and then continue with
 the current work without being severely disrupted - this is what makes the
 concept so important.
 
+Similarly, you could do the same thing with today's journal page with
+`urxvt -e nvim +WikiJournal`
+
 Although I do add a lot of text to my wiki, I've also realized that I should
 not add all data there. For instance, I've come to use Zotero [5] for managing
 my literature database. This is also why there is now some support for Zotero
