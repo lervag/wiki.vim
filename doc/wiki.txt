@@ -1518,7 +1518,7 @@ and `make`. E.g., to instead recognize hashed tags like `#tag1` and
   let s:tag_parser = deepcopy(g:wiki#tags#default_parser)
   let s:tag_parser.re_match = '\v%(^|\s)#\zs[^# ]+'
   let s:tag_parser.re_findstart = '\v%(^|\s)#\zs[^# ]+'
-  let s:tag_parser.make = {t, l -> empty(t) ? '' : join(map(t, '"#" . v:val))}
+  let s:tag_parser.make = {t, l -> empty(t) ? '' : join(map(t, '"#" . v:val'))}
 
   let g:wiki_tag_parsers = [s:tag_parser]
 
