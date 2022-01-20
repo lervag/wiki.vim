@@ -15,15 +15,6 @@ let s:link = wiki#link#get_at_pos(6, 1)
 call assert_equal('url', s:link.type)
 call assert_equal('https', s:link.scheme)
 
-let s:link = wiki#link#get_at_pos(9, 3)
-call assert_equal('ref', s:link.type)
-
-let s:link = wiki#link#get_at_pos(12, 3)
-call assert_equal('ref', s:link.type)
-
-let s:link = wiki#link#get_at_pos(12, 39)
-call assert_equal('ref', s:link.type)
-
 for s:lnum in range(16, 19)
   let s:link = wiki#link#get_at_pos(s:lnum, 3)
   call assert_equal({}, s:link)

@@ -30,7 +30,10 @@ let wiki#rx#bold = wiki#rx#surrounded(
 let wiki#rx#italic = wiki#rx#surrounded(
       \ '[^_`[:space:]]\%([^_`]*[^_`[:space:]]\)\?', '_')
 let wiki#rx#date = '\d\d\d\d-\d\d-\d\d'
-let wiki#rx#url = '\<\l\+:\%(\/\/\)\?[^ \t()\[\]|]\+'
+let wiki#rx#url =
+      \ '\%(\<\l\+:\%(\/\/\)\?[^ \t()\[\]|]\+'
+      \ . '\|'
+      \ . '<\zs\l\+:\%(\/\/\)\?[^>]\+\ze>\)'
 let wiki#rx#reftext = '[^\\\[\]]\{-}'
 let wiki#rx#reftarget = '\%(\d\+\|\a[-_. [:alnum:]]\+\|\^\w\+\)'
 let wiki#rx#link_adoc_link = '\<link:\%(\[[^]]\+\]\|[^[]\+\)\[[^]]*\]'

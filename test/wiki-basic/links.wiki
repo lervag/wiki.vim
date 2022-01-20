@@ -27,5 +27,7 @@ A ![link to a figure](figs/test.png) here.
 [1]: URL 2
 [2]: URL 3
 [^3]: URL 4
-[Interesting]: URL 5
-[Look at this]: URL 6
+[Interesting]: wiki:index
+[Look at this]: <wiki:file with spaces>
+
+Another URL: <wiki:file with spaces>
