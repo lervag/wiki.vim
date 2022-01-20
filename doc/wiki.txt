@@ -1249,10 +1249,13 @@ LINK URLS                                                      *wiki-link-url*
 An URL, which is short for Uniform Resource Locator, has the general format
 
   `[scheme:]address`
+  `<scheme:address with spaces>`
 
 The `scheme` specifies which kind of link it is. When the URL is typed
 directly and with a proper scheme, it will typically be possible to follow the
-link directly without putting it inside a fuller link type.
+link directly without putting it inside a fuller link type. The scheme is
+required in general. However, for some type of links, the scheme may be
+implied by the linke type.
 
 When the scheme is not specified for URLs inside one of the other link types,
 then the `wiki` scheme is generally assumed (unless otherwise stated).
@@ -1350,19 +1353,19 @@ One may toggle between markdown style links and wiki style links with the
 REFERENCE LINKS                                           *wiki-link-reference*
 
 Reference style links are slightly different.  They consist of up to three
-parts: An optional `description`, a `target` and a `link.`  The syntax is best
-explained through an example: >
+parts: An optional `description`, a `label` and a `link definition.`  The
+syntax is best explained through an example: >
 
   The most simple form, and perhaps the most useful one, is to add a simple
   reference like this [1].
 
-  One may also add a [description][target].
+  One may also add a [description][label].
 
   The target may consist of both words and numbers, e.g. [like this][Ref 3].
 
-  [1]: URL 1
-  [Target]: URL 2
-  [Ref 3]: URL 3
+  [1]: <URL 1>
+  [label]: <URL 2>
+  [Ref 3]: <URL 3>
 
 Reference style links may be followed with `<cr>` both on the reference
 location and on the link line.

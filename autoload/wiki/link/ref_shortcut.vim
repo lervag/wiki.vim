@@ -4,7 +4,7 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#link#ref_single#matcher() abort " {{{1
+function! wiki#link#ref_shortcut#matcher() abort " {{{1
   return extend(
         \ wiki#link#_template#matcher(),
         \ deepcopy(s:matcher))
@@ -14,9 +14,9 @@ endfunction
 
 
 let s:matcher = {
-      \ 'type': 'ref',
-      \ 'rx': wiki#rx#link_ref_single,
-      \ 'rx_target': '\[\zs' . wiki#rx#reftarget . '\ze\]',
+      \ 'type': 'ref_shortcut',
+      \ 'rx': wiki#rx#link_ref_shortcut,
+      \ 'rx_target': '\[\zs' . wiki#rx#reflabel . '\ze\]',
       \}
 
 function! s:matcher.parse_url() dict abort " {{{1

@@ -35,20 +35,21 @@ let wiki#rx#url =
       \ . '\|'
       \ . '<\zs\l\+:\%(\/\/\)\?[^>]\+\ze>\)'
 let wiki#rx#reftext = '[^\\\[\]]\{-}'
-let wiki#rx#reftarget = '\%(\d\+\|\a[-_. [:alnum:]]\+\|\^\w\+\)'
+let wiki#rx#reflabel = '\%(\d\+\|\a[-_. [:alnum:]]\+\|\^\w\+\)'
 let wiki#rx#link_adoc_link = '\<link:\%(\[[^]]\+\]\|[^[]\+\)\[[^]]*\]'
 let wiki#rx#link_adoc_xref_bracket = '<<[^>]\+>>'
 let wiki#rx#link_adoc_xref_inline = '\<xref:\%(\[[^]]\+\]\|[^[]\+\)\[[^]]*\]'
 let wiki#rx#link_md = '\[[^\\\[\]]\{-}\]([^\\]\{-})'
 let wiki#rx#link_md_fig = '!' . wiki#rx#link_md
-let wiki#rx#link_ref_single = '[\]\[]\@<!\[' . wiki#rx#reftarget . '\][\]\[]\@!'
-let wiki#rx#link_ref_double =
+let wiki#rx#link_ref_shortcut = '[\]\[]\@<!\[' . wiki#rx#reflabel . '\][\]\[]\@!'
+let wiki#rx#link_ref_collapsed = '[\]\[]\@<!\[' . wiki#rx#reflabel . '\]\[\][\]\[]\@!'
+let wiki#rx#link_ref_full =
       \ '[\]\[]\@<!'
       \ . '\[' . wiki#rx#reftext   . '\]'
-      \ . '\[' . wiki#rx#reftarget . '\]'
+      \ . '\[' . wiki#rx#reflabel . '\]'
       \ . '[\]\[]\@!'
-let wiki#rx#link_ref_target =
-      \ '^\s*\[' . wiki#rx#reftarget . '\]:\s\+' . wiki#rx#url
+let wiki#rx#link_ref_definition =
+      \ '^\s*\[' . wiki#rx#reflabel . '\]:\s\+' . wiki#rx#url
 let wiki#rx#link_shortcite = '\%(\s\|^\|\[\)\zs@[-_a-zA-Z0-9]\+\>'
 let wiki#rx#link_wiki = '\[\[\/\?[^\\\]]\{-}\%(|[^\\\]]\{-}\)\?\]\]'
 let wiki#rx#link = join([
@@ -57,9 +58,9 @@ let wiki#rx#link = join([
       \ wiki#rx#link_adoc_xref_bracket,
       \ wiki#rx#link_adoc_xref_inline,
       \ '!\?' . wiki#rx#link_md,
-      \ wiki#rx#link_ref_target,
-      \ wiki#rx#link_ref_single,
-      \ wiki#rx#link_ref_double,
+      \ wiki#rx#link_ref_definition,
+      \ wiki#rx#link_ref_shortcut,
+      \ wiki#rx#link_ref_full,
       \ wiki#rx#url,
       \ wiki#rx#link_shortcite,
       \], '\|')
