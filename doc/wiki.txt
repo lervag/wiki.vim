@@ -594,7 +594,7 @@ OPTIONS                                                   *wiki-config-options*
 
 *g:wiki_mappings_global*
 *g:wiki_mappings_local*
-*g:wiki_mappings_journal_local*
+*g:wiki_mappings_local_journal*
   These options allow one to customize global and buffer local mappings
   through dictionaries where the keys are the right-hand sides and the values
   are the desired mappings, e.g.: >
@@ -618,7 +618,7 @@ OPTIONS                                                   *wiki-config-options*
   |wiki-mappings|.
 
   For any local mappings that should only be applied in journal entries,
-  consider setting |g:wiki_mappings_journal_local|.
+  consider setting |g:wiki_mappings_local_journal|.
 
   Default: Undefined
 
