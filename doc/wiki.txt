@@ -594,6 +594,7 @@ OPTIONS                                                   *wiki-config-options*
 
 *g:wiki_mappings_global*
 *g:wiki_mappings_local*
+*g:wiki_mappings_local_journal*
   These options allow one to customize global and buffer local mappings
   through dictionaries where the keys are the right-hand sides and the values
   are the desired mappings, e.g.: >
@@ -604,6 +605,8 @@ OPTIONS                                                   *wiki-config-options*
 <
   This example maps `,wx` to |<plug>(wiki-reload)|. The other maps are kept at
   their default (unless |g:wiki_mappings_use_default| specifies otherwise).
+  All default mappings are listed in |wiki-mappings-default|.
+
   Some mappings are defined in other modes than normal mode. In this
   case, one can use the following syntax: >
 
@@ -615,6 +618,18 @@ OPTIONS                                                   *wiki-config-options*
   Here `<c-p>` is mapped to |<plug>(wiki-export)| in normal mode and
   visual mode, respectively. The available `<plug>` mappings are listed in
   |wiki-mappings|.
+
+  For any local mappings that should only be applied in journal entries,
+  consider setting |g:wiki_mappings_local_journal|. For example, similar to
+  above: >
+
+    let g:wiki_mappings_local_journal = {
+          \ '<plug>(wiki-journal-prev)' : '[w',
+          \ '<plug>(wiki-journal-next)' : ']w',
+          \}
+<
+  Here we create a pair of mappings `[w` and `]w` to navigate between journal
+  entries.
 
   Default: Undefined
 
@@ -1171,7 +1186,9 @@ This is a list of default mappings. For a more detailed description of each
 mapping, read the documentation of the `<plug>(wiki-[name])` form of the
 mapping. The mode specifier is a single letter which indicates which mode the
 mapping is valid in. See e.g. |nmap|, |imap|, |omap| or |xmap| for more
-information about the different modes.
+information about the different modes. The lines annotated with `[GLOBAL]`
+specify global mappings available anywhere, and the liens annotated
+`[JOURNAL]` are only available within the journal.
 
   MODE  LHS                 RHS~
   ====  ===                 ===
@@ -1207,6 +1224,11 @@ information about the different modes.
   `ox`    iu                  |<plug>(wiki-iu)|
   `ox`    at                  |<plug>(wiki-at)|
   `ox`    it                  |<plug>(wiki-it)|
+  `n`     <c-n>               |<plug>(wiki-journal-prev)|          [JOURNAL]
+  `n`     <c-p>               |<plug>(wiki-journal-next)|          [JOURNAL]
+  `n`     <leader><c-n>       |<plug>(wiki-journal-copy-tonext)|   [JOURNAL]
+  `n`     <leader>wu          |<plug>(wiki-journal-toweek)|        [JOURNAL]
+  `n`     <leader>wm          |<plug>(wiki-journal-tomonth)|       [JOURNAL]
 
 ==============================================================================
 LINKS                                                               *wiki-link*

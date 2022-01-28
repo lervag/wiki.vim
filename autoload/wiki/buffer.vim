@@ -175,6 +175,9 @@ function! s:init_buffer_mappings() abort " {{{1
   endif
 
   call extend(l:mappings, get(g:, 'wiki_mappings_local', {}))
+  if b:wiki.in_journal
+    call extend(l:mappings, get(g:, 'wiki_mappings_local_journal', {}))
+  endif
 
   call wiki#init#apply_mappings_from_dict(l:mappings, '<buffer>')
 endfunction
