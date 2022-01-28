@@ -594,6 +594,7 @@ OPTIONS                                                   *wiki-config-options*
 
 *g:wiki_mappings_global*
 *g:wiki_mappings_local*
+*g:wiki_mappings_journal_local*
   These options allow one to customize global and buffer local mappings
   through dictionaries where the keys are the right-hand sides and the values
   are the desired mappings, e.g.: >
@@ -615,6 +616,9 @@ OPTIONS                                                   *wiki-config-options*
   Here `<c-p>` is mapped to |<plug>(wiki-export)| in normal mode and
   visual mode, respectively. The available `<plug>` mappings are listed in
   |wiki-mappings|.
+
+  For any local mappings that should only be applied in journal entries,
+  consider setting |g:wiki_mappings_journal_local|.
 
   Default: Undefined
 
