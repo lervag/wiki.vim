@@ -23,6 +23,12 @@ endfunction
 
 " }}}1
 
+function! wiki#paths#join(root, tail) abort " {{{1
+  return wiki#paths#s(a:root . '/' . a:tail)
+endfunction
+
+" }}}1
+
 function! wiki#paths#s(path) abort " {{{1
   " Handle shellescape issues and simplify path
   let l:path = exists('+shellslash') && !&shellslash

@@ -10,6 +10,16 @@ endfunction
 
 " }}}1
 
+function! wiki#cache#path(name) abort " {{{1
+  if !isdirectory(g:wiki_cache_root)
+    call mkdir(g:wiki_cache_root, 'p')
+  endif
+
+  return wiki#paths#join(g:wiki_cache_root, a:name)
+endfunction
+
+" }}}1
+
 function! wiki#cache#open(name, ...) abort " {{{1
   let l:opts = a:0 > 0 ? a:1 : {}
   let l:name = get(l:opts, 'local') ? s:local_name(a:name) : a:name
@@ -64,8 +74,7 @@ function! wiki#cache#clear(name) abort " {{{1
   if empty(a:name) | return | endif
 
   if a:name ==# 'ALL'
-    let l:caches = globpath(s:root(),
-          \ (a:name ==# 'ALL' ? '' : a:name) . '*.json', 0, 1)
+    let l:caches = globpath(g:wiki_cache_root, '*.json', 0, 1)
     for l:file in map(l:caches, {_, x -> fnamemodify(x, ':t:r')})
       let l:cache = wiki#cache#open(l:file)
       call l:cache.clear()
@@ -109,14 +118,8 @@ function! s:cache.init(name, opts) dict abort " {{{1
   let new = deepcopy(self)
   unlet new.init
 
-  if !isdirectory(g:wiki_cache_root)
-    call mkdir(g:wiki_cache_root, 'p')
-  endif
-
-  let l:slash = exists('+shellslash') && !&shellslash ? '\' : '/'
-
   let new.name = a:name
-  let new.path = g:wiki_cache_root . l:slash . a:name . '.json'
+  let new.path = wiki#cache#path(a:name . '.json')
   let new.local = get(a:opts, 'local')
   let new.persistent = get(a:opts, 'persistent', g:wiki_cache_persistent)
 
@@ -183,14 +186,10 @@ function! s:cache.write() dict abort " {{{1
     return
   endif
 
-  if !self.modified | return | endif
-
-  if localtime() <= self.ftime + 299
-    " Too short since last write
-    return
-  endif
-
   call self.read()
+
+  if !self.modified || empty(self.data) | return | endif
+
   call writefile([json_encode(self.data)], self.path)
   let self.ftime = getftime(self.path)
   let self.modified = 0
@@ -199,19 +198,23 @@ endfunction
 " }}}1
 function! s:cache.read() dict abort " {{{1
   if !self.persistent | return | endif
+  if getftime(self.path) <= self.ftime | return | endif
 
-  if getftime(self.path) > self.ftime
-    let self.ftime = getftime(self.path)
-    let l:data = json_decode(join(readfile(self.path)))
-    if type(l:data) == v:t_dict
-      call extend(self.data, l:data, 'keep')
-    else
-      call wiki#log#warn(
-            \ 'Inconsistent cache data while reading: ' . self.name,
-            \ 'Decoded data type: ' . type(l:data)
-            \)
-    endif
+  let self.ftime = getftime(self.path)
+  let l:contents = join(readfile(self.path))
+  if empty(l:contents) | return | endif
+
+  let l:data = json_decode(l:contents)
+
+  if type(l:data) != v:t_dict
+    call wiki#log#warn(
+          \ 'Inconsistent cache data while reading: ' . self.name,
+          \ 'Decoded data type: ' . type(l:data)
+          \)
+    return
   endif
+
+  call extend(self.data, l:data, 'keep')
 endfunction
 
 " }}}1
