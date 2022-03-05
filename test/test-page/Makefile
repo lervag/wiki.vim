@@ -1,4 +1,4 @@
-MYVIM ?= nvim --headless
+MYVIM ?= nvim --clean --headless
 export QUIT = 1
 
 tests := $(wildcard test-*.vim)

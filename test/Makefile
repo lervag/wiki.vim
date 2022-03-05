@@ -1,4 +1,4 @@
-MYVIM ?= nvim --headless
+MYVIM ?= nvim --clean --headless
 # MYVIM ?= vim -T dumb --not-a-term --noplugin -n
 MAKEFLAGS+=--no-print-directory
 
