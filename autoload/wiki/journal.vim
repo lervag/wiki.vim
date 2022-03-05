@@ -94,7 +94,11 @@ function! wiki#journal#make_index() " {{{1
       put ='## ' . mname
       put =''
       for entry in entries
-        put =wiki#link#template(l:prefix . entry, entry)
+        let l:target = l:prefix . entry
+        if !empty(b:wiki.link_extension)
+          let l:target .= b:wiki.link_extension
+        endif
+        put =wiki#link#template(l:target, entry)
       endfor
       put =''
     endfor
