@@ -6,13 +6,15 @@ a personal wiki. The plugin was initially based on
 scratch and is based on a more "do one thing and do it well" philosophy.
 
 This README file contains basic information on how to get started, as well as
-a list of available features. For more details, please confer the
+a list of available features. For more details, please read the
 [full documentation](doc/wiki.txt).
 
-Note: `wiki.vim` is _not_ a filetype plugin. It is designed so that it may be used
-      along with filetype plugins, e.g. for dedicated Markdown plugins. One may
-      also use [wiki-ft.vim](https://github.com/lervag/wiki-ft.vim) for simple
-      syntax highlighting and folding of `.wiki` files, if desired.
+Note: `wiki.vim` is _not_ a filetype plugin. It is designed to be used _with_
+      filetype plugins, e.g. dedicated Markdown plugins. A simple alternative
+      is to use [wiki-ft.vim](https://github.com/lervag/wiki-ft.vim) for syntax
+      highlighting and folding of `.wiki` files. Users are adviced to read
+      `:help wiki-intro-plugins` for a list of plugins that work well with
+      `wiki.vim`.
 
 Note: Some features require a recent version of Vim (>= 8.1) or NeoVim (>= 0.5).
 
@@ -59,30 +61,30 @@ Please also read the `Guide` section in the [documentation](doc/wiki.txt).
 
 # Features
 
-- Wiki functionality
-  - Global mappings for accessing a specified wiki
-  - Local mappings for
-    - Navigation (follow links, go back, etc)
-    - Renaming pages (will also update links in other pages)
-    - Creating a table of contents
-    - Toggling links
-    - Viewing wiki link graphs
-  - Completion of wiki links and link anchors
-  - Text objects
-    - `iu au` Link url
-    - `it at` Link text
-- Support for journal entries
-  - Navigating the journal back and forth with `<c-j>` and `<c-k>`
-  - Support for parsing journal entries in order to make weekly and monthly
+* Wiki functionality
+  * Global mappings for accessing a specified wiki
+  * Local mappings for
+    * Navigation (follow links, go back, etc)
+    * Renaming pages (will also update links in other pages)
+    * Creating a table of contents
+    * Toggling links
+    * Viewing wiki link graphs
+  * Completion of wiki links and link anchors
+  * Text objects
+    * `iu au` Link url
+    * `it at` Link text
+* Support for journal entries
+  * Navigating the journal back and forth with `<c-j>` and `<c-k>`
+  * Support for parsing journal entries in order to make weekly and monthly
     summaries. The parsed result needs manual editing for good results.
-- Utility functionality
-  - `:WikiExport` command for exporting to e.g. `pdf` with `pandoc`
-- Third-party support
-  - [CtrlP](https://github.com/ctrlpvim/ctrlp.vim): `CtrlPWiki` command
-  - [unite](https://github.com/Shougo/unite.vim)
-  - [denite](https://github.com/Shougo/denite.nvim)
-  - [ncm2](https://github.com/ncm2/ncm2): SubscopeDetector for nested completion
-  - [fzf](https://github.com/junegunn/fzf): `WikiFzfPages`, `WikiFzfTags`, and `WikiFzfToc` commands
+* Utility functionality
+  * `:WikiExport` command for exporting to e.g. `pdf` with `pandoc`
+* Third-party support
+  * [CtrlP](https://github.com/ctrlpvim/ctrlp.vim): `CtrlPWiki` command
+  * [unite](https://github.com/Shougo/unite.vim)
+  * [denite](https://github.com/Shougo/denite.nvim)
+  * [ncm2](https://github.com/ncm2/ncm2): SubscopeDetector for nested completion
+  * [fzf](https://github.com/junegunn/fzf): `WikiFzfPages`, `WikiFzfTags`, and `WikiFzfToc` commands
 
 # Acknowledgements
 
