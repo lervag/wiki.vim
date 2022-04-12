@@ -616,6 +616,12 @@ OPTIONS                                                   *wiki-config-options*
   With the above setting, if one enters a page name "foo" for |WikiOpen| on
   the date 2020-04-11, the page "foo_20200411" will be created.
 
+  The option value should be a string (the `name` of the function) or
+  a |Funcref|. The latter only works in neovim when the option is defined from
+  Lua with |lua-vim-variables|, e.g. >
+
+    vim.g.wiki_map_create_page = function(x) return x:lower() end
+<
   Default: ''
 
 *g:wiki_map_link_create*
@@ -633,6 +639,12 @@ OPTIONS                                                   *wiki-config-options*
   As an example, if one creates a link from the text "Some text", the link
   becomes "[[some-text|Some text]]".
 
+  The option value should be a string (the `name` of the function) or
+  a |Funcref|. The latter only works in neovim when the option is defined from
+  Lua with |lua-vim-variables|, e.g. >
+
+    vim.g.wiki_map_link_create = function(x) return x:lower() end
+<
   Default: ''
 
 *g:wiki_mappings_use_defaults*
