@@ -6,7 +6,7 @@
 
 function! wiki#page#open(page) abort "{{{1
   let l:page =
-        \ !empty(g:wiki_map_create_page) && exists('*' . g:wiki_map_create_page)
+        \ !empty(g:wiki_map_create_page) && (type(g:wiki_map_create_page) == v:t_func || exists('*' . g:wiki_map_create_page))
         \ ? call(g:wiki_map_create_page, [a:page])
         \ : a:page
   call wiki#url#parse('wiki:/' . l:page).follow()
