@@ -706,9 +706,10 @@ OPTIONS                                                   *wiki-config-options*
   Default: `['January', 'February', ..., 'December']`
 
 *g:wiki_resolver*
-  The name of the function to resolve wiki-schemed links, i.e., the standard
-  link scheme. The default should work well for most people, but this option
-  allows to adjust the resolver to ones own liking.
+  The name of the function to resolve wiki-schemed urls, i.e., the standard
+  link url scheme (see |wiki-link-url| for more info). The default should work
+  well for most people, but this option allows to adjust the resolver to ones
+  own liking.
 
   The function takes two arguments:
 
