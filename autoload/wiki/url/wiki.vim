@@ -65,7 +65,13 @@ endfunction
 
 let s:handler = {}
 function! s:handler.follow(...) abort dict " {{{1
-  let l:cmd = a:0 > 0 ? a:1 : 'edit'
+  if a:0 > 1
+    let l:cmd = a:2 . ' ' . a:1
+  elseif a:0 == 1
+    let l:cmd = a:1
+  else
+    let l:cmd = 'edit'
+  endif
 
   " Check if dir exists
   let l:dir = fnamemodify(self.path, ':p:h')

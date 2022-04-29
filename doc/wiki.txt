@@ -1034,7 +1034,8 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 
 *<plug>(wiki-link-follow-split)*
 *WikiLinkFollowSplit*
-  Similar to |WikiLinkfollow|, except wiki links are followed in a |vsplit|.
+  Similar to |WikiLinkfollow|, except wiki links are followed in a |split|.
+  Modifiers such as |:vertical| are allowed.
 
 *<plug>(wiki-link-follow-tab)*
 *WikiLinkFollowTab*
