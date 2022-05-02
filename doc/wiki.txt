@@ -1033,9 +1033,13 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
     augroup END
 
 *<plug>(wiki-link-follow-split)*
+*<plug>(wiki-link-follow-vsplit)*
 *WikiLinkFollowSplit*
   Similar to |WikiLinkfollow|, except wiki links are followed in a |split|.
-  Modifiers such as |:vertical| are allowed.
+  The `vsplit` mapping uses a vertical split. Modifiers such as |:vertical|
+  are allowed for the command, e.g. >
+
+    :vert topleft WikiLinkfollowSplit
 
 *<plug>(wiki-link-follow-tab)*
 *WikiLinkFollowTab*
@@ -1283,6 +1287,7 @@ specify global mappings available anywhere, and the liens annotated
   `n`     <tab>               |<plug>(wiki-link-next)|
   `n`     <cr>                |<plug>(wiki-link-follow)|
   `n`     <c-w><cr>           |<plug>(wiki-link-follow-split)|
+  `n`     <c-w><tab>          |<plug>(wiki-link-follow-vsplit)|
   `n`     <c-w>u              |<plug>(wiki-link-follow-tab)|
   `n`     <s-tab>             |<plug>(wiki-link-prev)|
   `n`     <bs>                |<plug>(wiki-link-return)|
