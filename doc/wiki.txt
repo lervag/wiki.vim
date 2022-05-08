@@ -1720,28 +1720,55 @@ JOURNAL SUMMARIES                            *wiki-templates-journal-summaries*
 
 |wiki.vim| supports parsing the journal entries in order to make weekly and
 monthly summaries. A summary is automatically created when a summary file is
-opened; the format is given by `g:wiki_journal.date_format.weekly` and
-`g:wiki_journal.date_format.monthly`. One may also move from a daily entry to
-the corresponding week with |WikiJournalToWeek|, and similarly to the
-corresponding month with |WikiJournalToMonth|. Again, if these entries do not
-exist, they are automatically created and journal entries are parsed to fill
-the contents.
+opened. One may also move from a daily entry to the corresponding week with
+|WikiJournalToWeek|, and similarly to the corresponding month with
+|WikiJournalToMonth|. Again, if these entries do not exist, they are
+automatically created and journal entries are parsed to fill the contents.
 
 The parsed results typically need manual editing, and it currently only works
-for a very specific format of journals.
+for "list based" journals. That is, the summary generator works like this:
+* First collect the text from entries to be summarized.
+* Parse the text as topic lists (see example below).
+* Combine the topic list entries in a chronological order.
+* Ignore all text after the first heading.
+
+An example of a journal entry that will be parsed properly: >
+
+  <tables on top are ignored>
+
+  Topic 1
+  * List based summary
+  * With perhaps
+    * sub lists
+
+  Topic 2
+  * List based summary
+  * With perhaps
+    * sub lists
+
+  Topic 3
+  * Link to [[#Specific note ...]]
+
+  # Specific note (e.g. meeting note or similar)
+
+  Everything from this section header and on will be ignored.
+
+Note: There is no guarantee that this feature will work well if the journal
+       entries are structured in other ways!
+
+The summary file-name format is defined by |g:wiki_journal|`.date_format.weekly`
+and |g:wiki_journal|`.date_format.monthly`.
 
 Related settings:
-- |g:wiki_journal|
-  Note: The date format specifies the format for the weekly and monthly
-        entries.
-- |g:wiki_template_title_week|
+* |g:wiki_journal|
+* |g:wiki_template_title_week|
   A string that specifies the title of the weekly summary.
-- |g:wiki_template_title_month|
+* |g:wiki_template_title_month|
   A string that specifies the title of the monthly summary.
 
 Related commands:
-- |WikiJournalToWeek|
-- |WikiJournalToMonth|
+* |WikiJournalToWeek|
+* |WikiJournalToMonth|
 
 ==============================================================================
  vim:tw=78:ts=8:ft=help:norl:fdm=marker:cole=2:
