@@ -31,7 +31,7 @@ function! wiki#page#delete() abort "{{{1
   endtry
 
   call wiki#nav#return()
-  execute 'bdelete! ' . escape(l:filename, ' ')
+  execute 'bdelete!' fnameescape(l:filename)
 endfunction
 
 "}}}1
