@@ -38,26 +38,21 @@ function! wiki#url#wiki#resolver(fname, origin) abort " {{{1
         \   : fnamemodify(a:origin, ':p:h')) . '/' . a:fname
   let l:path = wiki#paths#s(l:path)
 
-  " Determine the proper extension (if necessary)
+  " Collect extension candidates
   let l:extensions = wiki#u#uniq_unsorted(
         \ (exists('b:wiki.extension') ? [b:wiki.extension] : [])
         \ + g:wiki_filetypes)
-  if index(l:extensions, fnamemodify(a:fname, ':e')) < 0
-    let l:path = l:path
-    let l:path .= '.' . l:extensions[0]
-
-    if !filereadable(l:path) && len(l:extensions) > 1
-      for l:ext in l:extensions[1:]
-        let l:newpath = l:path . '.' . l:ext
-        if filereadable(l:newpath)
-          let l:path = l:newpath
-          break
-        endif
-      endfor
-    endif
+  if index(l:extensions, fnamemodify(l:path, ':e')) >= 0
+    return l:path
   endif
 
-  return l:path
+  " Determine the proper extension (if necessary)
+  for l:ext in l:extensions
+    let l:newpath = l:path . '.' . l:ext
+    if filereadable(l:newpath) | return l:newpath | endif
+  endfor
+
+  return l:path . '.' . l:extensions[0]
 endfunction
 
 " }}}1
