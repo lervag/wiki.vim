@@ -42,4 +42,8 @@ let s:link = wiki#link#get_at_pos(24, 5)
 call assert_equal('md_fig', s:link.type)
 call assert_equal('file', s:link.scheme)
 
+let s:link = wiki#link#get_at_pos(35, 5)
+call assert_equal('md', s:link.type)
+call assert_equal('wiki', s:link.scheme)
+
 call wiki#test#finished()

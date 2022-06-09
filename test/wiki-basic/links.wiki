@@ -31,3 +31,5 @@ A ![link to a figure](figs/test.png) here.
 [Look at this]: <wiki:file with spaces>
 
 Another URL: <wiki:file with spaces>
+
+A [mardown link with $\mathrm{math}$](index).

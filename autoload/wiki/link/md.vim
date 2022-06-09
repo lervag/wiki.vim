@@ -8,8 +8,8 @@ function! wiki#link#md#matcher() abort " {{{1
   return extend(wiki#link#_template#matcher(), {
         \ 'type': 'md',
         \ 'rx': g:wiki#rx#link_md,
-        \ 'rx_url': '\[[^\\\[\]]\{-}\](\zs[^\\]\{-}\ze)',
-        \ 'rx_text': '\[\zs[^\\\[\]]\{-}\ze\]([^\\]\{-})',
+        \ 'rx_url': '\[[^[\]]\{-}\](\zs[^\\]\{-}\ze)',
+        \ 'rx_text': '\[\zs[^[\]]\{-}\ze\]([^\\]\{-})',
         \})
 endfunction
 
