@@ -39,9 +39,8 @@ function! wiki#url#wiki#resolver(fname, origin) abort " {{{1
   let l:path = wiki#paths#s(l:path)
 
   " Collect extension candidates
-  let l:extensions = wiki#u#uniq_unsorted(
-        \ (exists('b:wiki.extension') ? [b:wiki.extension] : [])
-        \ + g:wiki_filetypes)
+  let l:extensions = wiki#u#uniq_unsorted(g:wiki_filetypes
+        \ + (exists('b:wiki.extension') ? [b:wiki.extension] : []))
   if index(l:extensions, fnamemodify(l:path, ':e')) >= 0
     return l:path
   endif
