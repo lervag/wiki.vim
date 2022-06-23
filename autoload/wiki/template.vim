@@ -57,7 +57,7 @@ function! s:template_apply(t, ctx) abort " {{{1
     return 1
   endif
 
-  let l:source = get(a:t, 'source_filename', '')
+  let l:source = fnamemodify(get(a:t, 'source_filename', ''), ':p')
   if !filereadable(l:source) | return 0 | endif
 
   " Interpolate the context "variables"
