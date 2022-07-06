@@ -46,6 +46,9 @@ silent edit ../wiki-basic/index.wiki
 normal! 3G
 silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
 call assert_equal('[This is a wiki](this-is-a-wiki.md).', getline('.'))
+normal! 11G
+silent execute "normal \<Plug>(wiki-link-toggle)"
+call assert_equal('[TestSubDirLink/](testsubdirlink/)', getline('.'))
 
 " Test toggle normal on regular markdown links using md style links in journal
 bwipeout!
