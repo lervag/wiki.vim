@@ -79,7 +79,7 @@ specify a main wiki with the |g:wiki_root| option. This allows convenient
 mappings and commands for opening the main wiki from anywhere.
 
 The plugin was initially based on Vimwiki [0], but it is written mostly from
-scratch and is based the philosophy of "do one thing and do it well". Some
+scratch and is based on the philosophy of "do one thing and do it well". Some
 users may therefore find that |wiki.vim| is missing some features such as
 syntax highlighting and/or list interactions. See |wiki-intro-plugins| for
 more info.
@@ -199,8 +199,8 @@ alternatives are listed under |wiki-intro-alternatives|.
 
 So, some context: My personal wiki consists per 2021-08-29 of 1714 pages with
 a total of 71474 lines, excluding my journal. I first started taking notes in
-2007, so this is perhaps 14 years worth of writing. I use Syncthing [2] to
-keep my notes synchronized across my computers, phones, tablets. I've
+2007, so this is perhaps 14 years' worth of writing. I use Syncthing [2] to
+keep my notes synchronized across my computers, phones, and tablets. I've
 previously also used Dropbox.
 
 With a lot of content, it is important to be able to find things fast. I use
@@ -243,7 +243,7 @@ I work through this index (often slowly) and move content into more dedicated
 pages. For this workflow to work well, it is crucial that my `index.wiki` is
 extremely accessible. I therefore have a global keyboard shortcut on all my
 computers to open Vim with the index. Specifically, I map <alt-n> to the
-shell command `urxvt -e nvim +WikiIndex`, where `urxvt` is a well known
+shell command `urxvt -e nvim +WikiIndex`, where `urxvt` is a well-known
 terminal. This way, it takes less than a second from the moment I have
 a thought until I can start to add it to my `index.wiki` for later processing.
 The speed allows me to write down a thought immediately and then continue with
@@ -282,7 +282,7 @@ OTHER PLUGINS                                              *wiki-intro-plugins*
 Some users may find that |wiki.vim| does not provide all of the features they
 want for taking notes. Users who are used to Vimwiki will probably miss things
 like features to interact with lists and check lists. This is a natural
-consequence of the idea to "do one thing and to it well"; the core feature of
+consequence of the idea to "do one thing and do it well"; the core feature of
 |wiki.vim| is to handle links in various formats and shapes. It has additional
 wiki features and some fringe features, but these are not as important.
 
@@ -344,7 +344,7 @@ Vimwiki~
 https://github.com/vimwiki/vimwiki
 Type: Plugin; Vim
 Vimwiki is a personal wiki system for Vim. It relies on its own filetype,
-although recent versions also supports more traditional markdown formats.
+although recent versions also support more traditional markdown formats.
 
 Waikiki~
 https://github.com/fcpg/vim-waikiki
@@ -538,7 +538,7 @@ OPTIONS                                                   *wiki-config-options*
   Default: ''
 
 *g:wiki_link_toggle_on_follow*
-  This option allows to disable the toggle behaviour in |WikiLinkFollow| where
+  This option allows disabling the toggle behaviour in |WikiLinkFollow| where
   "normal" text under the cursor is transformed into links. The behaviour is
   enabled by default. If disabled, one may still use |WikiLinkToggle| to
   transform text into links.
@@ -569,7 +569,7 @@ OPTIONS                                                   *wiki-config-options*
   This option specifies the template for toggling a specific type of link with
   |WikiLingToggle| or |<plug>(wiki-link-toggle)|.
 
-  This allows to customize how links are changed when they are toggled. For
+  This allows customizing how links are changed when they are toggled. For
   instance, to add/remove extensions for wiki and markdown style links, one
   could use: >
 
@@ -708,7 +708,7 @@ OPTIONS                                                   *wiki-config-options*
 *g:wiki_resolver*
   The name of the function to resolve wiki-schemed urls, i.e., the standard
   link url scheme (see |wiki-link-url| for more info). The default should work
-  well for most people, but this option allows to adjust the resolver to ones
+  well for most people, but this option allows to adjust the resolver to one's
   own liking.
 
   The function takes two arguments:
@@ -930,7 +930,7 @@ OPTIONS                                                   *wiki-config-options*
   Default: 0
 
 *g:wiki_zotero_root*
-  A string that specifies the Zotero root folder used for the zotero URL
+  A string that specifies the Zotero root folder used for the Zotero URL
   scheme, see |wiki-link-url|.
 
   Default: `'~/.local/zotero'`
@@ -983,7 +983,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 
 *<plug>(wiki-journal)*
 *WikiJournal*
-  Go to todays journal entry.
+  Go to today's journal entry.
 
 *<plug>(wiki-reload)*
 *WikiReload*
@@ -1172,7 +1172,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *WikiTagSearch*  [options] [tag]
   List wiki pages that contain the desired `tag`. If the argument `tag` is not
   supplied, the command asks for input. See also |wiki-tags| for more
-  information of the tags feature and |WikiFzfTags| for an alternative search
+  information on the tags feature and |WikiFzfTags| for an alternative search
   mechanism.
 
   Available options are (use |g:wiki_tag_search| to set default values):
@@ -1306,7 +1306,7 @@ specify global mappings available anywhere, and the liens annotated
 ==============================================================================
 LINKS                                                               *wiki-link*
 
-Links are one of the most essential features of a wiki, and as such, requires
+Links are one of the most essential features of a wiki, and as such, require
 particular attention.  A link is a structure that consists of an URL (see
 |wiki-link-url|) and a possibly empty description.  It may be followed with
 the mappings `<cr>` or `<c-cr>`, where the latter will open the link in a split
@@ -1350,7 +1350,7 @@ The `scheme` specifies which kind of link it is. When the URL is typed
 directly and with a proper scheme, it will typically be possible to follow the
 link directly without putting it inside a fuller link type. The scheme is
 required in general. However, for some type of links, the scheme may be
-implied by the linke type.
+implied by the link type.
 
 When the scheme is not specified for URLs inside one of the other link types,
 then the `wiki` scheme is generally assumed (unless otherwise stated).
@@ -1393,7 +1393,7 @@ The following schemes are supported:
     pdf. This works very well if one uses the Zotfile extension and the Better
     Bibtex extension to ensure that all pdf files are named according to the
     format `%b - {%T - } {%t}`, where `%b` is the citekey. Then links like
-    `zot:citekey` should result in a unique matches. The resulting file is
+    `zot:citekey` should result in unique matches. The resulting file is
     opened with |g:wiki_viewer|. The Zotero storage root may be specified with
     |g:wiki_zotero_root|.
 
@@ -1427,7 +1427,7 @@ toggle it to a markdown style link.
 ------------------------------------------------------------------------------
 MARKDOWN LINKS                                             *wiki-link-markdown*
 
-Markdown links are one of the standard type of links, and the look like this: >
+Markdown links are one of the standard types of links, and the look like this: >
 
   [Description](URL)
 
@@ -1525,7 +1525,7 @@ several good plugins that provide this: |coc-nvim|, |deoplete|, |neocomplete|,
 |ncm2|, |nvim-completion-manager|, |youcompleteme|, and |nvim-compe|.
 Moreover, there is |VimCompletesMe| that overrides <tab> to trigger different
 built-in completions, such as omni completion, depending on the
-context. Below are instructiongs for how to setup some of these autocomplete
+context. Below are instructions for how to setup some of these autocomplete
 plugins for wiki.vim.
 
 ncm2~
@@ -1707,7 +1707,7 @@ that you follow the same structure: >
 
 Here `CustomUserFunc` must be defined, e.g. in your vimrc file. As explained,
 the first argument is `ctx` - the context dictionary from
-|wiki-templates-context|. The text "A new blog post" is passed as the the
+|wiki-templates-context|. The text "A new blog post" is passed as the
 second argument as a string. The full content of the function is of course up
 to the user, but it would look something like this: >
 
@@ -1729,7 +1729,7 @@ The parsed results typically need manual editing, and it currently only works
 for "list based" journals. That is, the summary generator works like this:
 * First collect the text from entries to be summarized.
 * Parse the text as topic lists (see example below).
-* Combine the topic list entries in a chronological order.
+* Combine the topic list entries in chronological order.
 * Ignore all text after the first heading.
 
 An example of a journal entry that will be parsed properly: >
