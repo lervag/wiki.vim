@@ -50,14 +50,15 @@ function! s:matcher.toggle_template(words, _text) abort " {{{1
   endif
 
   " Next try at wiki root
-  if filereadable(wiki#paths#s(printf('%s/%s', b:wiki.root, l:url_actual)))
+  let l:root = get(b:wiki, 'root', expand('%:p:h'))
+  if filereadable(wiki#paths#s(printf('%s/%s', l:root, l:url_actual)))
     return wiki#link#template('/' . l:url_target, a:words)
   endif
 
   " Finally we see if there are completable candidates
   let l:candidates = map(
         \ glob(printf(
-        \     '%s/%s*.%s', b:wiki.root, l:url_root, b:wiki.extension), 0, 1),
+        \     '%s/%s*.%s', l:root, l:url_root, b:wiki.extension), 0, 1),
         \ 'fnamemodify(v:val, '':t:r'')')
 
   " Solve trivial cases first
