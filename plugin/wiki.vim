@@ -51,7 +51,7 @@ call wiki#init#option('wiki_link_toggles', {
       \ 'url': 'wiki#link#md#template',
       \})
 call wiki#init#option('wiki_map_create_page', '')
-call wiki#init#option('wiki_map_link_create', '')
+call wiki#init#option('wiki_map_text_to_link', '')
 call wiki#init#option('wiki_mappings_use_defaults', 'all')
 call wiki#init#option('wiki_month_names', [
       \ 'January', 'February', 'March', 'April', 'May', 'June', 'July',

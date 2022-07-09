@@ -1,9 +1,9 @@
 source ../init.vim
 
-let g:wiki_map_link_create = 'MyFunction'
+let g:wiki_map_text_to_link = 'TextToLink'
 
-function MyFunction(text) abort
-  return substitute(tolower(a:text), '\s\+', '-', 'g')
+function TextToLink(text) abort
+  return [substitute(tolower(a:text), '\s\+', '-', 'g'), a:text]
 endfunction
 
 runtime plugin/wiki.vim
@@ -61,15 +61,27 @@ silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
 call assert_equal('[This is a wiki](/this-is-a-wiki).', getline('.'))
 
 " Test toggle normal on regular markdown links using md style links in journal
-" without `g:wiki_map_link_create`
+" without `g:wiki_map_text_to_link`
 bwipeout!
 let g:wiki_link_target_type = 'md'
 let g:wiki_link_extension = ''
-let g:wiki_map_link_create = ''
+let g:wiki_map_text_to_link = ''
 silent edit ../wiki-basic/index.wiki
 normal! 3G
 silent execute 'let b:wiki.in_journal=1'
 silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
 call assert_equal('[This is a wiki](/This is a wiki).', getline('.'))
+
+bwipeout!
+let g:wiki_link_target_type = 'md'
+let g:wiki_link_extension = ''
+let g:wiki_map_text_to_link = 'TextToLink2'
+function TextToLink2(text) abort
+  return [a:text, substitute(a:text, '-', ' ', 'g')]
+endfunction
+silent edit ../wiki-basic/index.wiki
+normal! 13G
+silent execute 'normal glt.'
+call assert_equal('[This is a wiki](This-is-a-wiki).', getline('.'))
 
 call wiki#test#finished()

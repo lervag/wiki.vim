@@ -624,27 +624,41 @@ OPTIONS                                                   *wiki-config-options*
 <
   Default: ''
 
-*g:wiki_map_link_create*
-  This option may be used to transform text before creating a new link. An
-  example: >
+*g:wiki_map_text_to_link*
+  This option may be used to transform text before creating a new link with
+  |WikiLinkFollow| or |WikiLinkToggle| (or related mappings). The option value
+  should be a string (the `name` of the function) or a |Funcref|. The latter
+  only works in neovim when the option is defined from Lua with
+  |lua-vim-variables|, similar to this: >
 
-    let g:wiki_map_link_create = 'MyFunction'
+    vim.g.wiki_map_text_to_link = function(x)
+      return { x:lower(), x }
+    end
+<
+  The specified function must take a single argument and return two values.
+  The following signature should be descriptive: >
 
-    function MyFunction(text) abort
-      return substitute(tolower(a:text), '\s\+', '-', 'g')
+    let [url, text] = TextToLink(text_raw)
+<
+  Here `text_raw` is the text that should be transformed to a link composed
+  of `url` and `text`. An example may be more enlightening: >
+
+    let g:wiki_map_text_to_link = 'MyTextToLink'
+
+    function MyTextToLink(text) abort
+      return [substitute(tolower(a:text), '\s\+', '-', 'g'), a:text]
     endfunction
 <
-  With the above setting, links created with |WikiLinkFollow| or
-  |WikiLinkToggle| (or related mappings) will be transformed by `MyFunction`.
-  As an example, if one creates a link from the text "Some text", the link
-  becomes "[[some-text|Some text]]".
+  This specifies that transformations will look like the following,
+  given that other settings are at their defaults: >
 
-  The option value should be a string (the `name` of the function) or
-  a |Funcref|. The latter only works in neovim when the option is defined from
-  Lua with |lua-vim-variables|, e.g. >
-
-    vim.g.wiki_map_link_create = function(x) return x:lower() end
+    Hello world  →    [[hello-world|Hello World]]
+    Some text    →    [[some-text|Some text]]
 <
+  Note: The actual resulting link also depends on these options:
+        * |g:wiki_link_extension|
+        * |g:wiki_link_target_type|
+
   Default: ''
 
 *g:wiki_mappings_use_defaults*
@@ -1018,7 +1032,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *<plug>(wiki-link-follow)*
 *WikiLinkFollow*
   Follow link. Will create a new link if the text under the cursor is not
-  already a link. If |g:wiki_map_link_create| is specified, it will be used to
+  already a link. If |g:wiki_map_text_to_link| is specified, it will be used to
   transform the link when creating it.
 
                                                        *#User#WikiLinkFollowed*
@@ -1053,7 +1067,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *<plug>(wiki-link-toggle-visual)*    |xmap|
 *<plug>(wiki-link-toggle-operator)*  |map-operator|
 *WikiLinkToggle*
-  Toggle wiki link. If |g:wiki_map_link_create| is specified, it will be used
+  Toggle wiki link. If |g:wiki_map_text_to_link| is specified, it will be used
   to transform the link when creating it.
 
 *<plug>(wiki-link-show)*

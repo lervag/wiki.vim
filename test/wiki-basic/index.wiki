@@ -9,3 +9,5 @@ CreateFullLineLink
 [[/sub/Foo]]
 
 TestSubDirLink/
+
+This-is-a-wiki.
