@@ -47,7 +47,9 @@ function! wiki#get_root_global() abort " {{{1
     return resolve(l:root)
   else
     call wiki#log#error(
-          \ 'g:wiki_root is specified but the target path does not exist!')
+          \ 'g:wiki_root is specified but the target path does not exist!',
+          \ 'Target path: ' . resolve(l:root)
+          \)
   endif
 endfunction
 
