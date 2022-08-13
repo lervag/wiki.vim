@@ -17,7 +17,7 @@ function! wiki#fzf#pages() abort "{{{1
   let l:pages = globpath(l:root, '**/*.' . l:extension, v:false, v:true)
   call map(l:pages, {_, x -> x . '#####'
         \ .'/' . fnamemodify(
-        \   substitute(x, escape(l:root, '\'), '', ''),
+        \   substitute(x, '\V' . escape(l:root, '\'), '', ''),
         \   ':r')
         \})
 
