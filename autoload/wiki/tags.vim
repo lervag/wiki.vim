@@ -513,8 +513,9 @@ endfunction
 
 " {{{1 let g:wiki#tags#default_parser = ...
 let g:wiki#tags#default_parser = {
-      \ 're_match': '\v%(^|\s):\zs[^: ]+\ze:',
-      \ 're_findstart': '\v%(^|\s):\zs[^: ]+$'
+      \ 're_match': '\v%(^|\s):[^: ]+:',
+      \ 're_findstart': '\v%(^|\s):\zs[^: ]+$',
+      \ 're_parse': '\v:\zs[^: ]+\ze:'
       \}
 
 function! g:wiki#tags#default_parser.match(line) dict abort
@@ -523,11 +524,11 @@ endfunction
 
 function! g:wiki#tags#default_parser.parse(line) dict abort
   let l:tags = []
-  let l:tag = matchstr(a:line, self.re_match, 0)
+  let l:tag = matchstr(a:line, self.re_parse, 0)
 
   while !empty(l:tag)
     call add(l:tags, l:tag)
-    let l:tag = matchstr(a:line, self.re_match, 0, len(l:tags) + 1)
+    let l:tag = matchstr(a:line, self.re_parse, 0, len(l:tags) + 1)
   endwhile
 
   return l:tags
