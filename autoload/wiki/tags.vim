@@ -514,7 +514,7 @@ endfunction
 " {{{1 let g:wiki#tags#default_parser = ...
 let g:wiki#tags#default_parser = {
       \ 're_match': '\v%(^|\s):[^: ]+:',
-      \ 're_findstart': '\v%(^|\s):\zs[^: ]+$',
+      \ 're_findstart': '\v%(^|\s)(:\zs[^: ]+)+$',
       \ 're_parse': '\v:\zs[^: ]+\ze:'
       \}
 
