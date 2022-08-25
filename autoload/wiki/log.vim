@@ -75,12 +75,12 @@ endfunction
 
 " }}}1
 function! s:logger.notify(msg_list, type) abort dict " {{{1
-  call wiki#echo#echo([
+  call wiki#ui#echo([
         \ [self.type_to_highlight[a:type], 'wiki: '],
         \ a:msg_list[0]
         \])
   for l:msg in a:msg_list[1:]
-    call wiki#echo#echo(l:msg, {'indent': 2})
+    call wiki#ui#echo(l:msg, {'indent': 2})
   endfor
 endfunction
 

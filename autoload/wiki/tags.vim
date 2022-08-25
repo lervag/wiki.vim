@@ -166,7 +166,7 @@ endfunction
 function! s:search_output_echo(cfg, lst) abort " {{{1
   call wiki#log#info(printf('Pages with tag "%s"', a:cfg.tag))
   for l:file in map(copy(a:lst), 'v:val[0]')
-    call wiki#echo#echo(printf('- %s',
+    call wiki#ui#echo(printf('- %s',
           \ fnamemodify(wiki#paths#shorten_relative(l:file), ':r')))
   endfor
 endfunction
@@ -248,9 +248,9 @@ endfunction
 function! s:list_output_echo() abort " {{{1
   call wiki#log#info('Tagged wiki pages')
   for [l:tag, l:locations] in items(s:tags.collection)
-    call wiki#echo#echo(l:tag)
+    call wiki#ui#echo(l:tag)
     for l:file in map(copy(l:locations), 'v:val[0]')
-      call wiki#echo#echo(printf('- %s',
+      call wiki#ui#echo(printf('- %s',
             \ fnamemodify(wiki#paths#shorten_relative(l:file), ':r')))
     endfor
   endfor

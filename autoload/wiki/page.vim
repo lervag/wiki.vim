@@ -96,7 +96,6 @@ function! wiki#page#rename(newname, ...) abort "{{{1
             \])
         return
       endif
-      echo '\n'
     end
 
     " At this point dir_mode is 'create' or the user said 'yes'
