@@ -43,7 +43,7 @@ function! wiki#tags#search(...) abort " {{{1
   endwhile
 
   if empty(l:cfg.tag)
-    let l:cfg.tag = input('Specify tag: ')
+    let l:cfg.tag = wiki#ui#input('Specify tag: ')
     redraw
   endif
 
@@ -103,25 +103,21 @@ function! wiki#tags#rename_ask(...) abort " {{{1
 
   " Get old tag name
   if empty(l:old_tag)
-    let l:old_tag = input(
+    let l:old_tag = wiki#ui#input(
           \ 'Enter tag to rename (wihtout delimiters): ',
-          \ '', 'custom,wiki#tags#get_tag_names')
+          \ #{ completer: 'custom,wiki#tags#get_tag_names' }
+          \)
   endif
   if empty(l:old_tag) | return | endif
 
-  if input('Rename "' . l:old_tag . '"'
-        \ . (empty(l:new_tag) ? '' : ' to "' . l:new_tag . '"')
-        \ . ' [y]es/[N]o? ') !~? '^y'
-    return
+  " Get new tag name
+  if empty(l:new_tag)
+    let l:new_tag = wiki#ui#input(
+          \ ['Enter new tag name (without tag delimiters):', '> '])
   endif
 
-  " Get new tag name
-  redraw!
-  if empty(l:new_tag)
-    call wiki#log#info('Enter new tag name (without tag delimiters):')
-    let l:new_tag = input('> ')
-  else
-    let l:new_tag = l:new_tag
+  if !wiki#ui#confirm(printf('Rename "%s" to "%s"?', l:old_tag, l:new_tag))
+    return
   endif
 
   call wiki#tags#rename(l:old_tag, l:new_tag)
@@ -391,8 +387,8 @@ endfunction
 function! s:tags.rename(old_tag, new_tag, ...) abort dict " {{{1
   let l:rename_to_existing = get(a:000, 0, v:false)
 
-  redraw!
   if !has_key(self.collection, a:old_tag)
+    redraw!
     call wiki#log#info('Old tag name "' . a:old_tag . '" not found in cache; reloading tags.')
     call wiki#tags#reload()
     if !has_key(self.collection, a:old_tag)
@@ -401,11 +397,10 @@ function! s:tags.rename(old_tag, new_tag, ...) abort dict " {{{1
   endif
 
   if has_key(self.collection, a:new_tag)
+    redraw!
     call wiki#log#warn('Tag "' . a:new_tag . '" already exists!')
-    if !l:rename_to_existing
-      if input('Rename anyway? [y]es/[N]o: ', 'N') ==? 'n'
-        return
-      endif
+    if !l:rename_to_existing && !wiki#ui#confirm('Rename anyway?')
+      return
     endif
   endif
 

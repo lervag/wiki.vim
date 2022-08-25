@@ -4,6 +4,64 @@
 " Email:      karl.yngve@gmail.com
 "
 
+function! wiki#ui#input(prompt, ...) abort " {{{1
+  let l:opts = extend(#{text: ''}, a:0 > 0 ? a:1 : {})
+
+  redraw!
+  if type(a:prompt) == v:t_list
+    for l:msg in a:prompt[:-2]
+      call wiki#echo#echo(l:msg)
+    endfor
+    let l:prompt = a:prompt[-1]
+  else
+    let l:prompt = a:prompt
+  endif
+
+  return has_key(l:opts, 'completion')
+        \ ? input(l:prompt, l:opts.text, l:opts.completion)
+        \ : input(l:prompt, l:opts.text)
+endfunction
+
+" }}}1
+function! wiki#ui#input_quick_from(prompt, choices) abort " {{{1
+  while v:true
+    redraw!
+    if type(a:prompt) == v:t_list
+      for l:msg in a:prompt
+        call wiki#echo#echo(l:msg)
+      endfor
+    else
+      call wiki#echo#echo(a:prompt)
+    endif
+    let l:input = nr2char(getchar())
+
+    if index(["\<C-c>", "\<Esc>"], l:input) >= 0
+      echon 'aborted!'
+      return ''
+    endif
+
+    if index(a:choices, l:input) >= 0
+      echon l:input
+      return l:input
+    endif
+  endwhile
+endfunction
+
+" }}}1
+
+function! wiki#ui#confirm(prompt) abort " {{{1
+  if type(a:prompt) != v:t_list
+    let l:prompt = [a:prompt]
+  else
+    let l:prompt = a:prompt
+  endif
+  let l:prompt[-1] .= ' [y]es/[n]o: '
+
+  return wiki#ui#input_quick_from(l:prompt, ['y', 'n']) ==# 'y'
+endfunction
+
+" }}}1
+
 function! wiki#ui#choose(container, ...) abort " {{{1
   if empty(a:container) | return '' | endif
 

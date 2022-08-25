@@ -6,7 +6,9 @@
 
 function! wiki#page#open(page) abort "{{{1
   let l:page =
-        \ !empty(g:wiki_map_create_page) && (type(g:wiki_map_create_page) == v:t_func || exists('*' . g:wiki_map_create_page))
+        \ !empty(g:wiki_map_create_page)
+        \   && (type(g:wiki_map_create_page) == v:t_func
+        \       || exists('*' . g:wiki_map_create_page))
         \ ? call(g:wiki_map_create_page, [a:page])
         \ : a:page
   call wiki#url#parse('wiki:/' . l:page).follow()
@@ -14,20 +16,23 @@ endfunction
 
 "}}}1
 function! wiki#page#open_ask() abort "{{{1
-  let l:page = input('Open/Create page: ')
+  let l:page = wiki#ui#input('Open page (or create new): ')
+  if empty(l:page) | return | endif
+
   call wiki#page#open(l:page)
 endfunction
 
 "}}}1
 function! wiki#page#delete() abort "{{{1
-  let l:input_response = input('Delete "' . expand('%') . '" [y]es/[N]o? ')
-  if l:input_response !~? '^y' | return | endif
+  if !wiki#ui#confirm(printf('Delete "%s"?', expand('%')))
+    return
+  endif
 
   let l:filename = expand('%:p')
   try
     call delete(l:filename)
   catch
-    return wiki#log#error('Cannot delete "' . expand('%:t:r') . '"!')
+    return wiki#log#error('Cannot delete "%s"!', expand('%:t:r'))
   endtry
 
   call wiki#nav#return()
@@ -85,9 +90,10 @@ function! wiki#page#rename(newname, ...) abort "{{{1
             \ 'Directory "' . l:target_dir . '" does not exist. Aborting.')
       return
     elseif l:dir_mode ==? 'ask'
-      redraw!
-      call wiki#log#warn('Directory "' . l:target_dir . '" does not exist.')
-      if input('Create it? [Y]es/[n]o: ', 'Y') !=? 'y'
+      if !wiki#ui#confirm([
+            \ prinft('Directory "%s" does not exist.', l:target_dir),
+            \ 'Create it?'
+            \])
         return
       endif
       echo '\n'
@@ -102,8 +108,9 @@ function! wiki#page#rename(newname, ...) abort "{{{1
   let l:bufnr = bufnr('')
   try
     call wiki#log#info(
-          \ printf('wiki: Renaming "%s" to "%s" ...',
-          \   expand('%:t') , fnamemodify(l:newpath, ':t')))
+          \ printf('Renaming "%s" to "%s" ...',
+          \   expand('%:t'),
+          \   fnamemodify(l:newpath, ':t')))
     if rename(l:oldpath, l:newpath) != 0
       throw 'wiki.vim: Cannot rename file!'
     end
@@ -149,14 +156,12 @@ endfunction
 " }}}1
 function! wiki#page#rename_ask() abort "{{{1
   " Ask if user wants to rename
-  if input('Rename "' . expand('%:t:r') . '" [y]es/[N]o? ') !~? '^y'
+  if !wiki#ui#confirm(printf('Rename "%s"?', expand('%:t:r')))
     return
   endif
 
   " Get new page name
-  redraw!
-  call wiki#log#info('Enter new name (without extension):')
-  let l:name = input('> ')
+  let l:name = wiki#ui#input(['Enter new name (without extension):', '> '])
 
   call wiki#page#rename(l:name, 'ask')
 endfunction
