@@ -18,7 +18,7 @@ function! s:handler.follow(...) abort dict " {{{1
   let l:files = wiki#zotero#search(self.key)
 
   if len(l:files) > 0
-    let l:choice = wiki#ui#choose(
+    let l:choice = wiki#ui#select(
           \ ['Follow in Zotero: ' . self.key]
           \   + map(copy(l:files), 's:menu_open_pdf(v:val)'),
           \ {

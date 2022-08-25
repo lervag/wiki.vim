@@ -70,7 +70,7 @@ function! s:matcher.toggle_template(text, _) abort " {{{1
 
   " Select with menu
   let l:new = l:url . ' (NEW PAGE)'
-  let l:choice = wiki#ui#choose(l:candidates + [l:new])
+  let l:choice = wiki#ui#select(l:candidates + [l:new])
   redraw!
   return empty(l:choice) ? l:url : (
         \ l:choice ==# l:new

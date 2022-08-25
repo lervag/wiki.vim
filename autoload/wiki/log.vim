@@ -53,11 +53,20 @@ let s:logger = {
       \ 'verbose': get(get(s:, 'logger', {}), 'verbose',
       \                get(g:, 'wiki_log_verbose', 1)),
       \}
-function! s:logger.add(messages, type) abort dict " {{{1
+function! s:logger.add(msg_arg, type) abort dict " {{{1
+  let l:msg_list = []
+  for l:msg in a:msg_arg
+    if type(l:msg) == v:t_string
+      call add(l:msg_list, l:msg)
+    elseif type(l:msg) == v:t_list
+      call extend(l:msg_list, filter(l:msg, 'type(v:val) == v:t_string'))
+    endif
+  endfor
+
   let l:entry = {}
   let l:entry.type = a:type
   let l:entry.time = strftime('%T')
-  let l:entry.msg = a:messages
+  let l:entry.msg = l:msg_list
   let l:entry.callstack = wiki#debug#stacktrace()[1:]
   for l:level in l:entry.callstack
     let l:level.nr -= 2
@@ -66,9 +75,9 @@ function! s:logger.add(messages, type) abort dict " {{{1
 
   if self.verbose
     if self.type_to_level[a:type] > 1
-      unsilent call self.notify(a:messages, a:type)
+      unsilent call self.notify(l:msg_list, a:type)
     else
-      call self.notify(a:messages, a:type)
+      call self.notify(l:msg_list, a:type)
     endif
   endif
 endfunction
@@ -76,8 +85,8 @@ endfunction
 " }}}1
 function! s:logger.notify(msg_list, type) abort dict " {{{1
   call wiki#ui#echo([
-        \ [self.type_to_highlight[a:type], 'wiki: '],
-        \ a:msg_list[0]
+        \ [self.type_to_highlight[a:type], 'wiki:'],
+        \ ' ' . a:msg_list[0]
         \])
   for l:msg in a:msg_list[1:]
     call wiki#ui#echo(l:msg, {'indent': 2})
