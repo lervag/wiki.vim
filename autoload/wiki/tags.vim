@@ -43,7 +43,7 @@ function! wiki#tags#search(...) abort " {{{1
   endwhile
 
   if empty(l:cfg.tag)
-    let l:cfg.tag = wiki#ui#input('Specify tag: ')
+    let l:cfg.tag = wiki#ui#input(#{info: 'Specify tag:'})
     redraw
   endif
 
@@ -103,17 +103,18 @@ function! wiki#tags#rename_ask(...) abort " {{{1
 
   " Get old tag name
   if empty(l:old_tag)
-    let l:old_tag = wiki#ui#input(
-          \ 'Enter tag to rename (wihtout delimiters): ',
-          \ #{ completer: 'custom,wiki#tags#get_tag_names' }
-          \)
+    let l:old_tag = wiki#ui#input(#{
+          \ info: 'Enter tag to rename (without delimiters):',
+          \ completer: 'custom,wiki#tags#get_tag_names'
+          \})
   endif
   if empty(l:old_tag) | return | endif
 
   " Get new tag name
   if empty(l:new_tag)
-    let l:new_tag = wiki#ui#input(
-          \ ['Enter new tag name (without tag delimiters):', '> '])
+    let l:new_tag = wiki#ui#input(#{
+          \ info: 'Enter new tag name (without tag delimiters):',
+          \})
   endif
 
   if !wiki#ui#confirm(printf('Rename "%s" to "%s"?', l:old_tag, l:new_tag))

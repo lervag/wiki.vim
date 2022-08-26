@@ -21,7 +21,7 @@ let s:matcher = {
       \}
 
 function! s:matcher.toggle_template(url, id) abort " {{{1
-  let l:id = empty(a:id) ? wiki#ui#input('Input id: ') : a:id
+  let l:id = empty(a:id) ? wiki#ui#input(#{info: 'Input id: '}) : a:id
   return '[' . l:id . '] ' . a:url
 endfunction
 

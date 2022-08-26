@@ -16,7 +16,7 @@ endfunction
 
 "}}}1
 function! wiki#page#open_ask() abort "{{{1
-  let l:page = wiki#ui#input('Open page (or create new): ')
+  let l:page = wiki#ui#input(#{info: 'Open page (or create new): '})
   if empty(l:page) | return | endif
 
   call wiki#page#open(l:page)
@@ -160,7 +160,7 @@ function! wiki#page#rename_ask() abort "{{{1
   endif
 
   " Get new page name
-  let l:name = wiki#ui#input(['Enter new name (without extension):', '> '])
+  let l:name = wiki#ui#input(#{info: 'Enter new name (without extension):'})
 
   call wiki#page#rename(l:name, 'ask')
 endfunction
