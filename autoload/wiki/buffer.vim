@@ -57,6 +57,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiLinkToggle         call wiki#link#toggle_current()
   command! -buffer WikiPageDelete         call wiki#page#delete()
   command! -buffer WikiPageRename         call wiki#page#rename()
+  command! -buffer WikiPageRenameSection  call wiki#page#rename_section()
   command! -buffer WikiPageToc            call wiki#toc#create(0)
   command! -buffer WikiPageTocLocal       call wiki#toc#create(1)
   command! -buffer -range=% -nargs=* WikiExport
@@ -98,6 +99,7 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-link-toggle)          :WikiLinkToggle<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-delete)          :WikiPageDelete<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-rename)          :WikiPageRename<cr>
+  nnoremap <silent><buffer> <plug>(wiki-page-rename-section)  :WikiPageRenameSection<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-toc)             :WikiPageToc<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-toc-local)       :WikiPageTocLocal<cr>
   nnoremap <silent><buffer> <plug>(wiki-export)               :WikiExport<cr>
@@ -151,6 +153,7 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-link-toggle-operator)': 'gl',
           \ '<plug>(wiki-page-delete)': '<leader>wd',
           \ '<plug>(wiki-page-rename)': '<leader>wr',
+          \ '<plug>(wiki-page-rename-section)': '<f2>',
           \ '<plug>(wiki-page-toc)': '<leader>wt',
           \ '<plug>(wiki-page-toc-local)': '<leader>wT',
           \ '<plug>(wiki-export)': '<leader>wp',

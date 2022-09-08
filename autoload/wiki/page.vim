@@ -166,6 +166,70 @@ function! wiki#page#rename_to(newname, ...) abort "{{{1
 endfunction
 
 " }}}1
+function! wiki#page#rename_section() abort "{{{1
+  call wiki#page#rename_section_to(
+        \ wiki#ui#input(#{info: 'Enter new section name:'}))
+endfunction
+
+" }}}1
+function! wiki#page#rename_section_to(newname) abort "{{{1
+  let l:lnum = line('.')
+  let l:sections = filter(
+        \ wiki#toc#gather_entries(),
+        \ { _, x -> x.lnum <= l:lnum })
+  if empty(l:sections)
+    return wiki#log#error('No current section recognized!')
+  endif
+  let l:section = l:sections[-1]
+
+  call wiki#log#info(printf('Renaming section from "%s" to "%s"',
+        \ l:section.header, a:newname))
+
+  " Update header
+  call setline(l:section.lnum,
+        \ printf('%s %s',
+        \   repeat('#', l:section.level),
+        \   a:newname))
+
+  " Update local anchors
+  let l:pos = getcurpos()
+  let l:new_anchor = join([''] + l:section.anchors[:-2] + [a:newname], '#')
+  keepjumps execute '%s/\V' . l:section.anchor
+        \ . '/' . l:new_anchor
+        \ . '/' . (&gdefault ? '' : 'g')
+  call cursor(l:pos[1:])
+  silent update
+
+  " Update remote anchors
+  let l:graph = wiki#graph#get_backlinks()
+  call filter(l:graph, { _, x -> x.filename_from !=# x.filename_to })
+  call filter(l:graph, { _, x -> '#' . x.anchor =~# l:section.anchor })
+
+  let l:grouped_links = wiki#u#group_by(l:graph, 'filename_from')
+
+  let l:n_files = 0
+  let l:n_links = 0
+  for [l:file, l:links] in items(l:grouped_links)
+    let l:n_files += 1
+    call wiki#log#info('Updating links in: ' . fnamemodify(l:file, ':t'))
+    let l:lines = readfile(l:file)
+    for l:link in l:links
+      let l:n_links += 1
+      let l:line = l:lines[l:link.lnum - 1]
+      let l:lines[l:link.lnum - 1] = substitute(
+            \ l:lines[l:link.lnum - 1],
+            \ '\V' . l:section.anchor,
+            \ l:new_anchor,
+            \ 'g')
+    endfor
+    call writefile(l:lines, l:file)
+  endfor
+
+  call wiki#log#info(
+        \ printf('Updated %d links in %d files', l:n_links, l:n_files))
+endfunction
+
+" }}}1
 function! wiki#page#get_title(...) abort " {{{1
   let l:filename = wiki#u#eval_filename(a:0 > 0 ? a:1 : '')
   if !filereadable(l:filename) | return '' | endif
