@@ -40,13 +40,26 @@ function! wiki#page#delete() abort "{{{1
 endfunction
 
 "}}}1
-function! wiki#page#rename(newname, ...) abort "{{{1
+function! wiki#page#rename() abort "{{{1
+  " Ask if user wants to rename
+  if !wiki#ui#confirm(printf('Rename "%s"?', expand('%:t:r')))
+    return
+  endif
+
+  " Get new page name
+  let l:name = wiki#ui#input(#{info: 'Enter new name (without extension):'})
+
+  call wiki#page#rename_to(l:name, 'ask')
+endfunction
+
+" }}}1
+function! wiki#page#rename_to(newname, ...) abort "{{{1
   redraw!
 
   let l:dir_mode = get(a:, 1, 'abort')
   if index(['abort', 'ask', 'create'], l:dir_mode) ==? -1
     return wiki#log#error(
-          \ 'The second argument to wiki#page#rename must be one of',
+          \ 'The second argument to wiki#page#rename_to must be one of',
           \ '"abort", "ask", or "create"!',
           \ 'Recieved argument: ' . l:dir_mode,
           \)
@@ -150,19 +163,6 @@ function! wiki#page#rename(newname, ...) abort "{{{1
   silent call wiki#tags#reload()
 
   execute 'buffer' l:bufnr
-endfunction
-
-" }}}1
-function! wiki#page#rename_ask() abort "{{{1
-  " Ask if user wants to rename
-  if !wiki#ui#confirm(printf('Rename "%s"?', expand('%:t:r')))
-    return
-  endif
-
-  " Get new page name
-  let l:name = wiki#ui#input(#{info: 'Enter new name (without extension):'})
-
-  call wiki#page#rename(l:name, 'ask')
 endfunction
 
 " }}}1

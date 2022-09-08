@@ -5,7 +5,7 @@ runtime plugin/wiki.vim
 
 silent edit wiki-tmp/test\ 2.md
 
-silent call wiki#page#rename('test 3')
+silent call wiki#page#rename_to('test 3')
 call assert_equal(
       \ expand('<sfile>:h') . '/wiki-tmp/test 3.md',
       \ expand('%:p'))

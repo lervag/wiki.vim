@@ -28,9 +28,13 @@ function! wiki#ui#input(opts) abort " {{{1
     call wiki#ui#echo(a:opts.info)
   endif
 
-  return has_key(l:opts, 'completion')
+  let l:input = has_key(l:opts, 'completion')
         \ ? input(l:opts.prompt, l:opts.text, l:opts.completion)
         \ : input(l:opts.prompt, l:opts.text)
+  sleep 75m
+  redraw!
+
+  return l:input
 endfunction
 
 " }}}1

@@ -4,10 +4,10 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#graph#find_backlinks() abort "{{{1
+function! wiki#graph#get_backlinks() abort "{{{1
   if !filereadable(expand('%:p'))
     call wiki#log#info("Can't get backlinks to unsaved file!")
-    return
+    return []
   endif
 
   if !has_key(b:wiki, 'graph')
@@ -15,18 +15,23 @@ function! wiki#graph#find_backlinks() abort "{{{1
   endif
 
   let l:origin = s:file_to_node(expand('%:p'))
-  let l:results = b:wiki.graph.links_to(l:origin)
+  return b:wiki.graph.links_to(l:origin)
+endfunction
 
-  for l:link in l:results
+"}}}1
+function! wiki#graph#find_backlinks() abort "{{{1
+  let l:graph = wiki#graph#get_backlinks()
+
+  for l:link in l:graph
     let l:link.filename = l:link.filename_from
     let l:link.text = readfile(l:link.filename, 0, l:link.lnum)[-1]
   endfor
 
-  if empty(l:results)
+  if empty(l:graph)
     call wiki#log#info('No other file links to this file')
   else
     redraw
-    call setloclist(0, l:results, 'r')
+    call setloclist(0, l:graph, 'r')
     lopen
   endif
 endfunction
