@@ -58,7 +58,7 @@ silent edit ../wiki-basic/index.wiki
 normal! 3G
 silent execute 'let b:wiki.in_journal=1'
 silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
-call assert_equal('[This is a wiki](/this-is-a-wiki).', getline('.'))
+call assert_equal('[This is a wiki](this-is-a-wiki).', getline('.'))
 
 " Test toggle normal on regular markdown links using md style links in journal
 " without `g:wiki_map_text_to_link`
@@ -70,7 +70,7 @@ silent edit ../wiki-basic/index.wiki
 normal! 3G
 silent execute 'let b:wiki.in_journal=1'
 silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
-call assert_equal('[This is a wiki](/This is a wiki).', getline('.'))
+call assert_equal('[This is a wiki](This is a wiki).', getline('.'))
 
 bwipeout!
 let g:wiki_link_target_type = 'md'

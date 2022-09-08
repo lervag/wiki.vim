@@ -44,38 +44,37 @@ function! s:matcher.toggle_template(text, _) abort " {{{1
     let l:url_actual = l:url . '.' . b:wiki.extension
   endif
 
-
   " First try local page
-  if filereadable(wiki#paths#s(printf('%s/%s', expand('%:p:h'), l:url_actual)))
+  let l:root_current = expand('%:p:h')
+  if filereadable(wiki#paths#s(printf('%s/%s', l:root_current, l:url_actual)))
     return wiki#link#template(l:url, l:text)
   endif
 
   " Next try at wiki root
-  let l:root = get(b:wiki, 'root', expand('%:p:h'))
+  let l:root = get(b:wiki, 'root', l:root_current)
+  let l:prefix = resolve(l:root) ==# resolve(l:root_current) ? '' : '/'
   if filereadable(wiki#paths#s(printf('%s/%s', l:root, l:url_actual)))
-    return wiki#link#template('/' . l:url, l:text)
+    return wiki#link#template(l:prefix . l:url, l:text)
   endif
 
   " Finally we see if there are completable candidates
   let l:candidates = map(
         \ glob(printf(
         \     '%s/%s*.%s', l:root, l:url_root, b:wiki.extension), 0, 1),
-        \ 'fnamemodify(v:val, '':t:r'')')
+        \ { _, x -> fnamemodify(x, ':t:r') })
 
   " Solve trivial cases first
   if len(l:candidates) == 0
-    return wiki#link#template(
-          \ (b:wiki.in_journal ? '/' : '') . l:url, l:text)
+    return wiki#link#template(l:prefix . l:url, l:text)
   endif
 
   " Select with menu
   let l:new = l:url . ' (NEW PAGE)'
   let l:choice = wiki#ui#select(l:candidates + [l:new])
-  redraw!
   return empty(l:choice) ? l:url : (
         \ l:choice ==# l:new
         \   ? wiki#link#template(l:url, l:text)
-        \   : wiki#link#template('/' . l:choice, ''))
+        \   : wiki#link#template(l:prefix . l:choice, ''))
 endfunction
 
 " }}}1
