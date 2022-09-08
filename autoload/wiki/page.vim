@@ -196,7 +196,7 @@ function! wiki#page#rename_section_to(newname) abort "{{{1
   let l:new_anchor = join([''] + l:section.anchors[:-2] + [a:newname], '#')
   keepjumps execute '%s/\V' . l:section.anchor
         \ . '/' . l:new_anchor
-        \ . '/' . (&gdefault ? '' : 'g')
+        \ . '/e' . (&gdefault ? '' : 'g')
   call cursor(l:pos[1:])
   silent update
 

@@ -1,0 +1,7 @@
+Links before changing section name!
+
+* [[pageA#Section 1#Subsection A]]
+* [[pageA#Section 1#Subsection B]]
+* [[pageA#Section 2#Subsection A]]
+* [[pageA#Section 2#Subsection B]]
+
