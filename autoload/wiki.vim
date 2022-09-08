@@ -96,6 +96,7 @@ if get(s:, 'reload_guard', 1)
     endif
 
     let &l:foldmethod = l:foldmethod
+    call wiki#log#info('The plugin has been reloaded!')
     unlet s:reload_guard
   endfunction
 endif
