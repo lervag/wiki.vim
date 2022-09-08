@@ -56,7 +56,34 @@ endfunction
 
 " }}}1
 function! wiki#page#rename_to(newname, ...) abort "{{{1
-  redraw!
+  " Does not support renaming files inside journal
+  if b:wiki.in_journal
+    return wiki#log#error('Not supported yet.')
+  endif
+
+  " Check if current file exists
+  let l:oldpath = expand('%:p')
+  if !filereadable(l:oldpath)
+    return wiki#log#error(
+          \ 'Cannot rename "' . l:oldpath . '".',
+          \ 'It does not exist! (New file? Save it before renaming.)'
+          \)
+  endif
+
+  " The new name must be nontrivial
+  if empty(substitute(a:newname, '\s*', '', ''))
+    return wiki#log#error('Cannot rename to an empty filename!')
+  endif
+
+  " The target path must not exist
+  let l:newpath = wiki#paths#s(printf('%s/%s.%s',
+        \ expand('%:p:h'), a:newname, b:wiki.extension))
+  if filereadable(l:newpath)
+    return wiki#log#error(
+          \ 'Cannot rename to "' . l:newpath . '".',
+          \ 'File with that name exist!'
+          \)
+  endif
 
   let l:dir_mode = get(a:, 1, 'abort')
   if index(['abort', 'ask', 'create'], l:dir_mode) ==? -1
@@ -66,36 +93,6 @@ function! wiki#page#rename_to(newname, ...) abort "{{{1
           \ 'Recieved argument: ' . l:dir_mode,
           \)
   end
-
-  let l:oldpath = expand('%:p')
-  let l:newpath = wiki#paths#s(printf('%s/%s.%s',
-        \ expand('%:p:h'), a:newname, b:wiki.extension))
-
-  " Check if current file exists
-  if !filereadable(l:oldpath)
-    return wiki#log#error(
-          \ 'Cannot rename "' . l:oldpath . '".',
-          \ 'It does not exist! (New file? Save it before renaming.)'
-          \)
-  endif
-
-  " Does not support renaming files inside journal
-  if b:wiki.in_journal
-    return wiki#log#error('Not supported yet.')
-  endif
-
-  " The new name must be nontrivial
-  if empty(substitute(a:newname, '\s*', '', ''))
-    return wiki#log#error('Cannot rename to an empty filename!')
-  endif
-
-  " The target path must not exist
-  if filereadable(l:newpath)
-    return wiki#log#error(
-          \ 'Cannot rename to "' . l:newpath . '".',
-          \ 'File with that name exist!'
-          \)
-  endif
 
   " Check if directory exists
   let l:target_dir = fnamemodify(l:newpath, ':p:h')
@@ -119,7 +116,7 @@ function! wiki#page#rename_to(newname, ...) abort "{{{1
   endif
 
   " Rename current file to l:newpath
-  let l:bufnr = bufnr('')
+  let l:current_bufnr = bufnr('')
   try
     call wiki#log#info(
           \ printf('Renaming "%s" to "%s" ...',
@@ -135,20 +132,14 @@ function! wiki#page#rename_to(newname, ...) abort "{{{1
 
   " Open new file and remove old buffer
   execute 'silent edit' l:newpath
-  execute 'silent bwipeout' l:bufnr
-  let l:bufnr = bufnr('')
+  execute 'silent bwipeout' l:current_bufnr
+  let l:current_bufnr = bufnr('')
 
-  " Get list of open wiki buffers
-  let l:bufs =
-        \ map(
-        \   filter(
-        \     filter(range(1, bufnr('$')), 'buflisted(v:val)'),
-        \     '!empty(getbufvar(v:val, ''wiki''))'),
-        \   'fnamemodify(bufname(v:val), '':p'')')
-
-  " Save other wiki buffers
-  for l:bufname in l:bufs
-    execute 'buffer' fnameescape(l:bufname)
+  " Save all open wiki buffers (prepare for updating links)
+  let l:wiki_bufnrs = filter(range(1, bufnr('$')),
+        \ {_, x -> buflisted(x) && !empty(getbufvar(x, 'wiki'))})
+  for l:bufnr in l:wiki_bufnrs
+    execute 'buffer' l:bufnr
     update
   endfor
 
@@ -156,15 +147,15 @@ function! wiki#page#rename_to(newname, ...) abort "{{{1
   call s:update_links_in_wiki(l:oldpath, l:newpath)
 
   " Refresh other wiki buffers
-  for l:bufname in l:bufs
-    execute 'buffer' fnameescape(l:bufname)
+  for l:bufnr in l:wiki_bufnrs
+    execute 'buffer' l:bufnr
     edit
   endfor
 
   " Refresh tags
   silent call wiki#tags#reload()
 
-  execute 'buffer' l:bufnr
+  execute 'buffer' l:current_bufnr
 endfunction
 
 " }}}1
