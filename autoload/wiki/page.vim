@@ -23,6 +23,7 @@ function! wiki#page#open_ask() abort "{{{1
 endfunction
 
 "}}}1
+
 function! wiki#page#delete() abort "{{{1
   if !wiki#ui#confirm(printf('Delete "%s"?', expand('%')))
     return
@@ -40,6 +41,7 @@ function! wiki#page#delete() abort "{{{1
 endfunction
 
 "}}}1
+
 function! wiki#page#rename() abort "{{{1
   " Ask if user wants to rename
   if !wiki#ui#confirm(printf('Rename "%s"?', expand('%:t:r')))
@@ -173,14 +175,10 @@ endfunction
 
 " }}}1
 function! wiki#page#rename_section_to(newname) abort "{{{1
-  let l:lnum = line('.')
-  let l:sections = filter(
-        \ wiki#toc#gather_entries(),
-        \ { _, x -> x.lnum <= l:lnum })
-  if empty(l:sections)
+  let l:section = wiki#toc#get_section_at(line('.'))
+  if empty(l:section)
     return wiki#log#error('No current section recognized!')
   endif
-  let l:section = l:sections[-1]
 
   call wiki#log#info(printf('Renaming section from "%s" to "%s"',
         \ l:section.header, a:newname))
@@ -230,27 +228,7 @@ function! wiki#page#rename_section_to(newname) abort "{{{1
 endfunction
 
 " }}}1
-function! wiki#page#get_title(...) abort " {{{1
-  let l:filename = wiki#u#eval_filename(a:0 > 0 ? a:1 : '')
-  if !filereadable(l:filename) | return '' | endif
 
-  let preblock = 0
-  for l:line in readfile(l:filename)
-    " Ignore fenced code blocks
-    if line =~# '^\s*```'
-      let l:preblock += 1
-    endif
-    if l:preblock % 2 | continue | endif
-
-    " Parse headers
-    let l:match_header = matchlist(line, g:wiki#rx#header_items)
-    if empty(l:match_header) | continue | endif
-
-    return l:match_header[2]
-  endfor
-endfunction
-
-" }}}1
 function! wiki#page#export(line1, line2, ...) abort " {{{1
   let l:cfg = deepcopy(g:wiki_export)
   let l:cfg.fname = ''

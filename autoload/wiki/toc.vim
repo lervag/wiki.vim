@@ -93,17 +93,52 @@ endfunction
 
 " }}}1
 
+function! wiki#toc#get_page_title(...) abort " {{{1
+  let l:filename = wiki#u#eval_filename(a:0 > 0 ? a:1 : '')
+  if !filereadable(l:filename) | return '' | endif
+
+  let l:opts = #{ first_only: v:true }
+  if l:filename !=# expand('%:p')
+    let l:opts.lines = readfile(l:filename)
+  endif
+
+  let l:toc = wiki#toc#gather_entries(l:opts)
+  return empty(l:toc) ? '' : l:toc[0].header
+endfunction
+
+" }}}1
+function! wiki#toc#get_section_at(lnum) abort " {{{1
+  let l:toc = wiki#toc#gather_entries(#{ at_lnum: a:lnum })
+  return empty(l:toc) ? {} : l:toc[0]
+endfunction
+
+" }}}1
+
 function! wiki#toc#gather_entries(...) abort " {{{1
   " Gather ToC entries from list of lines
   "
-  " Input:  List of lines to parse
+  " Input:  Options dictionary with following keys
+  "   lines:      List of lines to parse
+  "   first_only: Return only first ToC entry
+  "   at_lnum:    Return the entry that covers specified line
   " Output: ToC entries
+
+  let l:opts = extend(a:0 > 0 ? a:1 : {}, #{
+        \ first_only: v:false
+        \}, 'keep')
+  if !has_key(l:opts, 'lines')
+    let l:opts.lines = getline(1, '$')
+  endif
 
   let l:entries = []
   let l:lnum = 0
   let l:preblock = v:false
   let l:anchors = ['', '', '', '', '', '', '']
-  for l:line in a:0 > 0 ? a:1 : getline(1, '$')
+  for l:line in l:opts.lines
+    " Optional: Return current section
+    if has_key(l:opts, 'at_lnum') && l:lnum >= l:opts.at_lnum
+      return l:entries[-1:]
+    endif
     let l:lnum += 1
 
     " Ignore fenced code blocks
@@ -128,6 +163,11 @@ function! wiki#toc#gather_entries(...) abort " {{{1
           \ 'level' : l:level,
           \ 'lnum' : l:lnum,
           \})
+
+    " Optional: Return first section only
+    if l:opts.first_only
+      return l:entries[:0]
+    endif
   endfor
 
   return l:entries
@@ -147,7 +187,7 @@ function! wiki#toc#gather_anchors(...) abort " {{{1
     let l:cache.modified = 1
     let l:current.ftime = l:ftime
     let l:current.anchors = map(
-          \ wiki#toc#gather_entries(readfile(l:filename)),
+          \ wiki#toc#gather_entries(#{lines: readfile(l:filename)}),
           \ 'v:val.anchor')
   endif
   call l:cache.write()

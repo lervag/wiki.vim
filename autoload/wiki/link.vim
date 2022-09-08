@@ -97,7 +97,7 @@ function! wiki#link#set_text_from_header() abort "{{{1
   let l:link = wiki#link#get()
   if index(['wiki', 'journal'], l:link.scheme) < 0 | return | endif
 
-  let l:title = wiki#page#get_title(l:link)
+  let l:title = wiki#toc#get_page_title(l:link)
   if empty(l:title) | return | endif
 
   try
