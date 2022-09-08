@@ -142,3 +142,23 @@ function! wiki#u#uniq_unsorted(list) abort " {{{1
 endfunction
 
 " }}}1
+function wiki#u#group_by(list_of_dicts, key) abort " {{{1
+  if type(a:list_of_dicts) !=# v:t_list | return {} | endif
+  let l:relevant_dicts = filter(
+        \ a:list_of_dicts,
+        \ { _, x -> type(x) ==# v:t_dict && has_key(x, a:key) })
+
+  let l:result = {}
+  for l:dict in l:relevant_dicts
+    let l:value = remove(l:dict, a:key)
+    if has_key(l:result, l:value)
+      call add(l:result[l:value], l:dict)
+    else
+      let l:result[l:value] = [l:dict]
+    endif
+  endfor
+
+  return l:result
+endfunction
+
+" }}}1
