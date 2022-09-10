@@ -113,3 +113,16 @@ function! wiki#debug#stacktrace(...) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#debug#time(...) abort " {{{1
+  let l:t1 = reltimefloat(reltime())
+
+  if a:0 > 0
+    call wiki#log#warn(printf(
+          \ "%s: %8.5f\n",
+          \ a:0 > 1 ? a:2 : 'Time elapsed', l:t1 - a:1))
+  endif
+
+  return l:t1
+endfunction
+
+" }}}1
