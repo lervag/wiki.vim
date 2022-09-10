@@ -1,8 +1,6 @@
 source ../init.vim
 runtime plugin/wiki.vim
 
-let g:wiki_cache_persistent = 0
-
 silent edit ../wiki-basic/index.wiki
 
 let s:candidates = wiki#test#completion('[[', 'li')

@@ -1,7 +1,6 @@
 source ../init.vim
 runtime plugin/wiki.vim
 
-let g:wiki_cache_persistent = 0
 let g:wiki_log_verbose = 0
 
 let g:wiki_filetypes = ['md']

@@ -7,3 +7,5 @@ set nomore
 nnoremap q :qall!<cr>
 
 let g:testroot = fnamemodify(expand('<cfile>'), ':p:h:h')
+
+let g:wiki_cache_persistent = 0
