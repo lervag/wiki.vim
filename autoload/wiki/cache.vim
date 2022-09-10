@@ -234,7 +234,7 @@ endfunction
 " Utility functions
 "
 function! s:local_name(name) abort " {{{1
-  let l:filename = exists('b:wiki') ? b:wiki.root : expand('%:p:h')
+  let l:filename = wiki#get_root()
   let l:filename = substitute(l:filename, '\s\+', '_', 'g')
   if exists('+shellslash') && !&shellslash
     let l:filename = substitute(l:filename, '^\(\u\):', '-\1-', '')
@@ -248,4 +248,4 @@ endfunction
 " }}}1
 
 
-let s:_version = 'cache_v1'
+let s:_version = 'cache_v2'

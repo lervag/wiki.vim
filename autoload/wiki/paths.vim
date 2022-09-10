@@ -93,6 +93,15 @@ function! wiki#paths#relative(path, current) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#paths#to_node(path) abort " {{{1
+  " Input: An absolute path
+  " Output: Relative path without extension with respect to the wiki root,
+  "         unless absolute path is shorter (a "node")
+
+  return fnamemodify(wiki#paths#shorten_relative(a:path), ':r')
+endfunction
+
+" }}}1
 
 
 let s:cd = haslocaldir()

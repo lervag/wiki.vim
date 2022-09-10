@@ -190,11 +190,12 @@ function! wiki#page#rename_section_to(newname) abort "{{{1
   silent update
 
   " Update remote anchors
-  let l:graph = wiki#graph#get_backlinks()
-  call filter(l:graph, { _, x -> x.filename_from !=# x.filename_to })
-  call filter(l:graph, { _, x -> '#' . x.anchor =~# l:section.anchor })
+  let l:graph = wiki#graph#builder#get()
+  let l:links = l:graph.get_links_to(expand('%:p'))
+  call filter(l:links, { _, x -> x.filename_from !=# x.filename_to })
+  call filter(l:links, { _, x -> '#' . x.anchor =~# l:section.anchor })
 
-  let l:grouped_links = wiki#u#group_by(l:graph, 'filename_from')
+  let l:grouped_links = wiki#u#group_by(l:links, 'filename_from')
 
   let l:n_files = 0
   let l:n_links = 0
