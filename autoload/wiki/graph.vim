@@ -19,7 +19,7 @@ function! wiki#graph#get_backlinks() abort "{{{1
 endfunction
 
 "}}}1
-function! wiki#graph#find_backlinks() abort "{{{1
+function! wiki#graph#list_backlinks() abort "{{{1
   let l:graph = wiki#graph#get_backlinks()
 
   for l:link in l:graph
@@ -72,45 +72,6 @@ endfunction
 
 "}}}1
 
-function! wiki#graph#out(...) abort " {{{1
-  let l:max_level = a:0 > 0 ? a:1 : -1
-
-  if !has_key(b:wiki, 'graph')
-    let b:wiki.graph = s:graph.init()
-  endif
-
-  let l:stack = [[s:file_to_node(expand('%:p')), []]]
-  let l:visited = []
-  let l:tree = {}
-
-  "
-  " Generate tree
-  "
-  while !empty(l:stack)
-    let [l:node, l:path] = remove(l:stack, 0)
-    if index(l:visited, l:node) >= 0 | continue | endif
-    let l:visited += [l:node]
-
-    let l:current_path = l:path + [l:node]
-    if l:max_level > 0 && len(l:current_path) > l:max_level + 1
-      continue
-    endif
-
-    let l:stack += map(b:wiki.graph.links_from(l:node),
-          \ '[v:val.node_to, l:current_path]')
-
-    if !has_key(l:tree, l:node)
-      let l:tree[l:node] = join(l:current_path, ' / ')
-    endif
-  endwhile
-
-  "
-  " Show graph in scratch buffer
-  "
-  call s:output_to_scratch('WikiGraphOut', sort(values(l:tree)))
-endfunction
-
-" }}}1
 function! wiki#graph#in(...) abort "{{{1
   let l:max_level = a:0 > 0 ? a:1 : -1
 
@@ -151,6 +112,45 @@ function! wiki#graph#in(...) abort "{{{1
 endfunction
 
 "}}}1
+function! wiki#graph#out(...) abort " {{{1
+  let l:max_level = a:0 > 0 ? a:1 : -1
+
+  if !has_key(b:wiki, 'graph')
+    let b:wiki.graph = s:graph.init()
+  endif
+
+  let l:stack = [[s:file_to_node(expand('%:p')), []]]
+  let l:visited = []
+  let l:tree = {}
+
+  "
+  " Generate tree
+  "
+  while !empty(l:stack)
+    let [l:node, l:path] = remove(l:stack, 0)
+    if index(l:visited, l:node) >= 0 | continue | endif
+    let l:visited += [l:node]
+
+    let l:current_path = l:path + [l:node]
+    if l:max_level > 0 && len(l:current_path) > l:max_level + 1
+      continue
+    endif
+
+    let l:stack += map(b:wiki.graph.links_from(l:node),
+          \ '[v:val.node_to, l:current_path]')
+
+    if !has_key(l:tree, l:node)
+      let l:tree[l:node] = join(l:current_path, ' / ')
+    endif
+  endwhile
+
+  "
+  " Show graph in scratch buffer
+  "
+  call s:output_to_scratch('WikiGraphOut', sort(values(l:tree)))
+endfunction
+
+" }}}1
 
 
 let s:graph = {}
