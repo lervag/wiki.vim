@@ -163,7 +163,7 @@ function! s:graph.get_tree_to(file, depth) abort " {{{1
           \)
 
     if !has_key(l:tree, l:file)
-      let l:tree[l:file] = join(l:current_path, ' → ')
+      let l:tree[l:file] = join(l:current_path, ' ← ')
     endif
   endwhile
 
