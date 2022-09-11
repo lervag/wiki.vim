@@ -1009,17 +1009,23 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 
 *<plug>(wiki-graph-check-links)*
 *WikiGraphCheckLinks*
-  Check the wiki for broken links. If any broken links are found, they are
-  added to the location list (|location-list|) and the location list is
-  opened. The process of checking for broken links can take a while if you
-  have a large wiki.
+  Check the current wiki page for broken links. If any broken links are found,
+  they are added to the location list (|location-list|) and the location list
+  is opened.
+
+*<plug>(wiki-graph-check-links-g)*
+*WikiGraphCheckLinksG*
+  Check the entire wiki for broken links. If any broken links are found, they
+  are added to the location list (|location-list|) and the location list is
+  opened. This can take a while if you have a large wiki.
 
 *<plug>(wiki-graph-in)*
 *<plug>(wiki-graph-out)*
 *WikiGraphIn*
 *WikiGraphOut*
   Show link graph in to or out of the current page. A count may be given to
-  limit the depth of the graph.
+  limit the depth of the graph. Notice that this can take a while if you have
+  a large wiki.
 
 *<plug>(wiki-link-next)*
 *WikiLinkNext*
@@ -1282,10 +1288,11 @@ specify global mappings available anywhere, and the liens annotated
   `n`     <leader>wn          |<plug>(wiki-open)|                  [GLOBAL]
   `n`     <leader>w<leader>w  |<plug>(wiki-journal)|               [GLOBAL]
   `n`     <leader>wx          |<plug>(wiki-reload)|                [GLOBAL]
-  `n`     <leader>wb          |<plug>(wiki-graph-find-backlinks)|
-  `n`     <leader>wlc         |<plug>(wiki-graph-check-links)|
-  `n`     <leader>wg          |<plug>(wiki-graph-in)|
-  `n`     <leader>wG          |<plug>(wiki-graph-out)|
+  `n`     <leader>wgb         |<plug>(wiki-graph-find-backlinks)|
+  `n`     <leader>wgc         |<plug>(wiki-graph-check-links)|
+  `n`     <leader>wgC         |<plug>(wiki-graph-check-links-g)|
+  `n`     <leader>wgi         |<plug>(wiki-graph-in)|
+  `n`     <leader>wgo         |<plug>(wiki-graph-out)|
   `n`     <leader>wf          |<plug>(wiki-link-toggle)|
   `n`     <leader>wd          |<plug>(wiki-page-delete)|
   `n`     <leader>wr          |<plug>(wiki-page-rename)|
