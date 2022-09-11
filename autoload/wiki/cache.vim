@@ -72,35 +72,40 @@ endfunction
 " }}}1
 function! wiki#cache#clear(name) abort " {{{1
   if empty(a:name) | return | endif
+  let s:caches = get(s:, 'caches', {})
 
   if a:name ==# 'ALL'
     let l:caches = globpath(g:wiki_cache_root, '*.json', 0, 1)
     for l:file in map(l:caches, {_, x -> fnamemodify(x, ':t:r')})
       let l:cache = wiki#cache#open(l:file)
       call l:cache.clear()
+      unlet! s:caches[l:file]
     endfor
-  else
-    let l:persistent = get(g:, 'wiki_cache_persistent', 1)
-    let s:caches = get(s:, 'caches', {})
-
-    " Clear global caches first (check if opened, then look for files)
-    let l:cache = get(s:caches, a:name, {})
-    if !empty(l:cache)
-      call l:cache.clear()
-    elseif l:persistent
-      let l:cache = wiki#cache#open(a:name)
-      call l:cache.clear()
-    endif
-
-    " Clear local caches
-    let l:cache = get(s:caches, s:local_name(a:name), {})
-    if !empty(l:cache)
-      call l:cache.clear()
-    elseif l:persistent
-      let l:cache = wiki#cache#open(a:name, {'local': 1})
-      call l:cache.clear()
-    endif
+    return
   endif
+
+  let l:persistent = get(g:, 'wiki_cache_persistent', 1)
+
+  " Clear global caches first (check if opened, then look for files)
+  let l:cache = get(s:caches, a:name, {})
+  if !empty(l:cache)
+    call l:cache.clear()
+  elseif l:persistent
+    let l:cache = wiki#cache#open(a:name)
+    call l:cache.clear()
+  endif
+  unlet! s:caches[a:name]
+
+  " Clear local caches
+  let l:name = s:local_name(a:name)
+  let l:cache = get(s:caches, l:name, {})
+  if !empty(l:cache)
+    call l:cache.clear()
+  elseif l:persistent
+    let l:cache = wiki#cache#open(a:name, {'local': 1})
+    call l:cache.clear()
+  endif
+  unlet! s:caches[l:name]
 endfunction
 
 " }}}1
