@@ -23,6 +23,9 @@ let s:graphs = {}
 
 
 let s:graph = {
+      \ 'map': {},
+      \ 'map_update_freq': 360,
+      \ 'map_update_time': -1,
       \ 'save_cache': v:true,
       \}
 
@@ -75,44 +78,8 @@ endfunction
 
 " }}}1
 function! s:graph.get_links_to(file) abort dict " {{{1
-  let l:links = []
-
-  let self.save_cache = v:false
-  for l:file in globpath(self.root, '**/*.' . self.extension, 0, 1)
-    call extend(l:links, filter(
-          \ self.get_links_from(l:file),
-          \ { _, x -> x.filename_to ==# a:file }
-          \))
-  endfor
-  let self.save_cache = v:true
-  call self.cache.write()
-
-  return l:links
-endfunction
-
-" }}}1
-function! s:graph.get_links_map() abort dict " {{{1
-  let l:map = {}
-
-  let self.save_cache = v:false
-  for l:file in globpath(self.root, '**/*.' . self.extension, 0, 1)
-    let l:map[l:file] = {
-          \ 'out': self.get_links_from(l:file),
-          \ 'in': []
-          \}
-  endfor
-  let self.save_cache = v:true
-  call self.cache.write()
-
-  for l:file in values(l:map)
-    for l:link in l:file.out
-      if has_key(l:map, l:link.filename_to)
-        call add(l:map[l:link.filename_to].in, l:link)
-      endif
-    endfor
-  endfor
-
-  return l:map
+  let l:map = self.get_map()
+  return l:map[a:file].in
 endfunction
 
 " }}}1
@@ -145,7 +112,7 @@ function! s:graph.get_tree_to(file, depth) abort " {{{1
   let l:stack = [[a:file, []]]
   let l:visited = []
 
-  let l:map = self.get_links_map()
+  let l:map = self.get_map()
 
   while !empty(l:stack)
     let [l:file, l:path] = remove(l:stack, 0)
@@ -197,6 +164,40 @@ function! s:graph.get_tree_from(file, depth) abort " {{{1
   endwhile
 
   return l:tree
+endfunction
+
+" }}}1
+
+function! s:graph.get_map() abort dict " {{{1
+  if localtime() - self.map_update_time > self.map_update_freq
+    call self.update_map()
+  endif
+
+  return deepcopy(self.map)
+endfunction
+
+" }}}1
+function! s:graph.update_map() abort dict " {{{1
+  let self.save_cache = v:false
+  let self.map = {}
+  for l:file in globpath(self.root, '**/*.' . self.extension, 0, 1)
+    let self.map[l:file] = {
+          \ 'out': self.get_links_from(l:file),
+          \ 'in': []
+          \}
+  endfor
+  let self.save_cache = v:true
+  call self.cache.write()
+
+  for l:file in values(self.map)
+    for l:link in l:file.out
+      if has_key(self.map, l:link.filename_to)
+        call add(self.map[l:link.filename_to].in, l:link)
+      endif
+    endfor
+  endfor
+
+  let self.map_update_time = localtime()
 endfunction
 
 " }}}1

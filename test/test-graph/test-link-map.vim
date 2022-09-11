@@ -4,7 +4,7 @@ runtime plugin/wiki.vim
 silent edit ../wiki-basic/index.wiki
 
 let s:graph = wiki#graph#builder#get()
-let s:map = s:graph.get_links_map()
+let s:map = s:graph.get_map()
 
 call assert_equal(206, len(s:map))
 call assert_equal(4,
