@@ -34,7 +34,7 @@ function! s:graph.create(root, extension) abort dict " {{{1
   let l:new.extension = a:extension
   let l:new.cache = wiki#cache#open('graph', {
         \ 'local': 1,
-        \ 'default': { 'ftime': -1 },
+        \ 'default': { 'ftime': -1, 'links': [] },
         \})
 
   return l:new
@@ -157,10 +157,10 @@ function! s:graph.get_tree_to(file, depth) abort " {{{1
       continue
     endif
 
-    let l:stack += map(
+    let l:stack += uniq(map(
           \ l:map[l:file].in,
           \ { _, x -> [x.filename_from, l:current_path] }
-          \)
+          \))
 
     if !has_key(l:tree, l:file)
       let l:tree[l:file] = join(l:current_path, ' ← ')
@@ -186,10 +186,10 @@ function! s:graph.get_tree_from(file, depth) abort " {{{1
       continue
     endif
 
-    let l:stack += map(
+    let l:stack += uniq(map(
           \ self.get_links_from(l:file),
           \ { _, x -> [x.filename_to, l:current_path] }
-          \)
+          \))
 
     if !has_key(l:tree, l:file)
       let l:tree[l:file] = join(l:current_path, ' → ')
