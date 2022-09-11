@@ -4,31 +4,6 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#graph#find_backlinks() abort "{{{1
-  let l:file = expand('%:p')
-  if !filereadable(l:file)
-    call wiki#log#info("Can't find backlinks for unsaved file!")
-    return []
-  endif
-
-  let l:graph = wiki#graph#builder#get()
-  let l:links = l:graph.get_links_to(l:file)
-  if empty(l:links)
-    call wiki#log#info('No other file links to this file')
-    return
-  endif
-
-  for l:link in l:links
-    let l:link.filename = l:link.filename_from
-    let l:link.text = readfile(l:link.filename, 0, l:link.lnum)[-1]
-  endfor
-
-  call setloclist(0, l:links, 'r')
-  lopen
-endfunction
-
-"}}}1
-
 function! wiki#graph#check_links(...) abort "{{{1
   let l:graph = wiki#graph#builder#get()
 
@@ -58,7 +33,30 @@ function! wiki#graph#check_links(...) abort "{{{1
 endfunction
 
 "}}}1
+function! wiki#graph#find_backlinks() abort "{{{1
+  let l:file = expand('%:p')
+  if !filereadable(l:file)
+    call wiki#log#info("Can't find backlinks for unsaved file!")
+    return []
+  endif
 
+  let l:graph = wiki#graph#builder#get()
+  let l:links = l:graph.get_links_to(l:file)
+  if empty(l:links)
+    call wiki#log#info('No other file links to this file')
+    return
+  endif
+
+  for l:link in l:links
+    let l:link.filename = l:link.filename_from
+    let l:link.text = readfile(l:link.filename, 0, l:link.lnum)[-1]
+  endfor
+
+  call setloclist(0, l:links, 'r')
+  lopen
+endfunction
+
+"}}}1
 function! wiki#graph#in(...) abort "{{{1
   let l:graph = wiki#graph#builder#get()
 
