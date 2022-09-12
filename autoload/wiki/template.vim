@@ -144,13 +144,9 @@ endfunction
 
 " }}}1
 function! s:summary.parse(links) abort dict " {{{1
-  let self.links = map(filter(copy(a:links),
-        \   'filereadable(v:val . ''.'' . b:wiki.extension)'),
-        \ '''journal:'' . v:val')
-
-  for l:link in self.links
-    call self.parse_link(l:link)
-  endfor
+  let self.links = filter(map(copy(a:links),
+        \ { _, date -> self.parse_link('journal:' . date) }),
+        \ { _, journal_date -> !empty(journal_date) })
 
   return [''] + self.links + self.get_entries()
 endfunction
@@ -158,6 +154,7 @@ endfunction
 " }}}1
 function! s:summary.parse_link(link) abort dict " {{{1
   let l:link = wiki#url#parse(a:link)
+  if !filereadable(l:link.path) | return '' | endif
 
   let l:order = 1
   let l:entry = {
@@ -222,6 +219,8 @@ function! s:summary.parse_link(link) abort dict " {{{1
 
     call add(l:entry.lines, l:line)
   endfor
+
+  return a:link
 endfunction
 
 " }}}1
