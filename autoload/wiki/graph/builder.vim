@@ -77,9 +77,11 @@ function! s:graph.get_links_from(file) abort dict " {{{1
 endfunction
 
 " }}}1
-function! s:graph.get_links_to(file) abort dict " {{{1
-  let l:map = self.get_map()
-  return l:map[a:file].in
+function! s:graph.get_links_to(file, ...) abort dict " {{{1
+  let l:update = a:0 > 0 ? v:true : v:false
+  let l:map = self.get_map(l:update)
+
+  return get(get(l:map, a:file, {}), 'in', [])
 endfunction
 
 " }}}1
@@ -107,12 +109,13 @@ endfunction
 
 " }}}1
 
-function! s:graph.get_tree_to(file, depth) abort " {{{1
+function! s:graph.get_tree_to(file, depth, ...) abort " {{{1
   let l:tree = {}
   let l:stack = [[a:file, []]]
   let l:visited = []
 
-  let l:map = self.get_map()
+  let l:update = a:0 > 0 ? v:true : v:false
+  let l:map = self.get_map(l:update)
 
   while !empty(l:stack)
     let [l:file, l:path] = remove(l:stack, 0)
@@ -168,8 +171,11 @@ endfunction
 
 " }}}1
 
-function! s:graph.get_map() abort dict " {{{1
-  if localtime() - self.map_update_time > self.map_update_freq
+function! s:graph.get_map(...) abort dict " {{{1
+  let l:force_update = a:0 > 0 ? a:1 : v:false
+
+  if l:force_update
+        \ || localtime() - self.map_update_time > self.map_update_freq
     call self.update_map()
   endif
 
@@ -191,7 +197,12 @@ function! s:graph.update_map() abort dict " {{{1
 
   for l:file in values(self.map)
     for l:link in l:file.out
-      if has_key(self.map, l:link.filename_to)
+      if !has_key(self.map, l:link.filename_to)
+        let self.map[l:link.filename_to] = {
+              \ 'out': [],
+              \ 'in': [l:link]
+              \}
+      else
         call add(self.map[l:link.filename_to].in, l:link)
       endif
     endfor
