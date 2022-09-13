@@ -4,22 +4,19 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#page#open(page) abort "{{{1
-  let l:page =
-        \ !empty(g:wiki_map_create_page)
-        \   && (type(g:wiki_map_create_page) == v:t_func
-        \       || exists('*' . g:wiki_map_create_page))
-        \ ? call(g:wiki_map_create_page, [a:page])
-        \ : a:page
-  call wiki#url#parse('wiki:/' . l:page).follow()
-endfunction
-
-"}}}1
-function! wiki#page#open_ask() abort "{{{1
-  let l:page = wiki#ui#input(#{info: 'Open page (or create new): '})
+function! wiki#page#open(...) abort "{{{1
+  let l:page = a:0 > 0 ?
+        \ a:1
+        \ : wiki#ui#input(#{info: 'Open page (or create new): '})
   if empty(l:page) | return | endif
 
-  call wiki#page#open(l:page)
+  if !empty(g:wiki_map_create_page)
+        \ && (type(g:wiki_map_create_page) == v:t_func
+        \     || exists('*' . g:wiki_map_create_page))
+    let l:page = call(g:wiki_map_create_page, [l:page])
+  endif
+
+  call wiki#url#parse('wiki:/' . l:page).follow()
 endfunction
 
 "}}}1
