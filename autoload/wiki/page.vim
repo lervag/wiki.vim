@@ -20,7 +20,6 @@ function! wiki#page#open(...) abort "{{{1
 endfunction
 
 "}}}1
-
 function! wiki#page#delete() abort "{{{1
   if !wiki#ui#confirm(printf('Delete "%s"?', expand('%')))
     return
@@ -38,67 +37,71 @@ function! wiki#page#delete() abort "{{{1
 endfunction
 
 "}}}1
+function! wiki#page#rename(...) abort "{{{1
+  " This function renames a wiki page to a new name. The names used here are
+  " filenames without the extension. The outer function parses the options and
+  " validates the parameters before passing them to dedicated private
+  " functions.
+  "
+  " Input: An optional dictionary with the following keys:
+  "   dir_mode: "ask" (default), "abort" or "create"
+  "   new_name: The new page name
 
-function! wiki#page#rename() abort "{{{1
-  " Ask if user wants to rename
-  if !wiki#ui#confirm(printf('Rename "%s"?', expand('%:t:r')))
-    return
-  endif
-
-  " Get new page name
-  let l:name = wiki#ui#input(#{info: 'Enter new name (without extension):'})
-
-  call wiki#page#rename_to(l:name, 'ask')
-endfunction
-
-" }}}1
-function! wiki#page#rename_to(newname, ...) abort "{{{1
   " Does not support renaming files inside journal
   if b:wiki.in_journal
     return wiki#log#error('Not supported yet.')
   endif
 
-  " Check if current file exists
-  let l:oldpath = expand('%:p')
-  if !filereadable(l:oldpath)
+  let l:opts = extend(#{
+        \ dir_mode: 'ask'
+        \}, a:0 > 0 ? a:1 : {})
+
+  if index(['abort', 'ask', 'create'], l:opts.dir_mode) < 0
     return wiki#log#error(
-          \ 'Cannot rename "' . l:oldpath . '".',
+          \ 'The dir_mode option for wiki#page#rename must be one of',
+          \ '"abort", "ask", or "create"!',
+          \ 'Recieved: ' . l:opts.dir_mode,
+          \)
+  end
+
+  " Check if current file exists
+  let l:path_old = expand('%:p')
+  if !filereadable(l:path_old)
+    return wiki#log#error(
+          \ 'Cannot rename "' . l:path_old . '".',
           \ 'It does not exist! (New file? Save it before renaming.)'
           \)
   endif
 
+  if !has_key(l:opts, 'new_name')
+    let l:opts.new_name = wiki#ui#input(
+          \ #{info: 'Enter new name (without extension) [empty cancels]:'})
+  endif
+  if empty(l:opts.new_name) | return | endif
+
   " The new name must be nontrivial
-  if empty(substitute(a:newname, '\s*', '', ''))
-    return wiki#log#error('Cannot rename to an empty filename!')
+  if empty(substitute(l:opts.new_name, '\s*', '', ''))
+    return wiki#log#error('Cannot rename to a whitespace filename!')
   endif
 
   " The target path must not exist
-  let l:newpath = wiki#paths#s(printf('%s/%s.%s',
-        \ expand('%:p:h'), a:newname, b:wiki.extension))
-  if filereadable(l:newpath)
+  let l:path_new = wiki#paths#s(printf('%s/%s.%s',
+        \ expand('%:p:h'), l:opts.new_name, b:wiki.extension))
+  if filereadable(l:path_new)
     return wiki#log#error(
-          \ 'Cannot rename to "' . l:newpath . '".',
+          \ 'Cannot rename to "' . l:path_new . '".',
           \ 'File with that name exist!'
           \)
   endif
 
-  let l:dir_mode = get(a:, 1, 'abort')
-  if index(['abort', 'ask', 'create'], l:dir_mode) ==? -1
-    return wiki#log#error(
-          \ 'The second argument to wiki#page#rename_to must be one of',
-          \ '"abort", "ask", or "create"!',
-          \ 'Recieved argument: ' . l:dir_mode,
-          \)
-  end
-
-  " Check if directory exists
-  let l:target_dir = fnamemodify(l:newpath, ':p:h')
+  " Check if target directory exists
+  let l:target_dir = fnamemodify(l:path_new, ':p:h')
   if !isdirectory(l:target_dir)
-    if l:dir_mode ==? 'abort'
+    if l:opts.dir_mode ==# 'abort'
       call wiki#log#warn(
             \ 'Directory "' . l:target_dir . '" does not exist. Aborting.')
       return
-    elseif l:dir_mode ==? 'ask'
+    elseif l:opts.dir_mode ==# 'ask'
       if !wiki#ui#confirm([
             \ prinft('Directory "%s" does not exist.', l:target_dir),
             \ 'Create it?'
@@ -107,55 +110,27 @@ function! wiki#page#rename_to(newname, ...) abort "{{{1
       endif
     end
 
-    " At this point dir_mode is 'create' or the user said 'yes'
     call wiki#log#info('Creating directory "' . l:target_dir . '".')
     call mkdir(l:target_dir, 'p')
   endif
 
-  " Rename current file to l:newpath
-  let l:current_bufnr = bufnr('')
   try
-    call wiki#log#info(
-          \ printf('Renaming "%s" to "%s" ...',
-          \   expand('%:t'),
-          \   fnamemodify(l:newpath, ':t')))
-    if rename(l:oldpath, l:newpath) != 0
-      throw 'wiki.vim: Cannot rename file!'
-    end
+    call s:rename_files(l:path_old, l:path_new)
   catch
     return wiki#log#error(
-          \ printf('Cannot rename "%s" to "%s"', expand('%:t:r') , l:newpath))
+          \ printf('Cannot rename "%s" to "%s" ...',
+          \   fnamemodify(l:path_old, ':t'),
+          \   fnamemodify(l:path_new, ':t')))
   endtry
 
-  " Open new file and remove old buffer
-  execute 'silent edit' l:newpath
-  execute 'silent bwipeout' l:current_bufnr
-  let l:current_bufnr = bufnr('')
+  call s:update_links(l:path_old, l:path_new)
 
-  " Save all open wiki buffers (prepare for updating links)
-  let l:wiki_bufnrs = filter(range(1, bufnr('$')),
-        \ {_, x -> buflisted(x) && !empty(getbufvar(x, 'wiki'))})
-  for l:bufnr in l:wiki_bufnrs
-    execute 'buffer' l:bufnr
-    update
-  endfor
-
-  " Update links
-  call s:update_links_in_wiki(l:oldpath, l:newpath)
-
-  " Refresh other wiki buffers
-  for l:bufnr in l:wiki_bufnrs
-    execute 'buffer' l:bufnr
-    edit
-  endfor
-
-  " Refresh tags
+  " Tag data may be changed as a result of the renaming
   silent call wiki#tags#reload()
-
-  execute 'buffer' l:current_bufnr
 endfunction
 
 " }}}1
+
 function! wiki#page#rename_section() abort "{{{1
   call wiki#page#rename_section_to(
         \ wiki#ui#input(#{info: 'Enter new section name:'}))
@@ -289,6 +264,47 @@ endfunction
 
 " }}}1
 
+function! s:rename_files(path_old, path_new) abort "{{{1
+  let l:bufnr = bufnr('')
+  call wiki#log#info(
+        \ printf('Renaming "%s" to "%s" ...',
+        \   fnamemodify(a:path_old, ':t'),
+        \   fnamemodify(a:path_new, ':t')))
+  if rename(a:path_old, a:path_new) != 0
+    throw 'wiki.vim: Cannot rename file!'
+  end
+
+  " Open new file and remove old buffer
+  execute 'silent edit' a:path_new
+  execute 'silent bwipeout' l:bufnr
+endfunction
+
+" }}}1
+function! s:update_links(path_old, path_new) abort "{{{1
+  let l:current_bufnr = bufnr('')
+
+  " Save all open wiki buffers (prepare for updating links)
+  let l:wiki_bufnrs = filter(range(1, bufnr('$')),
+        \ {_, x -> buflisted(x) && !empty(getbufvar(x, 'wiki'))})
+  for l:bufnr in l:wiki_bufnrs
+    execute 'buffer' l:bufnr
+    update
+  endfor
+
+  " Update links
+  call s:update_links_in_wiki(a:path_old, a:path_new)
+
+  " Refresh other wiki buffers
+  for l:bufnr in l:wiki_bufnrs
+    execute 'buffer' l:bufnr
+    edit
+  endfor
+
+  " Restore the original buffer
+  execute 'buffer' l:current_bufnr
+endfunction
+
+" }}}1
 function! s:update_links_in_wiki(path_old, path_new) abort " {{{1
   let l:root = wiki#get_root()
 
