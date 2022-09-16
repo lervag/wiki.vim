@@ -40,8 +40,13 @@ function! wiki#graph#find_backlinks() abort "{{{1
     return []
   endif
 
+  call wiki#log#info('Gathering backlinks ...')
+  sleep 10m
   let l:graph = wiki#graph#builder#get()
   let l:links = l:graph.get_links_to(l:file)
+  redraw
+  call wiki#log#info('Gathering backlinks ... done!')
+
   if empty(l:links)
     call wiki#log#info('No other file links to this file')
     return
