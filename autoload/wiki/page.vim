@@ -315,8 +315,8 @@ function! s:update_links(path_old, path_new) abort "{{{1
   endfor
 
   " Move graph nodes from old to new path
-  let l:graph.map[a:path_new] = deepcopy(l:graph.map[a:path_old])
-  unlet l:graph.map[a:path_old]
+  let l:graph.cache_links_in.data[a:path_new]
+        \ = remove(l:graph.cache_links_in.data, a:path_old)
 
   call wiki#log#info(printf('Updated %d links in %d files',
         \ len(l:all_links), len(l:files_with_links)))

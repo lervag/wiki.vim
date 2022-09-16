@@ -224,12 +224,22 @@ endfunction
 
 " }}}1
 function! s:cache.clear() dict abort " {{{1
-  let self.data = {}
+  call self.wipe()
   let self.ftime = -1
   let self.modified = 0
 
   if self.persistent
     call delete(self.path)
+  endif
+endfunction
+
+" }}}1
+function! s:cache.wipe() dict abort " {{{1
+  if has_key(self.data, '__validate')
+    let l:validate = self.data.__validate
+    let self.data = { '__validate': l:validate }
+  else
+    let self.data = {}
   endif
 endfunction
 

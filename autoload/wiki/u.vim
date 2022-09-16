@@ -142,7 +142,7 @@ function! wiki#u#uniq_unsorted(list) abort " {{{1
 endfunction
 
 " }}}1
-function wiki#u#group_by(list_of_dicts, key) abort " {{{1
+function! wiki#u#group_by(list_of_dicts, key) abort " {{{1
   if type(a:list_of_dicts) !=# v:t_list | return {} | endif
   let l:relevant_dicts = filter(
         \ a:list_of_dicts,
