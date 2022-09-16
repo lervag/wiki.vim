@@ -45,6 +45,12 @@ endfunction
 
 " }}}1
 
+function! s:graph.get_files() abort dict " {{{1
+  return globpath(self.root, '**/*.' . self.extension, 0, 1)
+endfunction
+
+" }}}1
+
 function! s:graph.get_links_from(file) abort dict " {{{1
   let l:current = self.cache.get(a:file)
 
@@ -98,7 +104,7 @@ function! s:graph.get_broken_links_global() abort dict " {{{1
   let l:broken_links = []
 
   let self.save_cache = v:false
-  for l:file in globpath(self.root, '**/*.' . self.extension, 0, 1)
+  for l:file in self.get_files()
     call extend(l:broken_links, self.get_broken_links_from(l:file))
   endfor
   let self.save_cache = v:true
@@ -186,7 +192,7 @@ endfunction
 function! s:graph.update_map() abort dict " {{{1
   let self.save_cache = v:false
   let self.map = {}
-  for l:file in globpath(self.root, '**/*.' . self.extension, 0, 1)
+  for l:file in self.get_files()
     let self.map[l:file] = {
           \ 'out': self.get_links_from(l:file),
           \ 'in': []
