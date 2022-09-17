@@ -6,12 +6,9 @@
 
 function! wiki#graph#builder#get() abort " {{{1
   let l:root = wiki#get_root()
-  let l:extension = exists('b:wiki.extension')
-        \ ? b:wiki.extension
-        \ : g:wiki_filetypes[0]
 
   if !has_key(s:graphs, l:root)
-    let s:graphs[l:root] = s:graph.create(l:root, l:extension)
+    let s:graphs[l:root] = s:graph.create(l:root)
   endif
 
   return s:graphs[l:root]
@@ -23,19 +20,22 @@ let s:graphs = {}
 
 
 let s:graph = {
-      \ 'map': {},
-      \ 'map_update_freq': 360,
-      \ 'map_update_time': -1,
       \ 'save_cache': v:true,
       \}
 
-function! s:graph.create(root, extension) abort dict " {{{1
+function! s:graph.create(root) abort dict " {{{1
   let l:new = deepcopy(s:graph)
   unlet l:new.create
 
   let l:new.root = a:root
-  let l:new.extension = a:extension
-  let l:new.cache = wiki#cache#open('graph', {
+  let l:new.extension = exists('b:wiki.extension')
+        \ ? b:wiki.extension
+        \ : g:wiki_filetypes[0]
+  let l:new.cache_links_in = wiki#cache#open('links-in', {
+        \ 'local': 1,
+        \ 'default': [],
+        \})
+  let l:new.cache_links_out = wiki#cache#open('links-out', {
         \ 'local': 1,
         \ 'default': { 'ftime': -1, 'links': [] },
         \})
@@ -45,8 +45,14 @@ endfunction
 
 " }}}1
 
+function! s:graph.get_files() abort dict " {{{1
+  return globpath(self.root, '**/*.' . self.extension, 0, 1)
+endfunction
+
+" }}}1
+
 function! s:graph.get_links_from(file) abort dict " {{{1
-  let l:current = self.cache.get(a:file)
+  let l:current = self.cache_links_out.get(a:file)
 
   let l:ftime = getftime(a:file)
   if l:ftime > l:current.ftime
@@ -67,9 +73,9 @@ function! s:graph.get_links_from(file) abort dict " {{{1
           \ }
           \})
 
-    let self.cache.modified = 1
+    let self.cache_links_out.modified = 1
     if self.save_cache
-      call self.cache.write()
+      call self.cache_links_out.write()
     endif
   endif
 
@@ -77,11 +83,9 @@ function! s:graph.get_links_from(file) abort dict " {{{1
 endfunction
 
 " }}}1
-function! s:graph.get_links_to(file, ...) abort dict " {{{1
-  let l:update = a:0 > 0 ? v:true : v:false
-  let l:map = self.get_map(l:update)
-
-  return get(get(l:map, a:file, {}), 'in', [])
+function! s:graph.get_links_to(file) abort dict " {{{1
+  call self.refresh_cache_links_in()
+  return deepcopy(self.cache_links_in.get(a:file))
 endfunction
 
 " }}}1
@@ -98,24 +102,23 @@ function! s:graph.get_broken_links_global() abort dict " {{{1
   let l:broken_links = []
 
   let self.save_cache = v:false
-  for l:file in globpath(self.root, '**/*.' . self.extension, 0, 1)
+  for l:file in self.get_files()
     call extend(l:broken_links, self.get_broken_links_from(l:file))
   endfor
   let self.save_cache = v:true
-  call self.cache.write()
+  call self.cache_links_out.write()
 
   return l:broken_links
 endfunction
 
 " }}}1
 
-function! s:graph.get_tree_to(file, depth, ...) abort " {{{1
+function! s:graph.get_tree_to(file, depth) abort " {{{1
+  call self.refresh_cache_links_in()
+
   let l:tree = {}
   let l:stack = [[a:file, []]]
   let l:visited = []
-
-  let l:update = a:0 > 0 ? v:true : v:false
-  let l:map = self.get_map(l:update)
 
   while !empty(l:stack)
     let [l:file, l:path] = remove(l:stack, 0)
@@ -128,7 +131,7 @@ function! s:graph.get_tree_to(file, depth, ...) abort " {{{1
     endif
 
     let l:stack += uniq(map(
-          \ l:map[l:file].in,
+          \ self.cache_links_in.data[file],
           \ { _, x -> [x.filename_from, l:current_path] }
           \))
 
@@ -171,44 +174,42 @@ endfunction
 
 " }}}1
 
-function! s:graph.get_map(...) abort dict " {{{1
+function! s:graph.refresh_cache_links_in(...) abort dict " {{{1
   let l:force_update = a:0 > 0 ? a:1 : v:false
-
-  if l:force_update
-        \ || localtime() - self.map_update_time > self.map_update_freq
-    call self.update_map()
+  if !l:force_update && (localtime() - self.cache_links_in.ftime <= 7200)
+    return
   endif
 
-  return deepcopy(self.map)
-endfunction
+  call self.cache_links_in.wipe()
 
-" }}}1
-function! s:graph.update_map() abort dict " {{{1
+  " Refresh links_out for entire wiki
   let self.save_cache = v:false
-  let self.map = {}
-  for l:file in globpath(self.root, '**/*.' . self.extension, 0, 1)
-    let self.map[l:file] = {
-          \ 'out': self.get_links_from(l:file),
-          \ 'in': []
-          \}
+  for l:file in self.get_files()
+    call self.get_links_from(l:file)
+    let self.cache_links_in.data[l:file] = []
   endfor
   let self.save_cache = v:true
-  call self.cache.write()
+  call self.cache_links_out.write()
 
-  for l:file in values(self.map)
-    for l:link in l:file.out
-      if !has_key(self.map, l:link.filename_to)
-        let self.map[l:link.filename_to] = {
-              \ 'out': [],
-              \ 'in': [l:link]
-              \}
-      else
-        call add(self.map[l:link.filename_to].in, l:link)
-      endif
-    endfor
+  " Populate links_in
+  for l:file_with_links in values(self.cache_links_out.data)
+    if type(l:file_with_links) == v:t_dict
+      for l:link in l:file_with_links.links
+        if !has_key(self.cache_links_in.data, l:link.filename_to)
+          let self.cache_links_in.data[l:link.filename_to] = [l:link]
+        else
+          call add(self.cache_links_in.data[l:link.filename_to], l:link)
+        endif
+      endfor
+    endif
   endfor
 
-  let self.map_update_time = localtime()
+  let self.cache_links_in.modified = 1
+  call self.cache_links_in.write()
+
+  if !self.cache_links_in.persistent
+    let self.cache_links_in.ftime = localtime()
+  endif
 endfunction
 
 " }}}1

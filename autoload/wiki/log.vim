@@ -20,6 +20,18 @@ endfunction
 
 " }}}1
 
+function! wiki#log#get() abort " {{{1
+  return s:logger.entries
+endfunction
+
+" }}}1
+
+function! wiki#log#open() abort " {{{1
+  call wiki#scratch#new(s:logger)
+endfunction
+
+" }}}1
+
 function! wiki#log#toggle_verbose() abort " {{{1
   let s:logger.verbose = !s:logger.verbose
 endfunction
@@ -39,6 +51,7 @@ endfunction
 
 
 let s:logger = {
+      \ 'name': 'WikiMessageLog',
       \ 'entries' : [],
       \ 'type_to_highlight' : {
       \   'info' : 'Identifier',
@@ -91,6 +104,41 @@ function! s:logger.notify(msg_list, type) abort dict " {{{1
   for l:msg in a:msg_list[1:]
     call wiki#ui#echo(l:msg, {'indent': 2})
   endfor
+endfunction
+
+" }}}1
+function! s:logger.print_content() abort dict " {{{1
+  for l:entry in self.entries
+    call append('$', printf('%s: %s', l:entry.time, l:entry.type))
+    for l:stack in l:entry.callstack
+      if l:stack.lnum > 0
+        call append('$', printf('  #%d %s:%d', l:stack.nr, l:stack.filename, l:stack.lnum))
+      else
+        call append('$', printf('  #%d %s', l:stack.nr, l:stack.filename))
+      endif
+      call append('$', printf('  In %s', l:stack.function))
+      if !empty(l:stack.text)
+        call append('$', printf('    %s', l:stack.text))
+      endif
+    endfor
+    for l:msg in l:entry.msg
+      call append('$', printf('  %s', l:msg))
+    endfor
+    call append('$', '')
+  endfor
+endfunction
+
+" }}}1
+function! s:logger.syntax() abort dict " {{{1
+  syntax match WikiLogOther /.*/
+
+  syntax include @VIM syntax/vim.vim
+  syntax match WikiLogVimCode /^    .*/ transparent contains=@VIM
+
+  syntax match WikiLogKey /^\S*:/ nextgroup=WikiLogValue
+  syntax match WikiLogKey /^  #\d\+/ nextgroup=WikiLogValue
+  syntax match WikiLogKey /^  In/ nextgroup=WikiLogValue
+  syntax match WikiLogValue /.*/ contained
 endfunction
 
 " }}}1

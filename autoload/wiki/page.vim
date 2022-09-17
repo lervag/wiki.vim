@@ -292,7 +292,34 @@ function! s:update_links(path_old, path_new) abort "{{{1
   endfor
 
   " Update links
-  call s:update_links_in_wiki(a:path_old, a:path_new)
+  let l:graph = wiki#graph#builder#get()
+  let l:all_links = l:graph.get_links_to(a:path_old)
+  let l:files_with_links = wiki#u#group_by(l:all_links, 'filename_from')
+  let l:replacement_patterns
+        \ = s:get_replacement_patterns(a:path_old, a:path_new)
+  for [l:file, l:file_links] in items(l:files_with_links)
+    let l:lines = readfile(l:file)
+
+    for l:link in l:file_links
+      for [l:pattern, l:replace] in l:replacement_patterns
+        let l:lines[l:link.lnum - 1] = substitute(
+              \ l:lines[l:link.lnum - 1],
+              \ l:pattern,
+              \ l:replace,
+              \ 'g'
+              \)
+      endfor
+    endfor
+
+    call writefile(l:lines, l:file)
+  endfor
+
+  " Move graph nodes from old to new path
+  let l:graph.cache_links_in.data[a:path_new]
+        \ = remove(l:graph.cache_links_in.data, a:path_old)
+
+  call wiki#log#info(printf('Updated %d links in %d files',
+        \ len(l:all_links), len(l:files_with_links)))
 
   " Refresh other wiki buffers
   for l:bufnr in l:wiki_bufnrs
@@ -305,18 +332,18 @@ function! s:update_links(path_old, path_new) abort "{{{1
 endfunction
 
 " }}}1
-function! s:update_links_in_wiki(path_old, path_new) abort " {{{1
+function! s:get_replacement_patterns(path_old, path_new) abort " {{{1
   let l:root = wiki#get_root()
 
   " Update "absolute" links (i.e. assume link is rooted)
-  let l:old = s:abspath_to_wikipath(l:root, a:path_old)
-  let l:new = s:abspath_to_wikipath(l:root, a:path_new)
-  let [l:n_files, l:n_links] = s:update_links_from_root(l:root, l:old, l:new)
+  let l:url_old = s:path_to_url(l:root, a:path_old)
+  let l:url_new = s:path_to_url(l:root, a:path_new)
+  let l:url_pairs = [[l:url_old, l:url_new]]
 
   " Update "relative" links (look within the specific common subdir)
   let l:subdirs = []
-  let l:old_subdirs = split(l:old, '\/')[:-2]
-  let l:new_subdirs = split(l:new, '\/')[:-2]
+  let l:old_subdirs = split(l:url_old, '\/')[:-2]
+  let l:new_subdirs = split(l:url_new, '\/')[:-2]
   while !empty(l:old_subdirs)
         \ && !empty(l:new_subdirs)
         \ && l:old_subdirs[0] ==# l:new_subdirs[0]
@@ -325,60 +352,31 @@ function! s:update_links_in_wiki(path_old, path_new) abort " {{{1
   endwhile
   if !empty(l:subdirs)
     let l:root .= '/' . join(l:subdirs, '/')
-    let l:old = s:abspath_to_wikipath(l:root, a:path_old)
-    let l:new = s:abspath_to_wikipath(l:root, a:path_new)
-    let [l:n, l:m] = s:update_links_from_root(l:root, l:old, l:new)
-    let l:n_files += l:n
-    let l:n_links += l:m
+    let l:url_pairs += [[
+          \ s:path_to_url(l:root, a:path_old),
+          \ s:path_to_url(l:root, a:path_new)
+          \]]
   endif
 
-  call wiki#log#info(
-        \ printf('Updated %d links in %d files', l:n_links, l:n_files))
-endfunction
-
-" }}}1
-function! s:update_links_from_root(root, oldlink, newlink) abort " {{{1
-  let l:re_oldlink = '(\.\/|\/)?' . escape(a:oldlink, '.')
-
-  " Pattern to search for relevant links
-  let l:pattern = '\v' . join([
-        \ '\[\[\zs' . l:re_oldlink . '\ze%(#.*)?%(\|.*)?\]\]',
-        \ '\[.*\]\(\zs' . l:re_oldlink . '\ze%(#.*)?\)',
-        \ '\[.*\]\[\zs' . l:re_oldlink . '\ze%(#.*)?\]',
-        \ '\[\zs' . l:re_oldlink . '\ze%(#.*)?\]\[\]',
-        \ '\<\<\zs' . l:re_oldlink . '\ze#,[^>]{-}\>\>',
-        \], '|')
-
-  let l:num_files = 0
-  let l:num_links = 0
-
-  for l:file in glob(a:root . '/**/*.' . b:wiki.extension, 0, 1)
-    let l:updates = 0
-    let l:lines = []
-    for l:line in readfile(l:file)
-      if match(l:line, l:pattern) != -1
-        let l:updates = 1
-        let l:num_links += 1
-        call add(l:lines, substitute(l:line, l:pattern, a:newlink, 'g'))
-      else
-        call add(l:lines, l:line)
-      endif
-    endfor
-
-    if l:updates
-      call wiki#log#info('Updating links in: ' . fnamemodify(l:file, ':t'))
-      call rename(l:file, l:file . '#tmp')
-      call writefile(l:lines, l:file)
-      call delete(l:file . '#tmp')
-      let l:num_files += 1
-    endif
+  " Create pattern to match relevant old link urls
+  let l:replacement_patterns = []
+  for [l:url_old, l:url_new] in l:url_pairs
+    let l:re_url_old = '(\.\/|\/)?' . escape(l:url_old, '.')
+    let l:pattern = '\v' . join([
+          \ '\[\[\zs' . l:re_url_old . '\ze%(#.*)?%(\|.*)?\]\]',
+          \ '\[.*\]\(\zs' . l:re_url_old . '\ze%(#.*)?\)',
+          \ '\[.*\]\[\zs' . l:re_url_old . '\ze%(#.*)?\]',
+          \ '\[\zs' . l:re_url_old . '\ze%(#.*)?\]\[\]',
+          \ '\<\<\zs' . l:re_url_old . '\ze#,[^>]{-}\>\>',
+          \], '|')
+    let l:replacement_patterns += [[l:pattern, l:url_new]]
   endfor
 
-  return [l:num_files, l:num_links]
+  return l:replacement_patterns
 endfunction
 
 " }}}1
-function! s:abspath_to_wikipath(root, path) abort " {{{1
+function! s:path_to_url(root, path) abort " {{{1
   let l:path = wiki#paths#relative(a:path, a:root)
   let l:ext = '.' . fnamemodify(l:path, ':e')
 
