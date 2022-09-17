@@ -40,12 +40,8 @@ function! wiki#graph#find_backlinks() abort "{{{1
     return []
   endif
 
-  call wiki#log#info('Gathering backlinks ...')
-  sleep 10m
   let l:graph = wiki#graph#builder#get()
   let l:links = l:graph.get_links_to(l:file)
-  redraw
-  call wiki#log#info('Gathering backlinks ... done!')
 
   if empty(l:links)
     call wiki#log#info('No other file links to this file')
@@ -65,8 +61,14 @@ endfunction
 function! wiki#graph#in(...) abort "{{{1
   let l:graph = wiki#graph#builder#get()
 
+  call wiki#log#info('Building tree, please wait ...')
+  sleep 10m
+
   let l:depth = a:0 > 0 ? a:1 : -1
   let l:tree = l:graph.get_tree_to(expand('%:p'), l:depth)
+
+  redraw
+  call wiki#log#info('Building tree, please wait ... done!')
 
   call s:output_to_scratch('WikiGraphIn', sort(values(l:tree)))
 endfunction
@@ -75,8 +77,14 @@ endfunction
 function! wiki#graph#out(...) abort " {{{1
   let l:graph = wiki#graph#builder#get()
 
+  call wiki#log#info('Building tree, please wait ...')
+  sleep 10m
+
   let l:depth = a:0 > 0 ? a:1 : -1
   let l:tree = l:graph.get_tree_from(expand('%:p'), l:depth)
+
+  redraw
+  call wiki#log#info('Building tree, please wait ... done!')
 
   call s:output_to_scratch('WikiGraphOut', sort(values(l:tree)))
 endfunction
