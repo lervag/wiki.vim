@@ -109,7 +109,7 @@ endfunction
 " }}}1
 function! wiki#toc#get_section_at(lnum) abort " {{{1
   let l:toc = wiki#toc#gather_entries(#{ at_lnum: a:lnum })
-  return empty(l:toc) ? {} : l:toc[0]
+  return empty(l:toc) ? {} : l:toc[-1]
 endfunction
 
 " }}}1

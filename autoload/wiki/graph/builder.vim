@@ -67,7 +67,7 @@ function! s:graph.get_links_from(file) abort dict " {{{1
           \   'filename_to' : resolve(x.path),
           \   'content' : x.content,
           \   'text' : get(x, 'text'),
-          \   'anchor' : x.anchor,
+          \   'anchor' : '#' . x.anchor,
           \   'lnum' : x.pos_start[0],
           \   'col' : x.pos_start[1]
           \ }

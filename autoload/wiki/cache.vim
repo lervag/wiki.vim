@@ -195,7 +195,7 @@ function! s:cache.write() dict abort " {{{1
 
   if !self.modified || empty(self.data) | return | endif
 
-  call writefile([json_encode(self.data)], self.path)
+  call writefile([json_encode(self.data)], self.path, 's')
   let self.ftime = getftime(self.path)
   let self.modified = 0
 endfunction

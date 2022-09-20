@@ -463,7 +463,7 @@ function! s:update_tag_in_wiki(path, lnum, old_tag, new_tag) abort
         call map(l:tags, {_, t -> t ==# a:old_tag ? a:new_tag : t})
       endif
       let l:lines[a:lnum-1] = l:parser.make(l:tags, l:tagline)
-      call writefile(l:lines, a:path)
+      call writefile(l:lines, a:path, 's')
       return 1
     endif
   endfor
