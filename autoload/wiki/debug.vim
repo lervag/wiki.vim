@@ -126,3 +126,42 @@ function! wiki#debug#time(...) abort " {{{1
 endfunction
 
 " }}}1
+
+function! wiki#debug#profile_start() abort " {{{1
+  profile start prof.log
+  profile func *
+endfunction
+
+" }}}1
+function! wiki#debug#profile_stop() abort " {{{1
+  profile stop
+  call s:fix_sids()
+endfunction
+
+" }}}1
+
+function! s:fix_sids() abort " {{{1
+  let l:lines = readfile('prof.log')
+  let l:new = []
+  for l:line in l:lines
+    let l:sid = matchstr(l:line, '\v\<SNR\>\zs\d+\ze_')
+    if !empty(l:sid)
+      let l:filename = map(
+            \ vimtex#util#command('scriptnames'),
+            \ {_, x -> split(x, '\v:=\s+')[1]})[l:sid-1]
+      if l:filename =~# 'vimtex'
+        let l:filename = substitute(l:filename, '^.*autoload\/', '', '')
+        let l:filename = substitute(l:filename, '\.vim$', '#s:', '')
+        let l:filename = substitute(l:filename, '\/', '#', 'g')
+      else
+        let l:filename .= ':'
+      endif
+      call add(l:new, substitute(l:line, '\v\<SNR\>\d+_', l:filename, 'g'))
+    else
+      call add(l:new, substitute(l:line, '\s\+$', '', ''))
+    endif
+  endfor
+  call writefile(l:new, 'prof.log')
+endfunction
+
+" }}}1
