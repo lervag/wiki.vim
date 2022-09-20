@@ -130,31 +130,28 @@ function! wiki#page#rename(...) abort "{{{1
 endfunction
 
 " }}}1
+function! wiki#page#rename_section(...) abort "{{{1
+  let l:new_name = a:0 > 0
+        \ ? a:1
+        \ : wiki#ui#input(#{info: 'Enter new section name:'})
 
-function! wiki#page#rename_section() abort "{{{1
-  call wiki#page#rename_section_to(
-        \ wiki#ui#input(#{info: 'Enter new section name:'}))
-endfunction
-
-" }}}1
-function! wiki#page#rename_section_to(newname) abort "{{{1
   let l:section = wiki#toc#get_section_at(line('.'))
   if empty(l:section)
     return wiki#log#error('No current section recognized!')
   endif
 
   call wiki#log#info(printf('Renaming section from "%s" to "%s"',
-        \ l:section.header, a:newname))
+        \ l:section.header, l:new_name))
 
   " Update header
   call setline(l:section.lnum,
         \ printf('%s %s',
         \   repeat('#', l:section.level),
-        \   a:newname))
+        \   l:new_name))
 
   " Update local anchors
   let l:pos = getcurpos()
-  let l:new_anchor = join([''] + l:section.anchors[:-2] + [a:newname], '#')
+  let l:new_anchor = join([''] + l:section.anchors[:-2] + [l:new_name], '#')
   keepjumps execute '%s/\V' . l:section.anchor
         \ . '/' . l:new_anchor
         \ . '/e' . (&gdefault ? '' : 'g')
@@ -192,7 +189,6 @@ function! wiki#page#rename_section_to(newname) abort "{{{1
 endfunction
 
 " }}}1
-
 function! wiki#page#export(line1, line2, ...) abort " {{{1
   let l:cfg = deepcopy(g:wiki_export)
   let l:cfg.fname = ''
