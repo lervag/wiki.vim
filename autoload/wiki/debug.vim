@@ -147,7 +147,7 @@ function! s:fix_sids() abort " {{{1
     let l:sid = matchstr(l:line, '\v\<SNR\>\zs\d+\ze_')
     if !empty(l:sid)
       let l:filename = map(
-            \ vimtex#util#command('scriptnames'),
+            \ wiki#u#command('scriptnames'),
             \ {_, x -> split(x, '\v:=\s+')[1]})[l:sid-1]
       if l:filename =~# 'vimtex'
         let l:filename = substitute(l:filename, '^.*autoload\/', '', '')
