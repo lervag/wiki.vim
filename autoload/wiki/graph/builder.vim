@@ -182,7 +182,7 @@ function! s:graph.refresh_cache_links_in(...) abort dict " {{{1
     return
   endif
 
-  call self.cache_links_in.wipe()
+  call self.cache_links_in.clear()
 
   " Refresh links_out for entire wiki
   let self.save_cache = v:false
@@ -206,10 +206,9 @@ function! s:graph.refresh_cache_links_in(...) abort dict " {{{1
     endif
   endfor
 
-  let self.cache_links_in.modified = 1
-  call self.cache_links_in.write()
+  call self.cache_links_in.write('force')
 
-  if !self.cache_links_in.persistent
+  if self.cache_links_in.type ==# 'volatile'
     let self.cache_links_in.ftime = localtime()
   endif
 endfunction
