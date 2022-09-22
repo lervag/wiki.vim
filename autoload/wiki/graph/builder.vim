@@ -52,6 +52,15 @@ endfunction
 " }}}1
 
 function! s:graph.get_links_from(file) abort dict " {{{1
+  if empty(a:file) | return [] | endif
+  if !filereadable(a:file)
+    call wiki#log#warn(
+          \ "Can't find links from non-existing file!",
+          \ a:file
+          \)
+    return []
+  endif
+
   let l:current = self.cache_links_out.get(a:file)
 
   let l:ftime = getftime(a:file)
