@@ -50,11 +50,19 @@ function! s:matcher.toggle_template(text, _) abort " {{{1
     return wiki#link#template(l:url, l:text)
   endif
 
-  " Next try at wiki root
-  let l:root = get(b:wiki, 'root', l:root_current)
-  let l:prefix = resolve(l:root) ==# resolve(l:root_current) ? '' : '/'
-  if filereadable(wiki#paths#s(printf('%s/%s', l:root, l:url_actual)))
-    return wiki#link#template(l:prefix . l:url, l:text)
+  " If we are inside the journal, then links should by default point to the
+  " wiki root.
+  if get(b:wiki, 'in_journal')
+    let l:root = get(b:wiki, 'root', l:root_current)
+    let l:prefix = resolve(l:root) ==# resolve(l:root_current) ? '' : '/'
+
+    " Check if target matches at wiki root
+    if filereadable(wiki#paths#s(printf('%s/%s', l:root, l:url_actual)))
+      return wiki#link#template(l:prefix . l:url, l:text)
+    endif
+  else
+    let l:root = l:root_current
+    let l:prefix = ''
   endif
 
   " Finally we see if there are completable candidates

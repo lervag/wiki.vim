@@ -626,10 +626,10 @@ OPTIONS                                                   *wiki-config-options*
 
 *g:wiki_map_text_to_link*
   This option may be used to transform text before creating a new link with
-  |WikiLinkFollow| or |WikiLinkToggle| (or related mappings). The option value
-  should be a string (the `name` of the function) or a |Funcref|. The latter
-  only works in neovim when the option is defined from Lua with
-  |lua-vim-variables|, similar to this: >
+  |WikiLinkToggle| (or related mappings). The option value should be a string
+  (the `name` of the function) or a |Funcref|. The latter only works in neovim
+  when the option is defined from Lua with |lua-vim-variables|, similar to
+  this: >
 
     vim.g.wiki_map_text_to_link = function(x)
       return { x:lower(), x }
@@ -1037,9 +1037,9 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 
 *<plug>(wiki-link-follow)*
 *WikiLinkFollow*
-  Follow link. Will create a new link if the text under the cursor is not
-  already a link. If |g:wiki_map_text_to_link| is specified, it will be used to
-  transform the link when creating it.
+  Follow a link. If the text under the cursor is not a link, then it will be
+  converted via |WikiLinkToggle|, unless |g:wiki_link_toggle_on_follow| is
+  disabled.
 
                                                        *#User#WikiLinkFollowed*
   The user autocommand `WikiLinkFollowed` is triggered after a wiki link has
@@ -1073,8 +1073,41 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *<plug>(wiki-link-toggle-visual)*    |xmap|
 *<plug>(wiki-link-toggle-operator)*  |map-operator|
 *WikiLinkToggle*
-  Toggle wiki link. If |g:wiki_map_text_to_link| is specified, it will be used
-  to transform the link when creating it.
+  Toggle a link. That is, this converts a link from one type to another based
+  on the value of |g:wiki_link_toggles|. Pure text is converted to a link of
+  type |g:wiki_link_target_type|, and if |g:wiki_map_text_to_link| is
+  specified, it will be used to transform the link before creating it.
+
+  The following rules apply when converting text to a link.
+
+    If we are inside the journal (see |g:wiki_journal|):~
+
+  We would generally not want anything other than journal entries within the
+  journal directory. Therefore we have some special rules here:
+
+    * Check if any page exists inside the journal that matches the selected
+      text/current word. If so, create link to that page.
+    * Check if any page exists at the wiki root that matches the selected
+      text/current word. If so, create link to that page.
+    * Check if there are pages at the wiki root where the selected
+      text/current word matches at the beginning. If so, let user choose which
+      page to link to.
+    * If neither of the above, then create a link to a page with name based on
+      the selected text/current word at the wiki root.
+
+    Everywhere else:~
+
+  The general idea is that links should be relative to the current directory.
+  To make a link to a page at root, one may simply prepend a `/` to specify
+  a "rooted" link. The conversion rules are therefore as follows:
+
+    * Check if any page exists inside the current directory that matches the
+      selected text/current word. If so, create link to that page.
+    * Check if there are pages at the current directory where the selected
+      text/current word matches at the beginning. If so, let user choose which
+      page to link to.
+    * If neither of the above, then create a link to a page with name based on
+      the selected text/current word in current directory.
 
 *<plug>(wiki-link-show)*
 *WikiLinkShow*
