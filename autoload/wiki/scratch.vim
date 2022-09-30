@@ -48,6 +48,10 @@ function! s:scratch.open() abort dict " {{{1
     call self.syntax()
   endif
 
+  if has_key(self, 'post_init')
+    call self.post_init()
+  endif
+
   call self.fill()
 endfunction
 

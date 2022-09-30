@@ -42,6 +42,7 @@ endfunction
 
 function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiGraphFindBacklinks call wiki#graph#find_backlinks()
+  command! -buffer WikiGraphRelated       call wiki#graph#show_related()
   command! -buffer WikiGraphCheckLinks    call wiki#graph#check_links(expand('%:p'))
   command! -buffer WikiGraphCheckLinksG   call wiki#graph#check_links()
   command! -buffer -count=99 WikiGraphIn  call wiki#graph#in(<count>)
@@ -84,6 +85,7 @@ endfunction
 " }}}1
 function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-graph-find-backlinks) :WikiGraphFindBacklinks<cr>
+  nnoremap <silent><buffer> <plug>(wiki-graph-related)        :WikiGraphRelated<cr>
   nnoremap <silent><buffer> <plug>(wiki-graph-check-links)    :WikiGraphCheckLinks<cr>
   nnoremap <silent><buffer> <plug>(wiki-graph-check-links-g)  :WikiGraphCheckLinksG<cr>
   nnoremap <silent><buffer> <plug>(wiki-graph-in)             :WikiGraphIn<cr>
@@ -139,6 +141,7 @@ function! s:init_buffer_mappings() abort " {{{1
   if index(['all', 'local'], g:wiki_mappings_use_defaults) >= 0
     let l:mappings = {
           \ '<plug>(wiki-graph-find-backlinks)': '<leader>wgb',
+          \ '<plug>(wiki-graph-related)': '<leader>wgr',
           \ '<plug>(wiki-graph-check-links)': '<leader>wgc',
           \ '<plug>(wiki-graph-check-links-g)': '<leader>wgC',
           \ '<plug>(wiki-graph-in)': '<leader>wgi',
