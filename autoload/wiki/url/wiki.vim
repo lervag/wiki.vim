@@ -121,19 +121,19 @@ endfunction
 
 "}}}1
 function! s:handler.follow_anchor() abort dict " {{{1
-  let l:old_pos = getpos('.')
+  let l:old_pos = getcurpos('.')
   call cursor(1, 1)
 
   for l:part in split(self.anchor, '#', 0)
     let l:part = substitute(l:part, '[- ]', '[- ]', 'g')
-    let l:header = '^#\{1,6}\s*' . l:part . '\s*$'
+    let l:header = '^\c#\{1,6}\s*' . l:part . '\s*$'
     let l:bold = wiki#rx#surrounded(l:part, '*')
 
     if !(search(l:header, 'Wc') || search(l:bold, 'Wc'))
       call setpos('.', l:old_pos)
       break
     endif
-    let l:old_pos = getpos('.')
+    let l:old_pos = getcurpos('.')
   endfor
 endfunction
 

@@ -11,3 +11,11 @@ CreateFullLineLink
 TestSubDirLink/
 
 This-is-a-wiki.
+
+[[#Section 1#Foo bar Baz]]
+[[#section-1#foo-bar-baz]]
+
+# Section 1
+
+## Foo bar Baz
+
