@@ -11,11 +11,11 @@ for s:l in s:links
 endfor
 
 call assert_equal(5, len(s:links))
-call assert_equal('wiki-basic/subdir/BadName.wiki', s:links[0].filename_from)
+call assert_equal('wiki-basic/links.wiki', s:links[0].filename_from)
 call assert_equal('wiki-basic/links.wiki', s:links[1].filename_from)
 call assert_equal('wiki-basic/links.wiki', s:links[2].filename_from)
 call assert_equal('wiki-basic/links.wiki', s:links[3].filename_from)
-call assert_equal('wiki-basic/links.wiki', s:links[4].filename_from)
+call assert_equal('wiki-basic/subdir/BadName.wiki', s:links[4].filename_from)
 
 
 let s:links = s:graph.get_links_from(expand('%:p'))
