@@ -44,7 +44,7 @@ runtime plugin/wiki.vim
 silent call wiki#page#open('Template A')
 call assert_equal([
       \ '# TEMPLATE A',
-      \ 'Created: ' . strftime("%F") . ' ' . strftime("%H:%M"),
+      \ 'Created: ' . strftime("%F %H:%M"),
       \ '',
       \ 'TEST',
       \], getline(1, line('$') - 1))

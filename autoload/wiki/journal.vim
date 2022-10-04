@@ -5,76 +5,96 @@
 "
 
 function! wiki#journal#make_note(...) abort " {{{1
-  let l:date = (a:0 > 0 ? a:1
-        \ : strftime(g:wiki_journal.date_format[g:wiki_journal.frequency]))
+  return call('wiki#journal#open', a:000)
+endfunction
+
+" }}}1
+function! wiki#journal#open(...) abort " {{{1
+  " Open a journal entry.
+  "
+  " Takes one optional argument:
+  "   date_string: A date string formatted according to the frequency format
+  "                rules.
+  "
+  " With no arguments: Go to the current journal entry. This is usually the
+  " current date, but the g:wiki_journal.frequency setting has an effect here.
+
+  let l:date = a:0 > 0
+        \ ? a:1
+        \ : strftime(s:date_format[g:wiki_journal.frequency])
   call wiki#url#parse('journal:' . l:date).follow()
 endfunction
 
 " }}}1
-function! wiki#journal#copy_note() abort " {{{1
-  let l:next = s:get_next_entry()
-
-  let l:next_entry = wiki#paths#s(printf('%s/%s.%s',
-        \ b:wiki.root_journal, l:next, b:wiki.extension))
-  if !filereadable(l:next_entry)
-    execute 'write' l:next_entry
-  endif
-
-  call wiki#url#parse('journal:' . l:next).follow()
-endfunction
-
-" }}}1
 function! wiki#journal#go(step) abort " {{{1
-  let l:links = s:get_links()
-  let l:index = index(l:links, expand('%:t:r'))
-  let l:target = l:index + a:step
+  let l:node = wiki#journal#get_current_node()
+  if empty(l:node) | return | endif
 
-  if l:target >= len(l:links) || l:target < 0
+  let l:frq = wiki#journal#get_node_frq(l:node)
+  let l:nodes = wiki#journal#get_all_nodes(l:frq, [l:node])
+
+  let l:index = index(l:nodes, l:node)
+  let l:target = l:index + a:step
+  if l:target >= len(l:nodes) || l:target < 0
     return
   endif
+  let l:target_node = l:nodes[l:target]
+  let l:target_date = wiki#journal#node_to_date(l:target_node)[0]
 
-  call wiki#url#parse('journal:' . l:links[l:target]).follow()
+  call wiki#journal#open(l:target_date)
 endfunction
 
 " }}}1
-function! wiki#journal#freq(frq) abort " {{{1
-  if a:frq ==# 'daily'
-    return
-  endif
-  if a:frq ==# 'weekly' && g:wiki_journal.frequency !=# 'daily'
-    return
-  endif
-  if a:frq ==# 'monthly' && g:wiki_journal.frequency ==# 'monthly'
+function! wiki#journal#go_to_frq(frq) abort " {{{1
+  let [l:timestamp, l:frq] = wiki#journal#node_to_timestamp()
+  if l:frq ==# a:frq | return | endif
+  if l:timestamp == 0
+    call wiki#log#warn(
+          \ 'Current file is not a valid journal node!',
+          \ expand('%:p'))
     return
   endif
 
-  let l:filedate = expand('%:t:r')
-  let l:fmt = g:wiki_journal.date_format.daily
-  let l:rx = wiki#date#format_to_regex(l:fmt)
-  let l:date = l:filedate =~# l:rx ? l:filedate : strftime(l:fmt)
+  if (a:frq ==# 'daily' && g:wiki_journal.frequency !=# 'daily')
+        \ || (a:frq ==# 'weekly' && g:wiki_journal.frequency ==# 'monthly')
+    return
+  endif
 
-  call wiki#url#parse('journal:'
-        \ . wiki#date#format(l:date, g:wiki_journal.date_format[a:frq])).follow()
+  call wiki#journal#open(strftime(s:date_format[a:frq], l:timestamp))
+endfunction
+
+" }}}1
+function! wiki#journal#copy_to_next() abort " {{{1
+  let [l:date, l:frq] = wiki#journal#node_to_date()
+  if empty(l:date) | return | endif
+
+  " Copy current note to next date - only if it does not exist
+  let l:next_date = wiki#journal#get_next_date(l:date, l:frq)
+  let l:node = wiki#journal#date_to_node(l:next_date)[0]
+  let l:path = s:node_to_path(l:node)
+  if !filereadable(l:path)
+    execute 'write' l:path
+  endif
+
+  call wiki#journal#open(l:next_date)
 endfunction
 
 " }}}1
 function! wiki#journal#make_index() " {{{1
-  let l:fmt = g:wiki_journal.date_format[g:wiki_journal.frequency]
-  let l:rx = wiki#date#format_to_regex(l:fmt)
-  let l:entries = s:get_links_generic(l:rx, l:fmt)
+  let l:nodes = wiki#journal#get_all_nodes(g:wiki_journal.frequency)
 
-  let l:sorted_entries = {}
-  for entry in entries
-    let date = wiki#date#parse_format(entry, g:wiki_journal.date_format.daily)
-    if has_key(sorted_entries, date.year)
-      let year_dict = sorted_entries[date.year]
-      if has_key(year_dict, date.month)
-        call add(year_dict[date.month], entry)
+  let l:grouped_nodes = {}
+  for l:node in l:nodes
+    let l:date = wiki#date#parse_format(l:node, g:wiki_journal.date_format.daily)
+    if has_key(grouped_nodes, l:date.year)
+      let year_dict = grouped_nodes[l:date.year]
+      if has_key(year_dict, l:date.month)
+        call add(year_dict[l:date.month], l:node)
       else
-        let year_dict[date.month] = [entry]
+        let year_dict[l:date.month] = [l:node]
       endif
     else
-      let sorted_entries[date.year] = {date.month:[entry]}
+      let grouped_nodes[l:date.year] = {l:date.month:[l:node]}
     endif
   endfor
 
@@ -83,22 +103,22 @@ function! wiki#journal#make_index() " {{{1
         \ ? 'journal:'
         \ : '/' . g:wiki_journal.name . '/'
 
-  for year in sort(keys(sorted_entries))
-    let l:month_dict = sorted_entries[year]
-    put ='# ' . year
+  for l:year in sort(keys(l:grouped_nodes))
+    let l:month_dict = l:grouped_nodes[l:year]
+    put ='# ' . l:year
     put =''
-    for month in sort(keys(month_dict))
-      let entries = month_dict[month]
-      let l:mname = wiki#date#get_month_name(month)
-      let l:mname = toupper(strcharpart(mname, 0, 1)) . strcharpart(mname, 1)
-      put ='## ' . mname
+    for l:month in sort(keys(l:month_dict))
+      let l:nodes = l:month_dict[l:month]
+      let l:mname = wiki#date#get_month_name(l:month)
+      let l:mname = toupper(strcharpart(l:mname, 0, 1)) . strcharpart(l:mname, 1)
+      put ='## ' . l:mname
       put =''
-      for entry in entries
-        let l:target = l:prefix . entry
+      for l:node in l:nodes
+        let l:target = l:prefix . l:node
         if !empty(b:wiki.link_extension)
           let l:target .= b:wiki.link_extension
         endif
-        put =wiki#link#template(l:target, entry)
+        put =wiki#link#template(l:target, l:node)
       endfor
       put =''
     endfor
@@ -107,61 +127,132 @@ endfunction
 
 " }}}1
 
-function! s:get_next_entry() abort " {{{1
-  let l:current = expand('%:t:r')
 
-  for [l:freq, l:fmt] in items(g:wiki_journal.date_format)
-    let l:rx = wiki#date#format_to_regex(l:fmt)
-    if l:current =~# l:rx
-      let l:date_dict = wiki#date#parse_format(l:current, l:fmt)
-      let l:date = printf('%4d-%2d-%2d',
-            \ l:date_dict.year, l:date_dict.month, l:date_dict.day)
-      let l:next = wiki#date#offset(l:date, {
-            \ 'daily' : '1 day',
-            \ 'weekly' : '1 week',
-            \ 'monthly' : '1 month',
-            \}[l:freq])
-      return wiki#date#format(l:next, l:fmt)
-    endif
-  endfor
+" Functions to convert between journal nodes and date strings. Journal notes
+" are formatted according to g:wiki_journal.date_format. Similarly, the date
+" strings must be formatted according to one of the following types of journal
+" frequencies:
+"   * daily:   YYYY-MM-DD
+"   * weekly:  YYYY-wWW
+"   * monthly: YYYY-MM
 
-  throw printf('Error: %s was not matched by any date formats', l:current)
+let s:date_format = {
+      \ 'daily': '%Y-%m-%d',
+      \ 'weekly': '%Y-w%V',
+      \ 'monthly': '%Y-%m',
+      \}
+
+function! wiki#journal#date_to_node(...) abort " {{{1
+  let l:date = a:0 > 0
+        \ ? a:1
+        \ : strftime(s:date_format[g:wiki_journal.frequency])
+
+  let l:frq = get({
+        \ 10: 'daily',
+        \ 8: 'weekly',
+        \ 7: 'monthly',
+        \}, strlen(l:date), '')
+  if empty(l:frq) | return [0, ''] | endif
+
+  let l:timestamp = wiki#date#strptime(s:date_format[l:frq], l:date)
+  let l:node = l:timestamp > 0
+        \ ? strftime(get(g:wiki_journal.date_format, l:frq), l:timestamp)
+        \ : ''
+
+  return [l:node, l:frq]
+endfunction
+
+" }}}1
+function! wiki#journal#get_next_date(date, frq) abort " {{{1
+  let l:fmt = s:date_format[a:frq]
+  let l:interval = get({
+        \ 'daily': 1,
+        \ 'weekly': 7,
+        \ 'monthly': 31
+        \}, a:frq, 0)
+
+  let l:timestamp = wiki#date#strptime(l:fmt, a:date)
+  let l:timestamp += l:interval*86400
+  return strftime(l:fmt, l:timestamp)
 endfunction
 
 " }}}1
 
-function! s:get_links() abort " {{{1
-  let l:current = expand('%:t:r')
+function! wiki#journal#node_to_timestamp(...) abort " {{{1
+  let l:node = a:0 > 0
+        \ ? a:1
+        \ : wiki#journal#get_current_node()
+  if empty(l:node) | return [0, ''] | endif
 
-  for l:fmt in values(g:wiki_journal.date_format)
-    let l:rx = wiki#date#format_to_regex(l:fmt)
-    if l:current =~# l:rx
-      return s:get_links_generic(l:rx, l:fmt)
-    endif
-  endfor
+  let l:frq = wiki#journal#get_node_frq(l:node)
+  if empty(l:frq) | return [0, ''] | endif
 
-  return []
+  return [wiki#date#strptime(g:wiki_journal.date_format[l:frq], l:node), l:frq]
 endfunction
 
 " }}}1
-function! s:get_links_generic(rx, fmt) abort " {{{1
-  let l:globpat = wiki#paths#s(printf('%s/*.%s',
-        \ b:wiki.root_journal, b:wiki.extension))
-  let l:links = filter(map(glob(l:globpat, 0, 1),
-        \   'fnamemodify(v:val, '':t:r'')'),
-        \ 'v:val =~# a:rx')
+function! wiki#journal#node_to_date(...) abort " {{{1
+  let [l:timestamp, l:frq] = call('wiki#journal#node_to_timestamp', a:000)
 
-  for l:cand in [
-        \ strftime(a:fmt),
-        \ expand('%:t:r'),
-        \]
-    if l:cand =~# a:rx && index(l:links, l:cand) == -1
-      call add(l:links, l:cand)
-      let l:sort = 1
+  let l:date = l:timestamp > 0
+        \ ? strftime(s:date_format[l:frq], l:timestamp)
+        \ : ''
+
+  return [l:date, l:frq]
+endfunction
+
+" }}}1
+function! wiki#journal#get_current_node() abort " {{{1
+  if !exists('b:wiki.root_journal')
+    return ''
+  endif
+
+  return s:path_to_node(expand('%:p'))
+endfunction
+
+" }}}1
+function! wiki#journal#get_node_frq(node) abort " {{{1
+  for [l:frq, l:fmt] in items(g:wiki_journal.date_format)
+    if a:node =~# wiki#date#format_to_regex(l:fmt)
+      return l:frq
     endif
   endfor
 
-  return get(l:, 'sort', 0) ? sort(l:links) : l:links
+  return ''
+endfunction
+
+" }}}1
+function! wiki#journal#get_all_nodes(frq, ...) abort " {{{1
+  let l:rx = wiki#date#format_to_regex(g:wiki_journal.date_format[a:frq])
+
+  let l:nodes = filter(map(
+        \   glob(wiki#paths#s(b:wiki.root_journal . '/**'), 1, 1),
+        \   { _, x -> s:path_to_node(x) }),
+        \ { _, x -> x =~# l:rx })
+
+  return a:0 > 0
+        \ ? uniq(sort(a:1 + l:nodes))
+        \ : l:nodes
+endfunction
+
+" }}}1
+
+function! s:node_to_path(node) abort " {{{1
+  let l:root = exists('b:wiki.root_journal')
+        \ ? b:wiki.root_journal
+        \ : wiki#paths#s(
+        \     printf('%s/%s', wiki#get_root(), g:wiki_journal.name))
+
+  let l:extension = exists('b:wiki.extension')
+        \ ? b:wiki.extension
+        \ : g:wiki_filetypes[0]
+
+  return wiki#paths#s(printf('%s/%s.%s', l:root, a:node, l:extension))
+endfunction
+
+" }}}1
+function! s:path_to_node(path) abort " {{{1
+  return wiki#paths#relative(fnamemodify(a:path, ':r'), b:wiki.root_journal)
 endfunction
 
 " }}}1
