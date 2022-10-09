@@ -15,3 +15,5 @@ $(tests):
 	@rm -rf wiki-tmp
 
 test-rename-md.vim: WIKI=../wiki-markdown
+
+test-rename-org.vim: WIKI=../wiki-orgmode

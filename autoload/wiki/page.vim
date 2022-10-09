@@ -381,6 +381,7 @@ function! s:get_replacement_patterns(path_old, path_new) abort " {{{1
     let l:re_url_old = '(\.\/|\/)?' . escape(l:url_old, '.')
     let l:pattern = '\v' . join([
           \ '\[\[\zs' . l:re_url_old . '\ze%(#.*)?%(\|.*)?\]\]',
+          \ '\[\[\zs' . l:re_url_old . '\ze%(#.*)?\]\[.*\]\]',
           \ '\[.*\]\(\zs' . l:re_url_old . '\ze%(#.*)?\)',
           \ '\[.*\]\[\zs' . l:re_url_old . '\ze%(#.*)?\]',
           \ '\[\zs' . l:re_url_old . '\ze%(#.*)?\]\[\]',
@@ -457,10 +458,15 @@ function! s:convert_links_to_html(lines) abort " {{{1
           \ . '\(#[^#\\\[\]]\{-}\)'
           \ . '|\([^\[\]\\]\{-}\)\]\]'
     let l:sub = '\[\[\1.html\2|\3\]\]'
+  elseif g:wiki_link_target_type ==# 'org'
+    let l:rx = '\[\[\([^\\\[\]]\{-}\)' . g:wiki_link_extension
+          \ . '\(#[^#\\\[\]]\{-}\)'
+          \ . '\]\[\([^\[\]\\]\{-}\)\]\]'
+    let l:sub = '\[\[\1.html\2|\3\]\]'
   else
     return wiki#log#error(
-          \ 'g:wiki_link_target_type must be `md` or `wiki` to replace',
-          \ 'link extensions on export.'
+          \ 'g:wiki_link_target_type must be `wiki` or `md` or `org` to',
+          \ 'replace link extensions on export.'
           \)
   endif
 

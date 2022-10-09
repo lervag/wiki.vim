@@ -22,4 +22,11 @@ call assert_true(!exists('b:wiki'))
 silent call wiki#goto_index()
 call assert_true(exists('b:wiki'))
 
+" Test open wiki with .org extension
+bwipeout!
+let g:wiki_root = g:testroot . '/wiki-orgmode'
+call assert_true(!exists('b:wiki'))
+silent call wiki#goto_index()
+call assert_true(exists('b:wiki'))
+
 call wiki#test#finished()
