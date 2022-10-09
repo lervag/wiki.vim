@@ -57,6 +57,7 @@ CONTENTS                                                        *wiki-contents*
     Autocomplete                             |wiki-completion-auto|
   Tags                                       |wiki-tags|
     Default tag parser                       |wiki-tags-default|
+    Orgmode tag parser                       |wiki-tags-orgmode|
   Templates                                  |wiki-templates|
     Template function context                |wiki-templates-context|
     Template file format                     |wiki-templates-format|
@@ -1730,6 +1731,22 @@ and `make`. E.g., to instead recognize hashed tags like `#tag1` and
   let s:tag_parser.make = {t, l -> empty(t) ? '' : join(map(t, '"#" . v:val'))}
 
   let g:wiki_tag_parsers = [s:tag_parser]
+
+------------------------------------------------------------------------------
+ORGMODE TAG PARSER                                          *wiki-tags-orgmode*
+                                                   *g:wiki#tags#orgmode_parser*
+
+|wiki.vim| also ships a parser for Orgmode style tags, though it is not
+activated my default. The main difference to the default parser is that
+Orgmode style tags always use the short form `:tag1:tag2:`. They also only
+ever appear at the end of headlines and the `#+FILETAGS:` property.
+
+The full implementation is given in `autoload/wiki/tags.vim`. It is very
+similar to |g:wiki#tags#default_parser|, so it is not repeated here.
+
+To use the Orgmode tag parser, simply specify it in |g:wiki_tag_parsers|:
+
+  let g:wiki_tag_parsers = [g:wiki#tags#orgmode_parser]
 
 ==============================================================================
 TEMPLATES                                                      *wiki-templates*
