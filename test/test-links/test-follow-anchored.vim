@@ -4,12 +4,12 @@ runtime plugin/wiki.vim
 
 silent WikiIndex
 
-normal! 15G
-call wiki#link#follow()
-call assert_equal(20, line('.'))
-
 normal! 16G
 call wiki#link#follow()
-call assert_equal(20, line('.'))
+call assert_equal(21, line('.'))
+
+normal! 17G
+call wiki#link#follow()
+call assert_equal(21, line('.'))
 
 call wiki#test#finished()

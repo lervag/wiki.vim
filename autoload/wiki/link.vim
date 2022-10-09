@@ -181,6 +181,14 @@ endfunction
 
 " {{{1 Initialize matchers
 
+" The order between wiki, md and org is tricky here! Wiki and org links are the
+" same without description (`[[link]]`) but different with description
+" (`[[link|description]]` vs `[[link][description]]`). We order them here such
+" that toggling never goes org->wiki or wiki-org, which might dead-lock.
+" Without a description, toggle cycles as follows:
+"     wiki -> md -> org, which looks like wiki.
+" With a description, toggle cycles as follows:
+"     wiki -> md -> org -> wiki.
 let s:matchers = [
       \ wiki#link#wiki#matcher(),
       \ wiki#link#adoc_xref_bracket#matcher(),
@@ -188,6 +196,7 @@ let s:matchers = [
       \ wiki#link#adoc_link#matcher(),
       \ wiki#link#md_fig#matcher(),
       \ wiki#link#md#matcher(),
+      \ wiki#link#org#matcher(),
       \ wiki#link#ref_definition#matcher(),
       \ wiki#link#ref_shortcut#matcher(),
       \ wiki#link#ref_collapsed#matcher(),
@@ -205,6 +214,7 @@ let s:matchers_real = [
       \ wiki#link#adoc_link#matcher(),
       \ wiki#link#md_fig#matcher(),
       \ wiki#link#md#matcher(),
+      \ wiki#link#org#matcher(),
       \ wiki#link#ref_definition#matcher(),
       \ wiki#link#url#matcher(),
       \ wiki#link#shortcite#matcher(),

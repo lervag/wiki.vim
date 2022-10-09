@@ -43,7 +43,8 @@ call wiki#init#option('wiki_link_target_type', 'wiki')
 call wiki#init#option('wiki_link_toggle_on_follow', 1)
 call wiki#init#option('wiki_link_toggles', {
       \ 'wiki': 'wiki#link#md#template',
-      \ 'md': 'wiki#link#wiki#template',
+      \ 'md': 'wiki#link#org#template',
+      \ 'org': 'wiki#link#wiki#template',
       \ 'adoc_xref_bracket': 'wiki#link#adoc_xref_inline#template',
       \ 'adoc_xref_inline': 'wiki#link#adoc_xref_bracket#template',
       \ 'date': 'wiki#link#wiki#template',

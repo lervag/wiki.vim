@@ -48,6 +48,7 @@ CONTENTS                                                        *wiki-contents*
     Wiki links                               |wiki-link-wiki|
     Markdown links                           |wiki-link-markdown|
     Markdown image links                     |wiki-link-image|
+    Orgmode links                            |wiki-link-orgmode|
     Reference links                          |wiki-link-reference|
     Zotero shortlinks                        |wiki-link-zotero|
     AsciiDoc cross references                |wiki-link-adoc-xref|
@@ -371,7 +372,8 @@ Type: Plugin; Emacs
 A GNU Emacs major mode for convenient plain text markup — and much more. Org
 mode is for keeping notes, maintaining to-do lists, planning projects,
 authoring documents, computational notebooks, literate programming and more
-— in a fast and effective plain text system.
+— in a fast and effective plain text system. Several ports to vim exist to
+varying degrees of completion.
 
 Obsidian.md~
 https://obsidian.md/
@@ -576,6 +578,9 @@ OPTIONS                                                   *wiki-config-options*
     `wiki` (|wiki-link-wiki|)
       Wiki style links.
 
+    `org` (|wiki-link-orgmode|)
+      Orgmode style links.
+
     `adoc_xref_bracket` (|wiki-link-adoc-xref|)
     `adoc_xref_inline`
       AsciiDoc cross-reference style links (angled brackets style or inline
@@ -611,8 +616,11 @@ OPTIONS                                                   *wiki-config-options*
   Default: >
 
     let g:wiki_link_toggles = {
-          \ 'md': 'wiki#link#wiki#template',
           \ 'wiki': 'wiki#link#md#template',
+          \ 'md': 'wiki#link#org#template',
+          \ 'org': 'wiki#link#wiki#template',
+          \ 'adoc_xref_bracket': 'wiki#link#adoc_xref_inline#template',
+          \ 'adoc_xref_inline': 'wiki#link#adoc_xref_bracket#template',
           \ 'date': 'wiki#link#wiki#template',
           \ 'shortcite': 'wiki#link#md#template',
           \ 'url': 'wiki#link#md#template',
@@ -1404,6 +1412,9 @@ These are the link formats that are currently supported with some examples:
     `[Description](URL)`
 - Markdown image links               |wiki-link-image|
     `![Caption text](URL)`
+- Orgmode links                      |wiki-link-orgmode|
+    `[[URL]]`
+    `[[URL][Description]]`
 - Reference links                    |wiki-link-reference|
     `[Target]`
     `[Description][Target]`
@@ -1521,8 +1532,7 @@ Markdown links are one of the standard types of links, and the look like this: >
 
   [Description](URL)
 
-One may toggle between markdown style links and wiki style links with the
-`<leader>wf` mapping.
+The `<leader>wf` mapping can be used to toggle it to an Orgmode style link.
 
 ------------------------------------------------------------------------------
 MARKDOWN IMAGE LINKS                                          *wiki-link-image*
@@ -1531,8 +1541,19 @@ Markdown image links are similar to markdown links: >
 
   ![Caption text](URL)
 
-One may toggle between markdown style links and wiki style links with the
-`<leader>wf` mapping.
+The `<leader>wf` mapping can be used to toggle it to an Orgmode style link.
+
+------------------------------------------------------------------------------
+ORGMODE LINKS                                               *wiki-link-orgmode*
+
+Orgmode links look identical to Wiki links if they don't have a description.
+If they have a description, it is added within the outer square brackets
+within a second pair of square brackers.  Examples: >
+
+  [[URL]]
+  [[URL][Description]]
+
+The `<leader>wf` mapping can be used to toggle it to a wiki style link.
 
 ------------------------------------------------------------------------------
 REFERENCE LINKS                                           *wiki-link-reference*
@@ -1600,7 +1621,7 @@ COMPLETION                                                    *wiki-completion*
 This plugin provides an |omni-complete| function that completes intern link
 targets, including anchors, and tags.
 
-Link completion should work both for markdown and wiki style links for
+Link completion should work for markdown, wiki, and Orgmode style links for
 inter-wiki URLs (i.e. the `wiki` scheme, which is also the default scheme).
 See |wiki-link| for more info on links and the URL schemes.
 
