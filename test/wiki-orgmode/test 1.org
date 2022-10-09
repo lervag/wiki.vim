@@ -1,0 +1,5 @@
+# This is orgmode link to test 2.org:
+[[test 2.org][test 2]]
+
+# This is wiki link to test 2.org:
+[[test 2.org]]
