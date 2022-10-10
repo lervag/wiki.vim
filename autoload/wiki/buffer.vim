@@ -5,8 +5,11 @@
 "
 
 function! wiki#buffer#init() abort " {{{1
-  setlocal omnifunc=wiki#complete#omnicomplete
   setlocal comments+=nb:>
+
+  if g:wiki_completion_enabled
+    setlocal omnifunc=wiki#complete#omnicomplete
+  endif
 
   let b:wiki = {}
   let b:wiki.extension = expand('%:e')
