@@ -1604,7 +1604,7 @@ Link completion should work both for markdown and wiki style links for
 inter-wiki URLs (i.e. the `wiki` scheme, which is also the default scheme).
 See |wiki-link| for more info on links and the URL schemes.
 
-Tag completion completes tags where the tag parser's `re_findstar` value
+Tag completion completes tags where the tag parser's `re_findstart` value
 matches the current line. See |g:wiki#tags#default_parser| for more info.
 
 ------------------------------------------------------------------------------
