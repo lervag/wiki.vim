@@ -10,16 +10,7 @@ function! wiki#fzf#pages() abort "{{{1
     return
   endif
 
-  let l:root = wiki#get_root() . s:slash
-  let l:extension = len(g:wiki_filetypes) == 1
-        \ ? g:wiki_filetypes[0]
-        \ : '{' . join(g:wiki_filetypes, ',') . '}'
-  let l:pages = globpath(l:root, '**/*.' . l:extension, v:false, v:true)
-  call map(l:pages, {_, x -> x . '#####'
-        \ .'/' . fnamemodify(
-        \   substitute(x, '\V' . escape(l:root, '\'), '', ''),
-        \   ':r')
-        \})
+  let l:pages = s:gather_files()
 
   let l:fzf_opts = join([
         \ '-d"#####" --with-nth=-1 --print-query --prompt "WikiPages> "',
@@ -88,6 +79,28 @@ endfunction
 
 "}}}1
 
+function! s:gather_files() abort "{{{1
+  let l:root = wiki#get_root() . s:slash
+  let l:pages = []
+  " Note: It is tempting to do a globpath with a single pattern
+  " `**/*.{ext1,ext2,...}`, but this is not portable. On at least
+  " some very common systems, brace-expansion is incompatible with
+  " recursive `**` globbing and turns the latter into a
+  " non-recursive `*`.
+  for l:extension in g:wiki_filetypes
+    let l:pages += globpath(l:root, '**/*.' . l:extension, v:false, v:true)
+  endfor
+  call map(l:pages, {_, x -> x . '#####'
+        \ .'/' . fnamemodify(
+        \   substitute(x, '\V' . escape(l:root, '\'), '', ''),
+        \   ':r')
+        \})
+  return l:pages
+endfunction
+
+let s:slash = exists('+shellslash') && !&shellslash ? '\' : '/'
+
+" }}}1
 function! s:accept_page(lines) abort "{{{1
   " a:lines is a list with two or three elements. Two if there were no matches,
   " and three if there is one or more matching names. The first element is the
