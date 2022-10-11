@@ -503,16 +503,41 @@ OPTIONS                                                   *wiki-config-options*
         %d  day of month (01..31)
         %V  ISO week number with Monday as first day of week
         %U  week number with Sunday as first day of week
+        /   Path delimiter
 
-       Notice that:
-       * the daily format should contain year, month and day,
-       * the weekly format should contain year and week number,
-       * the monthly format should contain year and month.
+       The files will be rooted at the journal root.
 
     index_use_journal_scheme~
       Whether to use the `journal:` scheme when creating journal index with
       |WikiJournalIndex|.
 
+  The following example specifies to create journal entries in a path
+  hierarchy: >
+
+    let g:wiki_journal = {
+          \ 'date_format': {
+          \   'daily' : '%Y/%m/%d',
+          \   'weekly' : '%Y/week_%V',
+          \   'monthly' : '%Y/%m/summary',
+          \ },
+          \}
+<
+  With this setting, the journal files would be structured something like
+  this: >
+
+    wiki/journal
+    ├── 2021
+    │   ├── week_01.wiki
+    │   ├── week_02.wiki
+    │   └── 04
+    │       ├── summary.wiki
+    │       ├── 25.wiki
+    │       └── 26.wiki
+    └── 2022
+        └── 06
+            ├── 25.wiki
+            └── 26.wiki
+<
   Default: >
 
     let g:wiki_journal = {
