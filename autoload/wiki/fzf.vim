@@ -10,17 +10,6 @@ function! wiki#fzf#pages() abort "{{{1
     return
   endif
 
-  let l:root = wiki#get_root() . s:slash
-  let l:extension = len(g:wiki_filetypes) == 1
-        \ ? g:wiki_filetypes[0]
-        \ : '{' . join(g:wiki_filetypes, ',') . '}'
-  let l:pages = globpath(l:root, '**/*.' . l:extension, v:false, v:true)
-  call map(l:pages, {_, x -> x . '#####'
-        \ .'/' . fnamemodify(
-        \   substitute(x, '\V' . escape(l:root, '\'), '', ''),
-        \   ':r')
-        \})
-
   let l:fzf_opts = join([
         \ '-d"#####" --with-nth=-1 --print-query --prompt "WikiPages> "',
         \ '--expect=' . get(g:, 'wiki_fzf_pages_force_create_key', 'alt-enter'),
@@ -28,13 +17,11 @@ function! wiki#fzf#pages() abort "{{{1
         \])
 
   call fzf#run(fzf#wrap({
-        \ 'source': l:pages,
+        \ 'source': s:gather_files(),
         \ 'sink*': funcref('s:accept_page'),
         \ 'options': l:fzf_opts
         \}))
 endfunction
-
-let s:slash = exists('+shellslash') && !&shellslash ? '\' : '/'
 
 " }}}1
 function! wiki#fzf#tags() abort "{{{1
@@ -87,6 +74,29 @@ function! wiki#fzf#toc() abort "{{{1
 endfunction
 
 "}}}1
+
+function! s:gather_files() abort "{{{1
+  let l:root = wiki#get_root() . s:slash
+
+  " Note: It may be tempting to do a globpath() with a single pattern
+  "       `**/*.{ext1,ext2,...}`, but this is not portable. On at least some
+  "       very common systems, brace-expansion is incompatible with recursive
+  "       `**` globbing and turns the latter into a non-recursive `*`.
+  let l:pages = []
+  for l:extension in g:wiki_filetypes
+    let l:pages += globpath(l:root, '**/*.' . l:extension, v:false, v:true)
+  endfor
+
+  return map(l:pages, {_, x -> x . '#####'
+        \ .'/' . fnamemodify(
+        \   substitute(x, '\V' . escape(l:root, '\'), '', ''),
+        \   ':r')
+        \})
+endfunction
+
+let s:slash = exists('+shellslash') && !&shellslash ? '\' : '/'
+
+" }}}1
 
 function! s:accept_page(lines) abort "{{{1
   " a:lines is a list with two or three elements. Two if there were no matches,
