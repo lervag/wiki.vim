@@ -10,8 +10,6 @@ function! wiki#fzf#pages() abort "{{{1
     return
   endif
 
-  let l:pages = s:gather_files()
-
   let l:fzf_opts = join([
         \ '-d"#####" --with-nth=-1 --print-query --prompt "WikiPages> "',
         \ '--expect=' . get(g:, 'wiki_fzf_pages_force_create_key', 'alt-enter'),
@@ -19,13 +17,11 @@ function! wiki#fzf#pages() abort "{{{1
         \])
 
   call fzf#run(fzf#wrap({
-        \ 'source': l:pages,
+        \ 'source': s:gather_files(),
         \ 'sink*': funcref('s:accept_page'),
         \ 'options': l:fzf_opts
         \}))
 endfunction
-
-let s:slash = exists('+shellslash') && !&shellslash ? '\' : '/'
 
 " }}}1
 function! wiki#fzf#tags() abort "{{{1
@@ -81,26 +77,27 @@ endfunction
 
 function! s:gather_files() abort "{{{1
   let l:root = wiki#get_root() . s:slash
+
+  " Note: It may be tempting to do a globpath() with a single pattern
+  "       `**/*.{ext1,ext2,...}`, but this is not portable. On at least some
+  "       very common systems, brace-expansion is incompatible with recursive
+  "       `**` globbing and turns the latter into a non-recursive `*`.
   let l:pages = []
-  " Note: It is tempting to do a globpath with a single pattern
-  " `**/*.{ext1,ext2,...}`, but this is not portable. On at least
-  " some very common systems, brace-expansion is incompatible with
-  " recursive `**` globbing and turns the latter into a
-  " non-recursive `*`.
   for l:extension in g:wiki_filetypes
     let l:pages += globpath(l:root, '**/*.' . l:extension, v:false, v:true)
   endfor
-  call map(l:pages, {_, x -> x . '#####'
+
+  return map(l:pages, {_, x -> x . '#####'
         \ .'/' . fnamemodify(
         \   substitute(x, '\V' . escape(l:root, '\'), '', ''),
         \   ':r')
         \})
-  return l:pages
 endfunction
 
 let s:slash = exists('+shellslash') && !&shellslash ? '\' : '/'
 
 " }}}1
+
 function! s:accept_page(lines) abort "{{{1
   " a:lines is a list with two or three elements. Two if there were no matches,
   " and three if there is one or more matching names. The first element is the
