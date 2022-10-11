@@ -4,11 +4,6 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#journal#make_note(...) abort " {{{1
-  return call('wiki#journal#open', a:000)
-endfunction
-
-" }}}1
 function! wiki#journal#open(...) abort " {{{1
   " Open a journal entry.
   "
