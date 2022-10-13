@@ -7,12 +7,13 @@
 function! wiki#journal#open(...) abort " {{{1
   " Open a journal entry.
   "
-  " Takes one optional argument:
+  " OptionalArgument:
   "   date_string: A date string formatted according to the frequency format
   "                rules.
   "
-  " With no arguments: Go to the current journal entry. This is usually the
-  " current date, but the g:wiki_journal.frequency setting has an effect here.
+  " With no arguments:
+  "   Go to the current journal entry. This is usually the current date, but
+  "   the g:wiki_journal.frequency setting has an effect here.
 
   let l:date = a:0 > 0
         \ ? a:1
@@ -123,10 +124,11 @@ endfunction
 " }}}1
 
 
-" Functions to convert between journal nodes and date strings. Journal notes
-" are formatted according to g:wiki_journal.date_format. Similarly, the date
-" strings must be formatted according to one of the following types of journal
-" frequencies:
+" The following are functions to convert between journal nodes and date
+" strings. Journal nodes are the file paths of the various journal entries with
+" the journal root and extension removed. Thus, they are strings formatted
+" according to g:wiki_journal.date_format. The date strings correspond to the
+" frequencies (daily, weekly, monthly), but are currently not optional:
 "   * daily:   YYYY-MM-DD
 "   * weekly:  YYYY-wWW
 "   * monthly: YYYY-MM
