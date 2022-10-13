@@ -4,23 +4,13 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#date#format(date, format) abort " {{{1
-  return s:date(a:date, a:format)
-endfunction
-
-" }}}1
-function! wiki#date#offset(date, offset) abort " {{{1
-  return s:date_offset(a:date, a:offset)
-endfunction
-
-" }}}1
 function! wiki#date#get_day_of_week(date) abort " {{{1
-  return s:date(a:date, '%u')
+  return strftime('%u', strptime('%F', a:date))
 endfunction
 
 " }}}1
 function! wiki#date#get_week(date) abort " {{{1
-  return s:date(a:date, '%V')
+  return strftime('%V', strptime('%F', a:date))
 endfunction
 
 " }}}1
@@ -33,26 +23,30 @@ function! wiki#date#get_week_dates(...) abort " {{{1
     let l:dow = wiki#date#get_day_of_week(l:date)
     let l:range = range(1-l:dow, 7-l:dow)
   elseif a:0 == 2
-    let l:week = a:1
-    let l:year = a:2
-    let l:date = l:year . '-01-01'
-
-    let l:dow = wiki#date#get_day_of_week(l:date)
-    let l:first_week = wiki#date#get_week(l:date)
-    if l:first_week > 1
-      let l:first_week = 0
-    endif
-
-    let l:ndays = 7*(l:week - l:first_week) - (l:dow - 1)
-    let l:range = range(l:ndays, l:ndays+6)
+    let l:date = wiki#date#get_week_first_date(a:1, a:2)
+    let l:range = range(0, 6)
   else
     return []
   endif
 
-  return map(l:range, 's:date_offset(l:date, v:val . '' days'')')
+  return map(l:range, { _, x -> s:date_offset(l:date, x) })
 endfunction
 
 " }}}1
+function! wiki#date#get_week_first_date(week, year) abort " {{{1
+  let l:date_first = a:year . '-01-01'
+  let l:dow = wiki#date#get_day_of_week(l:date_first)
+  let l:first_week = wiki#date#get_week(l:date_first)
+  if l:first_week > 1
+    let l:first_week = 0
+  endif
+
+  let l:offset_days = 7*(a:week - l:first_week) - l:dow + 1
+  return s:date_offset(l:date_first, l:offset_days)
+endfunction
+
+" }}}1
+
 function! wiki#date#get_month_name(month) abort " {{{1
   return get(g:wiki_month_names, a:month-1)
 endfunction
@@ -70,8 +64,10 @@ endfunction
 
 " }}}1
 function! wiki#date#get_month_days(month, year) abort " {{{1
-  return map(range(1, wiki#date#get_month_size(a:month, a:year)),
-        \ 'printf(''%4d-%02d-%02d'', a:year, a:month, v:val)')
+  return map(
+        \ range(1, wiki#date#get_month_size(a:month, a:year)),
+        \ { _, x -> printf('%4d-%02d-%02d', a:year, a:month,x) }
+        \)
 endfunction
 
 " }}}1
@@ -88,13 +84,16 @@ function! wiki#date#get_month_decomposed(month, year) abort " {{{1
 
   let l:days_pre  = l:first_monday   > 1 ? l:days[:l:first_monday-2]  : []
   let l:days_post = l:remaining_days > 0 ? l:days[-l:remaining_days:] : []
-  let l:weeks = map(range(l:number_of_weeks),
-        \ 'printf(''%4d_w%02d'', a:year, l:first_week + v:val)')
+  let l:weeks = map(
+        \ range(l:number_of_weeks),
+        \ { _, x -> printf('%4d-w%02d', a:year, l:first_week + x) }
+        \)
 
   return l:days_pre + l:weeks + l:days_post
 endfunction
 
 " }}}1
+
 function! wiki#date#format_to_regex(format) abort " {{{1
   let l:regex = substitute(a:format, '%[ymdVU]', '\\d\\d', 'g')
   return substitute(l:regex, '%Y', '\\d\\d\\d\\d', '')
@@ -107,16 +106,12 @@ function! wiki#date#parse_format(date, format) abort " {{{1
         \ 'Y' : ['year', 4],
         \ 'm' : ['month', 2],
         \ 'd' : ['day', 2],
-        \ 'V' : ['week', 2],
+        \ 'V' : ['week_iso', 2],
         \ 'U' : ['week', 2],
         \}
   let l:rx = '%[' . join(keys(l:keys), '') . ']'
 
-  let l:result = {
-      \ 'year': '1970',
-      \ 'month': '01',
-      \ 'day': '01',
-      \}
+  let l:result = {}
   let l:date = copy(a:date)
   let l:format = copy(a:format)
   while v:true
@@ -133,47 +128,75 @@ function! wiki#date#parse_format(date, format) abort " {{{1
     let l:result.year = '20' . l:result.year
   endif
 
-  if has_key(l:result, 'week')
-    let l:tmp_date = printf('%s-01-10', l:result.year)
-    let l:dow = wiki#date#get_day_of_week(l:tmp_date)
-    let l:week = wiki#date#get_week(l:tmp_date)
-    let l:offset = 7*(l:result.week - l:week) - l:dow + 1
-    let l:date = s:date_offset(l:tmp_date, l:offset . ' days')
-    let l:result.month = l:date[5:7]
-    let l:result.day = l:date[8:]
-  endif
-
   return l:result
 endfunction
 
 " }}}1
 
-"
-" Utility functions for running GNU date or similar shell commands
-"
-function! s:date(date, format) abort " {{{1
-  if s:gnu_date
-    return wiki#jobs#capture(printf(s:cmd_date
-          \ . ' +"%s" -d "%s"', a:format, a:date))[0]
-  else
-    return wiki#jobs#capture(printf(s:cmd_date
-          \ . ' -j -f "%s" "%s" +"%s"', '%Y-%m-%d', a:date, a:format))[0]
-  endif
-endfunction
+function! wiki#date#strptime(format, timestring) abort " {{{1
+  let l:dd = wiki#date#parse_format(a:timestring, a:format)
 
-" }}}1
-function! s:date_offset(date, offset) abort " {{{1
-  if s:gnu_date
-    return wiki#jobs#capture(printf(s:cmd_date
-          \ . ' +%%F -d "%s +%s"', a:date, a:offset))[0]
-  else
-    throw 'Not implemented'
+  if !has_key(l:dd, 'year') | return 0 | endif
+
+  if has_key(l:dd, 'week_iso')
+    return s:strptime_weekly(l:dd.year, l:dd.week_iso)
   endif
+
+  if !has_key(l:dd, 'month') | return 0 | endif
+
+  return strptime('%F',
+        \ printf('%s-%s-%s', l:dd.year, l:dd.month, get(l:dd, 'day', 1)))
 endfunction
 
 " }}}1
 
-let s:cmd_date = get(g:, 'wiki_date_exe', 'date')
-let s:gnu_date = match(wiki#jobs#cached(s:cmd_date . ' --version'), 'GNU') >= 0
+function! s:strptime_weekly(year, week_target) abort " {{{1
+  " There's no easy way to get timestamp from the weekly format, but it is easy
+  " to format a date into a weekly format. So we can get a valid timestamp by
+  " inverting the problem.
 
-" vim: fdm=marker sw=2
+  let l:start = strptime('%F', a:year . '-01-01')
+  let l:end = strptime('%F', a:year . '-12-31')
+
+  let l:week_start = strftime('%V', l:start)
+  if l:week_start > 1
+    let l:week_start = 0
+  endif
+  let l:week_end = strftime('%V', l:end)
+  if l:week_end <= 1
+    let l:week_end += 52
+  endif
+  if empty(a:week_target)
+        \ || a:week_target < l:week_start
+        \ || a:week_target > l:week_end
+    return 0
+  endif
+
+  let l:delta = (l:end - l:start)/53
+  let l:timestamp = l:start + a:week_target*l:delta
+  let l:iters = 0
+  while l:iters < 10
+    let l:iters += 1
+    let l:week_current = strftime('%V', l:timestamp)
+    if l:week_current == a:week_target
+      return l:timestamp
+    elseif l:week_current < a:week_target
+      let l:timestamp += l:delta
+    else
+      let l:timestamp -= l:delta
+    endif
+  endwhile
+
+  return 0
+endfunction
+
+" }}}1
+function! s:date_offset(date, offset_days) abort " {{{1
+  if a:offset_days == 0 | return a:date | endif
+
+  let l:timestamp = strptime('%F', a:date)
+  let l:timestamp += 86400*a:offset_days
+  return strftime('%F', l:timestamp)
+endfunction
+
+" }}}1

@@ -244,4 +244,3 @@ function! s:summary.get_entries() abort dict " {{{1
 endfunction
 
 " }}}1
-

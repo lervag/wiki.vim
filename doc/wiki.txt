@@ -407,17 +407,6 @@ OPTIONS                                                   *wiki-config-options*
 
   Default value: 1
 
-*g:wiki_date_exe*
-  Specify the executable for `date`, which is used "behind the scenes" to
-  manipulate and calculate dates for the journal features.
-
-  On MacOS/OSX, one can install `coreutils` from Homebrew and then use the
-  `gdate` program with: >
-
-    let g:wiki_date_exe = 'gdate'
-<
-  Default: 'date'
-
 *g:wiki_export*
   A dictionary that specifies the default configuration for |WikiExport|
   options. See the specifications for the options for more information.
@@ -498,10 +487,11 @@ OPTIONS                                                   *wiki-config-options*
   are:
 
     name~
-      Name of journal (used to set journal path).
+      Name of journal. This is used to set the journal path.
 
     frequency~
-      One of 'daily', 'weekly', or 'monthly'.
+      One of 'daily', 'weekly', or 'monthly'. Specifies the desired
+      journalling frequency. This is relevant for e.g. |WikiJournal|.
 
     date_format~
       Dictionary of filename formats for the 'daily', 'weekly', and 'monthly'
@@ -513,11 +503,41 @@ OPTIONS                                                   *wiki-config-options*
         %d  day of month (01..31)
         %V  ISO week number with Monday as first day of week
         %U  week number with Sunday as first day of week
+        /   Path delimiter
+
+       The files will be rooted at the journal root.
 
     index_use_journal_scheme~
       Whether to use the `journal:` scheme when creating journal index with
       |WikiJournalIndex|.
 
+  The following example specifies to create journal entries in a path
+  hierarchy: >
+
+    let g:wiki_journal = {
+          \ 'date_format': {
+          \   'daily' : '%Y/%m/%d',
+          \   'weekly' : '%Y/week_%V',
+          \   'monthly' : '%Y/%m/summary',
+          \ },
+          \}
+<
+  With this setting, the journal files would be structured something like
+  this: >
+
+    wiki/journal
+    ├── 2021
+    │   ├── week_01.wiki
+    │   ├── week_02.wiki
+    │   └── 04
+    │       ├── summary.wiki
+    │       ├── 25.wiki
+    │       └── 26.wiki
+    └── 2022
+        └── 06
+            ├── 25.wiki
+            └── 26.wiki
+<
   Default: >
 
     let g:wiki_journal = {
@@ -997,7 +1017,9 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 
 *<plug>(wiki-journal)*
 *WikiJournal*
-  Go to today's journal entry.
+  Go to the current journal entry. For the default journal frequency, this
+  means today's entry. See also |g:wiki_journal| and the `frequency`
+  description.
 
 *<plug>(wiki-reload)*
 *WikiReload*
@@ -1080,7 +1102,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 
   The following rules apply when converting text to a link.
 
-    If we are inside the journal (see |g:wiki_journal|):~
+    If we are inside the journal:~
 
   We would generally not want anything other than journal entries within the
   journal directory. Therefore we have some special rules here:
@@ -1140,16 +1162,17 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 
 *<plug>(wiki-journal-next)*
 *WikiJournalNext*
-  Go to next day/week/month.
+  Go to the next journal entry (at current level of daily, weekly, monthly).
 
 *<plug>(wiki-journal-prev)*
 *WikiJournalPrev*
-  Go to previous day/week/month.
+  Go to the previous journal entry (at current level of daily, weekly,
+  monthly).
 
 *<plug>(wiki-journal-copy-tonext)*
 *WikiJournalCopyToNext*
-  Copy current entry to next work day (unless the entry for next workday
-  already exists).
+  Copy current entry to the next (unless that entry already exists). Also
+  opens the next entry.
 
 *<plug>(wiki-journal-toweek)*
 *WikiJournalToWeek*
@@ -1412,11 +1435,10 @@ then the `wiki` scheme is generally assumed (unless otherwise stated).
 The following schemes are supported:
 
   wiki~
-  journal~
-    Links to internal wiki pages.  The address can be both relative and
-    absolute.  Absolute addresses are relative to the wiki root.  Further, the
-    addresses may include anchors to specific sections of the wiki entry.
-    Some examples might be enlightening: >
+    Links to internal wiki pages. The address can be both relative and
+    absolute. Absolute addresses are relative to the wiki root. Further, the
+    addresses may include anchors to specific sections of the wiki entry. Some
+    examples might be enlightening: >
 
       wiki:index
 
@@ -1424,12 +1446,26 @@ The following schemes are supported:
       instance:
 
       [[wiki:index#section 1]]
-
-      Also, to link to a journal entry, one may use:
-      journal:2014-03-02
-
-      For convenience, an ISO date will also work as a journal link.
 <
+  journal~
+    Links to journal pages. The address should be a date format at a specified
+    level/frequency:
+
+      * daily: `YYYY-MM-DD` (standard ISO date)
+      * weekly: `YYYY-wWW`
+      * monthly: `YYYY-MM`
+
+    Notice that these formats will be translated to the corresponding filename
+    formats in the `date_format` key of |g:wiki_journal|. Some examples of
+    journal urls: >
+
+      journal:2014-03-02
+      journal:2014-w09
+      journal:2014-03
+<
+    For convenience, the ISO date will also be recognized as a journal url
+    without the scheme.
+
   file~
     Links to a local file. |g:wiki_viewer| is used by default to open a file.
     For more user flexibility, one can implement a custom file handler with
