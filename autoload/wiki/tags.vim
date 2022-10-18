@@ -538,28 +538,13 @@ endfunction
 
 
 " {{{1 let g:wiki#tags#orgmode_parser = ...
-let g:wiki#tags#orgmode_parser = {
+let g:wiki#tags#orgmode_parser = deepcopy(g:wiki#tags#default_parser)
+call extend(g:wiki#tags#orgmode_parser, {
       \ 're_match': '\v^%(\c#\+filetags:\s+:[^: ]+:|\*.*:[^: ]+:$)',
       \ 're_findstart': '\v^%(^\c#\+filetags:\s+|\*.*)(:\zs[^: ]+)+$',
       \ 're_parse': '\v:\zs[^: ]+\ze:',
       \ 're_prefix': '\v^\zs.{-}\ze:([^: ]+:)+$'
-      \}
-
-function! g:wiki#tags#orgmode_parser.match(line) dict abort
-  return a:line =~# self.re_match
-endfunction
-
-function! g:wiki#tags#orgmode_parser.parse(line) dict abort
-  let l:tags = []
-  let l:tag = matchstr(a:line, self.re_parse, 0)
-
-  while !empty(l:tag)
-    call add(l:tags, l:tag)
-    let l:tag = matchstr(a:line, self.re_parse, 0, len(l:tags) + 1)
-  endwhile
-
-  return l:tags
-endfunction
+      \})
 
 function! g:wiki#tags#orgmode_parser.make(taglist, tagline) dict abort
   let l:prefix = matchstr(a:tagline, self.re_prefix)
