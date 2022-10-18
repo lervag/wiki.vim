@@ -15,6 +15,7 @@ call wiki#init#option('wiki_cache_root',
       \ : (empty($XDG_CACHE_HOME)
       \    ? $HOME . '/.cache'
       \    : $XDG_CACHE_HOME) . '/wiki.vim')
+call wiki#init#option('wiki_completion_enabled', 1)
 call wiki#init#option('wiki_completion_case_sensitive', 1)
 call wiki#init#option('wiki_export', {
       \ 'args' : '',
@@ -44,6 +45,7 @@ call wiki#init#option('wiki_link_toggle_on_follow', 1)
 call wiki#init#option('wiki_link_toggles', {
       \ 'wiki': 'wiki#link#md#template',
       \ 'md': 'wiki#link#wiki#template',
+      \ 'org': 'wiki#link#org#template',
       \ 'adoc_xref_bracket': 'wiki#link#adoc_xref_inline#template',
       \ 'adoc_xref_inline': 'wiki#link#adoc_xref_bracket#template',
       \ 'date': 'wiki#link#wiki#template',

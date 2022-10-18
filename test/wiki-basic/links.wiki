@@ -1,6 +1,6 @@
 # Sample text with links
 
-A [[index|wiki link]] and a [markdown link](index).
+A [[index|wiki link]], a [markdown link](index) and a [[index][orgmode link]].
 
 An url:
 https://github.com/lervag/wiki.vim

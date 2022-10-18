@@ -7,8 +7,12 @@ let s:link = wiki#link#get_at_pos(3, 3)
 call assert_equal('wiki', s:link.type)
 call assert_equal('wiki', s:link.scheme)
 
-let s:link = wiki#link#get_at_pos(3, 30)
+let s:link = wiki#link#get_at_pos(3, 26)
 call assert_equal('md', s:link.type)
+call assert_equal('wiki', s:link.scheme)
+
+let s:link = wiki#link#get_at_pos(3, 55)
+call assert_equal('org', s:link.type)
 call assert_equal('wiki', s:link.scheme)
 
 let s:link = wiki#link#get_at_pos(6, 1)

@@ -1,0 +1,4 @@
+#+FILETAGS: :tag7:tag8:
+* Intro                                            :tag_six:tag3:tag4:tag5:tag6:
+
+This is a wiki.

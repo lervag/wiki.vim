@@ -41,6 +41,7 @@ let wiki#rx#link_adoc_xref_bracket = '<<[^>]\+>>'
 let wiki#rx#link_adoc_xref_inline = '\<xref:\%(\[[^]]\+\]\|[^[]\+\)\[[^]]*\]'
 let wiki#rx#link_md = '\[[^[\]]\{-}\]([^\\]\{-})'
 let wiki#rx#link_md_fig = '!' . wiki#rx#link_md
+let wiki#rx#link_org = '\[\[\/\?[^\\\]]\{-}\]\%(\[[^\\\]]\{-}\]\)\?\]'
 let wiki#rx#link_ref_shortcut = '[\]\[]\@<!\[' . wiki#rx#reflabel . '\][\]\[]\@!'
 let wiki#rx#link_ref_collapsed = '[\]\[]\@<!\[' . wiki#rx#reflabel . '\]\[\][\]\[]\@!'
 let wiki#rx#link_ref_full =
@@ -58,6 +59,7 @@ let wiki#rx#link = join([
       \ wiki#rx#link_adoc_xref_bracket,
       \ wiki#rx#link_adoc_xref_inline,
       \ '!\?' . wiki#rx#link_md,
+      \ wiki#rx#link_org,
       \ wiki#rx#link_ref_definition,
       \ wiki#rx#link_ref_shortcut,
       \ wiki#rx#link_ref_full,
