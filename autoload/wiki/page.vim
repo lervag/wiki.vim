@@ -465,7 +465,7 @@ function! s:convert_links_to_html(lines) abort " {{{1
     let l:sub = '\[\[\1.html\2|\3\]\]'
   else
     return wiki#log#error(
-          \ 'g:wiki_link_target_type must be `wiki` or `md` or `org` to',
+          \ 'g:wiki_link_target_type must be `wiki`, `md`, or `org` to',
           \ 'replace link extensions on export.'
           \)
   endif

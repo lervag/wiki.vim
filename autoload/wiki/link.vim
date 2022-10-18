@@ -179,16 +179,18 @@ endfunction
 " }}}1
 
 
-" {{{1 Initialize matchers
+" {{{1 Initialize matcher lists
 
-" The order between wiki, md and org is tricky here! Wiki and org links are the
-" same without description (`[[link]]`) but different with description
-" (`[[link|description]]` vs `[[link][description]]`). We order them here such
-" that toggling never goes org->wiki or wiki-org, which might dead-lock.
-" Without a description, toggle cycles as follows:
-"     wiki -> md -> org, which looks like wiki.
-" With a description, toggle cycles as follows:
-"     wiki -> md -> org -> wiki.
+" s:matchers is an ordered list of matchers used by wiki#link#get() to detect
+" a link at the cursor. Similarly, s:matchers_real is an ordered list of
+" matchers used by wiki#link#get_all() to get all links in a given file.
+"
+" Notice that the order is important. The order between the wiki, md, and org
+" matchers is especially tricky! This is because wiki and org links are
+" equivalent when they lack a description: [[url]]. Thus, the order specified
+" here means wiki.vim will always match [[url]] as a wiki link and never as an
+" org link. This is not a problem for links with a description, though, since
+" they differ: [[url|description]] vs [[url][description]], respectively.
 let s:matchers = [
       \ wiki#link#wiki#matcher(),
       \ wiki#link#adoc_xref_bracket#matcher(),

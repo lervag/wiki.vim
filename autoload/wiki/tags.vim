@@ -535,8 +535,6 @@ function! g:wiki#tags#default_parser.make(taglist, ...) dict abort
 endfunction
 
 " }}}1
-
-
 " {{{1 let g:wiki#tags#orgmode_parser = ...
 let g:wiki#tags#orgmode_parser = deepcopy(g:wiki#tags#default_parser)
 call extend(g:wiki#tags#orgmode_parser, {
