@@ -39,7 +39,12 @@ normal! 03G8wya]
 " Ensure correct location.
 call assert_equal('[[test.org][test file]]', @")
 silent execute "normal \<Plug>(wiki-link-toggle)"
-" Actual test.
+" Actual test: default toggle doesn't do anything
+normal! ya]
+call assert_equal('[[test.org][test file]]', @")
+" Actual test: wiki toggle changes the link.
+let g:wiki_link_toggles.org = 'wiki#link#wiki#template'
+silent execute "normal \<Plug>(wiki-link-toggle)"
 normal! ya]
 call assert_equal('[[test.org|test file]]', @")
 

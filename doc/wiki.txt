@@ -624,8 +624,8 @@ OPTIONS                                                   *wiki-config-options*
 
     let g:wiki_link_toggles = {
           \ 'wiki': 'wiki#link#md#template',
-          \ 'md': 'wiki#link#org#template',
-          \ 'org': 'wiki#link#wiki#template',
+          \ 'md': 'wiki#link#wiki#template',
+          \ 'org': 'wiki#link#org#template',
           \ 'adoc_xref_bracket': 'wiki#link#adoc_xref_inline#template',
           \ 'adoc_xref_inline': 'wiki#link#adoc_xref_bracket#template',
           \ 'date': 'wiki#link#wiki#template',

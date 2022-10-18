@@ -41,6 +41,6 @@ call assert_equal('[test file](test.md)', @")
 silent execute "normal \<Plug>(wiki-link-toggle)"
 " Actual test.
 normal! ya]
-call assert_equal('[[test.md][test file]]', @")
+call assert_equal('[[test.md|test file]]', @")
 
 call wiki#test#finished()
