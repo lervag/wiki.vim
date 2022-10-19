@@ -5,7 +5,7 @@
 "
 
 function! wiki#url#journal#handler(url) abort " {{{1
-  let l:matches = matchlist(a:url.stripped, '\v([^#]*)(#.*)')
+  let l:matches = matchlist(a:url.stripped, '\v([^#]*)(#.*)?')
   let l:date = get(l:matches, 1, 'N/A')
   let l:anchor = get(l:matches, 2, 'N/A')
 
