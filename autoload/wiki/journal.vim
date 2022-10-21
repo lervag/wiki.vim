@@ -110,11 +110,12 @@ function! wiki#journal#make_index() " {{{1
       put ='## ' . l:mname
       put =''
       for l:node in l:nodes
-        let l:target = l:prefix . l:node
+        let l:date = wiki#journal#node_to_date(l:node)[0]
+        let l:target = l:prefix . l:date
         if !empty(b:wiki.link_extension)
           let l:target .= b:wiki.link_extension
         endif
-        put =wiki#link#template(l:target, l:node)
+        put =wiki#link#template(l:target, l:date)
       endfor
       put =''
     endfor
