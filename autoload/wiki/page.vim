@@ -287,10 +287,19 @@ function! s:update_link_paths(path_old, path_new) abort "{{{1
         \ = s:get_replacement_patterns(a:path_old, a:path_new)
 
   let l:graph = wiki#graph#builder#get()
+  let l:graph.cache_links_in.ftime = 0
   let l:all_links = l:graph.get_links_to(a:path_old)
   let l:files_with_links = wiki#u#group_by(l:all_links, 'filename_from')
   for [l:file, l:file_links] in items(l:files_with_links)
-    let l:lines = readfile(l:file)
+    try
+      let l:lines = readfile(l:file)
+    catch
+      call wiki#log#error(
+            \ 'Error during update_link_paths!',
+            \ 'Could not read from file: ' . l:file
+            \)
+      continue
+    endtry
 
     for l:link in l:file_links
       for [l:pattern, l:replace] in l:replacement_patterns
