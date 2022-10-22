@@ -22,14 +22,13 @@ call assert_equal('[[/journal/2019-01-03|2019-01-03]]', getline(6))
 
 " Test with link extension
 silent %bwipeout!
-let g:wiki_link_extension = '.wiki'
-unlet g:wiki_journal
 unlet g:wiki_loaded
+let g:wiki_link_extension = '.wiki'
 runtime plugin/wiki.vim
 silent call wiki#page#open('JournalIndex')
 WikiJournalIndex
 
-call assert_equal('[[journal:2019-01-03.wiki|2019-01-03]]', getline(6))
+call assert_equal('[[/journal/2019-01-03.wiki|2019-01-03]]', getline(6))
 
 
 " Test different date_format

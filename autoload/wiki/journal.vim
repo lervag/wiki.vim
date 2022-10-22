@@ -94,11 +94,15 @@ function! wiki#journal#make_index() " {{{1
     endif
   endfor
 
-  " Specify the link prefix
-  let l:prefix = g:wiki_journal.index_use_journal_scheme
-        \ ? 'journal:'
-        \ : '/' . g:wiki_journal.name . '/'
+  " Specify the link prefix/suffix
+  let l:prefix = 'journal:'
+  let l:suffix = ''
+  if !g:wiki_journal.index_use_journal_scheme
+    let l:prefix = '/' . g:wiki_journal.name . '/'
+    let l:suffix = b:wiki.link_extension
+  endif
 
+  " Put the index into buffer
   for l:year in sort(keys(l:grouped_nodes))
     let l:month_dict = l:grouped_nodes[l:year]
     put ='# ' . l:year
@@ -111,11 +115,7 @@ function! wiki#journal#make_index() " {{{1
       put =''
       for l:node in l:nodes
         let l:date = wiki#journal#node_to_date(l:node)[0]
-        let l:target = l:prefix . l:date
-        if !empty(b:wiki.link_extension)
-          let l:target .= b:wiki.link_extension
-        endif
-        put =wiki#link#template(l:target, l:date)
+        put =wiki#link#template(l:prefix . l:date . l:suffix, l:date)
       endfor
       put =''
     endfor
