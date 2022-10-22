@@ -21,6 +21,8 @@ let s:graphs = {}
 
 let s:graph = {
       \ 'save_cache': v:true,
+      \ '_cache_threshold': 7200,
+      \ '_cache_threshold_def': 7200,
       \}
 
 function! s:graph.create(root) abort dict " {{{1
@@ -85,8 +87,15 @@ function! s:graph.get_links_from(file) abort dict " {{{1
 endfunction
 
 " }}}1
-function! s:graph.get_links_to(file) abort dict " {{{1
-  call self.refresh_cache_links_in()
+function! s:graph.get_links_to(file, ...) abort dict " {{{1
+  if a:0 > 0
+    let self._cache_threshold = a:1
+    call self.refresh_cache_links_in()
+    let self._cache_threshold = self._cache_threshold_def
+  else
+    call self.refresh_cache_links_in()
+  endif
+
   return deepcopy(self.cache_links_in.get(a:file))
 endfunction
 
@@ -178,7 +187,8 @@ endfunction
 
 function! s:graph.refresh_cache_links_in(...) abort dict " {{{1
   let l:force_update = a:0 > 0 ? a:1 : v:false
-  if !l:force_update && (localtime() - self.cache_links_in.ftime <= 7200)
+  if !l:force_update
+        \ && (localtime() - self.cache_links_in.ftime <= self._cache_threshold)
     return
   endif
 

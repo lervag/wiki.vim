@@ -287,19 +287,11 @@ function! s:update_link_paths(path_old, path_new) abort "{{{1
         \ = s:get_replacement_patterns(a:path_old, a:path_new)
 
   let l:graph = wiki#graph#builder#get()
-  let l:graph.cache_links_in.ftime = 0
-  let l:all_links = l:graph.get_links_to(a:path_old)
+  let l:all_links = l:graph.get_links_to(a:path_old, 15)
   let l:files_with_links = wiki#u#group_by(l:all_links, 'filename_from')
   for [l:file, l:file_links] in items(l:files_with_links)
-    try
-      let l:lines = readfile(l:file)
-    catch
-      call wiki#log#error(
-            \ 'Error during update_link_paths!',
-            \ 'Could not read from file: ' . l:file
-            \)
-      continue
-    endtry
+    if !filereadable(l:file) | continue | endif
+    let l:lines = readfile(l:file)
 
     for l:link in l:file_links
       for [l:pattern, l:replace] in l:replacement_patterns
@@ -387,14 +379,14 @@ function! s:get_replacement_patterns(path_old, path_new) abort " {{{1
   " Create pattern to match relevant old link urls
   let l:replacement_patterns = []
   for [l:url_old, l:url_new] in l:url_pairs
-    let l:re_url_old = '(\.\/|\/)?' . escape(l:url_old, '.')
+    let l:re_url_old = '(\.\/|\/)?\zs' . escape(l:url_old, '.')
     let l:pattern = '\v' . join([
-          \ '\[\[\zs' . l:re_url_old . '\ze%(#.*)?%(\|.*)?\]\]',
-          \ '\[\[\zs' . l:re_url_old . '\ze%(#.*)?\]\[.*\]\]',
-          \ '\[.*\]\(\zs' . l:re_url_old . '\ze%(#.*)?\)',
-          \ '\[.*\]\[\zs' . l:re_url_old . '\ze%(#.*)?\]',
-          \ '\[\zs' . l:re_url_old . '\ze%(#.*)?\]\[\]',
-          \ '\<\<\zs' . l:re_url_old . '\ze#,[^>]{-}\>\>',
+          \ '\[\[' . l:re_url_old . '\ze%(#.*)?%(\|.*)?\]\]',
+          \ '\[\[' . l:re_url_old . '\ze%(#.*)?\]\[.*\]\]',
+          \ '\[.*\]\(' . l:re_url_old . '\ze%(#.*)?\)',
+          \ '\[.*\]\[' . l:re_url_old . '\ze%(#.*)?\]',
+          \ '\[' . l:re_url_old . '\ze%(#.*)?\]\[\]',
+          \ '\<\<' . l:re_url_old . '\ze#,[^>]{-}\>\>',
           \], '|')
     let l:replacement_patterns += [[l:pattern, l:url_new]]
   endfor

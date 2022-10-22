@@ -34,7 +34,7 @@ call assert_equal(
 silent edit wiki-tmp/sub/Foo.wiki
 silent call wiki#page#rename(#{new_name: 'Bar'})
 call assert_equal(
-      \ '[[sub/Bar]]',
+      \ '[[/sub/Bar]]',
       \ readfile('wiki-tmp/index.wiki')[8])
 call assert_equal(
       \ '[[Bar]]',
