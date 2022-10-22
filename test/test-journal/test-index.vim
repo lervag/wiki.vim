@@ -34,7 +34,6 @@ call assert_equal('[[/journal/2019-01-03.wiki|2019-01-03]]', getline(6))
 " Test different date_format
 silent %bwipeout!
 unlet! g:wiki_loaded
-unlet! g:wiki_link_extension
 unlet! g:wiki_journal
 let g:wiki_journal = {
       \ 'name': 'otherJournal',
