@@ -1044,6 +1044,11 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *WikiGraphFindBacklinks*
   Find backlinks to current page.
 
+*<plug>(wiki-graph-related)*
+*WikiGraphRelated*
+  Open a scratch buffer that shows how a page relates to other pages by links
+  into (on the left) and out of (on the right).
+
 *<plug>(wiki-graph-check-links)*
 *WikiGraphCheckLinks*
   Check the current wiki page for broken links. If any broken links are found,
@@ -1360,6 +1365,7 @@ specify global mappings available anywhere, and the liens annotated
   `n`     <leader>w<leader>w  |<plug>(wiki-journal)|               [GLOBAL]
   `n`     <leader>wx          |<plug>(wiki-reload)|                [GLOBAL]
   `n`     <leader>wgb         |<plug>(wiki-graph-find-backlinks)|
+  `n`     <leader>wgc         |<plug>(wiki-graph-related)|
   `n`     <leader>wgc         |<plug>(wiki-graph-check-links)|
   `n`     <leader>wgC         |<plug>(wiki-graph-check-links-g)|
   `n`     <leader>wgi         |<plug>(wiki-graph-in)|
