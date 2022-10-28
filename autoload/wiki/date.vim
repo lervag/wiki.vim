@@ -5,12 +5,12 @@
 "
 
 function! wiki#date#get_day_of_week(date) abort " {{{1
-  return strftime('%u', strptime('%F', a:date))
+  return strftime('%u', wiki#date#strptime#isodate(a:date))
 endfunction
 
 " }}}1
 function! wiki#date#get_week(date) abort " {{{1
-  return strftime('%V', strptime('%F', a:date))
+  return strftime('%V', wiki#date#strptime#isodate(a:date))
 endfunction
 
 " }}}1
@@ -134,67 +134,33 @@ endfunction
 " }}}1
 
 function! wiki#date#strptime(format, timestring) abort " {{{1
+  " This function currently supports the following fields in the format string:
+  " * %Y  year  (2 digits)
+  " * %Y  year  (4 digits)
+  " * %m  month (00..12)
+  " * %d  day   (01..31)
+  " * %V        (week number, Monday first)
+  " * %U        (week number, Sunday first)  [TODO: Not supported yet!)]
   let l:dd = wiki#date#parse_format(a:timestring, a:format)
 
   if !has_key(l:dd, 'year') | return 0 | endif
 
   if has_key(l:dd, 'week_iso')
-    return s:strptime_weekly(l:dd.year, l:dd.week_iso)
+    return wiki#date#strptime#isoweek(l:dd.year, l:dd.week_iso)
   endif
 
   if !has_key(l:dd, 'month') | return 0 | endif
 
-  return strptime('%F',
-        \ printf('%s-%s-%s', l:dd.year, l:dd.month, get(l:dd, 'day', 1)))
+  let l:date = printf('%s-%s-%s', l:dd.year, l:dd.month, get(l:dd, 'day', 1))
+  return wiki#date#strptime#isodate(l:date)
 endfunction
 
 " }}}1
 
-function! s:strptime_weekly(year, week_target) abort " {{{1
-  " There's no easy way to get timestamp from the weekly format, but it is easy
-  " to format a date into a weekly format. So we can get a valid timestamp by
-  " inverting the problem.
-
-  let l:start = strptime('%F', a:year . '-01-01')
-  let l:end = strptime('%F', a:year . '-12-31')
-
-  let l:week_start = strftime('%V', l:start)
-  if l:week_start > 1
-    let l:week_start = 0
-  endif
-  let l:week_end = strftime('%V', l:end)
-  if l:week_end <= 1
-    let l:week_end += 52
-  endif
-  if empty(a:week_target)
-        \ || a:week_target < l:week_start
-        \ || a:week_target > l:week_end
-    return 0
-  endif
-
-  let l:delta = (l:end - l:start)/53
-  let l:timestamp = l:start + a:week_target*l:delta
-  let l:iters = 0
-  while l:iters < 10
-    let l:iters += 1
-    let l:week_current = strftime('%V', l:timestamp)
-    if l:week_current == a:week_target
-      return l:timestamp
-    elseif l:week_current < a:week_target
-      let l:timestamp += l:delta
-    else
-      let l:timestamp -= l:delta
-    endif
-  endwhile
-
-  return 0
-endfunction
-
-" }}}1
 function! s:date_offset(date, offset_days) abort " {{{1
   if a:offset_days == 0 | return a:date | endif
 
-  let l:timestamp = strptime('%F', a:date)
+  let l:timestamp = wiki#date#strptime#isodate(a:date)
   let l:timestamp += 86400*a:offset_days
   return strftime('%F', l:timestamp)
 endfunction
