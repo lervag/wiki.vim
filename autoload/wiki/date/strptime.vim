@@ -5,10 +5,12 @@
 "
 
 function! wiki#date#strptime#isodate(timestring) abort " {{{1
-  return wiki#u#is_win()
-        \ ? wiki#date#strptime#isodate_implicit(a:timestring)
-        \ : strptime('%F', a:timestring)
+  return s:has_strptime
+        \ ? strptime('%F', a:timestring)
+        \ : wiki#date#strptime#isodate_implicit(a:timestring)
 endfunction
+
+let s:has_strptime = exists('*strptime') && strptime('%Y', '2000') > 0
 
 " }}}1
 function! wiki#date#strptime#isodate_implicit(date_target) abort " {{{1
