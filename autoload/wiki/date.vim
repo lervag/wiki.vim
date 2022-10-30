@@ -162,7 +162,7 @@ function! s:date_offset(date, offset_days) abort " {{{1
 
   let l:timestamp = wiki#date#strptime#isodate(a:date)
   let l:timestamp += 86400*a:offset_days
-  return strftime('%F', l:timestamp)
+  return strftime('%Y-%m-%d', l:timestamp)
 endfunction
 
 " }}}1

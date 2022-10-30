@@ -8,7 +8,7 @@ function! wiki#template#init() abort " {{{1
   if filereadable(expand('%')) | return | endif
 
   let l:context = {
-        \ 'date': strftime("%F"),
+        \ 'date': strftime("%Y-%m-%d"),
         \ 'name': expand('%:t:r'),
         \ 'origin': wiki#nav#get_previous(),
         \ 'path': expand('%:p'),

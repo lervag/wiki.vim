@@ -6,11 +6,12 @@
 
 function! wiki#date#strptime#isodate(timestring) abort " {{{1
   return s:has_strptime
-        \ ? strptime('%F', a:timestring)
+        \ ? strptime('%Y-%m-%d', a:timestring)
         \ : wiki#date#strptime#isodate_implicit(a:timestring)
 endfunction
 
-let s:has_strptime = exists('*strptime') && strptime('%Y', '2000') > 0
+let s:has_strptime
+      \ = exists('*strptime') && strptime('%Y-%m-%d', '2000-01-01') > 0
 
 " }}}1
 function! wiki#date#strptime#isodate_implicit(date_target) abort " {{{1
@@ -31,7 +32,7 @@ function! wiki#date#strptime#isodate_implicit(date_target) abort " {{{1
   while l:count < 100
     let l:count += 1
 
-    let l:date = strftime('%F-%H', l:current)
+    let l:date = strftime('%Y-%m-%d-%H', l:current)
     if l:date ==# l:date_target | return l:current | endif
 
     let l:current += 31536000*(l:year - l:date[:3])

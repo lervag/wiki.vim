@@ -18,7 +18,7 @@ call assert_equal(['2022-w40', 'weekly'], wiki#journal#node_to_date('2022/w40'))
 call assert_equal(['2022-10', 'monthly'], wiki#journal#node_to_date('2022/m10'))
 call assert_equal(['', ''], wiki#journal#node_to_date())
 silent call wiki#journal#open()
-call assert_equal([strftime('%F'), 'daily'], wiki#journal#node_to_date())
+call assert_equal([strftime('%Y-%m-%d'), 'daily'], wiki#journal#node_to_date())
 bwipeout!
 
 call assert_equal('2022-10-01', wiki#journal#get_next_date('2022-09-30', 'daily'))
