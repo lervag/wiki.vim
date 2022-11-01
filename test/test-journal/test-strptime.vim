@@ -1,8 +1,12 @@
 source ../init.vim
 runtime plugin/wiki.vim
 
-call assert_equal(1080169200, wiki#date#strptime#isodate_implicit('2004-03-25'))
-call assert_equal(1665784800, wiki#date#strptime#isodate_implicit('2022-10-15'))
-call assert_equal(1798671600, wiki#date#strptime#isodate_implicit('2026-12-31'))
+let s:start = strptime('%Y-%m-%d', '2021-01-01')
+for s:x in map(range(730), { _, x -> s:start + x*86400 })
+  let s:date = strftime('%Y-%m-%d', s:x)
+  let s:expected = strptime('%Y-%m-%d', s:date)
+  let s:observed = wiki#date#strptime#isodate_implicit(s:date)
+  call assert_equal(s:expected, s:observed)
+endfor
 
 call wiki#test#finished()

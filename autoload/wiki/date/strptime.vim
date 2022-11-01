@@ -35,16 +35,27 @@ function! wiki#date#strptime#isodate_implicit(date_target) abort " {{{1
     let l:date = strftime('%Y-%m-%d-%H', l:current)
     if l:date ==# l:date_target | return l:current | endif
 
-    let l:current += 31536000*(l:year - l:date[:3])
-    let l:current += 2592000*(l:month - l:date[5:6])
-    let l:current += 86400*(l:day - l:date[8:9])
-    let l:current += 3600*l:date[10:]
+    " Get year and month diff
+    let l:diff =
+          \  31536000*(l:year - l:date[:3])
+          \ + 2678400*(l:month - l:date[5:6])
+
+    " Get day and hour diff
+    " Note: For robustness, only apply this diff when year and month did not
+    "       change
+    if l:diff == 0
+      let l:diff +=
+            \  86400*(l:day - l:date[8:9])
+            \ + 3600*l:date[10:]
+    endif
+
+    let l:current += l:diff
   endwhile
 
   call wiki#log#error(
         \ 'Could not find strptime!',
-        \ 'Target:        ' . l:date_target,
-        \ 'Starting from: ' . strftime('%Y-%m-%d-%H', l:current),
+        \ 'Target:     ' . l:date_target,
+        \ 'Stopped at: ' . strftime('%Y-%m-%d-%H', l:current),
         \)
 
   return 0
