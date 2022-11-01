@@ -41,6 +41,12 @@ function! wiki#date#strptime#isodate_implicit(date_target) abort " {{{1
     let l:current += 3600*l:date[10:]
   endwhile
 
+  call wiki#log#error(
+        \ 'Could not find strptime!',
+        \ 'Target:        ' . l:date_target,
+        \ 'Starting from: ' . strftime('%Y-%m-%d-%H', l:current),
+        \)
+
   return 0
 endfunction
 
