@@ -329,7 +329,7 @@ journal or diary in |wiki.vim|: >
     autocmd!
     autocmd FileType calendar
           \ nnoremap <silent><buffer> <cr>
-          \ :<c-u>call personal#wiki#open_diary()<cr>
+          \ :<c-u>call wiki#journal#open()<cr>
   augroup END
 
 ------------------------------------------------------------------------------
