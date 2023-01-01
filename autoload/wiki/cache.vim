@@ -11,11 +11,12 @@ endfunction
 " }}}1
 
 function! wiki#cache#path(name) abort " {{{1
-  if !isdirectory(g:wiki_cache_root)
-    call mkdir(g:wiki_cache_root, 'p')
+  let l:root = expand(g:wiki_cache_root)
+  if !isdirectory(l:root)
+    call mkdir(l:root, 'p')
   endif
 
-  return wiki#paths#join(g:wiki_cache_root, a:name)
+  return wiki#paths#join(l:root, a:name)
 endfunction
 
 " }}}1
