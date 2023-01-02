@@ -795,9 +795,10 @@ OPTIONS                                                   *wiki-config-options*
 
     let g:wiki_root = 'WikiRoot'
 <
-  This setting would first search for a `wiki` directory in the current
-  relative directory, and fallback to a global `wiki` if the local wiki is not
-  found.
+  The `WikiRoot` function first searches for a `wiki` directory in the current
+  directory (the one you see with |:pwd|), then upwords until it finds
+  a `wiki` directory. If no `wiki` directory is found with |finddir|, the
+  function will use `~/wiki` as a fallback.
 
   Note: The (returned) path must be either a relative or absolute path to an
         existing directory.
