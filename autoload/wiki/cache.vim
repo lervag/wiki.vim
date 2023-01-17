@@ -4,12 +4,6 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#cache#init_buffer() abort " {{{1
-  command! -buffer -nargs=1 WikiClearCache call wiki#cache#clear(<q-args>)
-endfunction
-
-" }}}1
-
 function! wiki#cache#path(name) abort " {{{1
   let l:root = expand(g:wiki_cache_root)
   if !isdirectory(l:root)
