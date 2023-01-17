@@ -142,7 +142,7 @@ function! s:graph.get_tree_to(file, depth) abort " {{{1
     endif
 
     let l:stack += uniq(map(
-          \ deepcopy(self.cache_links_in.data[file]),
+          \ deepcopy(get(self.cache_links_in.data, l:file, [])),
           \ { _, x -> [x.filename_from, l:current_path] }
           \))
 
