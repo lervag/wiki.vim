@@ -103,7 +103,7 @@ function! wiki#page#rename(...) abort "{{{1
       return
     elseif l:opts.dir_mode ==# 'ask'
       if !wiki#ui#confirm([
-            \ prinft('Directory "%s" does not exist.', l:target_dir),
+            \ printf('Directory "%s" does not exist.', l:target_dir),
             \ 'Create it?'
             \])
         return
