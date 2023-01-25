@@ -101,7 +101,7 @@ Some features require a recent version of Vim (>= 8.1) or NeoVim (>= 0.5).
 The following is a list of external tools that are used for some of the
 features:
 
-  Program                       Feature~
+  Program                       Feature ~
   =======                       =======
   `date`                          Date parsing in the journal
   `xdg-open`                      Opening `pdf` files on Linux
@@ -115,9 +115,9 @@ This outlines the basic steps to get started:
 1. Create a wiki directory where the wiki files should be stored, for instance
    `~/wiki`.
 
-2. Add the following to your `vimrc` file: >
+2. Add the following to your `vimrc` file: >vim
 
-   let g:wiki_root = '~/wiki'
+     let g:wiki_root = '~/wiki'
 
 3. Now you can open the index file (by default `index.wiki`; see also
    |g:wiki_index_name|) with `<leader>ww` and start to add your notes as
@@ -126,7 +126,7 @@ This outlines the basic steps to get started:
 Note: As one can see from the above, the default extension recognized by
       |wiki.vim| is the `.wiki` extension. If one instead wants to use `.md`
       (Markdown) as the default extension, then one usually wants to add the
-      following to `vimrc`: >
+      following to `vimrc`: >vim
 
         let g:wiki_filetypes = ['md']
         let g:wiki_link_extension = '.md'
@@ -178,7 +178,7 @@ most important concept in a single sentence (by @mgoral [1]):
 > I think that the most important thing is to not overthink things and just
 > keep writing stuff down.
 
-Executive summary~
+Executive summary ~
 * Speed is key - make sure you have a fast workflow.
   * Use a global keyboard shortcut (e.g. <alt-n>) to open Vim with the wiki
     index.
@@ -296,7 +296,7 @@ The following is a list of plugins that one may want to use alongside
 |wiki.vim| for a more "complete" experience. If a user reads this list and
 things that it is lacking, they are very welcome to suggest additions!
 
-Markdown~
+Markdown ~
 Many users prefer to use |wiki.vim| with the Markdown filetype, in which case
 they will want to use a dedicated filetype plugin. There are a lot of
 options, e.g.:
@@ -305,25 +305,25 @@ options, e.g.:
 * https://github.com/SidOfc/mkdx/
 * https://github.com/vim-pandoc/vim-pandoc-syntax
 
-wiki-ft.vim~
+wiki-ft.vim ~
 https://github.com/lervag/wiki-ft.vim
 `wiki-ft.vim` is a simple filetype plugin for `.wiki` files that provides
 syntax highlighting and folding.
 
-lists.vim~
+lists.vim ~
 https://github.com/lervag/lists.vim
 This is a Vim plugin to manage text based lists and check lists.
 
-Tables~
+Tables ~
 There are a lot of plugins to work with tables. These are both excellent:
 * https://github.com/dhruvasagar/vim-table-mode
 * https://github.com/junegunn/vim-easy-align
 
-calendar.vim~
+calendar.vim ~
 https://github.com/itchyny/calendar.vim
 A plugin that provides a neat calendar feature. It can be integrated with
 |wiki.vim| with e.g. this to map `<cr>` to open the selected date in the
-journal or diary in |wiki.vim|: >
+journal or diary in |wiki.vim|: >vim
 
   augroup init_calendar
     autocmd!
@@ -342,32 +342,32 @@ useful if only as an inspiration to read about alternative approaches. The
 descriptions are mostly a copy of the initial text from the relevant home
 pages.
 
-Vimwiki~
+Vimwiki ~
 https://github.com/vimwiki/vimwiki
 Type: Plugin; Vim
 Vimwiki is a personal wiki system for Vim. It relies on its own filetype,
 although recent versions also support more traditional markdown formats.
 
-Waikiki~
+Waikiki ~
 https://github.com/fcpg/vim-waikiki
 Type: Plugin; Vim
 Waikiki is a "fisherman's wiki": it provides a minimal set of features to
 navigate pages and create links and pages.
 
-Foam~
+Foam ~
 https://foambubble.github.io/foam/
 Type: Plugin; Visual Studio Code
 Foam is a personal knowledge management and sharing system inspired by Roam
 Research, built on Visual Studio Code and GitHub.
 
-Roam Research~
+Roam Research ~
 https://roamresearch.com/
 Type: Software
 A note-taking tool for networked thought. As easy to use as a document. As
 powerful as a graph database. Roam helps you organize your research for the
 long haul.
 
-Emacs Org Mode~
+Emacs Org Mode ~
 https://orgmode.org/
 Type: Plugin; Emacs
 A GNU Emacs major mode for convenient plain text markup — and much more. Org
@@ -376,7 +376,7 @@ authoring documents, computational notebooks, literate programming and more
 — in a fast and effective plain text system. Several ports to Vim exist to
 varying degrees of completion.
 
-Obsidian.md~
+Obsidian.md ~
 https://obsidian.md/
 Type: Software
 "A second brain, for you, forever." Obsidian is a powerful knowledge base on
@@ -420,20 +420,21 @@ OPTIONS                                                   *wiki-config-options*
   A dictionary that specifies the default configuration for |WikiExport|
   options. See the specifications for the options for more information.
 
-  Default: >
+  Default: >vim
+
     let g:wiki_export = {
-        \ 'args' : '',
-        \ 'from_format' : 'markdown',
-        \ 'ext' : 'pdf',
-        \ 'link_ext_replace': v:false,
-        \ 'view' : v:false,
-        \ 'output': fnamemodify(tempname(), ':h'),
-        \}
+          \ 'args' : '',
+          \ 'from_format' : 'markdown',
+          \ 'ext' : 'pdf',
+          \ 'link_ext_replace': v:false,
+          \ 'view' : v:false,
+          \ 'output': fnamemodify(tempname(), ':h'),
+          \}
 
 *g:wiki_filetypes*
   List of filetypes for which |wiki.vim| should be enabled. If you want to
   make Markdown the default filetype, add it as the first element to the list,
-  e.g.: >
+  e.g.: >vim
 
     let g:wiki_filetypes = ['md', 'wiki']
 <
@@ -445,7 +446,7 @@ OPTIONS                                                   *wiki-config-options*
   Name of a function or a |FuncRef| for a function that should be used to
   handle local files (see also |wiki-link-url|). The function should give
   a non-zero return value if it properly handled the URL. If not, the plugin
-  falls back to opening the URL with Vim. An example: >
+  falls back to opening the URL with Vim. An example: >vim
 
     let g:wiki_file_handler = 'WikiFileHandler'
 
@@ -471,7 +472,7 @@ OPTIONS                                                   *wiki-config-options*
   e.g. to add a previewer. Users should be aware that the page candidates are
   "prettified" with the `--with-nth=1` and `-d` options for fzf, so to obtain
   the page path in a previewer option one must use the field index expression 1.
-  E.g.: >
+  E.g.: >vim
 
     let g:wiki_fzf_pages_opts = '--preview "cat {1}"'
 <
@@ -495,14 +496,14 @@ OPTIONS                                                   *wiki-config-options*
   A dictionary for configuring the journal/diary feature. Available options
   are:
 
-    name~
+    name ~
       Name of journal. This is used to set the journal path.
 
-    frequency~
+    frequency ~
       One of 'daily', 'weekly', or 'monthly'. Specifies the desired
       journalling frequency. This is relevant for e.g. |WikiJournal|.
 
-    date_format~
+    date_format ~
       Dictionary of filename formats for the 'daily', 'weekly', and 'monthly'
       frequencies. The formats may contain the following keys:
 
@@ -516,12 +517,12 @@ OPTIONS                                                   *wiki-config-options*
 
        The files will be rooted at the journal root.
 
-    index_use_journal_scheme~
+    index_use_journal_scheme ~
       Whether to use the `journal:` scheme when creating journal index with
       |WikiJournalIndex|.
 
   The following example specifies to create journal entries in a path
-  hierarchy: >
+  hierarchy: >vim
 
     let g:wiki_journal = {
           \ 'date_format': {
@@ -547,7 +548,7 @@ OPTIONS                                                   *wiki-config-options*
             ├── 25.wiki
             └── 26.wiki
 <
-  Default: >
+  Default: >vim
 
     let g:wiki_journal = {
           \ 'name': 'journal',
@@ -603,7 +604,7 @@ OPTIONS                                                   *wiki-config-options*
 
   This allows customizing how links are changed when they are toggled. For
   instance, to add/remove extensions for wiki and markdown style links, one
-  could use: >
+  could use: >vim
 
     function WikiToggleWiki(url, text) abort dict
       return wiki#link#md#template(a:url . '.wiki',
@@ -620,7 +621,7 @@ OPTIONS                                                   *wiki-config-options*
           \ 'wiki': 'WikiToggleWiki',
           \}
 <
-  Default: >
+  Default: >vim
 
     let g:wiki_link_toggles = {
           \ 'wiki': 'wiki#link#md#template',
@@ -635,7 +636,7 @@ OPTIONS                                                   *wiki-config-options*
 
 *g:wiki_map_create_page*
   This option may be used to specify a map or transformation for page names
-  provided to |WikiOpen|. For example: >
+  provided to |WikiOpen|. For example: >vim
 
     let g:wiki_map_create_page = 'MyFunction'
 
@@ -653,7 +654,7 @@ OPTIONS                                                   *wiki-config-options*
 
   The option value should be a string (the `name` of the function) or
   a |Funcref|. The latter only works in neovim when the option is defined from
-  Lua with |lua-vim-variables|, e.g. >
+  Lua with |lua-vim-variables|, e.g. >lua
 
     vim.g.wiki_map_create_page = function(x) return x:lower() end
 <
@@ -664,19 +665,19 @@ OPTIONS                                                   *wiki-config-options*
   |WikiLinkToggle| (or related mappings). The option value should be a string
   (the `name` of the function) or a |Funcref|. The latter only works in neovim
   when the option is defined from Lua with |lua-vim-variables|, similar to
-  this: >
+  this: >lua
 
     vim.g.wiki_map_text_to_link = function(x)
       return { x:lower(), x }
     end
 <
   The specified function must take a single argument and return two values.
-  The following signature should be descriptive: >
+  The following signature should be descriptive: >vim
 
     let [url, text] = TextToLink(text_raw)
 <
   Here `text_raw` is the text that should be transformed to a link composed
-  of `url` and `text`. An example may be more enlightening: >
+  of `url` and `text`. An example may be more enlightening: >vim
 
     let g:wiki_map_text_to_link = 'MyTextToLink'
 
@@ -712,7 +713,7 @@ OPTIONS                                                   *wiki-config-options*
 *g:wiki_mappings_local_journal*
   These options allow one to customize global and buffer local mappings
   through dictionaries where the keys are the right-hand sides and the values
-  are the desired mappings, e.g.: >
+  are the desired mappings, e.g.: >vim
 
     let g:wiki_mappings_global = {
         \ '<plug>(wiki-reload)' : ',wx',
@@ -723,7 +724,7 @@ OPTIONS                                                   *wiki-config-options*
   All default mappings are listed in |wiki-mappings-default|.
 
   Some mappings are defined in other modes than normal mode. In this
-  case, one can use the following syntax: >
+  case, one can use the following syntax: >vim
 
     let g:wiki_mappings_local = {
           \ '<plug>(wiki-export)' : '<c-p>',
@@ -736,7 +737,7 @@ OPTIONS                                                   *wiki-config-options*
 
   For any local mappings that should only be applied in journal entries,
   consider setting |g:wiki_mappings_local_journal|. For example, similar to
-  above: >
+  above: >vim
 
     let g:wiki_mappings_local_journal = {
           \ '<plug>(wiki-journal-prev)' : '[w',
@@ -762,11 +763,11 @@ OPTIONS                                                   *wiki-config-options*
 
   The function takes two arguments:
 
-    fname~
+    fname ~
       The unresolved filename. This may be empty, which is typically the case
       for inter-page links (e.g. `[[#SomeSection]]`).
 
-    origin~
+    origin ~
       The path of the origin file, i.e. the file from which the link was
       activated. This may be empty if a link is followed programmatically from
       an empty buffer.
@@ -786,7 +787,7 @@ OPTIONS                                                   *wiki-config-options*
     ii)  the name of a function that returns a path.
 
   The latter method allows more flexible determination of the root path, e.g.
-  project specific root paths. An example: >
+  project specific root paths. An example: >vim
 
     function! WikiRoot()
       let l:local = finddir('wiki', ';./')
@@ -813,18 +814,20 @@ OPTIONS                                                   *wiki-config-options*
 *g:wiki_tag_list*
   A dictionary that specifies the default options for |WikiTagList|.
 
-  Default: >
+  Default: >vim
+
     let g:wiki_tag_list = {
-        \ 'output' : 'loclist',
-        }
+          \ 'output' : 'loclist',
+          \}
 
 *g:wiki_tag_search*
   A dictionary that specifies the default options for |WikiTagSearch|.
 
-  Default: >
+  Default: >vim
+
     let g:wiki_tag_search = {
-        \ 'output' : 'loclist',
-        }
+          \ 'output' : 'loclist',
+          \}
 
 *g:wiki_tag_parsers*
   A list of parsers used to source the tags. The parsers are tried in the
@@ -832,28 +835,28 @@ OPTIONS                                                   *wiki-config-options*
 
   A tag parser is a dictionary object with the following keys:
 
-    match~
+    match ~
       A function (|FuncRef|) that takes a single argument, the current line.
       It should return |v:true| or 1 if the line contains any tags.
 
-    parse~
+    parse ~
       A function (|FuncRef|) that takes a single argument, the current line.
       It should return a list of the tags in the given line.
 
-    make~
+    make ~
       A function (|FuncRef|) that takes two arguments: a list of tags, and the
       current line. It should return a new line with the list of tags
       formatted appropriately. This new line will replace the current line.
       This function is used by |WikiTagRename|.
 
-    re_findstart~
+    re_findstart ~
       `OPTIONAL`
       A regular expression (|String|) that should match the start of the
       current tag for tag completion (|wiki-completion|). See
       |g:wiki#tags#default_parser| for an example.
 
   As an example, one can use the following to parse tags in lines that match
-  `tags: keyword1, keyword2` in addition to the default parser: >
+  `tags: keyword1, keyword2` in addition to the default parser: >vim
 
     let g:wiki_tag_parsers = [
           \ g:wiki#tags#default_parser,
@@ -864,20 +867,22 @@ OPTIONS                                                   *wiki-config-options*
 <
   See |g:wiki#tags#default_parser| for details on the default tag parser.
 
-  Default: >
+  Default: >vim
+
     let g:wiki_tag_parsers = [g:wiki#tags#default_parser]
 <
 *g:wiki_tag_scan_num_lines*
   A number of lines to read from the top of a page when scanning tags. To scan
-  lines from the bottom, use a negative number, e.g. >
+  lines from the bottom, use a negative number, e.g. >vim
 
     let g:wiki_tag_scan_num_lines = -10
 <
-  To scan the entire files, use: >
+  To scan the entire files, use: >vim
 
     let g:wiki_tag_scan_num_lines = 'all'
 <
-  Default: >
+  Default: >vim
+
     let g:wiki_tag_scan_num_lines = 15
 
 *g:wiki_templates*
@@ -890,7 +895,7 @@ OPTIONS                                                   *wiki-config-options*
 
   The possible dictionary keys of a template are:
 
-    match_re~
+    match_re ~
       |String|
       A regular expression that will be matched against the new page name.
 
@@ -898,12 +903,12 @@ OPTIONS                                                   *wiki-config-options*
             file name extension. For more advanced matching, you need a custom
             matcher function, i.e. the next key.
 
-    match_func~
+    match_func ~
       |Funcref|
       A function that should return |v:true| if the template should be applied
       or |v:false| if it should not apply.
 
-    source_filename~
+    source_filename ~
       |String|
       The path to a template file. If this is a relative path, then it will be
       relative to whichever path Vim or neovim is currently at when the
@@ -911,11 +916,11 @@ OPTIONS                                                   *wiki-config-options*
       template will not be applied and the next template in the list will be
       tried.
 
-    source_func~
+    source_func ~
       |Funcref|
       A user function that can use e.g. |append()| to add lines to the file.
 
-  For example: >
+  For example: >vim
 
     function! TemplateFallback(context)
       call append(0, '# ' . a:context.name)
@@ -968,10 +973,13 @@ OPTIONS                                                   *wiki-config-options*
   one to setup different viewers for different file types that are used by the
   generic link scheme handler (|wiki-link-url|) and by |WikiExport|.
 
-  Default: >
-    let g:wiki_viewer = {
-        \ '_' : OS Dependent: 'xdg-open' (Linux) | 'open' (OSX),
-        \}
+  Default: OS dependent >vim
+
+    " Linux
+    let g:wiki_viewer = { '_' : 'xdg-open' }
+
+    " MacOS
+    let g:wiki_viewer = { '_' : 'open' }
 
 *g:wiki_write_on_nav*
   Option to specify whether or not to save the current file automatically
@@ -989,7 +997,7 @@ OPTIONS                                                   *wiki-config-options*
 EVENTS                                                     *wiki-config-events*
 
 The following |User| events are available. The following shows an example for
-how to use this: >
+how to use this: >vim
 
   augroup MyWikiAutocmds
     autocmd!
@@ -1088,7 +1096,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   The user autocommand `WikiLinkFollowed` is triggered after a wiki link has
   been followed. This allows the user to add custom functionality after
   following wiki links. For example, to center the cursor inside the window
-  after following a link: >
+  after following a link: >vim
 
     augroup MyWikiAutocmds
       autocmd!
@@ -1100,7 +1108,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *WikiLinkFollowSplit*
   Similar to |WikiLinkfollow|, except wiki links are followed in a |split|.
   The `vsplit` mapping uses a vertical split. Modifiers such as |:vertical|
-  are allowed for the command, e.g. >
+  are allowed for the command, e.g. >vim
 
     :vert topleft WikiLinkfollowSplit
 
@@ -1123,7 +1131,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 
   The following rules apply when converting text to a link.
 
-    If we are inside the journal:~
+    If we are inside the journal: ~
 
   We would generally not want anything other than journal entries within the
   journal directory. Therefore we have some special rules here:
@@ -1138,7 +1146,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
     * If neither of the above, then create a link to a page with name based on
       the selected text/current word at the wiki root.
 
-    Everywhere else:~
+    Everywhere else: ~
 
   The general idea is that links should be relative to the current directory.
   To make a link to a page at root, one may simply prepend a `/` to specify
@@ -1218,28 +1226,28 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   Available options are given below. The default values are specified in the
   dictionary |g:wiki_export|.
 
-  -args~
+  -args ~
     Specify extra arguments for `pandoc`.
 
-  -from-format FRMT | -f FRMT~
+  -from-format FRMT | -f FRMT ~
     Specify format of the wiki page.
 
-  -ext EXT~
+  -ext EXT ~
     Specify extension to use if `fname` is not provided.
 
-  -link_ext_replace~
+  -link_ext_replace ~
     Set to true to replace in-wiki link extensions with html. This enables
     in-browser wiki navigation. Requires `ext` be set to `html` and for
     |g:wiki_link_extension| to be non-empty to have any meaningful effect.
 
-  -output~
+  -output ~
     Set output directory where the exported file is stored. Relative paths are
     relative to the wiki root.
 
-  -view~
+  -view ~
     Set to true to open documents with specified `viewer` by default.
 
-  -viewer PATH~
+  -viewer PATH ~
     Specify viewer to use to open the exported file. This implies `-view` and
     overrides the |g:wiki_viewer| option.
 
@@ -1252,7 +1260,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 
   Available options are (use |g:wiki_tag_list| to set default values):
 
-  -output TRG~
+  -output TRG ~
     Where to put the search result. `TRG` may be one of:
 
       * `loclist`   Use |location-list|
@@ -1274,7 +1282,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 
   Available options are (use |g:wiki_tag_search| to set default values):
 
-  -output TRG~
+  -output TRG ~
     Where to put the search result. `TRG` may be one of:
 
       * `loclist`   Use |location-list|
@@ -1359,7 +1367,7 @@ information about the different modes. The lines annotated with `[GLOBAL]`
 specify global mappings available anywhere, and the liens annotated
 `[JOURNAL]` are only available within the journal.
 
-  MODE  LHS                 RHS~
+  MODE  LHS                 RHS ~
   ====  ===                 ===
   `n`     <leader>ww          |<plug>(wiki-index)|                 [GLOBAL]
   `n`     <leader>wn          |<plug>(wiki-open)|                  [GLOBAL]
@@ -1467,7 +1475,7 @@ then the `wiki` scheme is generally assumed (unless otherwise stated).
 
 The following schemes are supported:
 
-  wiki~
+  wiki ~
     Links to internal wiki pages. The address can be both relative and
     absolute. Absolute addresses are relative to the wiki root. Further, the
     addresses may include anchors to specific sections of the wiki entry. Some
@@ -1480,7 +1488,7 @@ The following schemes are supported:
 
       [[wiki:index#section 1]]
 <
-  journal~
+  journal ~
     Links to journal pages. The address should be a date format at a specified
     level/frequency:
 
@@ -1499,18 +1507,18 @@ The following schemes are supported:
     For convenience, the ISO date will also be recognized as a journal url
     without the scheme.
 
-  file~
+  file ~
     Links to a local file. |g:wiki_viewer| is used by default to open a file.
     For more user flexibility, one can implement a custom file handler with
     |g:wiki_file_handler|.
 
     This scheme is the default scheme for |wiki-link-image|.
 
-  doi~
+  doi ~
     Will use the `generic` scheme handler on an expanded URL of the form
     `http://dx.doi.org/<address>`, where `<address>` is the link address.
 
-  zot~
+  zot ~
     This is an early version of a Zotero scheme. It uses `fd`, `fdfind`, or
     `find` (in preferred order) to search the Zotero storage for a matching
     pdf. This works very well if one uses the Zotfile extension and the Better
@@ -1520,7 +1528,7 @@ The following schemes are supported:
     opened with |g:wiki_viewer|. The Zotero storage root may be specified with
     |g:wiki_zotero_root|.
 
-  generic~
+  generic ~
     If the scheme is not recognized, the link is followed with the system
     handler, which is defined by the `_` key of |g:wiki_viewer| on Linux.
     Currently, only Linux is supported here.  This will work quite well on
@@ -1653,13 +1661,13 @@ built-in completions, such as omni completion, depending on the
 context. Below are instructions for how to setup some of these autocomplete
 plugins for wiki.vim.
 
-ncm2~
+ncm2 ~
 |ncm2| is a modern remake and replacement of |nvim-completion-manager| and is
 supposed to be a "Slim, Fast and Hackable Completion Framework for Neovim":
 https://github.com/ncm2/ncm2
 
 The following configuration shows how to enable autocompletion of wiki style
-links after `[[`: >
+links after `[[`: >vim
 
   augroup my_cm_setup
     autocmd!
@@ -1707,7 +1715,7 @@ Multiple tags may be specified both with `:tag1: :tag2:` and with the short
 form `:tag1:tag2:`. The tag name must consist of purely non-space characters.
 
 The full implementation is given in `autoload/wiki/tags.vim`, repeated here
-for convenience: >
+for convenience: >vim
 
   let g:wiki#tags#default_parser = {
         \ 're_match': '\v%(^|\s):\zs[^: ]+\ze:',
@@ -1736,7 +1744,7 @@ for convenience: >
 
 One may customize the default parser by adjusting `re_match`, `re_findstart`,
 and `make`. E.g., to instead recognize hashed tags like `#tag1` and
-`#my-other-tag`, one could add the following in one's vimrc: >
+`#my-other-tag`, one could add the following in one's vimrc: >vim
 
   let s:tag_parser = deepcopy(g:wiki#tags#default_parser)
   let s:tag_parser.re_match = '\v%(^|\s)#\zs[^# ]+'
@@ -1757,7 +1765,7 @@ ever appear at the end of headlines and the `#+FILETAGS:` property.
 The full implementation is given in `autoload/wiki/tags.vim`. It is very
 similar to |g:wiki#tags#default_parser|, so it is not repeated here.
 
-To use the Orgmode tag parser, simply specify it in |g:wiki_tag_parsers|:
+To use the Orgmode tag parser, simply specify it in |g:wiki_tag_parsers|: >vim
 
   let g:wiki_tag_parsers = [g:wiki#tags#orgmode_parser]
 
@@ -1786,7 +1794,7 @@ TEMPLATE FUNCTION CONTEXT                              *wiki-templates-context*
 The functions in |g:wiki_templates| assume a single argument `context` which
 is a dictionary with the following values:
 
-  Key          Description              Example~
+  Key          Description              Example ~
   ===          ===========              =======
   `name`         Filename (no extension)  "New Page"
   `path`         Full path                "/path/to/wiki/sub/New Page.md"
@@ -1799,13 +1807,13 @@ The origin link is a dictionary that represents the link that was followed
 to create the page. One may expect it to have one or more of the following
 keys:
 
-  origin~
+  origin ~
     Filename of file that contains the link.
 
-  pos_start~
+  pos_start ~
     List of line number and column number where the link starts.
 
-  curpos~
+  curpos ~
     Cursor position when the link was followed/activated.
 
 ------------------------------------------------------------------------------
@@ -1827,11 +1835,11 @@ two rules that allow dynamic templates:
 The first rule is applied first, which allows the arguments in Rule 2 to be
 variable substitutions.
 
-  Pre-defined functions                   Description~
+  Pre-defined functions                   Description ~
   =====================                   ===========
   `wiki#template#case_title(ctx, string)`   Returns `string` title cased
 
-An example~
+An example  ~
 It may be hard to fully understand how all of the above works, so an example
 is in order. Let's assume you keep a separate blog directory in your wiki,
 then you could add a `.template.md` file with the following content to ensure
@@ -1850,7 +1858,7 @@ Here `CustomUserFunc` must be defined, e.g. in your vimrc file. As explained,
 the first argument is `ctx` - the context dictionary from
 |wiki-templates-context|. The text "A new blog post" is passed as the
 second argument as a string. The full content of the function is of course up
-to the user, but it would look something like this: >
+to the user, but it would look something like this: >vim
 
   function! CustomUserFunc(ctx, text) abort
     return a:ctx.name . ': ' . substitute(a:text, 'A new', 'An old', '')
