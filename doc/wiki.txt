@@ -517,10 +517,6 @@ OPTIONS                                                   *wiki-config-options*
 
        The files will be rooted at the journal root.
 
-    index_use_journal_scheme ~
-      Whether to use the `journal:` scheme when creating journal index with
-      |WikiJournalIndex|.
-
   The following example specifies to create journal entries in a path
   hierarchy: >vim
 
@@ -558,7 +554,19 @@ OPTIONS                                                   *wiki-config-options*
           \   'weekly' : '%Y_w%V',
           \   'monthly' : '%Y_m%m',
           \ },
-          \ 'index_use_journal_scheme': v:true,
+          \}
+
+*g:wiki_journal_index*
+  A dictionary for configuring the behaviour of |WikiJournalIndex|. Available
+  options are:
+
+    use_journal_scheme ~
+      Whether to use the `journal:` scheme on link urls.
+
+  Default: >vim
+
+    let g:wiki_journal_index = {
+          \ 'use_journal_scheme': v:true,
           \}
 
 *g:wiki_link_extension*

@@ -37,7 +37,9 @@ call wiki#init#option('wiki_journal', {
       \   'weekly' : '%Y_w%V',
       \   'monthly' : '%Y_m%m',
       \ },
-      \ 'index_use_journal_scheme': v:true,
+      \})
+call wiki#init#option('wiki_journal_index', {
+      \ 'use_journal_scheme': v:true,
       \})
 call wiki#init#option('wiki_link_extension', '')
 call wiki#init#option('wiki_link_target_type', 'wiki')

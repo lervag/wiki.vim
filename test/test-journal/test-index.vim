@@ -13,7 +13,7 @@ call assert_equal('[[journal:2019-01-03|2019-01-03]]', getline(6))
 " Test without "journal:" scheme
 silent %bwipeout!
 unlet g:wiki_loaded
-let g:wiki_journal = {'index_use_journal_scheme': 0}
+let g:wiki_journal_index = {'use_journal_scheme': v:false}
 runtime plugin/wiki.vim
 silent call wiki#page#open('JournalIndex')
 WikiJournalIndex
@@ -34,7 +34,7 @@ call assert_equal('[[/journal/2019-01-03.wiki|2019-01-03]]', getline(6))
 " Test different date_format
 silent %bwipeout!
 unlet! g:wiki_loaded
-unlet! g:wiki_journal
+unlet! g:wiki_journal_index
 let g:wiki_journal = {
       \ 'name': 'otherJournal',
       \ 'date_format': { 'daily': '%Y/%m/%d' }

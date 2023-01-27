@@ -97,7 +97,7 @@ function! wiki#journal#make_index() " {{{1
   " Specify the link prefix/suffix
   let l:prefix = 'journal:'
   let l:suffix = ''
-  if !g:wiki_journal.index_use_journal_scheme
+  if !g:wiki_journal_index.use_journal_scheme
     let l:prefix = '/' . g:wiki_journal.name . '/'
     let l:suffix = b:wiki.link_extension
   endif
