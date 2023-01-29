@@ -39,4 +39,16 @@ WikiJournalIndex
 call assert_equal(
       \ readfile('test-index-text-parsers.header.wiki'),
       \ getline(1, 15))
+
+normal! ggdG
+unlet! g:wiki_journal_index.link_text_parser
+function! g:wiki_journal_index.link_text_parser(base, date, path) dict
+  let l:title = wiki#toc#get_page_title(a:path)
+  return a:date . ': ' . l:title
+endfunction
+WikiJournalIndex
+call assert_equal(
+      \ readfile('test-index-text-parsers.date-header.wiki'),
+      \ getline(1, 15))
+
 call wiki#test#finished()
