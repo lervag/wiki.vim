@@ -94,12 +94,14 @@ function! wiki#journal#make_index() " {{{1
     endif
   endfor
 
-  " Specify the link prefix/suffix
-  let l:prefix = 'journal:'
-  let l:suffix = ''
-  if !g:wiki_journal_index.use_journal_scheme
-    let l:prefix = '/' . g:wiki_journal.name . '/'
-    let l:suffix = b:wiki.link_extension
+  let l:LinkUrlParser = g:wiki_journal_index.use_journal_scheme
+        \ ? { b, d, p -> 'journal:' . d }
+        \ : { b, d, p -> p }
+
+  let l:LinkTextParser = g:wiki_journal_index.link_text_parser
+  if type(l:LinkTextParser) != v:t_func
+    return wiki#log#error(
+          \ 'g:wiki_journal_index.link_text_parser must be a function/lambda!')
   endif
 
   " Put the index into buffer
@@ -114,8 +116,13 @@ function! wiki#journal#make_index() " {{{1
       put ='## ' . l:mname
       put =''
       for l:node in l:nodes
+        let l:path = printf('/%s/%s%s', g:wiki_journal.name, l:node, b:wiki.link_extension)
         let l:date = wiki#journal#node_to_date(l:node)[0]
-        put =wiki#link#template(l:prefix . l:date . l:suffix, l:date)
+
+        let l:url = LinkUrlParser(l:node, l:date, l:path)
+        let l:text = LinkTextParser(l:node, l:date, l:path)
+
+        put =wiki#link#template(l:url, l:text)
       endfor
       put =''
     endfor

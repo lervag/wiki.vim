@@ -561,12 +561,42 @@ OPTIONS                                                   *wiki-config-options*
   options are:
 
     use_journal_scheme ~
-      Whether to use the `journal:` scheme on link urls.
+      Whether to use the `journal:` scheme on link urls (see |wiki-link-url|
+      for more info). Note that the journal scheme does not work well if there
+      are multiple pages per single date!
 
+    link_text_parser ~
+      Specify link text parser. This is a function (|Funcref|) or a |lambda|
+      that takes three arguments and must return the desired link text. The
+      arguments are:
+
+        1. the basename of the link target without extension
+        2. the ISO date
+        3. the full path to the link target
+
+      This function gives a lot of flexibility. Here are some examples: >vim
+
+        " Use the file basename
+        let g:wiki_journal_index = {
+              \ 'link_text_parser': { b, d, p -> b }
+              \}
+
+        " Use the isodate. This works well as long as there is only a single
+        " journal entry per date.
+        let g:wiki_journal_index = {
+              \ 'link_text_parser': { b, d, p -> d }
+              \}
+
+        " Extract and use first header of the file
+        let g:wiki_journal_index = {
+              \ 'link_text_parser': { b, d, p -> wiki#toc#get_page_title(p) }
+              \}
+<
   Default: >vim
 
     let g:wiki_journal_index = {
           \ 'use_journal_scheme': v:true,
+          \ 'link_text_parser': { b, d, p -> d }
           \}
 
 *g:wiki_link_extension*
@@ -1514,6 +1544,11 @@ The following schemes are supported:
 <
     For convenience, the ISO date will also be recognized as a journal url
     without the scheme.
+
+    Note: This scheme works well as long as there is only a single page per
+          date. If you want to use multiple entries per date you should avoid
+          this scheme and you should probably consider to change the
+          `use_journal_scheme` option (see |g:wiki_journal_index|).
 
   file ~
     Links to a local file. |g:wiki_viewer| is used by default to open a file.
