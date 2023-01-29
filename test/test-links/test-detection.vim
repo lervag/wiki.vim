@@ -50,4 +50,13 @@ let s:link = wiki#link#get_at_pos(35, 5)
 call assert_equal('md', s:link.type)
 call assert_equal('wiki', s:link.scheme)
 
+" Avoid checking links inside code snippets
+syntax enable
+setf markdown
+let s:link = wiki#link#get_at_pos(37, 19)
+call assert_equal({}, s:link)
+let s:link = wiki#link#get_at_pos(37, 35)
+call assert_equal('md', s:link.type)
+call assert_equal('wiki', s:link.scheme)
+
 call wiki#test#finished()

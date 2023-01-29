@@ -33,3 +33,5 @@ A ![link to a figure](figs/test.png) here.
 Another URL: <wiki:file with spaces>
 
 A [mardown link with $\mathrm{math}$](index).
+
+`inline code with [link](target)` [link](target)

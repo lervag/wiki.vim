@@ -108,8 +108,9 @@ endfunction
 " }}}1
 function! wiki#u#is_code(...) abort " {{{1
   let l:lnum = a:0 > 0 ? a:1 : line('.')
+  let l:col = a:0 > 1 ? a:2 : col('.')
 
-  return match(map(synstack(l:lnum, 1),
+  return match(map(synstack(l:lnum, l:col),
           \        "synIDattr(v:val, 'name')"),
           \    '^\%(wikiPre\|mkd\%(Code\|Snippet\)\|markdownCode\)') > -1
 endfunction
