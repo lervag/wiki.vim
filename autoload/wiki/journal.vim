@@ -35,9 +35,8 @@ function! wiki#journal#go(step) abort " {{{1
     return
   endif
   let l:target_node = l:nodes[l:target]
-  let l:target_date = wiki#journal#node_to_date(l:target_node)[0]
 
-  call wiki#journal#open(l:target_date)
+  call s:node_to_link(l:target_node).follow()
 endfunction
 
 " }}}1
@@ -255,6 +254,12 @@ function! s:node_to_path(node) abort " {{{1
         \ : g:wiki_filetypes[0]
 
   return wiki#paths#s(printf('%s/%s.%s', l:root, a:node, l:extension))
+endfunction
+
+" }}}1
+function! s:node_to_link(node) abort " {{{1
+  let l:url = printf('/%s/%s', g:wiki_journal.name, a:node)
+  return wiki#url#parse(l:url)
 endfunction
 
 " }}}1
