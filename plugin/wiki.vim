@@ -39,8 +39,8 @@ call wiki#init#option('wiki_journal', {
       \ },
       \})
 call wiki#init#option('wiki_journal_index', {
-      \ 'use_journal_scheme': v:true,
-      \ 'link_text_parser': { b, d, p -> d }
+      \ 'link_text_parser': { b, d, p -> d },
+      \ 'link_url_parser': { b, d, p -> 'journal:' . d }
       \})
 call wiki#init#option('wiki_link_extension', '')
 call wiki#init#option('wiki_link_target_type', 'wiki')

@@ -10,16 +10,16 @@ silent call wiki#page#open('JournalIndex')
 
 " The journal: scheme does not work well when there are multiple entries per
 " date! This test more or less verifies this fact.
-let g:wiki_journal_index.use_journal_scheme = v:true
 let g:wiki_journal_index.link_text_parser = { b, d, p -> d }
+let g:wiki_journal_index.link_url_parser = { b, d, p -> 'journal:' . d }
 WikiJournalIndex
 call assert_equal(
       \ readfile('test-index-text-parsers.isodate-schemed.wiki'),
       \ getline(1, 15))
 
 normal! ggdG
-let g:wiki_journal_index.use_journal_scheme = v:false
 let g:wiki_journal_index.link_text_parser = { b, d, p -> d }
+let g:wiki_journal_index.link_url_parser = { b, d, p -> p }
 WikiJournalIndex
 call assert_equal(
       \ readfile('test-index-text-parsers.isodate.wiki'),

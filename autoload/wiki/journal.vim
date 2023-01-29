@@ -94,9 +94,11 @@ function! wiki#journal#make_index() " {{{1
     endif
   endfor
 
-  let l:LinkUrlParser = g:wiki_journal_index.use_journal_scheme
-        \ ? { b, d, p -> 'journal:' . d }
-        \ : { b, d, p -> p }
+  let l:LinkUrlParser = g:wiki_journal_index.link_url_parser
+  if type(l:LinkUrlParser) != v:t_func
+    return wiki#log#error(
+          \ 'g:wiki_journal_index.link_url_parser must be a function/lambda!')
+  endif
 
   let l:LinkTextParser = g:wiki_journal_index.link_text_parser
   if type(l:LinkTextParser) != v:t_func

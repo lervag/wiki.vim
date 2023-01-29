@@ -13,7 +13,7 @@ call assert_equal('[[journal:2019-01-03|2019-01-03]]', getline(6))
 " Test without "journal:" scheme
 silent %bwipeout!
 unlet g:wiki_loaded
-let g:wiki_journal_index.use_journal_scheme = v:false
+let g:wiki_journal_index.link_url_parser = { b, d, p -> p }
 runtime plugin/wiki.vim
 silent call wiki#page#open('JournalIndex')
 WikiJournalIndex

@@ -560,19 +560,14 @@ OPTIONS                                                   *wiki-config-options*
   A dictionary for configuring the behaviour of |WikiJournalIndex|. Available
   options are:
 
-    use_journal_scheme ~
-      Whether to use the `journal:` scheme on link urls (see |wiki-link-url|
-      for more info). Note that the journal scheme does not work well if there
-      are multiple pages per single date!
-
     link_text_parser ~
-      Specify link text parser. This is a function (|Funcref|) or a |lambda|
-      that takes three arguments and must return the desired link text. The
-      arguments are:
+      Specify parser function for the link texts. This is a function
+      (|Funcref|) or a |lambda| that takes three arguments and must return the
+      desired link text. The arguments are:
 
         1. the basename of the link target without extension
         2. the ISO date
-        3. the full path to the link target
+        3. the path to the link target from the wiki root
 
       This function gives a lot of flexibility. Here are some examples: >vim
 
@@ -592,11 +587,37 @@ OPTIONS                                                   *wiki-config-options*
               \ 'link_text_parser': { b, d, p -> wiki#toc#get_page_title(p) }
               \}
 <
+    link_url_parser ~
+      Specify parser function for the link urls. This is a function
+      (|Funcref|) or a |lambda| that takes three arguments and must return the
+      desired link url string. The arguments are the same as for
+      `link_text_parser`.
+
+      The default setting uses the `journal:` scheme on link urls (see
+      |wiki-link-url| for more info). Note that the journal scheme does not
+      work well if there are multiple pages per single date!
+
+      Here are some examples of alternative configurations: >vim
+
+        " Use the path from wiki root (this is usually a good alternative to
+        " the default journal: scheme)
+        let g:wiki_journal_index = {
+              \ 'link_url_parser': { b, d, p -> p }
+              \}
+
+        " Use relative path from current file (i.e. file where you are making
+        " the index)
+        let g:wiki_journal_index = {
+              \ 'link_url_parser': { b, d, p ->
+              \   wiki#paths#relative(wiki#get_root() . p, expand('%:h'))
+              \ }
+              \}
+<
   Default: >vim
 
     let g:wiki_journal_index = {
-          \ 'use_journal_scheme': v:true,
-          \ 'link_text_parser': { b, d, p -> d }
+          \ 'link_text_parser': { b, d, p -> d },
+          \ 'link_url_parser': { b, d, p -> 'journal:' . d }
           \}
 
 *g:wiki_link_extension*
