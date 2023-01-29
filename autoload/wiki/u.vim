@@ -51,17 +51,17 @@ function! wiki#u#extend_recursive(dict1, dict2, ...) abort " {{{1
     throw 'E475: Invalid argument: ' . l:option
   endif
 
-  for [l:key, l:value] in items(a:dict2)
+  for [l:key, l:Value] in items(a:dict2)
     if !has_key(a:dict1, l:key)
-      let a:dict1[l:key] = l:value
-    elseif type(l:value) == type({})
-      call wiki#u#extend_recursive(a:dict1[l:key], l:value, l:option)
+      let a:dict1[l:key] = l:Value
+    elseif type(l:Value) == type({})
+      call wiki#u#extend_recursive(a:dict1[l:key], l:Value, l:option)
     elseif l:option ==# 'error'
       throw 'E737: Key already exists: ' . l:key
     elseif l:option ==# 'force'
-      let a:dict1[l:key] = l:value
+      let a:dict1[l:key] = l:Value
     endif
-    unlet l:value
+    unlet l:Value
   endfor
 
   return a:dict1
