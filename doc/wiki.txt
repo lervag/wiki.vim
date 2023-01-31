@@ -1463,8 +1463,8 @@ specify global mappings available anywhere, and the liens annotated
   `ox`    iu                  |<plug>(wiki-iu)|
   `ox`    at                  |<plug>(wiki-at)|
   `ox`    it                  |<plug>(wiki-it)|
-  `n`     <c-n>               |<plug>(wiki-journal-prev)|          [JOURNAL]
-  `n`     <c-p>               |<plug>(wiki-journal-next)|          [JOURNAL]
+  `n`     <c-p>               |<plug>(wiki-journal-prev)|          [JOURNAL]
+  `n`     <c-n>               |<plug>(wiki-journal-next)|          [JOURNAL]
   `n`     <leader><c-n>       |<plug>(wiki-journal-copy-tonext)|   [JOURNAL]
   `n`     <leader>wu          |<plug>(wiki-journal-toweek)|        [JOURNAL]
   `n`     <leader>wm          |<plug>(wiki-journal-tomonth)|       [JOURNAL]
