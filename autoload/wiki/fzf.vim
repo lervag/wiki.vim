@@ -39,11 +39,17 @@ function! wiki#fzf#tags() abort "{{{1
     endfor
   endfor
 
+  let l:fzf_opts = join([
+        \ '-d": |:\d+$" ',
+        \ '--expect=ctrl-l --prompt "WikiTags> " ',
+        \ g:wiki_fzf_tags_opts,
+        \])
+
   " Feed tags to FZF
   call fzf#run(fzf#wrap({
         \ 'source': l:results,
         \ 'sink*': funcref('s:accept_tag'),
-        \ 'options': '--expect=ctrl-l --prompt "WikiTags> " '
+        \ 'options': l:fzf_opts
         \}))
 endfunction
 
