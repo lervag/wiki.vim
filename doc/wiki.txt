@@ -471,10 +471,21 @@ OPTIONS                                                   *wiki-config-options*
   A string with additional user options for |WikiFzfPages|. This can be used
   e.g. to add a previewer. Users should be aware that the page candidates are
   "prettified" with the `--with-nth=1` and `-d` options for fzf, so to obtain
-  the page path in a previewer option one must use the field index expression 1.
+  the page path in a previewer option one must use the field index expression `1`.
   E.g.: >vim
 
     let g:wiki_fzf_pages_opts = '--preview "cat {1}"'
+<
+  Default: `''`
+
+*g:wiki_fzf_tags_opts*
+  A string with additional user options for |WikiFzfTags|. This can be used
+  e.g. to add a previewer. Users should be aware that the page candidates are
+  "prettified" with the `-d` option for fzf, so to obtain the page path in a
+  previewer option one must use the field index expression `2..`.
+  E.g.: >vim
+
+    let g:wiki_fzf_tags_opts = '--preview "bat --color=always {2..}"'
 <
   Default: `''`
 
@@ -1389,6 +1400,10 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *<plug>(wiki-fzf-tags)*
 *WikiFzfTags*
   Open |fzf| and search for tags.
+
+  One may pass additional options to fzf with the |g:wiki_fzf_tags_opts|
+  option. This allows more fine grained control of fzf, e.g. to add
+  a previewer.
 
 *<plug>(wiki-fzf-toc)*
 *WikiFzfToc*
