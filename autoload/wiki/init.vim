@@ -19,6 +19,8 @@ endfunction
 " }}}1
 function! wiki#init#apply_mappings_from_dict(dict, arg) abort " {{{1
   for [l:rhs, l:lhs] in items(a:dict)
+    if empty(l:lhs) | continue | endif
+
     if l:rhs[0] !=# '<'
       let l:mode = l:rhs[0]
       let l:rhs = l:rhs[2:]
