@@ -620,7 +620,7 @@ OPTIONS                                                   *wiki-config-options*
         " the index)
         let g:wiki_journal_index = {
               \ 'link_url_parser': { b, d, p ->
-              \   wiki#paths#relative(wiki#get_root() . p, expand('%:h'))
+              \   wiki#paths#relative(wiki#get_root() . p, expand('%:p:h'))
               \ }
               \}
 <
