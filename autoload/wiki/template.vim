@@ -22,14 +22,13 @@ function! wiki#template#init() abort " {{{1
     endif
   endfor
 
-  let l:match = matchlist(expand('%:t:r'), '^\(\d\d\d\d\)_\(\w\)\(\d\d\)$')
-  if empty(l:match) | return | endif
-  let [l:year, l:type, l:number] = l:match[1:3]
+  let [l:date, l:frq] = wiki#journal#node_to_date()
+  if empty(l:date) || l:frq ==# 'daily' | return | endif
 
-  if l:type ==# 'w'
-    call wiki#template#weekly_summary(l:year, l:number)
-  elseif l:type ==# 'm'
-    call wiki#template#monthly_summary(l:year, l:number)
+  if l:frq ==# 'weekly'
+    call wiki#template#weekly_summary(l:date[0:3], l:date[6:7])
+  else
+    call wiki#template#monthly_summary(l:date[0:3], l:date[5:6])
   endif
 endfunction
 
