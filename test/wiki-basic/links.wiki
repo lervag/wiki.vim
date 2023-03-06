@@ -10,6 +10,8 @@ List of ref links
 - [Look at this]
 - This was one interesting link [0]
 - [1] also, as well as [2] and this [^3]
+- And for links without scheme when the [file exists][valid]
+- And for links without scheme when the [file does not exist][invalid]
 - we should also account for non-existent ref links [4]
 
 List of todo markers; should not be recognized as links
@@ -29,6 +31,8 @@ A ![link to a figure](figs/test.png) here.
 [^3]: URL 4
 [Interesting]: wiki:index
 [Look at this]: <wiki:file with spaces>
+[valid]: pageA
+[invalid]: pageX
 
 Another URL: <wiki:file with spaces>
 

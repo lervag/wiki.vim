@@ -23,7 +23,7 @@ function! s:matcher.parse_url() dict abort " {{{1
   let self.id = matchstr(self.content, self.rx_target)
 
   " Locate target url
-  let self.lnum_target = searchpos('^\[' . self.id . '\]: ', 'nW')[0]
+  let self.lnum_target = searchpos('^\s*\[' . self.id . '\]: ', 'nW')[0]
   if self.lnum_target == 0
     function! self.toggle_template(_url, _text) abort dict
       call wiki#log#warn(
@@ -33,12 +33,19 @@ function! s:matcher.parse_url() dict abort " {{{1
     endfunction
   endif
 
-  let self.url = matchstr(getline(self.lnum_target), g:wiki#rx#url)
+  let l:line = getline(self.lnum_target)
+  let self.url = matchstr(l:line, g:wiki#rx#url)
   if !empty(self.url) | return | endif
 
+  let self.url = matchstr(l:line, '^\s*\[' . self.id . '\]: \s*\zs.*\ze\s*$')
+  let l:url = wiki#url#parse(self.url)
+  if l:url.scheme ==# 'wiki' && filereadable(l:url.path)
+    return
+  endif
 
   " The url is not recognized, so we add a fallback follower to link to the
   " reference position.
+  unlet self.url
   function! self.follow(...) abort dict
     normal! m'
     call cursor(self.lnum_target, 1)
