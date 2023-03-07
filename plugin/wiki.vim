@@ -27,6 +27,7 @@ call wiki#init#option('wiki_export', {
       \})
 call wiki#init#option('wiki_filetypes', ['wiki'])
 call wiki#init#option('wiki_fzf_pages_opts', '')
+call wiki#init#option('wiki_fzf_tags_opts', '')
 call wiki#init#option('wiki_global_load', 1)
 call wiki#init#option('wiki_index_name', 'index')
 call wiki#init#option('wiki_journal', {
