@@ -237,6 +237,25 @@ endfunction
 
 " }}}1
 
+function! wiki#page#get_all() abort " {{{1
+  let l:root = wiki#get_root() . s:slash
+
+  " Note: It may be tempting to do a globpath() with a single pattern
+  "       `**/*.{ext1,ext2,...}`, but this is not portable. On at least some
+  "       very common systems, brace-expansion is incompatible with recursive
+  "       `**` globbing and turns the latter into a non-recursive `*`.
+  let l:pages = []
+  for l:extension in g:wiki_filetypes
+    let l:pages += globpath(l:root, '**/*.' . l:extension, v:false, v:true)
+  endfor
+
+  return l:pages
+endfunction
+
+let s:slash = exists('+shellslash') && !&shellslash ? '\' : '/'
+
+" }}}1
+
 function! s:rename_files(path_old, path_new) abort "{{{1
   let l:bufnr = bufnr('')
   call wiki#log#info(
