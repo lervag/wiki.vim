@@ -96,7 +96,7 @@ endfunction
 
 function! wiki#date#format_to_regex(format) abort " {{{1
   let l:regex = substitute(a:format, '\C%[ymdVU]', '\\d\\d', 'g')
-  return substitute(l:regex, '\C%Y', '\\d\\d\\d\\d', '')
+  return substitute(l:regex, '\C%Y', '\\d\\d\\d\\d', 'g')
 endfunction
 
 " }}}1
