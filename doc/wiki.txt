@@ -158,7 +158,6 @@ FEATURES                                                  *wiki-intro-features*
 * Utility functionality
   * |WikiExport| command for exporting to e.g. `pdf` with `pandoc`
 * Third-party support
-  * |CtrlP|: |CtrlPWiki| command (https://github.com/ctrlpvim/ctrlp.vim)
   * |fzf|: |WikiFzfPages|, |WikiFzfToc|, and |WikiFzfTags| commands
     (https://github.com/junegunn/fzf.vim)
   * |unite| source (https://github.com/Shougo/unite.vim)
@@ -1440,10 +1439,6 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   Rename `old_tag` to `new_tag` in all pages. If zero or one arguments are
   supplied, the command asks for input. This command uses the `make` function
   of |g:wiki_tag_parsers|.
-
-*CtrlPWiki*
-  Open |CtrlP| in find file mode for wiki files in current wiki or in the main
-  wiki defined by |g:wiki_root|.
 
 *<plug>(wiki-fzf-pages)*
 *WikiFzfPages*

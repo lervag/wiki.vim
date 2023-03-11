@@ -90,7 +90,6 @@ command! WikiIndex    call wiki#goto_index()
 command! WikiOpen     call wiki#page#open()
 command! WikiReload   call wiki#reload()
 command! WikiJournal  call wiki#journal#open()
-command! CtrlPWiki    call ctrlp#init(ctrlp#wiki#id())
 command! WikiFzfPages call wiki#fzf#pages()
 command! WikiFzfTags  call wiki#fzf#tags()
 
@@ -105,10 +104,10 @@ nnoremap <silent> <plug>(wiki-fzf-tags)  :WikiFzfTags<cr>
 " Apply default mappings
 let s:mappings = index(['all', 'global'], g:wiki_mappings_use_defaults) >= 0
       \ ? {
-      \ '<plug>(wiki-index)' : '<leader>ww',
-      \ '<plug>(wiki-open)' : '<leader>wn',
-      \ '<plug>(wiki-journal)' : '<leader>w<leader>w',
-      \ '<plug>(wiki-reload)' : '<leader>wx',
+      \ '<plug>(wiki-index)': '<leader>ww',
+      \ '<plug>(wiki-open)': '<leader>wn',
+      \ '<plug>(wiki-journal)': '<leader>w<leader>w',
+      \ '<plug>(wiki-reload)': '<leader>wx',
       \} : {}
 call extend(s:mappings, get(g:, 'wiki_mappings_global', {}))
 call wiki#init#apply_mappings_from_dict(s:mappings, '')
