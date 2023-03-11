@@ -249,6 +249,15 @@ function! wiki#page#get_all() abort " {{{1
     let l:pages += globpath(l:root, '**/*.' . l:extension, v:false, v:true)
   endfor
 
+  " Enrich the results with paths from wiki root and up
+  call map(l:pages, {_, x ->
+        \ [
+        \   x,
+        \   '/' . fnamemodify(
+        \     substitute(x, '\V' . escape(l:root, '\'), '', ''), ':r')
+        \ ]
+        \})
+
   return l:pages
 endfunction
 

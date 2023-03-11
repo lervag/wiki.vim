@@ -16,14 +16,10 @@ function! wiki#fzf#pages() abort "{{{1
         \ g:wiki_fzf_pages_opts,
         \])
 
-  let l:files = map(wiki#page#get_all(), {_, x -> x . '#####'
-        \ .'/' . fnamemodify(
-        \   substitute(x, '\V' . escape(l:root, '\'), '', ''),
-        \   ':r')
-        \})
-
   call fzf#run(fzf#wrap({
-        \ 'source': l:files,
+        \ 'source': map(
+        \   wiki#page#get_all(),
+        \   {_, x -> x[0] . '#####' . x[1] }),
         \ 'sink*': funcref('s:accept_page'),
         \ 'options': l:fzf_opts
         \}))
