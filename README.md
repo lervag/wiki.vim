@@ -80,9 +80,6 @@ Please also read the `Guide` section in the [documentation](doc/wiki.txt).
 * Utility functionality
   * `:WikiExport` command for exporting to e.g. `pdf` with `pandoc`
 * Third-party support
-  * [CtrlP](https://github.com/ctrlpvim/ctrlp.vim): `CtrlPWiki` command
-  * [unite](https://github.com/Shougo/unite.vim)
-  * [denite](https://github.com/Shougo/denite.nvim)
   * [ncm2](https://github.com/ncm2/ncm2): SubscopeDetector for nested completion
   * [fzf](https://github.com/junegunn/fzf): `WikiFzfPages`, `WikiFzfTags`, and `WikiFzfToc` commands
 

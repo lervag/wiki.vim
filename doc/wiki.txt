@@ -160,8 +160,6 @@ FEATURES                                                  *wiki-intro-features*
 * Third-party support
   * |fzf|: |WikiFzfPages|, |WikiFzfToc|, and |WikiFzfTags| commands
     (https://github.com/junegunn/fzf.vim)
-  * |unite| source (https://github.com/Shougo/unite.vim)
-  * |denite| source (https://github.com/Shougo/denite.nvim)
 
 ------------------------------------------------------------------------------
 GUIDE                                                        *wiki-intro-guide*
