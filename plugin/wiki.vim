@@ -92,6 +92,8 @@ command! WikiReload   call wiki#reload()
 command! WikiJournal  call wiki#journal#open()
 command! WikiFzfPages call wiki#fzf#pages()
 command! WikiFzfTags  call wiki#fzf#tags()
+command! WikiPages call luaeval("require('wiki').get_pages()")
+command! WikiTags  call luaeval("require('wiki').get_tags()")
 
 " Initialize mappings
 nnoremap <silent> <plug>(wiki-index)     :WikiIndex<cr>
@@ -100,6 +102,8 @@ nnoremap <silent> <plug>(wiki-journal)   :WikiJournal<cr>
 nnoremap <silent> <plug>(wiki-reload)    :WikiReload<cr>
 nnoremap <silent> <plug>(wiki-fzf-pages) :WikiFzfPages<cr>
 nnoremap <silent> <plug>(wiki-fzf-tags)  :WikiFzfTags<cr>
+nnoremap <silent> <plug>(wiki-pages)     :WikiPages<cr>
+nnoremap <silent> <plug>(wiki-tags)      :WikiTags<cr>
 
 " Apply default mappings
 let s:mappings = index(['all', 'global'], g:wiki_mappings_use_defaults) >= 0

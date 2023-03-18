@@ -74,6 +74,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer -nargs=+ -complete=custom,wiki#tags#get_tag_names
         \ WikiTagRename call wiki#tags#rename_ask(<f-args>)
 
+  command! -buffer          WikiToc    call luaeval("require('wiki').toc()")
   command! -buffer          WikiFzfToc    call wiki#fzf#toc()
   command! -buffer -nargs=1 WikiClearCache call wiki#cache#clear(<q-args>)
 
