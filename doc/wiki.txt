@@ -158,7 +158,7 @@ FEATURES                                                  *wiki-intro-features*
 * Utility functionality
   * |WikiExport| command for exporting to e.g. `pdf` with `pandoc`
 * Third-party support
-  * |fzf|: |WikiFzfPages|, |WikiFzfToc|, and |WikiFzfTags| commands
+  * |fzf|: |WikiPages|, |WikiToc|, and |WikiTags| commands
     (https://github.com/junegunn/fzf.vim)
 
 ------------------------------------------------------------------------------
@@ -184,7 +184,7 @@ Executive summary ~
 * Speed is key - make sure you have a fast workflow:
   * Use a keyboard shortcut in your desktop/window manager to open Vim/neovim
     with the wiki index (e.g. <alt-n>).
-  * Use something like |:WikiFzfPages| and `ripgrep` (with e.g.
+  * Use something like |:WikiPages| and `ripgrep` (with e.g.
     `ctrlsf.vim` [2]) for searching.
 * Write short pages and use links between related pages.
 * Don't obsess about the wiki structure.
@@ -211,7 +211,7 @@ previously also used Dropbox.
 
 Needless to say, it is important to be able to find relevant notes fast.
 I have a global Vim mapping `<leader>ow` to open a page search interface.
-I previously used |:WikiFzfPages|, which works very well! Today, though, I use
+I previously used |:WikiPages|, which works very well! Today, though, I use
 Telescope [4] with a personal function to list wiki files [5]. It usually
 takes no more than a couple of seconds from the moment I think of something
 until I have opened the relevant note. A key here is to use simple names for
@@ -523,7 +523,7 @@ OPTIONS                                                   *wiki-config-options*
     endfunction
 
 *g:wiki_fzf_pages_force_create_key*
-  Key combination that, when pressed while searching with |WikiFzfPages|, will
+  Key combination that, when pressed while searching with |WikiPages|, will
   create a new page with the name of the query. The value must be a string
   recognized by fzf's `--expect` argument; see fzf's manual page for a list of
   available keys.
@@ -531,7 +531,7 @@ OPTIONS                                                   *wiki-config-options*
   Default: `'alt-enter'`
 
 *g:wiki_fzf_pages_opts*
-  A string with additional user options for |WikiFzfPages|. This can be used
+  A string with additional user options for |WikiPages|. This can be used
   e.g. to add a previewer. Users should be aware that the page candidates are
   "prettified" with the `--with-nth=1` and `-d` options for fzf, so to obtain
   the page path in a previewer option one must use the field index expression `1`.
@@ -542,7 +542,7 @@ OPTIONS                                                   *wiki-config-options*
   Default: `''`
 
 *g:wiki_fzf_tags_opts*
-  A string with additional user options for |WikiFzfTags|. This can be used
+  A string with additional user options for |WikiTags|. This can be used
   e.g. to add a previewer. Users should be aware that the page candidates are
   "prettified" with the `-d` option for fzf, so to obtain the page path in a
   previewer option one must use the field index expression `2..`.
@@ -1318,12 +1318,12 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *WikiPageRename*
   Rename wiki page (will update all links to the page).
 
-*<plug>(wiki-page-toc)*
-*WikiPageToc*
+*<plug>(wiki-generate-toc)*
+*WikiGenerateToc*
   Create/Update table of contents.
 
-*<plug>(wiki-page-toc-local)*
-*WikiPageTocLocal*
+*<plug>(wiki-generate-toc-local)*
+*WikiGenerateTocLocal*
   Create/Update table of contents (section local variant).
 
 *<plug>(wiki-journal-index)*
@@ -1419,7 +1419,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *WikiTagSearch*  [options] [tag]
   List wiki pages that contain the desired `tag`. If the argument `tag` is not
   supplied, the command asks for input. See also |wiki-tags| for more
-  information on the tags feature and |WikiFzfTags| for an alternative search
+  information on the tags feature and |WikiTags| for an alternative search
   mechanism.
 
   Available options are (use |g:wiki_tag_search| to set default values):
@@ -1438,8 +1438,8 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   supplied, the command asks for input. This command uses the `make` function
   of |g:wiki_tag_parsers|.
 
-*<plug>(wiki-fzf-pages)*
-*WikiFzfPages*
+*<plug>(wiki-pages)*
+*WikiPages*
   Open |fzf| in find file mode for wiki files in current wiki or in the main
   wiki defined by |g:wiki_root|.
 
@@ -1465,16 +1465,16 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   Page", and this term does not exist, then it will instead open a new page
   "My Fzf Page.wiki" (or similar, depending on the value of other options).
 
-*<plug>(wiki-fzf-tags)*
-*WikiFzfTags*
+*<plug>(wiki-tags)*
+*WikiTags*
   Open |fzf| and search for tags.
 
   One may pass additional options to fzf with the |g:wiki_fzf_tags_opts|
   option. This allows more fine grained control of fzf, e.g. to add
   a previewer.
 
-*<plug>(wiki-fzf-toc)*
-*WikiFzfToc*
+*<plug>(wiki-toc)*
+*WikiToc*
   Open |fzf| and list table of contents entries for the current wiki page.
 
 ==============================================================================
@@ -1847,7 +1847,7 @@ Related commands:
 - |WikiTagReload|
 - |WikiTagSearch|
 - |WikiTagRename|
-- |WikiFzfTags|
+- |WikiTags|
 
 Related settings:
 - |g:wiki_tag_list|

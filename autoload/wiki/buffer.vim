@@ -63,8 +63,8 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiPageDelete         call wiki#page#delete()
   command! -buffer WikiPageRename         call wiki#page#rename()
   command! -buffer WikiPageRenameSection  call wiki#page#rename_section()
-  command! -buffer WikiPageToc            call wiki#toc#create(0)
-  command! -buffer WikiPageTocLocal       call wiki#toc#create(1)
+  command! -buffer WikiGenerateToc        call wiki#toc#create(0)
+  command! -buffer WikiGenerateToc        call wiki#toc#create(1)
   command! -buffer -range=% -nargs=* WikiExport
         \ call wiki#page#export(<line1>, <line2>, <f-args>)
 
@@ -74,8 +74,11 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer -nargs=+ -complete=custom,wiki#tags#get_tag_names
         \ WikiTagRename call wiki#tags#rename_ask(<f-args>)
 
-  command! -buffer          WikiToc    call luaeval("require('wiki').toc()")
-  command! -buffer          WikiFzfToc    call wiki#fzf#toc()
+  if has('nvim')
+    command! -buffer WikiToc     call luaeval("require('wiki').toc()")
+  else
+    command! -buffer WikiToc  call wiki#fzf#toc()
+  endif
   command! -buffer -nargs=1 WikiClearCache call wiki#cache#clear(<q-args>)
 
   if b:wiki.in_journal
@@ -118,8 +121,8 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-tag-search)           :WikiTagSearch<cr>
   nnoremap <silent><buffer> <plug>(wiki-tag-rename)           :WikiTagRename<cr>
 
-  nnoremap <silent><buffer> <plug>(wiki-fzf-toc)              :WikiFzfToc<cr>
-  inoremap <silent><buffer> <plug>(wiki-fzf-toc)              <esc>:WikiFzfToc<cr>
+  nnoremap <silent><buffer> <plug>(wiki-toc)                  :WikiToc<cr>
+  inoremap <silent><buffer> <plug>(wiki-toc)                  <esc>:WikiToc<cr>
 
   xnoremap <silent><buffer> <plug>(wiki-link-toggle-visual)   :<c-u>call wiki#link#toggle_visual()<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-toggle-operator) :set opfunc=wiki#link#toggle_operator<cr>g@
@@ -165,8 +168,8 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-page-delete)': '<leader>wd',
           \ '<plug>(wiki-page-rename)': '<leader>wr',
           \ '<plug>(wiki-page-rename-section)': '<f2>',
-          \ '<plug>(wiki-page-toc)': '<leader>wt',
-          \ '<plug>(wiki-page-toc-local)': '<leader>wT',
+          \ '<plug>(wiki-generate-toc)': '<leader>wt',
+          \ '<plug>(wiki-genrate-toc-local)': '<leader>wT',
           \ '<plug>(wiki-export)': '<leader>wp',
           \ 'x_<plug>(wiki-export)': '<leader>wp',
           \ '<plug>(wiki-tag-list)': '<leader>wsl',

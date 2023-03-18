@@ -90,18 +90,19 @@ command! WikiIndex    call wiki#goto_index()
 command! WikiOpen     call wiki#page#open()
 command! WikiReload   call wiki#reload()
 command! WikiJournal  call wiki#journal#open()
-command! WikiFzfPages call wiki#fzf#pages()
-command! WikiFzfTags  call wiki#fzf#tags()
-command! WikiPages call luaeval("require('wiki').get_pages()")
-command! WikiTags  call luaeval("require('wiki').get_tags()")
+if has('nvim')
+  command! WikiPages  call luaeval("require('wiki').get_pages()")
+  command! WikiTags   call luaeval("require('wiki').get_tags()")
+else
+  command! WikiPages  call wiki#fzf#pages()
+  command! WikiTags   call wiki#fzf#tags()
+endif
 
 " Initialize mappings
 nnoremap <silent> <plug>(wiki-index)     :WikiIndex<cr>
 nnoremap <silent> <plug>(wiki-open)      :WikiOpen<cr>
 nnoremap <silent> <plug>(wiki-journal)   :WikiJournal<cr>
 nnoremap <silent> <plug>(wiki-reload)    :WikiReload<cr>
-nnoremap <silent> <plug>(wiki-fzf-pages) :WikiFzfPages<cr>
-nnoremap <silent> <plug>(wiki-fzf-tags)  :WikiFzfTags<cr>
 nnoremap <silent> <plug>(wiki-pages)     :WikiPages<cr>
 nnoremap <silent> <plug>(wiki-tags)      :WikiTags<cr>
 
