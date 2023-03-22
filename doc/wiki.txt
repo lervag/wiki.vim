@@ -1318,12 +1318,12 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *WikiPageRename*
   Rename wiki page (will update all links to the page).
 
-*<plug>(wiki-generate-toc)*
-*WikiGenerateToc*
+*<plug>(wiki-toc-generate)*
+*WikiTocGenerate*
   Create/Update table of contents.
 
-*<plug>(wiki-generate-toc-local)*
-*WikiGenerateTocLocal*
+*<plug>(wiki-toc-generate-local)*
+*WikiTocGenerateLocal*
   Create/Update table of contents (section local variant).
 
 *<plug>(wiki-journal-index)*

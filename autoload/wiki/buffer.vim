@@ -63,8 +63,8 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiPageDelete         call wiki#page#delete()
   command! -buffer WikiPageRename         call wiki#page#rename()
   command! -buffer WikiPageRenameSection  call wiki#page#rename_section()
-  command! -buffer WikiGenerateToc        call wiki#toc#create(0)
-  command! -buffer WikiGenerateToc        call wiki#toc#create(1)
+  command! -buffer WikiTocGenerate        call wiki#toc#create(0)
+  command! -buffer WikiTocGenerateLocal   call wiki#toc#create(1)
   command! -buffer -range=% -nargs=* WikiExport
         \ call wiki#page#export(<line1>, <line2>, <f-args>)
 
@@ -75,9 +75,9 @@ function! s:init_buffer_commands() abort " {{{1
         \ WikiTagRename call wiki#tags#rename_ask(<f-args>)
 
   if has('nvim')
-    command! -buffer WikiToc     call luaeval("require('wiki').toc()")
+    command! -buffer WikiToc lua require('wiki').toc()
   else
-    command! -buffer WikiToc  call wiki#fzf#toc()
+    command! -buffer WikiToc call wiki#fzf#toc()
   endif
   command! -buffer -nargs=1 WikiClearCache call wiki#cache#clear(<q-args>)
 
@@ -168,8 +168,8 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-page-delete)': '<leader>wd',
           \ '<plug>(wiki-page-rename)': '<leader>wr',
           \ '<plug>(wiki-page-rename-section)': '<f2>',
-          \ '<plug>(wiki-generate-toc)': '<leader>wt',
-          \ '<plug>(wiki-genrate-toc-local)': '<leader>wT',
+          \ '<plug>(wiki-toc-generate)': '<leader>wt',
+          \ '<plug>(wiki-toc-generate-local)': '<leader>wT',
           \ '<plug>(wiki-export)': '<leader>wp',
           \ 'x_<plug>(wiki-export)': '<leader>wp',
           \ '<plug>(wiki-tag-list)': '<leader>wsl',

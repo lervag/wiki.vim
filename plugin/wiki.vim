@@ -91,11 +91,11 @@ command! WikiOpen     call wiki#page#open()
 command! WikiReload   call wiki#reload()
 command! WikiJournal  call wiki#journal#open()
 if has('nvim')
-  command! WikiPages  call luaeval("require('wiki').get_pages()")
-  command! WikiTags   call luaeval("require('wiki').get_tags()")
+  command! WikiPages lua require('wiki').get_pages()
+  command! WikiTags lua require('wiki').get_tags()
 else
-  command! WikiPages  call wiki#fzf#pages()
-  command! WikiTags   call wiki#fzf#tags()
+  command! WikiPages call wiki#fzf#pages()
+  command! WikiTags call wiki#fzf#tags()
 endif
 
 " Initialize mappings
