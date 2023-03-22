@@ -65,6 +65,11 @@ call wiki#init#option('wiki_month_names', [
       \])
 call wiki#init#option('wiki_resolver', 'wiki#url#wiki#resolver')
 call wiki#init#option('wiki_root', '')
+if has('nvim')
+  call wiki#init#option('wiki_select_method', 'ui_select')
+else
+  call wiki#init#option('wiki_select_method', 'fzf')
+endif
 call wiki#init#option('wiki_tag_list', { 'output' : 'loclist' })
 call wiki#init#option('wiki_tag_search', { 'output' : 'loclist' })
 call wiki#init#option('wiki_tag_parsers', [g:wiki#tags#default_parser])
@@ -90,7 +95,7 @@ command! WikiIndex    call wiki#goto_index()
 command! WikiOpen     call wiki#page#open()
 command! WikiReload   call wiki#reload()
 command! WikiJournal  call wiki#journal#open()
-if has('nvim')
+if has('nvim') && g:wiki_select_method == 'ui_select'
   command! WikiPages lua require('wiki').get_pages()
   command! WikiTags lua require('wiki').get_tags()
 else
