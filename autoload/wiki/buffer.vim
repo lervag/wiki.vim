@@ -74,7 +74,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer -nargs=+ -complete=custom,wiki#tags#get_tag_names
         \ WikiTagRename call wiki#tags#rename_ask(<f-args>)
 
-  if has('nvim')
+  if has('nvim') && g:wiki_select_method == 'ui_select'
     command! -buffer WikiToc lua require('wiki').toc()
   else
     command! -buffer WikiToc call wiki#fzf#toc()
@@ -112,8 +112,8 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-page-delete)          :WikiPageDelete<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-rename)          :WikiPageRename<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-rename-section)  :WikiPageRenameSection<cr>
-  nnoremap <silent><buffer> <plug>(wiki-page-toc)             :WikiPageToc<cr>
-  nnoremap <silent><buffer> <plug>(wiki-page-toc-local)       :WikiPageTocLocal<cr>
+  nnoremap <silent><buffer> <plug>(wiki-page-toc)             :WikiTocGenerate<cr>
+  nnoremap <silent><buffer> <plug>(wiki-page-toc-local)       :WikiTocGenerateLocal<cr>
   nnoremap <silent><buffer> <plug>(wiki-export)               :WikiExport<cr>
   xnoremap <silent><buffer> <plug>(wiki-export)               :WikiExport<cr>
   nnoremap <silent><buffer> <plug>(wiki-tag-list)             :WikiTagList<cr>
