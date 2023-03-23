@@ -139,11 +139,16 @@ Note: As one can see from the above, the default extension recognized by
 FEATURES                                                  *wiki-intro-features*
 
 - Wiki functionality
-  - Global mappings for accessing a specified wiki
-  - Local mappings for
+  - Global
+    - Commands (and mappings) to access a pre-specified wiki (|g:wiki_root|)
+      - |WikiIndex| to open the index
+      - |WikiPages| to select from list of all pages
+      - |WikiTags| to select from list of tags
+  - Local commands and mappings for
     - Navigation (follow links, go back, etc)
     - Renaming pages (will also update links in other pages)
-    - Creating a table of contents
+    - Navigate through a table of contents (|WikiToc|)
+    - Creating a table of contents (|WikiTocGenerate|)
     - Toggling links
     - Viewing wiki link graphs
   - Completion of wiki links and link anchors
@@ -158,6 +163,8 @@ FEATURES                                                  *wiki-intro-features*
     summaries. The parsed result needs manual editing for good results.
 - Utility functionality
   - |WikiExport| command for exporting to e.g. `pdf` with `pandoc`
+- Third-party support
+  - `ncm2`: SubscopeDetector for nested completion
 
 ------------------------------------------------------------------------------
 GUIDE                                                        *wiki-intro-guide*

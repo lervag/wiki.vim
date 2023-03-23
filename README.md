@@ -20,10 +20,10 @@ Note: Some features require a recent version of Vim (>= 8.1) or NeoVim (>= 0.5).
 
 ## Table of contents
 
-* [Quick Start](#quick-start)
-* [Features](#features)
-* [Related projects](#related-projects)
-* [Acknowledgements](#acknowledgements)
+- [Quick Start](#quick-start)
+- [Features](#features)
+- [Related projects](#related-projects)
+- [Acknowledgements](#acknowledgements)
 
 # Quick Start
 
@@ -37,9 +37,9 @@ Plug 'lervag/wiki.vim'
 ```
 
 Or use some other plugin manager:
-* [vundle](https://github.com/gmarik/vundle)
-* [neobundle](https://github.com/Shougo/neobundle.vim)
-* [pathogen](https://github.com/tpope/vim-pathogen)
+- [vundle](https://github.com/gmarik/vundle)
+- [neobundle](https://github.com/Shougo/neobundle.vim)
+- [pathogen](https://github.com/tpope/vim-pathogen)
 
 ## Usage
 
@@ -61,27 +61,32 @@ Please also read the `Guide` section in the [documentation](doc/wiki.txt).
 
 # Features
 
-* Wiki functionality
-  * Global mappings for accessing a specified wiki
-  * Local mappings for
-    * Navigation (follow links, go back, etc)
-    * Renaming pages (will also update links in other pages)
-    * Creating a table of contents
-    * Toggling links
-    * Viewing wiki link graphs
-  * Completion of wiki links and link anchors
-  * Text objects
-    * `iu au` Link url
-    * `it at` Link text
-* Support for journal entries
-  * Navigating the journal back and forth with `<c-j>` and `<c-k>`
-  * Support for parsing journal entries in order to make weekly and monthly
+- Wiki functionality
+  - Global
+    - Commands (and mappings) to access a pre-specified wiki (`g:wiki_root`)
+      - `WikiIndex` to open the index
+      - `WikiPages` to select from list of all pages
+      - `WikiTags` to select from list of tags
+  - Local commands and mappings for
+    - Navigation (follow links, go back, etc)
+    - Renaming pages (will also update links in other pages)
+    - Navigate through a table of contents (`WikiToc`)
+    - Creating a table of contents (`WikiTocGenerate`)
+    - Toggling links
+    - Viewing wiki link graphs
+  - Completion of wiki links and link anchors
+  - Text objects
+    - `iu au` Link URL
+    - `it at` Link text
+  - New page templates
+- Support for journal entries
+  - Navigating the journal back and forth with `<c-j>` and `<c-k>`
+  - Support for parsing journal entries in order to make weekly and monthly
     summaries. The parsed result needs manual editing for good results.
-* Utility functionality
-  * `:WikiExport` command for exporting to e.g. `pdf` with `pandoc`
-* Third-party support
-  * [ncm2](https://github.com/ncm2/ncm2): SubscopeDetector for nested completion
-  * [fzf](https://github.com/junegunn/fzf): `WikiFzfPages`, `WikiFzfTags`, and `WikiFzfToc` commands
+- Utility functionality
+  - `:WikiExport` command for exporting to e.g. `pdf` with `pandoc`
+- Third-party support
+  - [ncm2](https://github.com/ncm2/ncm2): SubscopeDetector for nested completion
 
 # Acknowledgements
 
