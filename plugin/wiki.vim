@@ -65,6 +65,11 @@ call wiki#init#option('wiki_month_names', [
       \])
 call wiki#init#option('wiki_resolver', 'wiki#url#wiki#resolver')
 call wiki#init#option('wiki_root', '')
+if has('nvim')
+  call wiki#init#option('wiki_select_method', 'ui_select')
+else
+  call wiki#init#option('wiki_select_method', 'fzf')
+endif
 call wiki#init#option('wiki_tag_list', { 'output' : 'loclist' })
 call wiki#init#option('wiki_tag_search', { 'output' : 'loclist' })
 call wiki#init#option('wiki_tag_parsers', [g:wiki#tags#default_parser])
@@ -90,16 +95,21 @@ command! WikiIndex    call wiki#goto_index()
 command! WikiOpen     call wiki#page#open()
 command! WikiReload   call wiki#reload()
 command! WikiJournal  call wiki#journal#open()
-command! WikiFzfPages call wiki#fzf#pages()
-command! WikiFzfTags  call wiki#fzf#tags()
+if has('nvim') && g:wiki_select_method == 'ui_select'
+  command! WikiPages lua require('wiki').get_pages()
+  command! WikiTags lua require('wiki').get_tags()
+else
+  command! WikiPages call wiki#fzf#pages()
+  command! WikiTags call wiki#fzf#tags()
+endif
 
 " Initialize mappings
 nnoremap <silent> <plug>(wiki-index)     :WikiIndex<cr>
 nnoremap <silent> <plug>(wiki-open)      :WikiOpen<cr>
 nnoremap <silent> <plug>(wiki-journal)   :WikiJournal<cr>
 nnoremap <silent> <plug>(wiki-reload)    :WikiReload<cr>
-nnoremap <silent> <plug>(wiki-fzf-pages) :WikiFzfPages<cr>
-nnoremap <silent> <plug>(wiki-fzf-tags)  :WikiFzfTags<cr>
+nnoremap <silent> <plug>(wiki-pages)     :WikiPages<cr>
+nnoremap <silent> <plug>(wiki-tags)      :WikiTags<cr>
 
 " Apply default mappings
 let s:mappings = index(['all', 'global'], g:wiki_mappings_use_defaults) >= 0
