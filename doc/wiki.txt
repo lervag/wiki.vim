@@ -101,11 +101,12 @@ Some features require a recent version of Vim (>= 8.1) or NeoVim (>= 0.5).
 The following is a list of external tools that are used for some of the
 features:
 
-  Program                       Feature ~
-  =======                       =======
-  `date`                          Date parsing in the journal
-  `xdg-open`                      Opening `pdf` files on Linux
-  `pandoc` (https://pandoc.org/)  |WikiExport|
+  Program      Feature ~
+  =======      =======
+  `date`         Date parsing in the journal
+  `fzf`          A backend for UI selection (|g:wiki_select_method|)
+  `xdg-open`     Opening `pdf` files on Linux
+  `pandoc`       |WikiExport|
 
 ------------------------------------------------------------------------------
 USAGE                                                        *wiki-intro-usage*
@@ -137,29 +138,26 @@ Note: As one can see from the above, the default extension recognized by
 ------------------------------------------------------------------------------
 FEATURES                                                  *wiki-intro-features*
 
-* Wiki functionality
-  * Global mappings for accessing a specified wiki
-  * Local mappings for
-    * Navigation (follow links, go back, etc)
-    * Renaming pages (will also update links in other pages)
-    * Creating a table of contents
-    * Toggling links
-    * Viewing wiki link graphs
-  * Completion of wiki links and link anchors
-  * Text objects
-    * `iu au` Link URL
-    * `it at` Link text
-  * New page templates
-* Support for journal entries
-  * Navigating the journal back and forth with `<Plug>(wiki-journal-next)`
+- Wiki functionality
+  - Global mappings for accessing a specified wiki
+  - Local mappings for
+    - Navigation (follow links, go back, etc)
+    - Renaming pages (will also update links in other pages)
+    - Creating a table of contents
+    - Toggling links
+    - Viewing wiki link graphs
+  - Completion of wiki links and link anchors
+  - Text objects
+    - `iu au` Link URL
+    - `it at` Link text
+  - New page templates
+- Support for journal entries
+  - Navigating the journal back and forth with `<Plug>(wiki-journal-next)`
     and `<Plug>(wiki-journal-prev)`.
-  * Support for parsing journal entries in order to make weekly and monthly
+  - Support for parsing journal entries in order to make weekly and monthly
     summaries. The parsed result needs manual editing for good results.
-* Utility functionality
-  * |WikiExport| command for exporting to e.g. `pdf` with `pandoc`
-* Third-party support
-  * |fzf|: |WikiPages|, |WikiToc|, and |WikiTags| commands
-    (https://github.com/junegunn/fzf.vim)
+- Utility functionality
+  - |WikiExport| command for exporting to e.g. `pdf` with `pandoc`
 
 ------------------------------------------------------------------------------
 GUIDE                                                        *wiki-intro-guide*
@@ -181,13 +179,13 @@ captures the most important concept in a single sentence (by @mgoral [1]):
 > keep writing stuff down.
 
 Executive summary ~
-* Speed is key - make sure you have a fast workflow:
-  * Use a keyboard shortcut in your desktop/window manager to open Vim/neovim
+- Speed is key - make sure you have a fast workflow:
+  - Use a keyboard shortcut in your desktop/window manager to open Vim/neovim
     with the wiki index (e.g. <alt-n>).
-  * Use something like |:WikiPages| and `ripgrep` (with e.g.
+  - Use something like |:WikiPages| and `ripgrep` (with e.g.
     `ctrlsf.vim` [2]) for searching.
-* Write short pages and use links between related pages.
-* Don't obsess about the wiki structure.
+- Write short pages and use links between related pages.
+- Don't obsess about the wiki structure.
 
 A personal wiki ~
 People write things down. Take notes. Why? Because people, or at least most of
@@ -363,10 +361,10 @@ Markdown ~
 Many users prefer to use |wiki.vim| with the Markdown filetype, in which case
 they will want to use a dedicated filetype plugin. There are a lot of
 options, e.g.:
-* https://github.com/tpope/vim-markdown (this is shipped with Vim and neovim)
-* https://github.com/preservim/vim-markdown
-* https://github.com/SidOfc/mkdx/
-* https://github.com/vim-pandoc/vim-pandoc-syntax
+- https://github.com/tpope/vim-markdown (this is shipped with Vim and neovim)
+- https://github.com/preservim/vim-markdown
+- https://github.com/SidOfc/mkdx/
+- https://github.com/vim-pandoc/vim-pandoc-syntax
 
 wiki-ft.vim ~
 https://github.com/lervag/wiki-ft.vim
@@ -379,8 +377,8 @@ This is a Vim plugin to manage text based lists and check lists.
 
 Tables ~
 There are a lot of plugins to work with tables. These are both excellent:
-* https://github.com/dhruvasagar/vim-table-mode
-* https://github.com/junegunn/vim-easy-align
+- https://github.com/dhruvasagar/vim-table-mode
+- https://github.com/junegunn/vim-easy-align
 
 calendar.vim ~
 https://github.com/itchyny/calendar.vim
@@ -459,7 +457,7 @@ OPTIONS                                                   *wiki-config-options*
 
   Default value: OS dependent
 
-    `Linux and MacOS`: '~/.cache/wiki.vim/'
+    `Linux and MacOS`: `'~/.cache/wiki.vim/'`
     `Windows`:         Standard temporary folder (based on |tempname()|)
 
 *g:wiki_cache_persistent*
@@ -503,7 +501,7 @@ OPTIONS                                                   *wiki-config-options*
 <
   See also |g:wiki_link_extension|, which is often relevant in many filetypes.
 
-  Default: ['wiki']
+  Default: `['wiki']`
 
 *g:wiki_file_handler*
   Name of a function or a |FuncRef| for a function that should be used to
@@ -559,6 +557,25 @@ OPTIONS                                                   *wiki-config-options*
   this behaviour, one can set this option to 0.
 
   Default: 1
+
+*g:wiki_select_method*
+  A string to represent the UI select method used for the following commands:
+
+    - |WikiPages|
+    - |WikiTags|
+    - |WikiToc|
+
+  Possible values:
+
+    - `'ui_select'`  Use |vim.ui.select| (neovim only!)
+    - `'fzf'`        Use fzf (https://github.com/junegunn/fzf.vim). This has
+                   a few additional options for more fine tuned control:
+                   - |g:wiki_fzf_pages_opts|
+                   - |g:wiki_fzf_tags_opts|
+                   - |g:wiki_fzf_pages_force_create_key|
+
+  Default (neovim): `'ui_select'`
+  Default (Vim):    `'fzf'`
 
 *g:wiki_index_name*
   A string with the index page name for the wiki. The value should not include
@@ -698,7 +715,7 @@ OPTIONS                                                   *wiki-config-options*
   Specify the extension that should be applied to wiki links. This should be
   in the format `.ext`, e.g. `.md` or `.wiki`.
 
-  Default: ''
+  Default: `''`
 
 *g:wiki_link_toggle_on_follow*
   This option allows disabling the toggle behaviour in |WikiLinkFollow| where
@@ -729,7 +746,7 @@ OPTIONS                                                   *wiki-config-options*
 
   Toggling between link types can still be achieved using |WikiLinkToggle|.
 
-  Default: 'wiki'
+  Default: `'wiki'`
 
 *g:wiki_link_toggles*
   This option specifies the template for toggling a specific type of link with
@@ -791,7 +808,7 @@ OPTIONS                                                   *wiki-config-options*
 
     vim.g.wiki_map_create_page = function(x) return x:lower() end
 <
-  Default: ''
+  Default: `''`
 
 *g:wiki_map_text_to_link*
   This option may be used to transform text before creating a new link with
@@ -825,21 +842,21 @@ OPTIONS                                                   *wiki-config-options*
     Some text    →    [[some-text|Some text]]
 <
   Note: The actual resulting link also depends on these options:
-        * |g:wiki_link_extension|
-        * |g:wiki_link_target_type|
+        - |g:wiki_link_extension|
+        - |g:wiki_link_target_type|
 
-  Default: ''
+  Default: `''`
 
 *g:wiki_mappings_use_defaults*
   Whether or not to use default mappings (see |wiki-mappings-default|). The
   allowed values are:
 
-    'all'     use all default mappings
-    'local'   use only buffer-local default mappings
-    'global'  use only global default mappings
-    'none'    do not use any of the default mappings
+    - `'all'`     use all default mappings
+    - `'local'`   use only buffer-local default mappings
+    - `'global'`  use only global default mappings
+    - `'none'`    do not use any of the default mappings
 
-  Default: 'all'
+  Default: `'all'`
 
 *g:wiki_mappings_global*
 *g:wiki_mappings_local*
@@ -946,7 +963,7 @@ OPTIONS                                                   *wiki-config-options*
   Note: The (returned) path must be either a relative or absolute path to an
         existing directory.
 
-  Default: ''
+  Default: `''`
 
 *g:wiki_toc_title*
   The title of TOC listings.
@@ -1278,14 +1295,14 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   We would generally not want anything other than journal entries within the
   journal directory. Therefore we have some special rules here:
 
-    * Check if any page exists inside the journal that matches the selected
+    - Check if any page exists inside the journal that matches the selected
       text/current word. If so, create link to that page.
-    * Check if any page exists at the wiki root that matches the selected
+    - Check if any page exists at the wiki root that matches the selected
       text/current word. If so, create link to that page.
-    * Check if there are pages at the wiki root where the selected
+    - Check if there are pages at the wiki root where the selected
       text/current word matches at the beginning. If so, let user choose which
       page to link to.
-    * If neither of the above, then create a link to a page with name based on
+    - If neither of the above, then create a link to a page with name based on
       the selected text/current word at the wiki root.
 
     Everywhere else: ~
@@ -1294,12 +1311,12 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   To make a link to a page at root, one may simply prepend a `/` to specify
   a "rooted" link. The conversion rules are therefore as follows:
 
-    * Check if any page exists inside the current directory that matches the
+    - Check if any page exists inside the current directory that matches the
       selected text/current word. If so, create link to that page.
-    * Check if there are pages at the current directory where the selected
+    - Check if there are pages at the current directory where the selected
       text/current word matches at the beginning. If so, let user choose which
       page to link to.
-    * If neither of the above, then create a link to a page with name based on
+    - If neither of the above, then create a link to a page with name based on
       the selected text/current word in current directory.
 
 *<plug>(wiki-link-show)*
@@ -1358,8 +1375,9 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   |g:wiki_template_title_month|. See also |wiki-templates-journal-summaries|.
 
 *<plug>(wiki-export)*
-[range]*WikiExport*  [options] [fname]
-  Export the current wiki file with `pandoc`. The main argument `fname`
+*WikiExport*
+`:[range]WikiExport [options] [fname]
+  Export the current wiki file with `pandoc` (https://pandoc.org/). The main argument `fname`
   specifies the target filename and format (implied by the file extension),
   e.g. `test.pdf` or `test.html`. If `fname` is not specified, then the
   `-path` option is used to determine the output location. In this case, the
@@ -1405,10 +1423,10 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   -output TRG ~
     Where to put the search result. `TRG` may be one of:
 
-      * `loclist`   Use |location-list|
-      * `echo`      Display results on screen
-      * `scratch`   Add results to a scratch buffer
-      * `cursor`    Insert result below cursor
+      - `loclist`   Use |location-list|
+      - `echo`      Display results on screen
+      - `scratch`   Add results to a scratch buffer
+      - `cursor`    Insert result below cursor
 
 
 *<plug>(wiki-tag-reload)*
@@ -1427,10 +1445,10 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   -output TRG ~
     Where to put the search result. `TRG` may be one of:
 
-      * `loclist`   Use |location-list|
-      * `echo`      Display results on screen
-      * `scratch`   Add results to a scratch buffer
-      * `cursor`    Insert result below cursor
+      - `loclist`   Use |location-list|
+      - `echo`      Display results on screen
+      - `scratch`   Add results to a scratch buffer
+      - `cursor`    Insert result below cursor
 
 *<plug>(wiki-tag-rename)*
 *WikiTagRename*  [old_tag] [new_tag]
@@ -1440,42 +1458,32 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 
 *<plug>(wiki-pages)*
 *WikiPages*
-  Open |fzf| in find file mode for wiki files in current wiki or in the main
-  wiki defined by |g:wiki_root|.
+  List wiki files in current wiki or in the main wiki defined by
+  |g:wiki_root|. Select from list to open target page. This uses the UI select
+  method defined by |g:wiki_select_method|.
 
-  One may pass additional options to fzf with the |g:wiki_fzf_pages_opts|
-  option. This allows more fine grained control of fzf, e.g. to add
-  a previewer.
+    fzf specific behaviour ~
+      If |g:wiki_select_method| is `'fzf'`, then it is possible to create
+      a new page by pressing |g:wiki_fzf_pages_force_create_key| (alt-enter,
+      by default). That is, a page whose name is equal to the fzf query will
+      be created if it doesn't already exist. If the page exists, the existing
+      page will be opened.
 
-  This can also be used to create a new page. If a query is typed and the key
-  specified by |g:wiki_fzf_pages_force_create_key| is pressed (alt-enter, by
-  default), a page whose name is equal to the query will be created if it
-  doesn't already exist. If the page does already exist, it will be opened.
-  If |g:wiki_map_create_page| is defined, the new page name is determined by
-  first applying that function to the query.
-
-  For example, suppose you search for "foo", and there is one result: an
-  already-existing page named "foobar". If the enter key is pressed, the
-  existing "foobar" will be opened, as usual. However, if
-  |g:wiki_fzf_pages_force_create_key| is pressed instead, a new page titled
-  "foo" will be created and opened.
-
-  For convenience, if the input query does not have any results, simply
-  pressing enter will also create a page.  E.g., if you searched for "My Fzf
-  Page", and this term does not exist, then it will instead open a new page
-  "My Fzf Page.wiki" (or similar, depending on the value of other options).
+      For convenience, if the input query does not have any results, simply
+      pressing enter will also create a page. E.g., if you searched for "My
+      Fzf Page", and this term does not exist, then it will instead open a new
+      page "My Fzf Page.wiki" (or similar, depending on the value of other
+      options).
 
 *<plug>(wiki-tags)*
 *WikiTags*
-  Open |fzf| and search for tags.
-
-  One may pass additional options to fzf with the |g:wiki_fzf_tags_opts|
-  option. This allows more fine grained control of fzf, e.g. to add
-  a previewer.
+  List tags from the current wiki. Allows to search for and navigate to
+  a tag. This uses the UI select method defined by |g:wiki_select_method|.
 
 *<plug>(wiki-toc)*
 *WikiToc*
-  Open |fzf| and list table of contents entries for the current wiki page.
+  Open a table of contents for the current wiki page with the UI select method
+  specified by |g:wiki_select_method|.
 
 ==============================================================================
 MAPPINGS                                                        *wiki-mappings*
@@ -1562,13 +1570,13 @@ particular attention.  A link is a structure that consists of an URL (see
 
 The mappings that act on links are listed in |wiki-mappings-default|. The most
 notable default mappings are:
-* A link may be followed with `<cr>`.
-* `<cr>` used on normal text (not on a link) will transform the text into
+- A link may be followed with `<cr>`.
+- `<cr>` used on normal text (not on a link) will transform the text into
   a link of the type specified by |g:wiki_link_target_type|. This also works
   in visual mode.
-* Similarly, `gl` may be used to turn operated text into a link.
-* One may use `<bs>` to navigate back after following a link.
-* `<leader>wf` can be used to transform a link between different types (see
+- Similarly, `gl` may be used to turn operated text into a link.
+- One may use `<bs>` to navigate back after following a link.
+- `<leader>wf` can be used to transform a link between different types (see
   |g:wiki_link_toggles|).
 
 These are the link formats that are currently supported with some examples:
@@ -1635,9 +1643,9 @@ The following schemes are supported:
     Links to journal pages. The address should be a date format at a specified
     level/frequency:
 
-      * daily: `YYYY-MM-DD` (standard ISO date)
-      * weekly: `YYYY-wWW`
-      * monthly: `YYYY-MM`
+      - daily: `YYYY-MM-DD` (standard ISO date)
+      - weekly: `YYYY-wWW`
+      - monthly: `YYYY-MM`
 
     Notice that these formats will be translated to the corresponding filename
     formats in the `date_format` key of |g:wiki_journal|. Some examples of
@@ -1785,7 +1793,10 @@ The `[<attrlist>]` will be recognized by wiki.vim as the link text.
 COMPLETION                                                    *wiki-completion*
 
 This plugin provides an |omni-complete| function that completes intern link
-targets, including anchors, and tags.
+targets, including anchors, and tags. This feature is enabled by default.
+You can set |g:wiki_completion_enabled| to 0 to disable it, e.g. if you have
+a different 'omnifunc' that you would rather use (for example one provided by
+your filetype plugin).
 
 Link completion should work for markdown, wiki, and Orgmode style links for
 inter-wiki URLs (i.e. the `wiki` scheme, which is also the default scheme).
@@ -1794,9 +1805,9 @@ See |wiki-link| for more info on links and the URL schemes.
 Tag completion completes tags where the tag parser's `re_findstart` value
 matches the current line. See |g:wiki#tags#default_parser| for more info.
 
-If you have a different 'omnifunc' that you would rather use (for example one
-provided by your filetype plugin), you can set |g:wiki_completion_enabled| to
-0.
+Related settings:
+- |g:wiki_completion_enabled|
+- |g:wiki_completion_case_sensitive|
 
 ------------------------------------------------------------------------------
 AUTOCOMPLETE                                             *wiki-completion-auto*
@@ -1930,8 +1941,8 @@ functions assume a single variable such as described in
 |wiki-templates-context|. The template files should be formatted as described
 in |wiki-templates-format|.
 
-There is also a special kind of journal summary template which is described in
-|wiki-templates-journal-summaries|.
+There is also a special kind of journal summary template. It is described in
+detail in |wiki-templates-journal-summaries|.
 
 Related settings:
 - |g:wiki_templates|
@@ -2057,15 +2068,15 @@ The summary file-name format is defined by |g:wiki_journal|`.date_format.weekly`
 and |g:wiki_journal|`.date_format.monthly`.
 
 Related settings:
-* |g:wiki_journal|
-* |g:wiki_template_title_week|
+- |g:wiki_journal|
+- |g:wiki_template_title_week|
   A string that specifies the title of the weekly summary.
-* |g:wiki_template_title_month|
+- |g:wiki_template_title_month|
   A string that specifies the title of the monthly summary.
 
 Related commands:
-* |WikiJournalToWeek|
-* |WikiJournalToMonth|
+- |WikiJournalToWeek|
+- |WikiJournalToMonth|
 
 ==============================================================================
  vim:tw=78:ts=8:ft=help:norl:fdm=marker:cole=2:
