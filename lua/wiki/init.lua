@@ -2,7 +2,9 @@ local M = {}
 
 -- Returns shorten path
 local function filter(path)
-  local root = vim.g.wiki_root .. "/"
+  local root = vim.fn
+    .substitute(vim.fn
+      .expand(vim.g.wiki_root .. "/"), "\\/$", "", nil)
   return path:gsub(root, "")
 end
 
