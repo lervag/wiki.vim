@@ -1,57 +1,69 @@
 local M = {}
 
--- Returns shorten path
-local function filter(path)
-  local root = vim.g.wiki_root .. "/"
-  return path:gsub(root, "")
-end
-
--- Returns full path
-local function unfilter(path)
-  local root = vim.g.wiki_root .. "/"
-  return root .. path
-end
-
 function M.get_pages()
-  local res = {}
-  local pages = vim.fn["wiki#page#get_all"]()
-  for _, p in pairs(pages) do
-    local page = filter(p[1])
-    table.insert(res, page)
-  end
-  vim.ui.select(res, { prompt = "WikiPages> " }, function(f)
-    f = unfilter(f)
-    vim.cmd("edit " .. f)
+  -- wiki#page#get_all returns a list of path pairs, where the first element is
+  -- the absolute path and the second element is the path relative to wiki
+  -- root.
+  vim.ui.select(vim.fn["wiki#page#get_all"](), {
+    prompt = "WikiPages> ",
+    format_item = function(item)
+      return item[2]
+    end,
+  }, function(item)
+    if item then
+      vim.cmd.edit(item[1])
+    end
   end)
 end
 
 function M.get_tags()
-  local res = {}
-  local tags = vim.fn["wiki#tags#get_all"]()
-  for key, val in pairs(tags) do
-    for _, file in pairs(val) do
-      local str = string.format("%s:%s:%s", key, file[2], filter(file[1]))
-      table.insert(res, str)
+  local tags_with_locations = vim.fn["wiki#tags#get_all"]()
+
+  local length = 0
+  for tag, _ in pairs(tags_with_locations) do
+    if #tag > length then
+      length = #tag
     end
   end
-  vim.ui.select(res, { prompt = "WikiTags> " }, function(t)
-    t = unfilter(vim.split(t, ":")[3])
-    vim.cmd("edit " .. t)
+  local frmt = "%-" .. length .. "s  %s:%s"
+
+  local root = vim.fn["wiki#get_root"]()
+  local items = {}
+  for tag, locations in pairs(tags_with_locations) do
+    for _, loc in pairs(locations) do
+      local path_rel = vim.fn["wiki#paths#relative"](loc[1], root)
+      local str = string.format(frmt, tag, path_rel, loc[2])
+      table.insert(items, { str, loc[1] })
+    end
+  end
+
+  vim.ui.select(items, {
+    prompt = "WikiTags> ",
+    format_item = function(item)
+      return item[1]
+    end,
+  }, function(item)
+    if item then
+      vim.cmd.edit(item[2])
+    end
   end)
-  return res
 end
 
 function M.toc()
-  local res = {}
   local toc = vim.fn["wiki#toc#gather_entries"]()
+
+  local items = {}
   for _, hd in pairs(toc) do
     local indent = vim.fn["repeat"](".", hd.level - 1)
     local line = hd.lnum .. "|" .. indent .. hd.header
-    table.insert(res, line)
+    table.insert(items, line)
   end
-  vim.ui.select(res, { prompt = "WikiToc> " }, function(t)
-    t = vim.split(t, "|")[1]
-    vim.cmd("execute " .. t)
+
+  vim.ui.select(items, { prompt = "WikiToc> " }, function(item)
+    if item then
+      item = vim.split(item, "|")[1]
+      vim.cmd.execute(item)
+    end
   end)
 end
 
