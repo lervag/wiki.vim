@@ -7,7 +7,11 @@ function M.get_pages()
   vim.ui.select(vim.fn["wiki#page#get_all"](), {
     prompt = "WikiPages> ",
     format_item = function(item)
-      return item[2]
+      if item[2]:sub(1, 1) == "/" then
+        return item[2]:sub(2)
+      else
+        return item[2]
+      end
     end,
   }, function(item)
     if item then
