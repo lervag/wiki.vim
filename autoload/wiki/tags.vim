@@ -407,8 +407,6 @@ function! s:tags.rename(old_tag, new_tag, ...) abort dict " {{{1
 
   call wiki#log#info('Renaming tag "' . a:old_tag . '" to "' . a:new_tag . '".')
 
-  let l:tagpages = self.collection[a:old_tag]
-
   let l:bufnr = bufnr('')
   " Get list of open wiki buffers
   let l:bufs =
@@ -425,15 +423,20 @@ function! s:tags.rename(old_tag, new_tag, ...) abort dict " {{{1
   endfor
 
   let l:num_files = 0
+  let l:tagpages = deepcopy(self.collection[a:old_tag])
 
   " We already know where the tag is in the file, thanks to the cache
   for [l:file, l:lnum] in l:tagpages
     if s:update_tag_in_wiki(l:file, l:lnum, a:old_tag, a:new_tag)
       call self.add(a:new_tag, l:file, l:lnum)
-      call remove(self.collection, a:old_tag)
+      call remove(self.collection[a:old_tag], 0)
       let l:num_files += 1
     endif
   endfor
+
+  if empty(self.collection->get(a:old_tag))
+    call remove(self.collection, a:old_tag)
+  endif
 
   " Refresh other wiki buffers
   for l:bufname in l:bufs
