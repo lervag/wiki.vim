@@ -434,7 +434,7 @@ function! s:tags.rename(old_tag, new_tag, ...) abort dict " {{{1
     endif
   endfor
 
-  if empty(self.collection->get(a:old_tag))
+  if empty(get(self.collection, a:old_tag))
     call remove(self.collection, a:old_tag)
   endif
 
