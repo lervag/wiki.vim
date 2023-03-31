@@ -388,13 +388,16 @@ endfunction
 function! s:tags.rename(old_tag, new_tag, ...) abort dict " {{{1
   let l:rename_to_existing = get(a:000, 0, v:false)
 
-  if !has_key(self.collection, a:old_tag)
+  if !self.parsed
+    call self.gather()
+  elseif !has_key(self.collection, a:old_tag)
     redraw!
     call wiki#log#info('Old tag name "' . a:old_tag . '" not found in cache; reloading tags.')
     call wiki#tags#reload()
-    if !has_key(self.collection, a:old_tag)
-      return wiki#log#warn('No tag named "' . a:old_tag . '", aborting rename.')
-    endif
+  endif
+
+  if !has_key(self.collection, a:old_tag)
+    return wiki#log#warn('No tag named "' . a:old_tag . '", aborting rename.')
   endif
 
   if has_key(self.collection, a:new_tag)
@@ -406,8 +409,6 @@ function! s:tags.rename(old_tag, new_tag, ...) abort dict " {{{1
   endif
 
   call wiki#log#info('Renaming tag "' . a:old_tag . '" to "' . a:new_tag . '".')
-
-  let l:tagpages = self.collection[a:old_tag]
 
   let l:bufnr = bufnr('')
   " Get list of open wiki buffers
@@ -425,12 +426,12 @@ function! s:tags.rename(old_tag, new_tag, ...) abort dict " {{{1
   endfor
 
   let l:num_files = 0
+  let l:tagpages = remove(self.collection, a:old_tag)
 
   " We already know where the tag is in the file, thanks to the cache
   for [l:file, l:lnum] in l:tagpages
     if s:update_tag_in_wiki(l:file, l:lnum, a:old_tag, a:new_tag)
       call self.add(a:new_tag, l:file, l:lnum)
-      call remove(self.collection, a:old_tag)
       let l:num_files += 1
     endif
   endfor
