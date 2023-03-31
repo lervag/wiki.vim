@@ -388,13 +388,16 @@ endfunction
 function! s:tags.rename(old_tag, new_tag, ...) abort dict " {{{1
   let l:rename_to_existing = get(a:000, 0, v:false)
 
-  if !has_key(self.collection, a:old_tag)
+  if !self.parsed
+    call self.gather()
+  elseif !has_key(self.collection, a:old_tag)
     redraw!
     call wiki#log#info('Old tag name "' . a:old_tag . '" not found in cache; reloading tags.')
     call wiki#tags#reload()
-    if !has_key(self.collection, a:old_tag)
-      return wiki#log#warn('No tag named "' . a:old_tag . '", aborting rename.')
-    endif
+  endif
+
+  if !has_key(self.collection, a:old_tag)
+    return wiki#log#warn('No tag named "' . a:old_tag . '", aborting rename.')
   endif
 
   if has_key(self.collection, a:new_tag)
