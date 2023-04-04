@@ -112,8 +112,8 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-page-delete)          :WikiPageDelete<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-rename)          :WikiPageRename<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-rename-section)  :WikiPageRenameSection<cr>
-  nnoremap <silent><buffer> <plug>(wiki-page-toc)             :WikiTocGenerate<cr>
-  nnoremap <silent><buffer> <plug>(wiki-page-toc-local)       :WikiTocGenerateLocal<cr>
+  nnoremap <silent><buffer> <plug>(wiki-toc-generate)         :WikiTocGenerate<cr>
+  nnoremap <silent><buffer> <plug>(wiki-toc-generate-local)   :WikiTocGenerateLocal<cr>
   nnoremap <silent><buffer> <plug>(wiki-export)               :WikiExport<cr>
   xnoremap <silent><buffer> <plug>(wiki-export)               :WikiExport<cr>
   nnoremap <silent><buffer> <plug>(wiki-tag-list)             :WikiTagList<cr>
