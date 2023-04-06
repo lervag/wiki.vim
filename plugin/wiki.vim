@@ -25,7 +25,7 @@ call wiki#init#option('wiki_export', {
       \ 'view' : v:false,
       \ 'output' : fnamemodify(tempname(), ':h'),
       \})
-call wiki#init#option('wiki_filetypes', ['wiki'])
+call wiki#init#option('wiki_filetypes', ['md'])
 call wiki#init#option('wiki_fzf_pages_opts', '')
 call wiki#init#option('wiki_fzf_tags_opts', '')
 call wiki#init#option('wiki_global_load', 1)
@@ -43,8 +43,8 @@ call wiki#init#option('wiki_journal_index', {
       \ 'link_text_parser': { b, d, p -> d },
       \ 'link_url_parser': { b, d, p -> 'journal:' . d }
       \})
-call wiki#init#option('wiki_link_extension', '')
-call wiki#init#option('wiki_link_target_type', 'wiki')
+call wiki#init#option('wiki_link_extension', '.md')
+call wiki#init#option('wiki_link_target_type', 'md')
 call wiki#init#option('wiki_link_toggle_on_follow', 1)
 call wiki#init#option('wiki_link_toggles', {
       \ 'wiki': 'wiki#link#md#template',

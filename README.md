@@ -10,10 +10,8 @@ a list of available features. For more details, please read the
 [full documentation](doc/wiki.txt).
 
 Note: `wiki.vim` is _not_ a filetype plugin. It is designed to be used _with_
-      filetype plugins, e.g. dedicated Markdown plugins. A simple alternative
-      is to use [wiki-ft.vim](https://github.com/lervag/wiki-ft.vim) for syntax
-      highlighting and folding of `.wiki` files. Users are adviced to read
-      `:help wiki-intro-plugins` for a list of plugins that work well with
+      filetype plugins, e.g. dedicated Markdown plugins. Users are adviced to
+      read `:help wiki-intro-plugins` for a list of plugins that work well with
       `wiki.vim`.
 
 Note: Some features require a recent version of Vim (>= 8.1) or NeoVim (>= 0.5).

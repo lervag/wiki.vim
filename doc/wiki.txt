@@ -71,13 +71,13 @@ a personal knowledge base. Please see |wiki-intro-usage| for a simple
 quick-start guide, and |wiki-intro-guide| for more in-depth info on what this
 is and how one could use such a system efficiently.
 
-The plugin will activate by default for any `.wiki` files, but this may be
+The plugin will activate by default for Markdown files (`*.md`). This may be
 customized with |g:wiki_filetypes| and |g:wiki_global_load|. One may also
 explicitly activate with |WikiEnable|. The wiki root is automatically detected
-as long as there is a top-level `index.wiki` file available (the index name
-may be changed with |g:wiki_index_name|). If no such file is found, it sets
-the root to the same directory as the current file. In addition, one may
-specify a main wiki with the |g:wiki_root| option. This allows convenient
+as long as there is a top-level index file available, e.g. `index.md` (the
+index name may be changed with |g:wiki_index_name|). If no such file is found,
+it sets the root to the same directory as the current file. In addition, one
+may specify a main wiki with the |g:wiki_root| option. This allows convenient
 mappings and commands for opening the main wiki from anywhere.
 
 The plugin was initially based on Vimwiki [0], but it is written mostly from
@@ -120,20 +120,9 @@ This outlines the basic steps to get started:
 
      let g:wiki_root = '~/wiki'
 
-3. Now you can open the index file (by default `index.wiki`; see also
+3. Now you can open the index file (by default `index.md`; see also
    |g:wiki_index_name|) with `<leader>ww` and start to add your notes as
    desired.
-
-Note: As one can see from the above, the default extension recognized by
-      |wiki.vim| is the `.wiki` extension. If one instead wants to use `.md`
-      (Markdown) as the default extension, then one usually wants to add the
-      following to `vimrc`: >vim
-
-        let g:wiki_filetypes = ['md']
-        let g:wiki_link_extension = '.md'
-<
-      See |g:wiki_filetypes| and |g:wiki_link_extension| for more details on
-      these options.
 
 ------------------------------------------------------------------------------
 FEATURES                                                  *wiki-intro-features*
@@ -365,9 +354,11 @@ The following is a list of plugins that one may want to use alongside
 things that it is lacking, they are very welcome to suggest additions!
 
 Markdown ~
-Many users prefer to use |wiki.vim| with the Markdown filetype, in which case
-they will want to use a dedicated filetype plugin. There are a lot of
-options, e.g.:
+Many users prefer to use |wiki.vim| with the Markdown filetype. Vim and neovim
+ship with a decent Markdown plugin by default, but there are also popular and
+well maintained alternatives with more features. Here are some popular
+options:
+
 - https://github.com/tpope/vim-markdown (this is shipped with Vim and neovim)
 - https://github.com/preservim/vim-markdown
 - https://github.com/SidOfc/mkdx/
@@ -376,7 +367,12 @@ options, e.g.:
 wiki-ft.vim ~
 https://github.com/lervag/wiki-ft.vim
 `wiki-ft.vim` is a simple filetype plugin for `.wiki` files that provides
-syntax highlighting and folding.
+syntax highlighting and folding. Recommended settings if you want to use
+this: >vim
+
+  let g:wiki_filetypes = ['wiki']
+  let g:wiki_link_target_type = ''
+  let g:wiki_link_extension = ''
 
 lists.vim ~
 https://github.com/lervag/lists.vim
@@ -508,7 +504,7 @@ OPTIONS                                                   *wiki-config-options*
 <
   See also |g:wiki_link_extension|, which is often relevant in many filetypes.
 
-  Default: `['wiki']`
+  Default: `['md']`
 
 *g:wiki_file_handler*
   Name of a function or a |FuncRef| for a function that should be used to
@@ -722,7 +718,7 @@ OPTIONS                                                   *wiki-config-options*
   Specify the extension that should be applied to wiki links. This should be
   in the format `.ext`, e.g. `.md` or `.wiki`.
 
-  Default: `''`
+  Default: `'.md'`
 
 *g:wiki_link_toggle_on_follow*
   This option allows disabling the toggle behaviour in |WikiLinkFollow| where
@@ -753,7 +749,7 @@ OPTIONS                                                   *wiki-config-options*
 
   Toggling between link types can still be achieved using |WikiLinkToggle|.
 
-  Default: `'wiki'`
+  Default: `'md'`
 
 *g:wiki_link_toggles*
   This option specifies the template for toggling a specific type of link with
