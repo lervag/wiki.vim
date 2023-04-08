@@ -7,7 +7,7 @@ set expandtab
 " Open ToC test page, update ToC and test against reference
 silent edit ../wiki-basic/ToC.wiki
 
-WikiPageToc
+WikiTocGenerate
 call assert_equal(
       \ getline(1, '$'),
       \ readfile('../wiki-basic/ToC-reference.wiki'))
