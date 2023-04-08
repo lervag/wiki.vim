@@ -119,7 +119,7 @@ function! s:completer_wikilink.complete_page(regex) dict abort " {{{2
 
   call map(l:cands, 'strpart(v:val, strlen(l:root)+1)')
   call map(l:cands,
-        \ empty(b:wiki.link_extension)
+        \ empty(g:wiki_link_extension)
         \ ? 'l:pre . fnamemodify(v:val, '':r'')'
         \ : 'l:pre . v:val')
   call s:filter_candidates(l:cands, a:regex)

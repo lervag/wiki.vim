@@ -117,7 +117,7 @@ function! wiki#journal#make_index() " {{{1
       put ='## ' . l:mname
       put =''
       for l:node in l:nodes
-        let l:path = printf('/%s/%s%s', g:wiki_journal.name, l:node, b:wiki.link_extension)
+        let l:path = printf('/%s/%s%s', g:wiki_journal.name, l:node, g:wiki_link_extension)
         let l:date = wiki#journal#node_to_date(l:node)[0]
 
         let l:url = LinkUrlParser(l:node, l:date, l:path)

@@ -36,9 +36,9 @@ function! s:matcher.toggle_template(text, _) abort " {{{1
 
   " Append extension if wanted
   let l:url_root = l:url
-  if !empty(b:wiki.link_extension)
+  if !empty(g:wiki_link_extension)
         \ && strcharpart(l:url, strchars(l:url)-1) !=# '/'
-    let l:url .= b:wiki.link_extension
+    let l:url .= g:wiki_link_extension
     let l:url_actual = l:url
   else
     let l:url_actual = l:url . '.' . b:wiki.extension

@@ -14,7 +14,6 @@ function! wiki#buffer#init() abort " {{{1
   let b:wiki = {}
   let b:wiki.extension = expand('%:e')
   let b:wiki.index_name = g:wiki_index_name
-  let b:wiki.link_extension = g:wiki_link_extension
 
   let l:root = wiki#get_root()
   let l:file = resolve(expand('%:p'))
