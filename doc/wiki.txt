@@ -663,9 +663,9 @@ OPTIONS                                                   *wiki-config-options*
       (|Funcref|) or a |lambda| that takes three arguments and must return the
       desired link text. The arguments are:
 
-        1. the basename of the link target without extension
-        2. the ISO date
-        3. the path to the link target from the wiki root
+        1. The basename of the link target without extension.
+        2. The ISO date.
+        3. The absolute path to the link target.
 
       This function gives a lot of flexibility. Here are some examples: >vim
 
@@ -707,7 +707,7 @@ OPTIONS                                                   *wiki-config-options*
         " the index)
         let g:wiki_journal_index = {
               \ 'link_url_parser': { b, d, p ->
-              \   wiki#paths#relative(wiki#get_root() . p, expand('%:p:h'))
+              \   wiki#paths#relative(p, expand('%:p:h'))
               \ }
               \}
 <

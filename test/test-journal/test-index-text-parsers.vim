@@ -19,7 +19,9 @@ call assert_equal(
 
 normal! ggdG
 let g:wiki_journal_index.link_text_parser = { b, d, p -> d }
-let g:wiki_journal_index.link_url_parser = { b, d, p -> p }
+let g:wiki_journal_index.link_url_parser = { b, d, p ->
+      \ '/' . fnamemodify(wiki#paths#shorten_relative(p), ':r')
+      \}
 WikiJournalIndex
 call assert_equal(
       \ readfile('test-index-text-parsers.isodate.wiki'),
