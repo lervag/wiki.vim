@@ -32,6 +32,7 @@ call wiki#init#option('wiki_global_load', 1)
 call wiki#init#option('wiki_index_name', 'index')
 call wiki#init#option('wiki_journal', {
       \ 'name' : 'journal',
+      \ 'root' : '',
       \ 'frequency' : 'daily',
       \ 'date_format' : {
       \   'daily' : '%Y-%m-%d',

@@ -595,7 +595,19 @@ OPTIONS                                                   *wiki-config-options*
   are:
 
     name ~
-      Name of journal. This is used to set the journal path.
+      Name of journal. This is used to set the journal root path if the root
+      is not also specified explicitly.
+
+    root ~
+      The root path of the journal. An empty value means that the journal root
+      path is `{wiki root}/{journal name}`. This allows for separate wikis
+      with their own separate journals.
+        However, if the user prefers a single journal in a different location,
+      they may specify the journal root. In this case, all journal links will
+      be relative to this specific root path. This also means that the `name`
+      option is no longer relevant.
+        The root path, if specified, should be an absolute path or something
+      resolveable to an absolute path.
 
     frequency ~
       One of 'daily', 'weekly', or 'monthly'. Specifies the desired
@@ -646,6 +658,7 @@ OPTIONS                                                   *wiki-config-options*
 
     let g:wiki_journal = {
           \ 'name': 'journal',
+          \ 'root': '',
           \ 'frequency': 'daily',
           \ 'date_format': {
           \   'daily' : '%Y-%m-%d',

@@ -132,6 +132,18 @@ endfunction
 
 " }}}1
 
+function! wiki#journal#get_root(...) abort " {{{1
+  if !empty(g:wiki_journal.root)
+    return g:wiki_journal.root
+  endif
+
+  let l:root_wiki = a:0 > 0 ? a:1 : wiki#get_root()
+  return wiki#paths#s(
+        \     printf('%s/%s', l:root_wiki, g:wiki_journal.name))
+endfunction
+
+" }}}1
+
 
 " The following are functions to convert between journal nodes and date
 " strings. Journal nodes are the file paths of the various journal entries with
@@ -209,7 +221,7 @@ endfunction
 
 " }}}1
 function! wiki#journal#get_current_node() abort " {{{1
-  if !exists('b:wiki.root_journal')
+  if !exists('b:wiki') || !b:wiki.in_journal
     return ''
   endif
 
@@ -229,10 +241,11 @@ endfunction
 
 " }}}1
 function! wiki#journal#get_all_nodes(frq, ...) abort " {{{1
+  let l:root = wiki#journal#get_root()
   let l:rx = wiki#date#format_to_regex(g:wiki_journal.date_format[a:frq])
 
   let l:nodes = filter(map(
-        \   glob(wiki#paths#s(b:wiki.root_journal . '/**'), 1, 1),
+        \   glob(wiki#paths#s(l:root . '/**'), 1, 1),
         \   { _, x -> s:path_to_node(x) }),
         \ { _, x -> x =~# l:rx })
 
@@ -244,10 +257,7 @@ endfunction
 " }}}1
 
 function! s:node_to_path(node) abort " {{{1
-  let l:root = exists('b:wiki.root_journal')
-        \ ? b:wiki.root_journal
-        \ : wiki#paths#s(
-        \     printf('%s/%s', wiki#get_root(), g:wiki_journal.name))
+  let l:root = wiki#journal#get_root()
 
   let l:extension = exists('b:wiki.extension')
         \ ? b:wiki.extension
@@ -258,13 +268,23 @@ endfunction
 
 " }}}1
 function! s:node_to_link(node) abort " {{{1
-  let l:url = printf('/%s/%s', g:wiki_journal.name, a:node)
-  return wiki#url#parse(l:url)
+  let l:path = s:node_to_path(a:node)
+
+  " Use standard wiki rooted link if possible
+  let l:wiki_path = wiki#paths#relative(l:path, wiki#get_root())
+  if strlen(l:wiki_path) < strlen(l:path)
+    return wiki#url#parse('/' . l:wiki_path)
+  endif
+
+  " Use file scheme if necessary
+  return wiki#url#parse('file:' . l:path)
 endfunction
 
 " }}}1
 function! s:path_to_node(path) abort " {{{1
-  return wiki#paths#relative(fnamemodify(a:path, ':r'), b:wiki.root_journal)
+  return wiki#paths#relative(
+        \ fnamemodify(a:path, ':r'),
+        \ wiki#journal#get_root())
 endfunction
 
 " }}}1

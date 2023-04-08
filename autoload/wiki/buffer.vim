@@ -22,12 +22,10 @@ function! wiki#buffer#init() abort " {{{1
   " Only set b:wiki.root if current file is inside wiki#get_root result
   if stridx(l:path, l:root) == 0
     let b:wiki.root = l:root
-    let b:wiki.root_journal = wiki#paths#s(
-          \ printf('%s/%s', l:root, g:wiki_journal.name))
-    let b:wiki.in_journal = stridx(l:file, b:wiki.root_journal) == 0
-  else
-    let b:wiki.in_journal = v:false
   endif
+
+  let l:root_journal = wiki#journal#get_root(l:root)
+  let b:wiki.in_journal = stridx(l:path, l:root_journal) == 0
 
   call s:init_buffer_commands()
   call s:init_buffer_mappings()
