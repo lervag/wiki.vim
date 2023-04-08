@@ -510,7 +510,9 @@ OPTIONS                                                   *wiki-config-options*
   Name of a function or a |FuncRef| for a function that should be used to
   handle local files (see also |wiki-link-url|). The function should give
   a non-zero return value if it properly handled the URL. If not, the plugin
-  falls back to opening the URL with Vim. An example: >vim
+  falls back to opening the URL as explained in |wiki-link-url|.
+
+  An example: >vim
 
     let g:wiki_file_handler = 'WikiFileHandler'
 
@@ -522,6 +524,8 @@ OPTIONS                                                   *wiki-config-options*
 
       return 0
     endfunction
+<
+  Default: `''`
 
 *g:wiki_fzf_pages_force_create_key*
   Key combination that, when pressed while searching with |WikiPages|, will
@@ -1135,13 +1139,22 @@ OPTIONS                                                   *wiki-config-options*
   one to setup different viewers for different file types that are used by the
   generic link scheme handler (|wiki-link-url|) and by |WikiExport|.
 
+  The special value `':edit'` indicates to open the file in the current Vim or
+  neovim session as with |:edit|.
+
   Default: OS dependent >vim
 
+    " Common
+    let g:wiki_viewer = {
+          \ 'md' : ':edit',
+          \ 'wiki' : ':edit'
+          \}
+
     " Linux
-    let g:wiki_viewer = { '_' : 'xdg-open' }
+    let g:wiki_viewer._ = 'xdg-open'
 
     " MacOS
-    let g:wiki_viewer = { '_' : 'open' }
+    let g:wiki_viewer._ = 'open'
 
 *g:wiki_write_on_nav*
   Option to specify whether or not to save the current file automatically
@@ -1689,7 +1702,7 @@ The following schemes are supported:
 
   generic ~
     If the scheme is not recognized, the link is followed with the system
-    handler, which is defined by the `_` key of |g:wiki_viewer| on Linux.
+    handler. This is defined by the `_` key of |g:wiki_viewer| on Linux.
     Currently, only Linux is supported here.  This will work quite well on
     standard Linux distributions, e.g. for following `http` and `https` URLs.
 

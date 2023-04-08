@@ -35,7 +35,11 @@ function! s:handler.follow(...) abort dict " {{{1
   endtry
 
   let l:cmd = get(g:wiki_viewer, self.ext, g:wiki_viewer._)
-  call wiki#jobs#run(l:cmd . ' ' . shellescape(self.path) . '&')
+  if l:cmd ==# ':edit'
+    silent execute 'edit' fnameescape(self.path)
+  else
+    call wiki#jobs#run(l:cmd . ' ' . shellescape(self.path) . '&')
+  endif
 endfunction
 
 " }}}1
