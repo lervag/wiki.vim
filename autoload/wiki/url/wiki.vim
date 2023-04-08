@@ -4,7 +4,7 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#url#wiki#handler(url) abort " {{{1
+function! wiki#url#wiki#handler(url, ...) abort " {{{1
   let l:handler = deepcopy(s:handler)
   let l:handler.stripped = a:url.stripped
   let l:handler.origin = a:url.origin
@@ -20,7 +20,8 @@ function! wiki#url#wiki#handler(url) abort " {{{1
     let l:fname .= get(get(b:, 'wiki', {}), 'index_name', '')
   endif
 
-  let l:handler.path = call(g:wiki_resolver, [l:fname, a:url.origin])
+  let l:resolver = a:0 > 0 ? a:1 : g:wiki_resolver
+  let l:handler.path = call(l:resolver, [l:fname, a:url.origin])
   let l:handler.dir = fnamemodify(l:handler.path, ':p:h')
 
   return l:handler
