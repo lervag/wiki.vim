@@ -1713,6 +1713,13 @@ The following schemes are supported:
     opened with |g:wiki_viewer|. The Zotero storage root may be specified with
     |g:wiki_zotero_root|.
 
+    The same link type can also work well for JabRef bibliographies. JabRef
+    does not allow to open the database on a specific key. But if your JabRef
+    library has PDFs that are named similarly as explained above, then it
+    should suffice to point |g:wiki_zotero_root| to your literature folder. Now
+    following `zot:citekey` (or the shorthand `@citekey`) will allow to open
+    the PDFs in your JabRef bibliography directly.
+
   generic ~
     If the scheme is not recognized, the link is followed with the system
     handler. This is defined by the `_` key of |g:wiki_viewer| on Linux.
