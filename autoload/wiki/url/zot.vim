@@ -31,7 +31,8 @@ function! s:handler.follow(...) abort dict " {{{1
 
     if l:choice > 0
       let l:file = l:files[l:choice-1]
-      call wiki#jobs#run(g:wiki_viewer['_'] . ' ' . shellescape(l:file) . '&')
+      let l:viewer = get(g:wiki_viewer, 'pdf', g:wiki_viewer._)
+      call wiki#jobs#start(l:viewer . ' ' . shellescape(l:file))
       return
     endif
   endif
