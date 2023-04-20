@@ -123,6 +123,21 @@ function! wiki#toc#gather_entries(...) abort " {{{1
   "   at_lnum:    Return the entry that covers specified line
   " Output: ToC entries
 
+  let l:header = {}
+  if &filetype == 'asciidoc'
+    let l:header.achor = '='
+    let l:header.regex = g:wiki#rx#header_adoc
+    let l:header.items = g:wiki#rx#header_adoc_items
+  elseif &filetype == 'markdown'
+    let l:header.achor = '#'
+    let l:header.regex = g:wiki#rx#header_md_atx
+    let l:header.items = g:wiki#rx#header_md_atx_items
+  elseif &filetype == 'org'
+    let l:header.achor = '*'
+    let l:header.regex = g:wiki#rx#header_org
+    let l:header.items = g:wiki#rx#header_org_items
+  endif
+
   let l:opts = extend(a:0 > 0 ? a:1 : {}, #{
         \ first_only: v:false
         \}, 'keep')
@@ -148,16 +163,16 @@ function! wiki#toc#gather_entries(...) abort " {{{1
     if l:preblock | continue | endif
 
     " Get line - check for header
-    if l:line !~# g:wiki#rx#header | continue | endif
+    if l:line !~# l:header.regex | continue | endif
 
     " Parse current header
-    let l:level = len(matchstr(l:line, '^#*'))
-    let l:header = matchlist(l:line, g:wiki#rx#header_items)[2]
+    let l:level = len(matchstr(l:line, '^' . l:header.achor . '*'))
+    let l:header = matchlist(l:line, l:header.items)[2]
     let l:anchors[l:level] = l:header
 
     " Add the new entry
     call add(l:entries, {
-          \ 'anchor' : join(l:anchors[:l:level], '#'),
+          \ 'anchor' : join(l:anchors[:l:level], l:header.achor),
           \ 'anchors' : copy(l:anchors[1:l:level]),
           \ 'header': l:header,
           \ 'level' : l:level,
