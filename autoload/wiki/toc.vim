@@ -4,95 +4,6 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#toc#create(local) abort " {{{1
-  let l:entries = wiki#toc#gather_entries()
-  if empty(l:entries) | return | endif
-
-  if a:local
-    let [l:entries, l:local] = s:get_local_toc(l:entries, line('.'))
-    if empty(l:entries) | return | endif
-
-    let l:level = l:local.level
-    let l:lnum_top = l:local.lnum_top
-    let l:lnum_bottom = l:local.lnum_bottom
-    let l:print_depth = get(g:, 'wiki_toc_depth', 6) + l:level - 1
-  else
-    let l:level = 1
-    let l:lnum_top = 1
-    let l:lnum_bottom = get(get(l:entries, 1, {}), 'lnum', line('$'))
-    let l:print_depth = get(g:, 'wiki_toc_depth', 6)
-  endif
-
-  " Only print entries to the desired depth
-  call filter(l:entries, 'v:val.level <= l:print_depth')
-
-  let l:start = max([l:entries[0].lnum, 0])
-  let l:title = '*' . g:wiki_toc_title . '*'
-  let l:re = printf(
-        \ '\v^%(%s %s|\*%s\*)$',
-        \ repeat('#', l:level), g:wiki_toc_title, g:wiki_toc_title)
-
-  " Save the window view and syntax setting and disable syntax (makes things
-  " much faster)
-  let l:winsave = winsaveview()
-  let l:syntax = &l:syntax
-  setlocal syntax=off
-
-  " Delete TOC if it exists
-  for l:lnum in range(l:lnum_top, l:lnum_bottom)
-    if getline(l:lnum) =~# l:re
-      let l:title = getline(l:lnum)
-      let l:start = l:lnum
-      let l:end = l:start + (getline(l:lnum+1) =~# '^\s*$' ? 2 : 1)
-      while l:end <= l:lnum_bottom && getline(l:end) =~# '^\s*[*-] '
-        let l:end += 1
-      endwhile
-
-      let l:foldenable = &l:foldenable
-      setlocal nofoldenable
-      silent execute printf('%d,%ddelete _', l:start, l:end - 1)
-      let &l:foldenable = l:foldenable
-
-      break
-    endif
-  endfor
-
-  " Remove the first entry if it is "trivial"
-  if !a:local
-    let l:count = -1
-    for l:e in l:entries
-      let l:count += 1
-      if (l:e.level == 1 && l:e.lnum > l:start) || l:count > 1 | break | endif
-    endfor
-    if l:count == 1
-      let l:entries = l:entries[1:]
-    endif
-  endif
-
-  " Add updated TOC
-  call append(l:start - 1, l:title)
-  let l:i = 0
-  for l:e in l:entries
-    call append(l:start + l:i,
-          \ repeat(' ', shiftwidth()*(l:e.level - l:level))
-          \ . '* ' . wiki#link#template(l:e.anchor, l:e.header))
-    let l:i += 1
-  endfor
-  let l:length = len(l:entries)
-  if getline(l:start + l:length + 1) !=# ''
-    call append(l:start + l:length, '')
-  endif
-  if l:title =~# '^#'
-    call append(l:start, '')
-  endif
-
-  " Restore syntax and view
-  let &l:syntax = l:syntax
-  call winrestview(l:winsave)
-endfunction
-
-" }}}1
-
 function! wiki#toc#get_page_title(...) abort " {{{1
   let l:filename = wiki#u#eval_filename(a:0 > 0 ? a:1 : '')
   if !filereadable(l:filename) | return '' | endif
@@ -104,6 +15,16 @@ function! wiki#toc#get_page_title(...) abort " {{{1
 
   let l:toc = wiki#toc#gather_entries(l:opts)
   return empty(l:toc) ? '' : l:toc[0].header
+endfunction
+
+function! wiki#toc#create(local) abort " {{{1
+  if &filetype == 'asciidoc'
+    call s:toc_adoc_create()
+  elseif &filetype == 'markdown'
+    call s:toc_md_create(a:local)
+  elseif &filetype == 'org'
+    call s:toc_org_create()
+  endif
 endfunction
 
 " }}}1
@@ -211,6 +132,156 @@ function! wiki#toc#gather_anchors(...) abort " {{{1
 endfunction
 
 " }}}1
+
+function! s:toc_adoc_create() abort
+  let l:entries = wiki#toc#gather_entries()
+  if empty(l:entries) | return | endif
+  " Quit if there is no 1 level heading
+  if l:entries[0].level != 1
+    let l:page_name = expand('%:t:r')
+    call append(0, "= " . l:page_name)
+    let l:toc = {'exists' : 0, 'lnum' : 1}
+  else
+    let l:toc = {'exists' : 0, 'lnum' : l:entries[0].lnum}
+  endif
+
+  let l:toctitle = {'exists' : 0, 'lnum' : l:toc.lnum + 1}
+  let l:toclevels = {'exists' : 0, 'lnum' : l:toc.lnum + 2}
+
+  " Loops over the first two heading if there are already toc keywords
+  for l:lnum in range(l:entries[0].lnum, l:entries[1].lnum)
+    let l:line = getline(l:lnum)
+    if match(l:line, ':toc:') > -1
+      let l:toc.exists = 1
+      let l:toc.lnum = l:lnum
+    elseif match(l:line, ':toc-title:') > -1
+      let l:toctitle.exists = 1
+      let l:toctitle.lnum = l:lnum
+    elseif match(l:line, ':toclevels:') > -1
+      let l:toclevels.exists = 1
+      let l:toclevels.lnum = l:lnum
+    endif
+  endfor
+
+  if !toc.exists
+    call append(l:toc.lnum, ':toc:')
+    let l:toc.lnum += 1
+  endif
+  if !toctitle.exists
+    call append(l:toc.lnum, ':toc-title: ' . g:wiki_toc_title)
+    let l:toc.lnum += 1
+  endif
+  if !toclevels.exists
+    call append(l:toc.lnum, ':toclevels: ' . get(g:, 'wiki_toc_depth', 6))
+  endif
+endfunction
+
+function! s:toc_org_create() abort
+  let l:entries = wiki#toc#gather_entries()
+  if empty(l:entries) | return | endif
+
+  let l:found = 0
+  for l:lnum in range(1, l:entries[0].lnum)
+    let l:line = getline(l:lnum)
+    if match(l:line, 'toc') > -1
+      let l:found = 1
+    endif
+  endfor
+
+  if !l:found
+    if match(getline(1), '^\*') > -1
+      call append(0, '')
+    endif
+    call append(0, '#+OPTIONS: toc: ' . get(g:, 'wiki_toc_depth', 6))
+  endif
+endfunction
+
+function! s:toc_md_create(local) abort
+  let l:entries = wiki#toc#gather_entries()
+  if empty(l:entries) | return | endif
+
+  if a:local
+    let [l:entries, l:local] = s:get_local_toc(l:entries, line('.'))
+    if empty(l:entries) | return | endif
+
+    let l:level = l:local.level
+    let l:lnum_top = l:local.lnum_top
+    let l:lnum_bottom = l:local.lnum_bottom
+    let l:print_depth = get(g:, 'wiki_toc_depth', 6) + l:level - 1
+  else
+    let l:level = 1
+    let l:lnum_top = 1
+    let l:lnum_bottom = get(get(l:entries, 1, {}), 'lnum', line('$'))
+    let l:print_depth = get(g:, 'wiki_toc_depth', 6)
+  endif
+
+  " Only print entries to the desired depth
+  call filter(l:entries, 'v:val.level <= l:print_depth')
+
+  let l:start = max([l:entries[0].lnum, 0])
+  let l:title = '*' . g:wiki_toc_title . '*'
+  let l:re = printf(
+        \ '\v^%(%s %s|\*%s\*)$',
+        \ repeat('\=', l:level), g:wiki_toc_title, g:wiki_toc_title)
+
+  " Save the window view and syntax setting and disable syntax (makes things
+  " much faster)
+  let l:winsave = winsaveview()
+  let l:syntax = &l:syntax
+  setlocal syntax=off
+
+  " Delete TOC if it exists
+  for l:lnum in range(l:lnum_top, l:lnum_bottom)
+    if getline(l:lnum) =~# l:re
+      let l:title = getline(l:lnum)
+      let l:start = l:lnum
+      let l:end = l:start + (getline(l:lnum+1) =~# '^\s*$' ? 2 : 1)
+      while l:end <= l:lnum_bottom && getline(l:end) =~# '^\s*[*-] '
+        let l:end += 1
+      endwhile
+
+      let l:foldenable = &l:foldenable
+      setlocal nofoldenable
+      silent execute printf('%d,%ddelete _', l:start, l:end - 1)
+      let &l:foldenable = l:foldenable
+
+      break
+    endif
+  endfor
+
+  " Remove the first entry if it is "trivial"
+  if !a:local
+    let l:count = -1
+    for l:e in l:entries
+      let l:count += 1
+      if (l:e.level == 1 && l:e.lnum > l:start) || l:count > 1 | break | endif
+    endfor
+    if l:count == 1
+      let l:entries = l:entries[1:]
+    endif
+  endif
+
+  " Add updated TOC
+  call append(l:start - 1, l:title)
+  let l:i = 0
+  for l:e in l:entries
+    call append(l:start + l:i,
+          \ repeat(' ', shiftwidth()*(l:e.level - l:level))
+          \ . '* ' . wiki#link#template(l:e.anchor, l:e.header))
+    let l:i += 1
+  endfor
+  let l:length = len(l:entries)
+  if getline(l:start + l:length + 1) !=# ''
+    call append(l:start + l:length, '')
+  endif
+  if l:title =~# '^#'
+    call append(l:start, '')
+  endif
+
+  " Restore syntax and view
+  let &l:syntax = l:syntax
+  call winrestview(l:winsave)
+endfunction
 
 function! s:get_local_toc(entries, lnum_current) abort " {{{1
     " Get ToC for the section for lnum_current
