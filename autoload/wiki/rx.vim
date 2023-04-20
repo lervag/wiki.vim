@@ -23,8 +23,12 @@ let wiki#rx#list_define = '::\%(\s\|$\)'
 let wiki#rx#comment = '^\s*%%.*$'
 let wiki#rx#todo = '\C\<\%(TODO\|STARTED\|FIXME\)\>:\?'
 let wiki#rx#done = '\C\<\%(OK\|DONE\|FIXED\)\>:\?'
-let wiki#rx#header = '^#\{1,6}\s*[^#].*'
-let wiki#rx#header_items = '^\(#\{1,6}\)\s*\([^#].*\)\s*$'
+let wiki#rx#header_md_atx = '^#\{1,6}\s*[^#].*'
+let wiki#rx#header_md_atx_items = '^\(#\{1,6}\)\s*\([^#].*\)\s*$'
+let wiki#rx#header_org = '^\*\{1,6}\s*[^\*].*'
+let wiki#rx#header_org_items = '^\(\*\{1,6}\)\s*\([^\*].*\)\s*$'
+let wiki#rx#header_adoc = '^=\{1,6}\s*[^=].*'
+let wiki#rx#header_adoc_items = '^\(=\{1,6}\)\s*\([^=].*\)\s*$'
 let wiki#rx#bold = wiki#rx#surrounded(
       \ '[^*`[:space:]]\%([^*`]*[^*`[:space:]]\)\?', '*')
 let wiki#rx#italic = wiki#rx#surrounded(
