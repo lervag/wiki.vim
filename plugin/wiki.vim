@@ -81,6 +81,7 @@ call wiki#init#option('wiki_template_title_month',
 call wiki#init#option('wiki_template_title_week',
       \ '# Summary, %(year) week %(week)')
 call wiki#init#option('wiki_toc_title', 'Contents')
+call wiki#init#option('wiki_toc_depth', 6)
 call wiki#init#option('wiki_viewer', {
       \ '_' : get({
       \   'linux' : 'xdg-open',
