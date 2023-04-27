@@ -4,6 +4,17 @@
 " Email:      karl.yngve@gmail.com
 "
 
+function! wiki#toc#create(local) abort " {{{1
+  try
+    let l:filetype = !empty(&filetype) ? &filetype : 'wiki'
+    call s:toc_create_{l:filetype}(a:local)
+  catch /E117:/
+    call wiki#log#error("No TOC support for filetype: " . &filetype . "!")
+  endtry
+endfunction
+
+" }}}1
+
 function! wiki#toc#get_page_title(...) abort " {{{1
   let l:filename = wiki#u#eval_filename(a:0 > 0 ? a:1 : '')
   if !filereadable(l:filename) | return '' | endif
@@ -17,17 +28,6 @@ function! wiki#toc#get_page_title(...) abort " {{{1
   return empty(l:toc) ? '' : l:toc[0].header
 endfunction
 
-function! wiki#toc#create(local) abort " {{{1
-  if &filetype == 'asciidoc'
-    call s:toc_adoc_create()
-  elseif &filetype == 'markdown'
-    call s:toc_md_create(a:local)
-  elseif &filetype == 'org'
-    call s:toc_org_create()
-  endif
-endfunction
-
-" }}}1
 function! wiki#toc#get_section_at(lnum) abort " {{{1
   let l:toc = wiki#toc#gather_entries(#{ at_lnum: a:lnum })
   return empty(l:toc) ? {} : l:toc[-1]
@@ -44,19 +44,11 @@ function! wiki#toc#gather_entries(...) abort " {{{1
   "   at_lnum:    Return the entry that covers specified line
   " Output: ToC entries
 
-  let l:hd = {}
-  if &filetype == 'asciidoc'
-    let l:hd.achor = '='
-    let l:hd.regex = g:wiki#rx#header_adoc
-    let l:hd.items = g:wiki#rx#header_adoc_items
-  elseif &filetype == 'markdown'
-    let l:hd.achor = '#'
-    let l:hd.regex = g:wiki#rx#header_md_atx
-    let l:hd.items = g:wiki#rx#header_md_atx_items
-  elseif &filetype == 'org'
-    let l:hd.achor = '*'
-    let l:hd.regex = g:wiki#rx#header_org
-    let l:hd.items = g:wiki#rx#header_org_items
+  let l:filetype = !empty(&filetype) ? &filetype : 'wiki'
+  let l:hd = get(s:header_spec, l:filetype, {})
+  if empty(l:hd)
+    call wiki#log#error("No TOC support for filetype: " . l:filetype . "!")
+    return []
   endif
 
   let l:opts = extend(a:0 > 0 ? a:1 : {}, #{
@@ -87,13 +79,13 @@ function! wiki#toc#gather_entries(...) abort " {{{1
     if l:line !~# l:hd.regex | continue | endif
 
     " Parse current hd
-    let l:level = len(matchstr(l:line, '^' . l:hd.achor . '*'))
+    let l:level = len(matchstr(l:line, '^' . l:hd.anchor_re . '*'))
     let l:header = matchlist(l:line, l:hd.items)[2]
-    let l:anchors[l:level] = l:hd
+    let l:anchors[l:level] = l:header
 
     " Add the new entry
     call add(l:entries, {
-          \ 'anchor' : join(l:anchors[:l:level], l:hd.achor),
+          \ 'anchor' : join(l:anchors[:l:level], l:hd.anchor_char),
           \ 'anchors' : copy(l:anchors[1:l:level]),
           \ 'header': l:header,
           \ 'level' : l:level,
@@ -108,6 +100,33 @@ function! wiki#toc#gather_entries(...) abort " {{{1
 
   return l:entries
 endfunction
+
+let s:header_spec = {
+      \ 'asciidoc': {
+      \   'anchor_char': '=',
+      \   'anchor_re': '=',
+      \   'regex': g:wiki#rx#header_adoc,
+      \   'items': g:wiki#rx#header_adoc_items,
+      \ },
+      \ 'markdown': {
+      \   'anchor_char': '#',
+      \   'anchor_re': '#',
+      \   'regex': g:wiki#rx#header_md_atx,
+      \   'items': g:wiki#rx#header_md_atx_items,
+      \ },
+      \ 'wiki': {
+      \   'anchor_char': '#',
+      \   'anchor_re': '#',
+      \   'regex': g:wiki#rx#header_md_atx,
+      \   'items': g:wiki#rx#header_md_atx_items,
+      \ },
+      \ 'org': {
+      \   'anchor_char': '*',
+      \   'anchor_re': '\*',
+      \   'regex': g:wiki#rx#header_org,
+      \   'items': g:wiki#rx#header_org_items,
+      \ },
+      \}
 
 " }}}1
 function! wiki#toc#gather_anchors(...) abort " {{{1
@@ -133,10 +152,10 @@ endfunction
 
 " }}}1
 
-function! s:toc_adoc_create() abort
+function! s:toc_create_asciidoc(...) abort " {{{1
   let l:entries = wiki#toc#gather_entries()
   if empty(l:entries) | return | endif
-  " Quit if there is no 1 level heading
+
   if l:entries[0].level != 1
     let l:page_name = expand('%:t:r')
     call append(0, "= " . l:page_name)
@@ -163,20 +182,21 @@ function! s:toc_adoc_create() abort
     endif
   endfor
 
-  if !toc.exists
+  if !l:toc.exists
     call append(l:toc.lnum, ':toc:')
     let l:toc.lnum += 1
   endif
-  if !toctitle.exists
+  if !l:toctitle.exists
     call append(l:toc.lnum, ':toc-title: ' . g:wiki_toc_title)
     let l:toc.lnum += 1
   endif
-  if !toclevels.exists
-    call append(l:toc.lnum, ':toclevels: ' . get(g:, 'wiki_toc_depth', 6))
+  if !l:toclevels.exists
+    call append(l:toc.lnum, ':toclevels: ' . g:wiki_toc_depth)
   endif
 endfunction
 
-function! s:toc_org_create() abort
+" }}}1
+function! s:toc_create_org(...) abort " {{{1
   let l:entries = wiki#toc#gather_entries()
   if empty(l:entries) | return | endif
 
@@ -192,11 +212,12 @@ function! s:toc_org_create() abort
     if match(getline(1), '^\*') > -1
       call append(0, '')
     endif
-    call append(0, '#+OPTIONS: toc: ' . get(g:, 'wiki_toc_depth', 6))
+    call append(0, '#+OPTIONS: toc: ' . g:wiki_toc_depth)
   endif
 endfunction
 
-function! s:toc_md_create(local) abort
+" }}}1
+function! s:toc_create_markdown(local) abort " {{{1
   let l:entries = wiki#toc#gather_entries()
   if empty(l:entries) | return | endif
 
@@ -207,12 +228,12 @@ function! s:toc_md_create(local) abort
     let l:level = l:local.level
     let l:lnum_top = l:local.lnum_top
     let l:lnum_bottom = l:local.lnum_bottom
-    let l:print_depth = get(g:, 'wiki_toc_depth', 6) + l:level - 1
+    let l:print_depth = g:wiki_toc_depth + l:level - 1
   else
     let l:level = 1
     let l:lnum_top = 1
     let l:lnum_bottom = get(get(l:entries, 1, {}), 'lnum', line('$'))
-    let l:print_depth = get(g:, 'wiki_toc_depth', 6)
+    let l:print_depth = g:wiki_toc_depth
   endif
 
   " Only print entries to the desired depth
@@ -282,6 +303,13 @@ function! s:toc_md_create(local) abort
   let &l:syntax = l:syntax
   call winrestview(l:winsave)
 endfunction
+
+" }}}1
+function! s:toc_create_wiki(local) abort " {{{1
+  call s:toc_create_markdown(a:local)
+endfunction
+
+" }}}1
 
 function! s:get_local_toc(entries, lnum_current) abort " {{{1
     " Get ToC for the section for lnum_current
