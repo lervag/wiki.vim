@@ -44,8 +44,24 @@ call wiki#init#option('wiki_journal_index', {
       \ 'link_text_parser': { b, d, p -> d },
       \ 'link_url_parser': { b, d, p -> 'journal:' . d }
       \})
-call wiki#init#option('wiki_link_extension', '.md')
-call wiki#init#option('wiki_link_target_type', 'md')
+call wiki#init#option('wiki_link_creation', {
+      \ 'md': {
+      \   'link_type': 'md',
+      \   'url_extension': '.md',
+      \ },
+      \ 'org': {
+      \   'link_type': 'org',
+      \   'url_extension': '.org',
+      \ },
+      \ 'adoc': {
+      \   'link_type': 'adoc_xref_bracket',
+      \   'url_extension': '',
+      \ },
+      \ '_': {
+      \   'link_type': 'wiki',
+      \   'url_extension': '',
+      \ },
+      \})
 call wiki#init#option('wiki_link_toggle_on_follow', 1)
 call wiki#init#option('wiki_link_toggles', {
       \ 'wiki': 'wiki#link#md#template',
@@ -57,8 +73,6 @@ call wiki#init#option('wiki_link_toggles', {
       \ 'shortcite': 'wiki#link#md#template',
       \ 'url': 'wiki#link#md#template',
       \})
-call wiki#init#option('wiki_map_create_page', '')
-call wiki#init#option('wiki_map_text_to_link', '')
 call wiki#init#option('wiki_mappings_use_defaults', 'all')
 call wiki#init#option('wiki_month_names', [
       \ 'January', 'February', 'March', 'April', 'May', 'June', 'July',

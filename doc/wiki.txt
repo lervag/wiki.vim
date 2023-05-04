@@ -371,8 +371,6 @@ syntax highlighting and folding. Recommended settings if you want to use
 this: >vim
 
   let g:wiki_filetypes = ['wiki']
-  let g:wiki_link_target_type = ''
-  let g:wiki_link_extension = ''
 
 lists.vim ~
 https://github.com/lervag/lists.vim
@@ -496,13 +494,13 @@ OPTIONS                                                   *wiki-config-options*
           \}
 
 *g:wiki_filetypes*
-  List of filetypes for which |wiki.vim| should be enabled. If you want to
-  make Markdown the default filetype, add it as the first element to the list,
-  e.g.: >vim
+  List of filetype extensions for which |wiki.vim| should be enabled. Notice
+  that file extensions are not always the same as the filetype. For example,
+  the common extension for Markdown is `.md`, whereas the filetype is called
+  `markdown`. The option should list the file extensions.
 
-    let g:wiki_filetypes = ['md', 'wiki']
-<
-  See also |g:wiki_link_extension|, which is often relevant in many filetypes.
+  The first element of the list is considered the default filetype where that
+  is relevant.
 
   Default: `['md']`
 
@@ -731,11 +729,76 @@ OPTIONS                                                   *wiki-config-options*
           \ 'link_url_parser': { b, d, p -> 'journal:' . d }
           \}
 
-*g:wiki_link_extension*
-  Specify the extension that should be applied to wiki links. This should be
-  in the format `.ext`, e.g. `.md` or `.wiki`.
+*g:wiki_link_creation*
+  A dictionary to configure how links are created from text for any given
+  filetype. Filetypes are specified by file extension so as to correspond with
+  |g:wiki_filetypes|, that is, we use `md` and not `markdown`.
 
-  Default: `'.md'`
+  The corresponding value is a dictionary of options. If there is no key for
+  the current filetype, then the fallback key `"_"` is used.
+
+  The valid options are:
+
+    link_type ~
+      A string that specifies the type of link to create. Possible values:
+
+        `md` (|wiki-link-markdown|)
+          Markdown style links.
+
+        `wiki` (|wiki-link-wiki|)
+          Wiki style links.
+
+        `org` (|wiki-link-orgmode|)
+          Orgmode style links.
+
+        `adoc_xref_bracket` (|wiki-link-adoc-xref|)
+        `adoc_xref_inline`
+          AsciiDoc cross-reference style links (angled brackets style or
+          inline `xref:...` style).
+
+    url_extension ~
+      A string that, if not empty, will be appended to the target url.
+
+    url_transform ~
+      A |Funcref| for a function used to transform the text to the desired
+      URL. This can also be an |anonymous-function|. If it is undefined, the
+      the original text will be taken as the URL.
+        The function requires a single string argument and should return the
+      target URL without any file extension. This is useful e.g. to substitute
+      space characters, apply URL encoding, or similar.
+        An example may be useful. The following configuration will convert all
+      characters to lowercase and substitute each set of one or more spaces
+      into a single dash character. >vim
+
+        let g:wiki_link_creation = {
+              \ 'markdown': {
+              \   'link_type': 'md',
+              \   'url_extension': '.md',
+              \   'url_transform': { x ->
+              \     substitute(tolower(x), '\s\+', '-', 'g') },
+              \ },
+              \}
+<
+  Default: >vim
+
+    let g:wiki_link_creation = {
+          \ 'md': {
+          \   'link_type': 'md',
+          \   'url_extension': '.md',
+          \ },
+          \ 'org': {
+          \   'link_type': 'org',
+          \   'url_extension': '.org',
+          \ },
+          \ 'adoc': {
+          \   'link_type': 'adoc_xref_bracket',
+          \   'url_extension': '',
+          \ },
+          \ '_': {
+          \   'link_type': 'wiki',
+          \   'url_extension': '',
+          \ },
+          \}
 
 *g:wiki_link_toggle_on_follow*
   This option allows disabling the toggle behaviour in |WikiLinkFollow| where
@@ -744,29 +807,6 @@ OPTIONS                                                   *wiki-config-options*
   transform text into links.
 
   Default: 1
-
-*g:wiki_link_target_type*
-  This option may be used to pick the default style of link that will be used.
-
-  Available styles for the default target type are:
-
-    `md` (|wiki-link-markdown|)
-      Markdown style links.
-
-    `wiki` (|wiki-link-wiki|)
-      Wiki style links.
-
-    `org` (|wiki-link-orgmode|)
-      Orgmode style links.
-
-    `adoc_xref_bracket` (|wiki-link-adoc-xref|)
-    `adoc_xref_inline`
-      AsciiDoc cross-reference style links (angled brackets style or inline
-      `xref:...` style).
-
-  Toggling between link types can still be achieved using |WikiLinkToggle|.
-
-  Default: `'md'`
 
 *g:wiki_link_toggles*
   This option specifies the template for toggling a specific type of link with
@@ -803,69 +843,6 @@ OPTIONS                                                   *wiki-config-options*
           \ 'shortcite': 'wiki#link#md#template',
           \ 'url': 'wiki#link#md#template',
           \}
-
-*g:wiki_map_create_page*
-  This option may be used to specify a map or transformation for page names
-  provided to |WikiOpen|. For example: >vim
-
-    let g:wiki_map_create_page = 'MyFunction'
-
-    function MyFunction(name) abort
-      let l:name = wiki#get_root() . '/' . a:name
-
-      " If the file is new, then append the current date
-      return filereadable(l:name)
-            \ ? a:name
-            \ : a:name . '_' . strftime('%Y%m%d')
-    endfunction
-<
-  With the above setting, if one enters a page name "foo" for |WikiOpen| on
-  the date 2020-04-11, the page "foo_20200411" will be created.
-
-  The option value should be a string (the `name` of the function) or
-  a |Funcref|. The latter only works in neovim when the option is defined from
-  Lua with |lua-vim-variables|, e.g. >lua
-
-    vim.g.wiki_map_create_page = function(x) return x:lower() end
-<
-  Default: `''`
-
-*g:wiki_map_text_to_link*
-  This option may be used to transform text before creating a new link with
-  |WikiLinkToggle| (or related mappings). The option value should be a string
-  (the `name` of the function) or a |Funcref|. The latter only works in neovim
-  when the option is defined from Lua with |lua-vim-variables|, similar to
-  this: >lua
-
-    vim.g.wiki_map_text_to_link = function(x)
-      return { x:lower(), x }
-    end
-<
-  The specified function must take a single argument and return two values.
-  The following signature should be descriptive: >vim
-
-    let [url, text] = TextToLink(text_raw)
-<
-  Here `text_raw` is the text that should be transformed to a link composed
-  of `url` and `text`. An example may be more enlightening: >vim
-
-    let g:wiki_map_text_to_link = 'MyTextToLink'
-
-    function MyTextToLink(text) abort
-      return [substitute(tolower(a:text), '\s\+', '-', 'g'), a:text]
-    endfunction
-<
-  This specifies that transformations will look like the following,
-  given that other settings are at their defaults: >
-
-    Hello world  →    [[hello-world|Hello World]]
-    Some text    →    [[some-text|Some text]]
-<
-  Note: The actual resulting link also depends on these options:
-        - |g:wiki_link_extension|
-        - |g:wiki_link_target_type|
-
-  Default: `''`
 
 *g:wiki_mappings_use_defaults*
   Whether or not to use default mappings (see |wiki-mappings-default|). The
@@ -1223,9 +1200,11 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *<plug>(wiki-open)*
 *WikiOpen*
   Open (or create) a page. Asks for user input to specify the page name. When
-  not already inside a wiki, the wiki root is given by |g:wiki_root|. If
-  |g:wiki_map_create_page| is specified, it will be used to transform the
-  input name before opening/creating the page.
+  not already inside a wiki, the wiki root is given by |g:wiki_root|.
+
+  The settings from |g:wiki_link_creation| are applied based on the current
+  'filetype'. If the filetype is not specified or if it is not listed in
+  |g:wiki_filetypes|, then the first filetype in this list is assumed.
 
 *<plug>(wiki-journal)*
 *WikiJournal*
@@ -1313,11 +1292,11 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *<plug>(wiki-link-toggle-operator)*  |map-operator|
 *WikiLinkToggle*
   Toggle a link. That is, this converts a link from one type to another based
-  on the value of |g:wiki_link_toggles|. Pure text is converted to a link of
-  type |g:wiki_link_target_type|, and if |g:wiki_map_text_to_link| is
-  specified, it will be used to transform the link before creating it.
+  on the value of |g:wiki_link_toggles|.
 
-  The following rules apply when converting text to a link.
+  Additionally, this command and the mappings can be used to convert regular
+  text to a link. The behaviour is controlled by |g:wiki_link_creation| and
+  follows the following set of rules.
 
     If we are inside the journal: ~
 
@@ -1375,7 +1354,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *<plug>(wiki-journal-index)*
 *WikiJournalIndex*
   Insert a sorted list of links to all journal pages below the cursor. It uses
-  the link style specified by |g:wiki_link_target_type|.
+  the link type specified in |g:wiki_link_creation| for the current filetype.
 
 *<plug>(wiki-journal-next)*
 *WikiJournalNext*
@@ -1426,8 +1405,11 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 
   -link_ext_replace ~
     Set to true to replace in-wiki link extensions with html. This enables
-    in-browser wiki navigation. Requires `ext` be set to `html` and for
-    |g:wiki_link_extension| to be non-empty to have any meaningful effect.
+    in-browser wiki navigation, but for it to work well, it requires that:
+
+      1. `-ext` is set to `html`, and
+      2. |g:wiki_link_creation| should have a `url_transform` that appends
+         the extension.
 
   -output ~
     Set output directory where the exported file is stored. Relative paths are
@@ -1601,8 +1583,8 @@ The mappings that act on links are listed in |wiki-mappings-default|. The most
 notable default mappings are:
 - A link may be followed with `<cr>`.
 - `<cr>` used on normal text (not on a link) will transform the text into
-  a link of the type specified by |g:wiki_link_target_type|. This also works
-  in visual mode.
+  a link of the type specified by |g:wiki_link_creation|. This also works in
+  visual mode.
 - Similarly, `gl` may be used to turn operated text into a link.
 - One may use `<bs>` to navigate back after following a link.
 - `<leader>wf` can be used to transform a link between different types (see

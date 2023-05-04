@@ -23,22 +23,23 @@ function! s:matcher.toggle_template(text, _) abort " {{{1
   " This template returns a wiki template for the provided word(s). It does
   " a smart search for likely candidates and if there is no unique match, it
   " asks for target link.
+  let l:creator = wiki#link#get_creator()
 
-  " Allow custom map of text -> url, text (without extension)
-  if !empty(g:wiki_map_text_to_link)
-        \ && (type(g:wiki_map_text_to_link) == v:t_func
-        \     || exists('*' . g:wiki_map_text_to_link))
-    let [l:url, l:text] = call(g:wiki_map_text_to_link, [a:text])
-  else
-    let l:url = a:text
-    let l:text = a:text
+  " Apply url transformer if available
+  let l:url = a:text
+  if has_key(l:creator, 'url_transform')
+    try
+      let l:url = l:creator.url_transform(a:text)
+    catch
+      call wiki#log#warn('There was a problem with the url transformer!')
+    endtry
   endif
 
   " Append extension if wanted
   let l:url_root = l:url
-  if !empty(g:wiki_link_extension)
+  if !empty(l:creator.url_extension)
         \ && strcharpart(l:url, strchars(l:url)-1) !=# '/'
-    let l:url .= g:wiki_link_extension
+    let l:url .= l:creator.url_extension
     let l:url_actual = l:url
   else
     let l:url_actual = l:url . '.' . b:wiki.extension
@@ -47,7 +48,7 @@ function! s:matcher.toggle_template(text, _) abort " {{{1
   " First try local page
   let l:root_current = expand('%:p:h')
   if filereadable(wiki#paths#s(printf('%s/%s', l:root_current, l:url_actual)))
-    return wiki#link#template(l:url, l:text)
+    return wiki#link#template(l:url, a:text)
   endif
 
   " If we are inside the journal, then links should by default point to the
@@ -58,7 +59,7 @@ function! s:matcher.toggle_template(text, _) abort " {{{1
 
     " Check if target matches at wiki root
     if filereadable(wiki#paths#s(printf('%s/%s', l:root, l:url_actual)))
-      return wiki#link#template(l:prefix . l:url, l:text)
+      return wiki#link#template(l:prefix . l:url, a:text)
     endif
   else
     let l:root = l:root_current
@@ -73,7 +74,7 @@ function! s:matcher.toggle_template(text, _) abort " {{{1
 
   " Solve trivial cases first
   if len(l:candidates) == 0
-    return wiki#link#template(l:prefix . l:url, l:text)
+    return wiki#link#template(l:prefix . l:url, a:text)
   endif
 
   " Select with menu
@@ -81,7 +82,7 @@ function! s:matcher.toggle_template(text, _) abort " {{{1
   let l:choice = wiki#ui#select(l:candidates + [l:new])
   return empty(l:choice) ? l:url : (
         \ l:choice ==# l:new
-        \   ? wiki#link#template(l:url, l:text)
+        \   ? wiki#link#template(l:url, a:text)
         \   : wiki#link#template(l:prefix . l:choice, ''))
 endfunction
 

@@ -64,6 +64,18 @@ endfunction
 
 "}}}1
 
+function! wiki#link#get_creator(...) abort " {{{1
+  let l:ft = expand('%:e')
+  if empty(l:ft) || index(g:wiki_filetypes, l:ft) < 0
+    let l:ft = g:wiki_filetypes[0]
+  endif
+  let l:c = get(g:wiki_link_creation, l:ft, g:wiki_link_creation._)
+
+  return a:0 > 0 ? l:c[a:1] : l:c
+endfunction
+
+" }}}1
+
 function! wiki#link#show(...) abort "{{{1
   let l:link = wiki#link#get()
 
@@ -162,16 +174,16 @@ endfunction
 " }}}1
 
 function! wiki#link#template(url, text) abort " {{{1
-  "
   " Pick the relevant link template command to use based on the users
   " settings. Default to the wiki style one if its not set.
-  "
+
   try
-    return wiki#link#{g:wiki_link_target_type}#template(a:url, a:text)
+    let l:type = wiki#link#get_creator('link_type')
+    return wiki#link#{l:type}#template(a:url, a:text)
   catch /E117:/
     call wiki#log#warn(
-          \ 'Link target type does not exist: ' . g:wiki_link_target_type,
-          \ 'See ":help g:wiki_link_target_type" for help'
+          \ 'Target link type does not exist: ' . l:type,
+          \ 'See ":help g:wiki_link_creation" for help'
           \)
   endtry
 endfunction

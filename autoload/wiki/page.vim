@@ -10,10 +10,14 @@ function! wiki#page#open(...) abort "{{{1
         \ : wiki#ui#input(#{info: 'Open page (or create new): '})
   if empty(l:page) | return | endif
 
-  if !empty(g:wiki_map_create_page)
-        \ && (type(g:wiki_map_create_page) == v:t_func
-        \     || exists('*' . g:wiki_map_create_page))
-    let l:page = call(g:wiki_map_create_page, [l:page])
+  " Apply url transformer if available
+  let l:link_creator = wiki#link#get_creator()
+  if has_key(l:link_creator, 'url_transform')
+    try
+      let l:page = l:link_creator.url_transform(l:page)
+    catch
+      call wiki#log#warn('There was a problem with the url transformer!')
+    endtry
   endif
 
   call wiki#url#parse('wiki:/' . l:page).follow()
@@ -427,7 +431,7 @@ function! s:path_to_url(root, path) abort " {{{1
   let l:path = wiki#paths#relative(a:path, a:root)
   let l:ext = '.' . fnamemodify(l:path, ':e')
 
-  return l:ext ==# g:wiki_link_extension
+  return l:ext ==# wiki#link#get_creator('url_extension')
         \ ? l:path
         \ : fnamemodify(l:path, ':r')
 endfunction
@@ -477,24 +481,26 @@ endfunction
 
 " }}}1
 function! s:convert_links_to_html(lines) abort " {{{1
-  if g:wiki_link_target_type ==# 'md'
+  let l:creator = wiki#link#get_creator()
+
+  if l:creator.link_type ==# 'md'
     let l:rx = '\[\([^\\\[\]]\{-}\)\]'
-          \ . '(\([^\(\)\\]\{-}\)' . g:wiki_link_extension
+          \ . '(\([^\(\)\\]\{-}\)' . l:creator.url_extension
           \ . '\(#[^#\(\)\\]\{-}\)\{-})'
     let l:sub = '[\1](\2.html\3)'
-  elseif g:wiki_link_target_type ==# 'wiki'
-    let l:rx = '\[\[\([^\\\[\]]\{-}\)' . g:wiki_link_extension
+  elseif l:creator.link_type ==# 'wiki'
+    let l:rx = '\[\[\([^\\\[\]]\{-}\)' . l:creator.url_extension
           \ . '\(#[^#\\\[\]]\{-}\)'
           \ . '|\([^\[\]\\]\{-}\)\]\]'
     let l:sub = '\[\[\1.html\2|\3\]\]'
-  elseif g:wiki_link_target_type ==# 'org'
-    let l:rx = '\[\[\([^\\\[\]]\{-}\)' . g:wiki_link_extension
+  elseif l:creator.link_type ==# 'org'
+    let l:rx = '\[\[\([^\\\[\]]\{-}\)' . l:creator.url_extension
           \ . '\(#[^#\\\[\]]\{-}\)'
           \ . '\]\[\([^\[\]\\]\{-}\)\]\]'
     let l:sub = '\[\[\1.html\2|\3\]\]'
   else
     return wiki#log#error(
-          \ 'g:wiki_link_target_type must be `wiki`, `md`, or `org` to',
+          \ 'g:wiki_link_creator link_type must be `wiki`, `md`, or `org` to',
           \ 'replace link extensions on export.'
           \)
   endif
