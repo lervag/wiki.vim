@@ -2,9 +2,10 @@ source ../init.vim
 
 let g:wiki_root = g:testroot . '/wiki-basic'
 let g:wiki_filetypes = ['wiki', 'md']
-let g:wiki_link_extension = '.wiki'
 
 runtime plugin/wiki.vim
+
+let g:wiki_link_creation._.url_extension = '.wiki'
 
 silent edit test.md
 silent call wiki#goto_index()

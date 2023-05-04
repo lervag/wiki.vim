@@ -4,7 +4,6 @@ runtime plugin/wiki.vim
 let g:wiki_log_verbose = 0
 
 let g:wiki_filetypes = ['md']
-let g:wiki_link_extension = '.md'
 let g:wiki_tag_parsers = [
       \ g:wiki#tags#default_parser,
       \ {

@@ -2,8 +2,6 @@ source ../init.vim
 
 " Initial load of wiki.vim
 let g:wiki_filetypes = ['org']
-let g:wiki_link_extension = '.org'
-let g:wiki_link_target_type = 'org'
 runtime plugin/wiki.vim
 
 " Test open existing wiki with no settings

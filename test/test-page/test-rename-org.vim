@@ -1,6 +1,5 @@
 source ../init.vim
 let g:wiki_filetypes = ['org']
-let g:wiki_link_extension = '.org'
 runtime plugin/wiki.vim
 
 silent edit wiki-tmp/test\ 2.org
