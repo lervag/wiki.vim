@@ -4,7 +4,7 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#link#shortcite#matcher() abort " {{{1
+function! wiki#link#cite#matcher() abort " {{{1
   return extend(
         \ wiki#link#_template#matcher(),
         \ deepcopy(s:matcher))
@@ -14,8 +14,8 @@ endfunction
 
 
 let s:matcher = {
-      \ 'type': 'url',
-      \ 'rx': wiki#rx#link_shortcite,
+      \ 'type': 'cite',
+      \ 'rx': wiki#rx#link_cite,
       \}
 
 function! s:matcher.parse_url() abort dict " {{{1

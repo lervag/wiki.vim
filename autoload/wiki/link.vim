@@ -216,7 +216,7 @@ let s:matchers = [
       \ wiki#link#ref_collapsed#matcher(),
       \ wiki#link#ref_full#matcher(),
       \ wiki#link#url#matcher(),
-      \ wiki#link#shortcite#matcher(),
+      \ wiki#link#cite#matcher(),
       \ wiki#link#date#matcher(),
       \ wiki#link#word#matcher(),
       \]
@@ -231,7 +231,7 @@ let s:matchers_real = [
       \ wiki#link#org#matcher(),
       \ wiki#link#ref_definition#matcher(),
       \ wiki#link#url#matcher(),
-      \ wiki#link#shortcite#matcher(),
+      \ wiki#link#cite#matcher(),
       \]
 
 " }}}1

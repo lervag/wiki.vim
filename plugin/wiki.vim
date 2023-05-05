@@ -70,7 +70,7 @@ call wiki#init#option('wiki_link_toggles', {
       \ 'adoc_xref_bracket': 'wiki#link#adoc_xref_inline#template',
       \ 'adoc_xref_inline': 'wiki#link#adoc_xref_bracket#template',
       \ 'date': 'wiki#link#wiki#template',
-      \ 'shortcite': 'wiki#link#md#template',
+      \ 'cite': 'wiki#link#md#template',
       \ 'url': 'wiki#link#md#template',
       \})
 call wiki#init#option('wiki_mappings_use_defaults', 'all')
