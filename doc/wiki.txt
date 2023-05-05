@@ -803,6 +803,32 @@ OPTIONS                                                   *wiki-config-options*
           \ },
           \}
 
+*g:wiki_link_default_schemes*
+  A dictionary to configure the default URL scheme for link types, i.e. the
+  scheme assumed if the URL does not contain an initial scheme specifier. See
+  |wiki-link| for more information about link types and a more proper
+  definition of URLs and schemes.
+
+  The keys represent the link type and the values are either strings, in which
+  case they specify the default scheme, or dictionaries between filetype
+  extensions and default schemes.
+
+  Default: >vim
+
+    let g:wiki_link_default_schemes = {
+          \ 'wiki': { 'wiki': 'wiki', 'adoc': 'adoc' },
+          \ 'md': 'wiki',
+          \ 'md_fig': 'file',
+          \ 'org': 'wiki',
+          \ 'adoc_xref_inline': 'adoc',
+          \ 'adoc_xref_bracket': 'adoc',
+          \ 'adoc_link': 'file',
+          \ 'ref_shortcut': '',
+          \ 'ref_definition': '',
+          \ 'date': 'journal',
+          \ 'cite': 'zot',
+          \}
+
 *g:wiki_link_toggle_on_follow*
   This option allows disabling the toggle behaviour in |WikiLinkFollow| where
   "normal" text under the cursor is transformed into links. The behaviour is
@@ -1756,8 +1782,8 @@ directly without putting it inside a proper link type. However, if the
 `address` part has spaces in it, the URL must be surrounded by angled
 brackets, like this: `<scheme:address with spaces>`.
 
-When the scheme is not specified for URLs inside one of the other link types,
-then the `wiki` scheme is generally assumed (unless otherwise stated).
+When the scheme is not specified for URLs inside a link, then the scheme is
+specified from |g:wiki_link_default_schemes|.
 
 The following schemes are supported:
 
