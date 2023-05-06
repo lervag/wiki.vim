@@ -14,7 +14,6 @@ endfunction
 
 
 let s:matcher = {
-      \ 'scheme': 'file',
       \ 'type': 'md_fig',
       \ 'rx': g:wiki#rx#link_md_fig,
       \ 'rx_url': '!\[[^\\\[\]]\{-}\](\zs[^\\]\{-}\ze)',

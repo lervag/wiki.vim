@@ -19,7 +19,7 @@ let s:matcher = {
       \ 'rx_target': '\[\zs' . wiki#rx#reflabel . '\ze\]',
       \}
 
-function! s:matcher.parse_url() dict abort " {{{1
+function! s:matcher.create_link_post() dict abort " {{{1
   let self.id = matchstr(self.content, self.rx_target)
 
   " Locate target url

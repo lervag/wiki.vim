@@ -75,6 +75,17 @@ function! wiki#link#get_creator(...) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#link#get_scheme(link_type) abort " {{{1
+  let l:scheme = get(g:wiki_link_default_schemes, a:link_type, '')
+
+  if type(l:scheme) == v:t_dict
+    let l:scheme = get(l:scheme, expand('%:e'), '')
+  endif
+
+  return l:scheme
+endfunction
+
+" }}}1
 
 function! wiki#link#show(...) abort "{{{1
   let l:link = wiki#link#get()

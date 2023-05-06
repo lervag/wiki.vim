@@ -5,9 +5,7 @@
 "
 
 function! wiki#link#cite#matcher() abort " {{{1
-  return extend(
-        \ wiki#link#_template#matcher(),
-        \ deepcopy(s:matcher))
+  return extend(wiki#link#_template#matcher(), deepcopy(s:matcher))
 endfunction
 
 " }}}1
@@ -16,10 +14,5 @@ endfunction
 let s:matcher = {
       \ 'type': 'cite',
       \ 'rx': wiki#rx#link_cite,
+      \ 'rx_url': wiki#rx#link_cite_url,
       \}
-
-function! s:matcher.parse_url() abort dict " {{{1
-  let self.url = 'zot:' . strpart(self.content, 1)
-endfunction
-
-" }}}1

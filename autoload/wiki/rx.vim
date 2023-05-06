@@ -56,6 +56,7 @@ let wiki#rx#link_ref_full =
 let wiki#rx#link_ref_definition =
       \ '^\s*\[' . wiki#rx#reflabel . '\]:\s\+' . wiki#rx#url
 let wiki#rx#link_cite = '\%(\s\|^\|\[\)\zs@[-_.a-zA-Z0-9]\+[-_a-zA-Z0-9]'
+let wiki#rx#link_cite_url = '\%(\s\|^\|\[\)@\zs[-_.a-zA-Z0-9]\+[-_a-zA-Z0-9]'
 let wiki#rx#link_wiki = '\[\[\/\?[^\\\]]\{-}\%(|[^\\\]]\{-}\)\?\]\]'
 let wiki#rx#link = join([
       \ wiki#rx#link_wiki,

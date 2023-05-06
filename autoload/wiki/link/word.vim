@@ -14,9 +14,8 @@ endfunction
 
 
 let s:matcher = {
-      \ 'rx' : wiki#rx#word,
-      \ 'scheme' : '',
       \ 'type' : 'word',
+      \ 'rx' : wiki#rx#word,
       \}
 
 function! s:matcher.toggle_template(text, _) abort " {{{1
