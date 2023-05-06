@@ -93,7 +93,17 @@ function! wiki#link#show(...) abort "{{{1
   if empty(l:link) || l:link.type ==# 'word'
     call wiki#log#info('No link detected')
   else
-    call wiki#log#info('Link info', l:link.pprint())
+    let l:viewer = {
+          \ 'name': 'WikiLinkInfo',
+          \ 'items': l:link.describe()
+          \}
+    function! l:viewer.print_content() abort dict
+      for [l:key, l:value] in self.items
+        call append('$', printf(' %-14s %s', l:key, l:value))
+      endfor
+    endfunction
+
+    call wiki#scratch#new(l:viewer)
   endif
 endfunction
 
