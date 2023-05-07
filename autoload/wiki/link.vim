@@ -75,6 +75,17 @@ function! wiki#link#get_creator(...) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#link#get_scheme(link_type) abort " {{{1
+  let l:scheme = get(g:wiki_link_default_schemes, a:link_type, '')
+
+  if type(l:scheme) == v:t_dict
+    let l:scheme = get(l:scheme, expand('%:e'), '')
+  endif
+
+  return l:scheme
+endfunction
+
+" }}}1
 
 function! wiki#link#show(...) abort "{{{1
   let l:link = wiki#link#get()
@@ -82,7 +93,17 @@ function! wiki#link#show(...) abort "{{{1
   if empty(l:link) || l:link.type ==# 'word'
     call wiki#log#info('No link detected')
   else
-    call wiki#log#info('Link info', l:link.pprint())
+    let l:viewer = {
+          \ 'name': 'WikiLinkInfo',
+          \ 'items': l:link.describe()
+          \}
+    function! l:viewer.print_content() abort dict
+      for [l:key, l:value] in self.items
+        call append('$', printf(' %-14s %s', l:key, l:value))
+      endfor
+    endfunction
+
+    call wiki#scratch#new(l:viewer)
   endif
 endfunction
 
@@ -216,7 +237,7 @@ let s:matchers = [
       \ wiki#link#ref_collapsed#matcher(),
       \ wiki#link#ref_full#matcher(),
       \ wiki#link#url#matcher(),
-      \ wiki#link#shortcite#matcher(),
+      \ wiki#link#cite#matcher(),
       \ wiki#link#date#matcher(),
       \ wiki#link#word#matcher(),
       \]
@@ -231,7 +252,7 @@ let s:matchers_real = [
       \ wiki#link#org#matcher(),
       \ wiki#link#ref_definition#matcher(),
       \ wiki#link#url#matcher(),
-      \ wiki#link#shortcite#matcher(),
+      \ wiki#link#cite#matcher(),
       \]
 
 " }}}1

@@ -45,8 +45,8 @@ function! s:matcher.create_link(match) dict abort " {{{1
 
   " Get link text
   let l:match.text = ''
-  if has_key(self, 'rx_text')
-    let [l:text, l:c1, l:c2] = s:matchstrpos(l:match.content, self.rx_text)
+  if has_key(l:match, 'rx_text')
+    let [l:text, l:c1, l:c2] = s:matchstrpos(l:match.content, l:match.rx_text)
     if !empty(l:text)
       let l:match.text = l:text
       let l:match.text_pos_start = [l:match.pos_start[0], l:match.pos_start[1] + l:c1]
@@ -56,8 +56,8 @@ function! s:matcher.create_link(match) dict abort " {{{1
 
   " Get link url
   let l:match.url = l:match.content
-  if has_key(self, 'rx_url')
-    let [l:url, l:c1, l:c2] = s:matchstrpos(l:match.content, self.rx_url)
+  if has_key(l:match, 'rx_url')
+    let [l:url, l:c1, l:c2] = s:matchstrpos(l:match.content, l:match.rx_url)
     if !empty(l:url)
       let l:match.url = l:url
       let l:match.url_pos_start = [l:match.pos_start[0], l:match.pos_start[1] + l:c1]
@@ -66,13 +66,19 @@ function! s:matcher.create_link(match) dict abort " {{{1
   endif
   let l:match.url_raw = l:match.url
 
-  " Matcher specific url parsing
-  call l:match.parse_url()
+  " Add scheme to URL if it is missing
+  let l:match.default_scheme = wiki#link#get_scheme(l:match.type)
+  if empty(matchstr(l:match.url, '^\w\+:'))
+    if !empty(l:match.default_scheme)
+      let l:match.url = l:match.default_scheme . ':' . l:match.url
+    endif
+  endif
+  let l:match.scheme = matchstr(l:match.url, '^\w\+:')
 
   " Add toggle function
   if !has_key(l:match, 'toggle_template')
-        \ && has_key(g:wiki_link_toggles, self.type)
-    let l:match.toggle_template = function(g:wiki_link_toggles[self.type])
+        \ && has_key(g:wiki_link_toggles, l:match.type)
+    let l:match.toggle_template = function(g:wiki_link_toggles[l:match.type])
   endif
 
   " Clean up
@@ -81,20 +87,17 @@ function! s:matcher.create_link(match) dict abort " {{{1
   silent! unlet l:match.rx_text
   silent! unlet l:match.create_link
   silent! unlet l:match.match_at_cursor
-  silent! unlet l:match.parse_url
+
+  if has_key(l:match, 'create_link_post')
+    call l:match.create_link_post()
+    unlet l:match.create_link_post
+  endif
 
   " Return the parsed link
   return s:link.new(l:match)
 endfunction
 
 "}}}1
-function! s:matcher.parse_url() dict abort " {{{1
-  if !empty(get(self, 'scheme', '')) && empty(matchstr(self.url, '^\w\+:'))
-    let self.url = self.scheme . ':' . self.url
-  endif
-endfunction
-
-" }}}1
 
 
 let s:link = {}
@@ -120,33 +123,20 @@ function! s:link.replace(text) dict abort " {{{1
 endfunction
 
 " }}}1
-function! s:link.pprint() dict abort " {{{1
-  let l:out = {
-        \ 'type': self.type,
-        \ 'scheme': get(self, 'scheme', 'NONE'),
-        \ 'text': get(self, 'text', ''),
-        \ 'url': self.url,
-        \ 'raw_url': self.url_raw,
-        \ 'raw': self.content,
-        \ 'follow': string(get(self, 'follow', '')),
-        \ 'toggle_template': string(get(self, 'toggle_template', '')),
-        \}
-  if l:out.raw_url ==# l:out.url
-    unlet l:out.raw_url
+function! s:link.describe() dict abort " {{{1
+  let l:content = [
+        \  ['Type:', self.type],
+        \  ['Match:', self.content],
+        \  ['URL:', self.url],
+        \]
+
+  if self.url !=# self.url_raw
+    let l:content += [['URL (raw):', self.url_raw]]
   endif
-  if l:out.raw ==# l:out.url
-    unlet l:out.raw
-  endif
-  if empty(l:out.text)
-    unlet l:out.text
-  endif
-  if empty(l:out.follow)
-    unlet l:out.follow
-  endif
-  if empty(l:out.toggle_template)
-    unlet l:out.toggle_template
-  endif
-  return l:out
+
+  let l:content += [['Description:', empty(self.text) ? 'N/A' : self.text]]
+
+  return l:content
 endfunction
 
 " }}}1

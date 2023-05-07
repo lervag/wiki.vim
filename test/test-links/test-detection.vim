@@ -25,7 +25,7 @@ for s:lnum in range(18, 21)
 endfor
 
 let s:link = wiki#link#get_at_pos(23, 23)
-call assert_equal('url', s:link.type)
+call assert_equal('cite', s:link.type)
 call assert_equal('zot', s:link.scheme)
 
 let s:link = wiki#link#get_at_pos(23, 50)
@@ -33,12 +33,12 @@ call assert_equal('url', s:link.type)
 call assert_equal('zot', s:link.scheme)
 
 let s:link = wiki#link#get_at_pos(24, 11)
-call assert_equal('url', s:link.type)
+call assert_equal('cite', s:link.type)
 call assert_equal('zot', s:link.scheme)
 call assert_equal('c1', s:link.key)
 
 let s:link = wiki#link#get_at_pos(24, 18)
-call assert_equal('url', s:link.type)
+call assert_equal('cite', s:link.type)
 call assert_equal('zot', s:link.scheme)
 call assert_equal('c2', s:link.key)
 

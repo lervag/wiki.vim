@@ -152,8 +152,8 @@ endfunction
 
 " }}}1
 function! s:summary.parse_link(link) abort dict " {{{1
-  let l:link = wiki#url#parse(a:link)
-  if !filereadable(l:link.path) | return '' | endif
+  let l:url = wiki#url#parse(a:link)
+  if !filereadable(l:url.path) | return '' | endif
 
   let l:order = 1
   let l:entry = {
@@ -164,7 +164,7 @@ function! s:summary.parse_link(link) abort dict " {{{1
         \}
 
   let l:lnum = 0
-  for l:line in readfile(l:link.path)
+  for l:line in readfile(l:url.path)
     let l:lnum += 1
 
     " Ignore everything after title lines (except in weekly summaries)
@@ -211,9 +211,9 @@ function! s:summary.parse_link(link) abort dict " {{{1
     endif
 
     " Fix pure-anchor links
-    if l:link.stripped =~# '\d\{4}-\d\d-\d\d'
+    if l:url.stripped =~# '\d\{4}-\d\d-\d\d'
       let l:line = substitute(l:line, '\(\[\[\|\](\)\zs\ze\#',
-            \ fnamemodify(l:link.path, ':t:r'), 'g')
+            \ fnamemodify(l:url.path, ':t:r'), 'g')
     endif
 
     call add(l:entry.lines, l:line)

@@ -14,3 +14,5 @@ xref:[foo bar.adoc][Foobar]
 
 Some text, cf. foo.
 
+[[test]]
+

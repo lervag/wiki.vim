@@ -44,15 +44,18 @@ CONTENTS                                                        *wiki-contents*
     Text objects                             |wiki-mappings-text-obj|
     Journal mappings                         |wiki-mappings-default|
   Links                                      |wiki-link|
-    Link URLs                                |wiki-link-url|
+    Overview of link types                   |wiki-link-types|
     Wiki links                               |wiki-link-wiki|
-    Markdown links                           |wiki-link-markdown|
-    Markdown image links                     |wiki-link-image|
-    Orgmode links                            |wiki-link-orgmode|
-    Reference links                          |wiki-link-reference|
-    Zotero shortlinks                        |wiki-link-zotero|
-    AsciiDoc cross references                |wiki-link-adoc-xref|
-    AsciiDoc link macro                      |wiki-link-adoc-link|
+    Markdown links                           |wiki-link-md|
+    Markdown image links                     |wiki-link-md_fig|
+    Orgmode links                            |wiki-link-org|
+    Reference links                          |wiki-link-ref_shortcut|
+                                             |wiki-link-ref_definition|
+    Cite links                               |wiki-link-cite|
+    AsciiDoc cross references                |wiki-link-adoc_xref_bracket|
+                                             |wiki-link-adoc_xref_inline|
+    AsciiDoc link macro                      |wiki-link-adoc_link|
+    URLs                                     |wiki-link-url|
   Completion                                 |wiki-completion|
     Autocomplete                             |wiki-completion-auto|
   Tags                                       |wiki-tags|
@@ -258,7 +261,7 @@ makes the concept so important.
 Although I do add a lot of text to my wiki, I've also realized that I should
 not add all data there. For instance, I've come to use Zotero [7] for managing
 my literature database. This is also why there is now some support for Zotero
-within wiki.vim (see |wiki-link-zotero|).
+within wiki.vim (see |wiki-link-cite|).
 
 For some topics, I may write a wiki page about stuff where I have links to
 data files in which I can append new data and to scripts I can run to
@@ -742,17 +745,17 @@ OPTIONS                                                   *wiki-config-options*
     link_type ~
       A string that specifies the type of link to create. Possible values:
 
-        `md` (|wiki-link-markdown|)
+        `md` (|wiki-link-md|)
           Markdown style links.
 
         `wiki` (|wiki-link-wiki|)
           Wiki style links.
 
-        `org` (|wiki-link-orgmode|)
+        `org` (|wiki-link-org|)
           Orgmode style links.
 
-        `adoc_xref_bracket` (|wiki-link-adoc-xref|)
-        `adoc_xref_inline`
+        `adoc_xref_bracket` (|wiki-link-adoc_xref_bracket|)
+        `adoc_xref_inline` (|wiki-link-adoc_xref_inline|)
           AsciiDoc cross-reference style links (angled brackets style or
           inline `xref:...` style).
 
@@ -800,6 +803,32 @@ OPTIONS                                                   *wiki-config-options*
           \ },
           \}
 
+*g:wiki_link_default_schemes*
+  A dictionary to configure the default URL scheme for link types, i.e. the
+  scheme assumed if the URL does not contain an initial scheme specifier. See
+  |wiki-link| for more information about link types and a more proper
+  definition of URLs and schemes.
+
+  The keys represent the link type and the values are either strings, in which
+  case they specify the default scheme, or dictionaries between filetype
+  extensions and default schemes.
+
+  Default: >vim
+
+    let g:wiki_link_default_schemes = {
+          \ 'wiki': { 'wiki': 'wiki', 'adoc': 'adoc' },
+          \ 'md': 'wiki',
+          \ 'md_fig': 'file',
+          \ 'org': 'wiki',
+          \ 'adoc_xref_inline': 'adoc',
+          \ 'adoc_xref_bracket': 'adoc',
+          \ 'adoc_link': 'file',
+          \ 'ref_shortcut': '',
+          \ 'ref_definition': '',
+          \ 'date': 'journal',
+          \ 'cite': 'zot',
+          \}
+
 *g:wiki_link_toggle_on_follow*
   This option allows disabling the toggle behaviour in |WikiLinkFollow| where
   "normal" text under the cursor is transformed into links. The behaviour is
@@ -840,7 +869,7 @@ OPTIONS                                                   *wiki-config-options*
           \ 'adoc_xref_bracket': 'wiki#link#adoc_xref_inline#template',
           \ 'adoc_xref_inline': 'wiki#link#adoc_xref_bracket#template',
           \ 'date': 'wiki#link#wiki#template',
-          \ 'shortcite': 'wiki#link#md#template',
+          \ 'cite': 'wiki#link#md#template',
           \ 'url': 'wiki#link#md#template',
           \}
 
@@ -1575,9 +1604,10 @@ specify global mappings available anywhere, and the liens annotated
 ==============================================================================
 LINKS                                                               *wiki-link*
 
-Links are one of the most essential features of a wiki, and as such, require
-particular attention.  A link is a structure that consists of an URL (see
-|wiki-link-url|) and a possibly empty description.
+Links are one of the most essential features of a wiki. As such, it is
+important to understand them. A link is a "structure" that consists of an URL
+and a possibly empty description, e.g. the wiki link `[[URL]]`. The supported
+link types are listed below.
 
 The mappings that act on links are listed in |wiki-mappings-default|. The most
 notable default mappings are:
@@ -1590,50 +1620,170 @@ notable default mappings are:
 - `<leader>wf` can be used to transform a link between different types (see
   |g:wiki_link_toggles|).
 
-These are the link formats that are currently supported with some examples:
+                                                              *wiki-link-types*
+These are the link types that are currently supported with some examples:
 
-- Link URLs                          |wiki-link-url|
-    `http://www.example.com`
-    `wiki:index`
-    `journal:2013-04-05`
-    `doi:10.1002%2Fandp.19053220607`
 - Wiki links                         |wiki-link-wiki|
     `[[URL]]`
     `[[URL|Description]]`
-- Markdown links                     |wiki-link-markdown|
+- Markdown links                     |wiki-link-md|
     `[Description](URL)`
-- Markdown image links               |wiki-link-image|
+- Markdown image links               |wiki-link-md_fig|
     `![Caption text](URL)`
-- Orgmode links                      |wiki-link-orgmode|
+- Orgmode links                      |wiki-link-org|
     `[[URL]]`
     `[[URL][Description]]`
-- Reference links                    |wiki-link-reference|
+- Reference links                    |wiki-link-ref_shortcut|
+                                     |wiki-link-ref_definition|
     `[Target]`
     `[Description][Target]`
-- Zotero shortlink                   |wiki-link-zotero|
-    `@citekey`
-- AsciiDoc cross-reference links     |wiki-link-adoc-xref|
+    `[Target]: URL`
+- AsciiDoc cross-reference links     |wiki-link-adoc_xref_bracket|
+                                     |wiki-link-adoc_xref_inline|
     `<<URL#,Description>>`
     `xref:URL[Description]`
-- AsciiDoc link macro                |wiki-link-adoc-link|
+- AsciiDoc link macro                |wiki-link-adoc_link|
     `link:URL[Description]`
+- Cite links                         |wiki-link-cite|
+    `@citekey`
+- ISO dates                          |wiki-link-date|
+    `2023-05-05`
+- URLs                               |wiki-link-url|
+    `https://www.example.com`
 
 ------------------------------------------------------------------------------
-LINK URLS                                                      *wiki-link-url*
+WIKI LINKS                                                     *wiki-link-wiki*
 
-An URL, which is short for Uniform Resource Locator, has the general format
+Wiki links are similar in style to the standard Mediawiki links. This is the
+standard syntax for creating internal wiki links. The description part is
+optional. Examples: >
 
-  `[scheme:]address`
-  `<scheme:address with spaces>`
+  [[URL]]
+  [[URL|Description]]
 
-The `scheme` specifies which kind of link it is. When the URL is typed
-directly and with a proper scheme, it will typically be possible to follow the
-link directly without putting it inside a fuller link type. The scheme is
-required in general. However, for some type of links, the scheme may be
-implied by the link type.
+------------------------------------------------------------------------------
+MARKDOWN LINKS                                                   *wiki-link-md*
 
-When the scheme is not specified for URLs inside one of the other link types,
-then the `wiki` scheme is generally assumed (unless otherwise stated).
+Markdown links are one of the more common types of links. They look like
+this: >
+
+  [Description](URL)
+
+------------------------------------------------------------------------------
+MARKDOWN IMAGE LINKS                                         *wiki-link-md_fig*
+
+Markdown image links are similar to markdown links: >
+
+  ![Caption text](URL)
+
+------------------------------------------------------------------------------
+ORGMODE LINKS                                                   *wiki-link-org*
+
+Orgmode links look identical to wiki links if they don't have a description.
+If they have a description, it is added within the outer square brackets
+within a second pair of square brackers. Examples: >
+
+  [[URL]]
+  [[URL][Description]]
+
+------------------------------------------------------------------------------
+REFERENCE LINKS                                      *wiki-link-ref_shortcut*
+                                                     *wiki-link-ref_definition*
+
+Reference style links are slightly different.  They consist of up to three
+parts: An optional `description`, a `label` and a `link definition.`  The
+syntax is best explained through an example: >
+
+  The most simple form, and perhaps the most useful one, is to add a simple
+  reference like this [1].
+
+  One may also add a [description][label].
+
+  The target may consist of both words and numbers, e.g. [like this][Ref 3].
+
+  [1]: <URL 1>
+  [label]: <URL 2>
+  [Ref 3]: <URL 3>
+
+Reference links are implemented as two different link types:
+
+- `ref_shortcut`: matches links used in the text, such as `[1]` and
+  `[description][label]`. Following this link will either open the target URL
+  or move the cursor to the target URL.
+- `ref_definition`: matches link targets, such as `[1]: URL`. Following this
+  will open the URL.
+
+------------------------------------------------------------------------------
+ASCIIDOC CROSS REFERENCES                         *wiki-link-adoc_xref_bracket*
+                                                  *wiki-link-adoc_xref_inline*
+
+AsciiDoc cross-reference links or xrefs [0] look like this: >
+
+  Bracket style
+    <<anchor>>
+    <<anchor,Description>>
+    <<filename.adoc#anchor>>
+    <<filename.adoc#anchor,Description>>
+
+  Inline macro
+    xref:anchor[Description]
+    xref:filename.adoc#anchor[Description]
+    xref:[LONG URL][Description]
+
+The `[LONG URL]` variant is supported for cases where the filename contains
+spaces.
+
+[0]: https://docs.asciidoctor.org/asciidoc/latest/macros/xref/
+
+------------------------------------------------------------------------------
+ASCIIDOC LINK MACROS                                      *wiki-link-adoc_link*
+
+The AsciiDoc link macro [0] is a generic link syntax that looks like this: >
+
+  link:<target>[<attrlist>]
+
+The `[<attrlist>]` will be recognized by wiki.vim as the link text.
+
+[0]: https://docs.asciidoctor.org/asciidoc/latest/macros/link-macro/
+
+------------------------------------------------------------------------------
+CITE LINKS                                                     *wiki-link-cite*
+
+The cite links are a convenient link type that can be used with e.g. Zotero
+URLs. That is, instead of writing a link with URL `zot:citekey` one may simply
+write `@citekey`.
+
+See also |wiki-link-url| for more info on the Zotero URL scheme and handler.
+
+------------------------------------------------------------------------------
+ISO DATES                                                      *wiki-link-date*
+
+Dates written in ISO date format, e.g. 2023-05-05, will be recognized as
+a link to `journal:2023-05-05`.
+
+------------------------------------------------------------------------------
+URLS                                                            *wiki-link-url*
+
+URL is short for Uniform Resource Locator and is an address to a resource. The
+concept of URLs is specified in RFC 3986 "Uniform Resource Identifier (URI):
+Generic Syntax" (https://datatracker.ietf.org/doc/html/rfc3986).
+
+A typical URL looks like this: `scheme:address`. Some example of URLs:
+
+- `http://www.example.com`
+- `wiki:index`
+- `journal:2013-04-05`
+- `doi:10.1002%2Fandp.19053220607`
+
+The `scheme` part specifies "which kind" of URL it is and is typically used to
+identify which service should handle the URL. When the URL is typed directly
+and with a proper scheme, it will typically be possible to follow the URL
+directly without putting it inside a proper link type. However, if the
+`address` part has spaces in it, the URL must be surrounded by angled
+brackets, like this: `<scheme:address with spaces>`.
+
+When the scheme is not specified for URLs inside a link, then the scheme is
+specified from |g:wiki_link_default_schemes|.
 
 The following schemes are supported:
 
@@ -1679,7 +1829,7 @@ The following schemes are supported:
     For more user flexibility, one can implement a custom file handler with
     |g:wiki_file_handler|.
 
-    This scheme is the default scheme for |wiki-link-image|.
+    This scheme is the default scheme for |wiki-link-md_fig|.
 
   doi ~
     Will use the `generic` scheme handler on an expanded URL of the form
@@ -1711,101 +1861,6 @@ The following schemes are supported:
 Schemes are defined in `autoload/wiki/url/{scheme}.vim`, which means it is
 relatively easy to define new custom schemes. See the generic scheme for
 a simple example of how this is implemented.
-
-------------------------------------------------------------------------------
-WIKI LINKS                                                     *wiki-link-wiki*
-
-Wiki links are similar in style to the standard Mediawiki links. This is the
-main syntax for creating internal wiki links. The description part is
-optional. Examples: >
-
-  [[URL]]
-  [[URL|Description]]
-
-------------------------------------------------------------------------------
-MARKDOWN LINKS                                             *wiki-link-markdown*
-
-Markdown links are one of the more standard types of links. They look like
-this: >
-
-  [Description](URL)
-
-------------------------------------------------------------------------------
-MARKDOWN IMAGE LINKS                                          *wiki-link-image*
-
-Markdown image links are similar to markdown links: >
-
-  ![Caption text](URL)
-
-------------------------------------------------------------------------------
-ORGMODE LINKS                                               *wiki-link-orgmode*
-
-Orgmode links look identical to wiki links if they don't have a description.
-If they have a description, it is added within the outer square brackets
-within a second pair of square brackers. Examples: >
-
-  [[URL]]
-  [[URL][Description]]
-
-------------------------------------------------------------------------------
-REFERENCE LINKS                                           *wiki-link-reference*
-
-Reference style links are slightly different.  They consist of up to three
-parts: An optional `description`, a `label` and a `link definition.`  The
-syntax is best explained through an example: >
-
-  The most simple form, and perhaps the most useful one, is to add a simple
-  reference like this [1].
-
-  One may also add a [description][label].
-
-  The target may consist of both words and numbers, e.g. [like this][Ref 3].
-
-  [1]: <URL 1>
-  [label]: <URL 2>
-  [Ref 3]: <URL 3>
-
-Reference style links may be followed with `<cr>` both on the reference
-location and on the link line.
-
-------------------------------------------------------------------------------
-ZOTERO SHORTLINKS                                            *wiki-link-zotero*
-
-As a minor convenience link type, Zotero URLs may be written in short as
-`@citekey` instead of `zot:citekey`. See also |wiki-link-url| for more info on
-the Zotero URL scheme and handler.
-
-------------------------------------------------------------------------------
-ASCIIDOC CROSS REFERENCES                                 *wiki-link-adoc-xref*
-
-AsciiDoc cross-reference links or xrefs [0] look like this: >
-
-  Bracket style
-    <<anchor>>
-    <<anchor,Description>>
-    <<filename.adoc#anchor>>
-    <<filename.adoc#anchor,Description>>
-
-  Inline macro
-    xref:anchor[Description]
-    xref:filename.adoc#anchor[Description]
-    xref:[LONG URL][Description]
-
-The `[LONG URL]` variant is supported for cases where the filename contains
-spaces.
-
-[0]: https://docs.asciidoctor.org/asciidoc/latest/macros/xref/
-
-------------------------------------------------------------------------------
-ASCIIDOC LINK MACROS                                      *wiki-link-adoc-link*
-
-The AsciiDoc link macro [0] is a generic link syntax that looks like this: >
-
-  link:<target>[<attrlist>]
-
-The `[<attrlist>]` will be recognized by wiki.vim as the link text.
-
-[0]: https://docs.asciidoctor.org/asciidoc/latest/macros/link-macro/
 
 ==============================================================================
 COMPLETION                                                    *wiki-completion*

@@ -62,6 +62,19 @@ call wiki#init#option('wiki_link_creation', {
       \   'url_extension': '',
       \ },
       \})
+call wiki#init#option('wiki_link_default_schemes', {
+      \ 'wiki': { 'wiki': 'wiki', 'adoc': 'adoc' },
+      \ 'md': 'wiki',
+      \ 'md_fig': 'file',
+      \ 'org': 'wiki',
+      \ 'adoc_xref_inline': 'adoc',
+      \ 'adoc_xref_bracket': 'adoc',
+      \ 'adoc_link': 'file',
+      \ 'ref_shortcut': '',
+      \ 'ref_definition': '',
+      \ 'date': 'journal',
+      \ 'cite': 'zot',
+      \})
 call wiki#init#option('wiki_link_toggle_on_follow', 1)
 call wiki#init#option('wiki_link_toggles', {
       \ 'wiki': 'wiki#link#md#template',
@@ -70,7 +83,7 @@ call wiki#init#option('wiki_link_toggles', {
       \ 'adoc_xref_bracket': 'wiki#link#adoc_xref_inline#template',
       \ 'adoc_xref_inline': 'wiki#link#adoc_xref_bracket#template',
       \ 'date': 'wiki#link#wiki#template',
-      \ 'shortcite': 'wiki#link#md#template',
+      \ 'cite': 'wiki#link#md#template',
       \ 'url': 'wiki#link#md#template',
       \})
 call wiki#init#option('wiki_mappings_use_defaults', 'all')

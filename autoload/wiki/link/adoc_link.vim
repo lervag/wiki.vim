@@ -6,7 +6,6 @@
 
 function! wiki#link#adoc_link#matcher() abort " {{{1
   return extend(wiki#link#_template#matcher(), {
-        \ 'scheme': 'file',
         \ 'type': 'adoc_link',
         \ 'rx': g:wiki#rx#link_adoc_link,
         \ 'rx_url': '\<link:\%(\[\zs[^]]\+\ze\]\|\zs[^[]\+\ze\)\[[^]]\+\]',
