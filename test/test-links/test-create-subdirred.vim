@@ -7,17 +7,17 @@ normal! G
 
 " Target exists within subdirectory
 normal! oFoo
-silent execute "normal \<Plug>(wiki-link-toggle)"
+silent execute "normal \<Plug>(wiki-link-transform)"
 call assert_equal('[[Foo]]', getline('.'))
 
 " Target candidates exist within subdirectory
 normal! oFo
-silent execute "normal \<Plug>(wiki-link-toggle)1"
+silent execute "normal \<Plug>(wiki-link-transform)1"
 call assert_equal('[[Foo]]', getline('.'))
 
 " Target not found - create link to nonexistent page
 normal! oBar
-silent execute "normal \<Plug>(wiki-link-toggle)"
+silent execute "normal \<Plug>(wiki-link-transform)"
 call assert_equal('[[Bar]]', getline('.'))
 
 call wiki#test#finished()

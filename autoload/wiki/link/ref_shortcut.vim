@@ -5,9 +5,7 @@
 "
 
 function! wiki#link#ref_shortcut#matcher() abort " {{{1
-  return extend(
-        \ wiki#link#_template#matcher(),
-        \ deepcopy(s:matcher))
+  return extend(wiki#link#_template#matcher(), deepcopy(s:matcher))
 endfunction
 
 " }}}1
@@ -25,7 +23,7 @@ function! s:matcher.create_link_post() dict abort " {{{1
   " Locate target url
   let self.lnum_target = searchpos('^\s*\[' . self.id . '\]: ', 'nW')[0]
   if self.lnum_target == 0
-    function! self.toggle_template(_url, _text) abort dict
+    function! self.transform_template(_url, _text) abort dict
       call wiki#log#warn(
             \ 'Could not locate reference ',
             \ ['ModeMsg', self.url]
@@ -53,7 +51,7 @@ function! s:matcher.create_link_post() dict abort " {{{1
 endfunction
 
 " }}}1
-function! s:matcher.toggle_template(_url, _text) dict abort " {{{1
+function! s:matcher.transform_template(_url, _text) dict abort " {{{1
   return wiki#link#md#template(self.url, self.id)
 endfunction
 

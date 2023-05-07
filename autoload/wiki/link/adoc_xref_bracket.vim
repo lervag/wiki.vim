@@ -5,12 +5,7 @@
 "
 
 function! wiki#link#adoc_xref_bracket#matcher() abort " {{{1
-  return extend(wiki#link#_template#matcher(), {
-        \ 'type': 'adoc_xref_bracket',
-        \ 'rx': g:wiki#rx#link_adoc_xref_bracket,
-        \ 'rx_url': '<<\zs\%([^,>]\{-}\ze,[^>]\{-}\|[^>]\{-}\ze\)>>',
-        \ 'rx_text': '<<[^,>]\{-},\zs[^>]\{-}\ze>>',
-        \})
+  return extend(wiki#link#_template#matcher(), deepcopy(s:matcher))
 endfunction
 
 " }}}1
@@ -31,3 +26,11 @@ function! wiki#link#adoc_xref_bracket#template(url, text) abort " {{{1
 endfunction
 
 " }}}1
+
+
+let s:matcher = {
+      \ 'type': 'adoc_xref_bracket',
+      \ 'rx': g:wiki#rx#link_adoc_xref_bracket,
+      \ 'rx_url': '<<\zs\%([^,>]\{-}\ze,[^>]\{-}\|[^>]\{-}\ze\)>>',
+      \ 'rx_text': '<<[^,>]\{-},\zs[^>]\{-}\ze>>',
+      \}

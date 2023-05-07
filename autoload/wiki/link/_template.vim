@@ -75,10 +75,10 @@ function! s:matcher.create_link(match) dict abort " {{{1
   endif
   let l:match.scheme = matchstr(l:match.url, '^\w\+:')
 
-  " Add toggle function
-  if !has_key(l:match, 'toggle_template')
-        \ && has_key(g:wiki_link_toggles, l:match.type)
-    let l:match.toggle_template = function(g:wiki_link_toggles[l:match.type])
+  " Add transform function
+  if !has_key(l:match, 'transform_template')
+        \ && has_key(g:wiki_link_transforms, l:match.type)
+    let l:match.transform_template = function(g:wiki_link_transforms[l:match.type])
   endif
 
   " Clean up
@@ -140,11 +140,11 @@ function! s:link.describe() dict abort " {{{1
 endfunction
 
 " }}}1
-function! s:link.toggle() dict abort " {{{1
+function! s:link.transform() dict abort " {{{1
   if empty(self.url_raw) | return | endif
 
-  " Apply link template from toggle (abort if empty!)
-  let l:new = self.toggle_template(self.url_raw, self.text)
+  " Apply link transform template (abort if empty!)
+  let l:new = self.transform_template(self.url_raw, self.text)
   if empty(l:new) | return | endif
 
   call self.replace(l:new)

@@ -5,9 +5,7 @@
 "
 
 function! wiki#link#md_fig#matcher() abort " {{{1
-  return extend(
-        \ wiki#link#_template#matcher(),
-        \ deepcopy(s:matcher))
+  return extend(wiki#link#_template#matcher(), deepcopy(s:matcher))
 endfunction
 
 " }}}1
@@ -20,7 +18,7 @@ let s:matcher = {
       \ 'rx_text': '!\[\zs[^\\\[\]]\{-}\ze\]([^\\]\{-})',
       \}
 
-function! s:matcher.toggle_template(url, text) abort " {{{1
+function! s:matcher.transform_template(url, text) abort " {{{1
   return printf('![%s](%s)', empty(a:text) ? a:url : a:text, a:url)
 endfunction
 

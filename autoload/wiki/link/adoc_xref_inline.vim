@@ -5,12 +5,7 @@
 "
 
 function! wiki#link#adoc_xref_inline#matcher() abort " {{{1
-  return extend(wiki#link#_template#matcher(), {
-        \ 'type': 'adoc_xref_inline',
-        \ 'rx': g:wiki#rx#link_adoc_xref_inline,
-        \ 'rx_url': '\<xref:\%(\[\zs[^]]\+\ze\]\|\zs[^[]\+\ze\)\[[^]]*\]',
-        \ 'rx_text': '\<xref:\%(\[[^]]\+\]\|[^[]\+\)\[\zs[^]]*\ze\]',
-        \})
+  return extend(wiki#link#_template#matcher(), deepcopy(s:matcher))
 endfunction
 
 " }}}1
@@ -32,3 +27,11 @@ function! wiki#link#adoc_xref_inline#template(url, text) abort " {{{1
 endfunction
 
 " }}}1
+
+
+let s:matcher = {
+      \ 'type': 'adoc_xref_inline',
+      \ 'rx': g:wiki#rx#link_adoc_xref_inline,
+      \ 'rx_url': '\<xref:\%(\[\zs[^]]\+\ze\]\|\zs[^[]\+\ze\)\[[^]]*\]',
+      \ 'rx_text': '\<xref:\%(\[[^]]\+\]\|[^[]\+\)\[\zs[^]]*\ze\]',
+      \}

@@ -829,40 +829,40 @@ OPTIONS                                                   *wiki-config-options*
           \ 'cite': 'zot',
           \}
 
-*g:wiki_link_toggle_on_follow*
-  This option allows disabling the toggle behaviour in |WikiLinkFollow| where
-  "normal" text under the cursor is transformed into links. The behaviour is
-  enabled by default. If disabled, one may still use |WikiLinkToggle| to
-  transform text into links.
+*g:wiki_link_transform_on_follow*
+  This option allows disabling the transform behaviour in |WikiLinkFollow|
+  where "normal" text under the cursor is transformed into links. The
+  behaviour is enabled by default. If disabled, one may still use
+  |WikiLinkTransform| to transform text into links.
 
   Default: 1
 
-*g:wiki_link_toggles*
+*g:wiki_link_transforms*
   This option specifies the template for toggling a specific type of link with
-  |WikiLingToggle| or |<plug>(wiki-link-toggle)|.
+  |WikiLingTransform| or |<plug>(wiki-link-transform)|.
 
-  This allows customizing how links are changed when they are toggled. For
+  This allows customizing how links are changed when they are transformed. For
   instance, to add/remove extensions for wiki and markdown style links, one
   could use: >vim
 
-    function WikiToggleWiki(url, text) abort dict
+    function TransformWikiToMd(url, text) abort dict
       return wiki#link#md#template(a:url . '.wiki',
             \ empty(a:text) ? a:url : a:text)
     endfunction
 
-    function WikiToggleMd(url, text) abort dict
+    function TransformMdToWiki(url, text) abort dict
       let l:url = substitute(a:url, '\.wiki$', '', '')
       return wiki#link#wiki#template(l:url, a:text)
     endfunction
 
-    let g:wiki_link_toggles = {
-          \ 'md': 'WikiToggleMd',
-          \ 'wiki': 'WikiToggleWiki',
+    let g:wiki_link_transforms = {
+          \ 'md': 'TransformMdToWiki',
+          \ 'wiki': 'TransformWikiToMd',
           \}
 <
   Default: >vim
 
-    let g:wiki_link_toggles = {
+    let g:wiki_link_transforms = {
           \ 'wiki': 'wiki#link#md#template',
           \ 'md': 'wiki#link#wiki#template',
           \ 'org': 'wiki#link#org#template',
@@ -1285,7 +1285,7 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *<plug>(wiki-link-follow)*
 *WikiLinkFollow*
   Follow a link. If the text under the cursor is not a link, then it will be
-  converted via |WikiLinkToggle|, unless |g:wiki_link_toggle_on_follow| is
+  converted via |WikiLinkTransform|, unless |g:wiki_link_transform_on_follow| is
   disabled.
 
                                                        *#User#WikiLinkFollowed*
@@ -1316,12 +1316,12 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 *WikiLinkReturn*
   Go back to previous page, i.e. undo the last follow operation.
 
-*<plug>(wiki-link-toggle)*
-*<plug>(wiki-link-toggle-visual)*    |xmap|
-*<plug>(wiki-link-toggle-operator)*  |map-operator|
-*WikiLinkToggle*
-  Toggle a link. That is, this converts a link from one type to another based
-  on the value of |g:wiki_link_toggles|.
+*<plug>(wiki-link-transform)*
+*<plug>(wiki-link-transform-visual)*    |xmap|
+*<plug>(wiki-link-transform-operator)*  |map-operator|
+*WikiLinkTransform*
+  Transform a link from one type to another based on the value of
+  |g:wiki_link_transforms|.
 
   Additionally, this command and the mappings can be used to convert regular
   text to a link. The behaviour is controlled by |g:wiki_link_creation| and
@@ -1569,7 +1569,7 @@ specify global mappings available anywhere, and the liens annotated
   `n`     <leader>wgC         |<plug>(wiki-graph-check-links-g)|
   `n`     <leader>wgi         |<plug>(wiki-graph-in)|
   `n`     <leader>wgo         |<plug>(wiki-graph-out)|
-  `n`     <leader>wf          |<plug>(wiki-link-toggle)|
+  `n`     <leader>wf          |<plug>(wiki-link-transform)|
   `n`     <leader>wd          |<plug>(wiki-page-delete)|
   `n`     <leader>wr          |<plug>(wiki-page-rename)|
   `n`     <leader>wt          |<plug>(wiki-page-toc)|
@@ -1589,8 +1589,8 @@ specify global mappings available anywhere, and the liens annotated
   `n`     <c-w>u              |<plug>(wiki-link-follow-tab)|
   `n`     <s-tab>             |<plug>(wiki-link-prev)|
   `n`     <bs>                |<plug>(wiki-link-return)|
-  `n`     gl                  |<plug>(wiki-link-toggle-operator)|
-  `x`     <cr>                |<plug>(wiki-link-toggle-visual)|
+  `n`     gl                  |<plug>(wiki-link-transform-operator)|
+  `x`     <cr>                |<plug>(wiki-link-transform-visual)|
   `ox`    au                  |<plug>(wiki-au)|
   `ox`    iu                  |<plug>(wiki-iu)|
   `ox`    at                  |<plug>(wiki-at)|
@@ -1618,7 +1618,7 @@ notable default mappings are:
 - Similarly, `gl` may be used to turn operated text into a link.
 - One may use `<bs>` to navigate back after following a link.
 - `<leader>wf` can be used to transform a link between different types (see
-  |g:wiki_link_toggles|).
+  |g:wiki_link_transforms|).
 
                                                               *wiki-link-types*
 These are the link types that are currently supported with some examples:

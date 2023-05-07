@@ -5,10 +5,10 @@ let g:wiki_filetypes = ['adoc']
 runtime plugin/wiki.vim
 
 
-" Test toggle on selection
+" Test transform on selection
 silent edit ../wiki-adoc/index.adoc
 normal! 15G
-silent execute "normal f.2lve\<Plug>(wiki-link-toggle-visual)"
+silent execute "normal f.2lve\<Plug>(wiki-link-transform-visual)"
 call assert_equal('Some text, cf. <<foo.adoc#,foo>>.', getline('.'))
 
 

@@ -10,33 +10,33 @@ silent execute "normal \<Plug>(wiki-link-next)"
 silent execute "normal \<Plug>(wiki-link-follow)"
 call assert_equal('test.md', expand('%:t'))
 
-" Test toggle normal on text
+" Test transform normal on text
 silent bwipeout!
 silent edit ../wiki-markdown/README.md
 normal! 03G3w
 silent execute "normal \<Plug>(wiki-link-follow)"
 call assert_equal('[simple](simple.md)', expand('<cWORD>'))
 
-" Test toggle visual on text
+" Test transform visual on text
 silent bwipeout!
 silent edit ../wiki-markdown/README.md
 normal! 03G3w
-silent execute "normal viw\<Plug>(wiki-link-toggle-visual)"
+silent execute "normal viw\<Plug>(wiki-link-transform-visual)"
 call assert_equal('[simple](simple.md)', expand('<cWORD>'))
 
-" Test toggle operator on text
+" Test transform operator on text
 silent normal! u
-silent execute "normal \<Plug>(wiki-link-toggle-operator)w"
+silent execute "normal \<Plug>(wiki-link-transform-operator)w"
 call assert_equal('[simple](simple.md)', expand('<cWORD>'))
 
-" Test toggle normal on regular markdown links
+" Test transform normal on regular markdown links
 silent bwipeout!
 silent edit ../wiki-markdown/README.md
 " Do a yank at the end; the space in "test file" makes <cWORD> useless.
 normal! 03G8wyf)
 " Ensure correct location.
 call assert_equal('[test file](test.md)', @")
-silent execute "normal \<Plug>(wiki-link-toggle)"
+silent execute "normal \<Plug>(wiki-link-transform)"
 " Actual test.
 normal! ya]
 call assert_equal('[[test.md|test file]]', @")

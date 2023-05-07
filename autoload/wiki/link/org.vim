@@ -5,12 +5,7 @@
 "
 
 function! wiki#link#org#matcher() abort " {{{1
-  return extend(wiki#link#_template#matcher(), {
-        \ 'type' : 'org',
-        \ 'rx' : g:wiki#rx#link_org,
-        \ 'rx_url' : '\[\[\zs\/\?[^\\\]]\{-}\ze\]\%(\[[^\\\]]\{-}\]\)\?\]',
-        \ 'rx_text' : '\[\[\/\?[^\\\]]\{-}\]\[\zs[^\\\]]\{-}\ze\]\]',
-        \})
+  return extend(wiki#link#_template#matcher(), deepcopy(s:matcher))
 endfunction
 
 " }}}1
@@ -21,3 +16,11 @@ function! wiki#link#org#template(url, text) abort " {{{1
 endfunction
 
 " }}}1
+
+
+let s:matcher = {
+      \ 'type' : 'org',
+      \ 'rx' : g:wiki#rx#link_org,
+      \ 'rx_url' : '\[\[\zs\/\?[^\\\]]\{-}\ze\]\%(\[[^\\\]]\{-}\]\)\?\]',
+      \ 'rx_text' : '\[\[\/\?[^\\\]]\{-}\]\[\zs[^\\\]]\{-}\ze\]\]',
+      \}

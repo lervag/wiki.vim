@@ -4,7 +4,7 @@ runtime plugin/wiki.vim
 silent edit ../wiki-basic/test-links-subdirs.wiki
 set hidden
 
-" Test toggle normal on regular markdown links using wiki style links
+" Test transform normal on regular markdown links using wiki style links
 execute "normal \<plug>(wiki-link-next)"
 silent execute "normal \<plug>(wiki-link-follow)"
 call assert_equal(

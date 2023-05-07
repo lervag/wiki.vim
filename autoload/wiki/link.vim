@@ -116,8 +116,8 @@ function! wiki#link#follow(...) abort "{{{1
     if has_key(l:link, 'follow')
       if g:wiki_write_on_nav | update | endif
       call call(l:link.follow, a:000, l:link)
-    elseif g:wiki_link_toggle_on_follow
-      call l:link.toggle()
+    elseif g:wiki_link_transform_on_follow
+      call l:link.transform()
     endif
   catch /E37:/
     call wiki#log#error(
@@ -143,15 +143,15 @@ function! wiki#link#set_text_from_header() abort "{{{1
 endfunction
 
 " }}}1
-function! wiki#link#toggle_current() abort " {{{1
+function! wiki#link#transform_current() abort " {{{1
   let l:link = wiki#link#get()
   if empty(l:link) | return | endif
 
-  call l:link.toggle()
+  call l:link.transform()
 endfunction
 
 " }}}1
-function! wiki#link#toggle_visual() abort " {{{1
+function! wiki#link#transform_visual() abort " {{{1
   normal! gv"wy
 
   let l:lnum = line('.')
@@ -165,11 +165,11 @@ function! wiki#link#toggle_visual() abort " {{{1
         \ 'pos_end': [l:lnum, l:c2],
         \})
 
-  call l:link.toggle()
+  call l:link.transform()
 endfunction
 
 " }}}1
-function! wiki#link#toggle_operator(type) abort " {{{1
+function! wiki#link#transform_operator(type) abort " {{{1
   let l:save = @@
   silent execute 'normal! `[v`]y'
   let l:word = substitute(@@, '\s\+$', '', '')
@@ -188,7 +188,7 @@ function! wiki#link#toggle_operator(type) abort " {{{1
         \})
 
   let g:wiki#ui#buffered = v:true
-  call l:link.toggle()
+  call l:link.transform()
   let g:wiki#ui#buffered = v:false
 endfunction
 

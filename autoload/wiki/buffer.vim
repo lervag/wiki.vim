@@ -56,7 +56,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiLinkFollowTab      call wiki#link#follow('tabe')
   command! -buffer WikiLinkPrev           call wiki#nav#prev_link()
   command! -buffer WikiLinkReturn         call wiki#nav#return()
-  command! -buffer WikiLinkToggle         call wiki#link#toggle_current()
+  command! -buffer WikiLinkTransform      call wiki#link#transform_current()
   command! -buffer WikiPageDelete         call wiki#page#delete()
   command! -buffer WikiPageRename         call wiki#page#rename()
   command! -buffer WikiPageRenameSection  call wiki#page#rename_section()
@@ -105,7 +105,7 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-link-follow-tab)      :WikiLinkFollowTab<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-prev)            :WikiLinkPrev<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-return)          :WikiLinkReturn<cr>
-  nnoremap <silent><buffer> <plug>(wiki-link-toggle)          :WikiLinkToggle<cr>
+  nnoremap <silent><buffer> <plug>(wiki-link-transform)       :WikiLinkTransform<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-delete)          :WikiPageDelete<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-rename)          :WikiPageRename<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-rename-section)  :WikiPageRenameSection<cr>
@@ -121,8 +121,8 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-toc)                  :WikiToc<cr>
   inoremap <silent><buffer> <plug>(wiki-toc)                  <esc>:WikiToc<cr>
 
-  xnoremap <silent><buffer> <plug>(wiki-link-toggle-visual)   :<c-u>call wiki#link#toggle_visual()<cr>
-  nnoremap <silent><buffer> <plug>(wiki-link-toggle-operator) :set opfunc=wiki#link#toggle_operator<cr>g@
+  xnoremap <silent><buffer> <plug>(wiki-link-transform-visual)   :<c-u>call wiki#link#transform_visual()<cr>
+  nnoremap <silent><buffer> <plug>(wiki-link-transform-operator) :set opfunc=wiki#link#transform_operator<cr>g@
 
   onoremap <silent><buffer> <plug>(wiki-au) :call wiki#text_obj#link(0, 0)<cr>
   xnoremap <silent><buffer> <plug>(wiki-au) :<c-u>call wiki#text_obj#link(0, 1)<cr>
@@ -160,8 +160,8 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-link-follow-vsplit)': '<c-w><tab>',
           \ '<plug>(wiki-link-follow-tab)': '<c-w>u',
           \ '<plug>(wiki-link-return)': '<bs>',
-          \ '<plug>(wiki-link-toggle)': '<leader>wf',
-          \ '<plug>(wiki-link-toggle-operator)': 'gl',
+          \ '<plug>(wiki-link-transform)': '<leader>wf',
+          \ '<plug>(wiki-link-transform-operator)': 'gl',
           \ '<plug>(wiki-page-delete)': '<leader>wd',
           \ '<plug>(wiki-page-rename)': '<leader>wr',
           \ '<plug>(wiki-page-rename-section)': '<f2>',
@@ -173,7 +173,7 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-tag-reload)': '<leader>wsr',
           \ '<plug>(wiki-tag-search)': '<leader>wss',
           \ '<plug>(wiki-tag-rename)': '<leader>wsn',
-          \ 'x_<plug>(wiki-link-toggle-visual)': '<cr>',
+          \ 'x_<plug>(wiki-link-transform-visual)': '<cr>',
           \ 'o_<plug>(wiki-au)': 'au',
           \ 'x_<plug>(wiki-au)': 'au',
           \ 'o_<plug>(wiki-iu)': 'iu',

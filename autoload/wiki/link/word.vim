@@ -5,9 +5,7 @@
 "
 
 function! wiki#link#word#matcher() abort " {{{1
-  return extend(
-        \ wiki#link#_template#matcher(),
-        \ deepcopy(s:matcher))
+  return extend(wiki#link#_template#matcher(), deepcopy(s:matcher))
 endfunction
 
 " }}}1
@@ -18,7 +16,7 @@ let s:matcher = {
       \ 'rx' : wiki#rx#word,
       \}
 
-function! s:matcher.toggle_template(text, _) abort " {{{1
+function! s:matcher.transform_template(text, _) abort " {{{1
   " This template returns a wiki template for the provided word(s). It does
   " a smart search for likely candidates and if there is no unique match, it
   " asks for target link.

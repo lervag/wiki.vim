@@ -5,9 +5,7 @@
 "
 
 function! wiki#link#ref_definition#matcher() abort " {{{1
-  return extend(
-        \ wiki#link#_template#matcher(),
-        \ deepcopy(s:matcher))
+  return extend(wiki#link#_template#matcher(), deepcopy(s:matcher))
 endfunction
 
 " }}}1
@@ -20,9 +18,9 @@ let s:matcher = {
       \ 'rx_text': '^\s*\[\zs' . wiki#rx#reflabel . '\ze\]',
       \}
 
-function! s:matcher.toggle_template(url, id) abort " {{{1
+function! s:matcher.transform_template(url, id) abort " {{{1
   let l:id = empty(a:id) ? wiki#ui#input(#{info: 'Input id: '}) : a:id
-  return '[' . l:id . '] ' . a:url
+  return '[' . l:id . ']: ' . a:url
 endfunction
 
 " }}}1

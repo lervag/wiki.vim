@@ -16,9 +16,9 @@ call assert_false(has_key(b:wiki, 'root'))
 try
   call append(0, 'test')
   let s:link = wiki#link#get_at_pos(1, 1)
-  call s:link.toggle()
+  call s:link.transform()
 catch
-  call assert_true(0, 'Toggle should work without buffer root')
+  call assert_true(0, 'Transform should work without buffer root')
 endtry
 
 call wiki#test#finished()
