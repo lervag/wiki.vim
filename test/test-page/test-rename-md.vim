@@ -1,6 +1,5 @@
 source ../init.vim
 let g:wiki_filetypes = ['md']
-let g:wiki_link_extension = '.md'
 runtime plugin/wiki.vim
 
 silent edit wiki-tmp/test\ 2.md

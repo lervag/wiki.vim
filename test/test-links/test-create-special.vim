@@ -1,12 +1,10 @@
 source ../init.vim
 
-let g:wiki_map_text_to_link = 'TextToLink'
-
-function TextToLink(text) abort
-  return [substitute(tolower(a:text), '\s\+', '-', 'g'), a:text]
-endfunction
-
 runtime plugin/wiki.vim
+
+" Specify url transformer
+let g:wiki_link_creation._.url_transform =
+      \ { x -> substitute(tolower(x), '\s\+', '-', 'g') }
 
 " Test toggle normal on regular markdown links using wiki style links
 silent edit ../wiki-basic/index.wiki
@@ -31,7 +29,7 @@ call assert_equal('[[pokémon|Pokémon]]', getline('.'))
 
 " Test toggle normal on regular markdown links using md style links
 bwipeout!
-let g:wiki_link_target_type = 'md'
+let g:wiki_link_creation._.link_type = 'md'
 silent edit ../wiki-basic/index.wiki
 normal! 3G
 silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
@@ -40,8 +38,7 @@ call assert_equal('[This is a wiki](this-is-a-wiki).', getline('.'))
 " Test toggle normal on regular markdown links using md style links with the
 " markdown extension
 bwipeout!
-let g:wiki_link_target_type = 'md'
-let g:wiki_link_extension = '.md'
+let g:wiki_link_creation._.url_extension = '.md'
 silent edit ../wiki-basic/index.wiki
 normal! 3G
 silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
@@ -53,8 +50,8 @@ call assert_equal('[TestSubDirLink/](testsubdirlink/)', getline('.'))
 " Test toggle normal on regular orgmode links using md style links with the
 " orgmode extension
 bwipeout!
-let g:wiki_link_target_type = 'org'
-let g:wiki_link_extension = '.org'
+let g:wiki_link_creation._.link_type = 'org'
+let g:wiki_link_creation._.url_extension = '.org'
 silent edit ../wiki-basic/index.wiki
 normal! 3G
 silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
@@ -65,8 +62,8 @@ call assert_equal('[[testsubdirlink/][TestSubDirLink/]]', getline('.'))
 
 " Test toggle normal on regular markdown links using md style links in journal
 bwipeout!
-let g:wiki_link_target_type = 'md'
-let g:wiki_link_extension = ''
+let g:wiki_link_creation._.link_type = 'md'
+let g:wiki_link_creation._.url_extension = ''
 silent edit ../wiki-basic/index.wiki
 normal! 3G
 silent execute 'let b:wiki.in_journal=1'
@@ -74,27 +71,13 @@ silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
 call assert_equal('[This is a wiki](this-is-a-wiki).', getline('.'))
 
 " Test toggle normal on regular markdown links using md style links in journal
-" without `g:wiki_map_text_to_link`
+" without url transformer
 bwipeout!
-let g:wiki_link_target_type = 'md'
-let g:wiki_link_extension = ''
-let g:wiki_map_text_to_link = ''
+unlet g:wiki_link_creation._.url_transform
 silent edit ../wiki-basic/index.wiki
 normal! 3G
 silent execute 'let b:wiki.in_journal=1'
 silent execute "normal vt.\<Plug>(wiki-link-toggle-visual)"
 call assert_equal('[This is a wiki](This is a wiki).', getline('.'))
-
-bwipeout!
-let g:wiki_link_target_type = 'md'
-let g:wiki_link_extension = ''
-let g:wiki_map_text_to_link = 'TextToLink2'
-function TextToLink2(text) abort
-  return [a:text, substitute(a:text, '-', ' ', 'g')]
-endfunction
-silent edit ../wiki-basic/index.wiki
-normal! 14G
-silent execute 'normal glt.'
-call assert_equal('[This is a wiki](This-is-a-wiki).', getline('.'))
 
 call wiki#test#finished()

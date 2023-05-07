@@ -1,18 +1,11 @@
 source ../init.vim
 
-let g:wiki_link_target_type = 'adoc_xref_bracket'
 let g:wiki_filetypes = ['adoc']
 
 runtime plugin/wiki.vim
 
 
-" Test toggle on selection (g:wiki_link_extension should not matter here)
-silent edit ../wiki-adoc/index.adoc
-normal! 15G
-silent execute "normal f.2lve\<Plug>(wiki-link-toggle-visual)"
-call assert_equal('Some text, cf. <<foo.adoc#,foo>>.', getline('.'))
-bwipeout!
-let g:wiki_link_extension = '.adoc'
+" Test toggle on selection
 silent edit ../wiki-adoc/index.adoc
 normal! 15G
 silent execute "normal f.2lve\<Plug>(wiki-link-toggle-visual)"
