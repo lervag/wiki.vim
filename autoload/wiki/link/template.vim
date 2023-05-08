@@ -4,19 +4,67 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#link#word#matcher() abort " {{{1
-  return extend(wiki#link#_template#matcher(), deepcopy(s:matcher))
+function! wiki#link#template#adoc_xref_bracket(url, text, ...) abort " {{{1
+  let l:parts = split(a:url, '#')
+  let l:anchors = len(l:parts) > 1
+        \ ? join(l:parts[1:], '#')
+        \ : ''
+
+  " Ensure there's an extension
+  let l:url = l:parts[0]
+  if l:url !~# '\.adoc$'
+    let l:url .= '.adoc'
+  endif
+  let l:url .= '#' . l:anchors
+
+  return printf('<<%s,%s>>', l:url, empty(a:text) ? a:url : a:text)
 endfunction
 
 " }}}1
+function! wiki#link#template#adoc_xref_inline(url, text, ...) abort " {{{1
+  let l:parts = split(a:url, '#')
+  let l:anchors = len(l:parts) > 1
+        \ ? join(l:parts[1:], '#')
+        \ : ''
 
+  " Ensure there's an extension
+  let l:url = l:parts[0]
+  if l:url !~# '\.adoc$'
+    let l:url .= '.adoc'
+  endif
+  let l:url .= '#' . l:anchors
 
-let s:matcher = {
-      \ 'type' : 'word',
-      \ 'rx' : wiki#rx#word,
-      \}
+  return printf('xref:' . (l:url =~# '\s' ? '[%s]' : '%s') . '[%s]',
+        \ l:url, empty(a:text) ? a:url : a:text)
+endfunction
 
-function! s:matcher.transform_template(text, _) abort " {{{1
+" }}}1
+function! wiki#link#template#md(url, text, ...) abort " {{{1
+  return printf('[%s](%s)', empty(a:text) ? a:url : a:text, a:url)
+endfunction
+
+" }}}1
+function! wiki#link#template#org(url, text, ...) abort " {{{1
+  return empty(a:text) || a:text ==# a:url || a:text ==# a:url[1:]
+        \ ? '[[' . a:url . ']]'
+        \ : '[[' . a:url . '][' . a:text . ']]'
+endfunction
+
+" }}}1
+function! wiki#link#template#wiki(url, text, ...) abort " {{{1
+  return empty(a:text) || a:text ==# a:url || a:text ==# a:url[1:]
+        \ ? '[[' . a:url . ']]'
+        \ : '[[' . a:url . '|' . a:text . ']]'
+endfunction
+
+" }}}1
+function! wiki#link#template#ref_target(url, id, ...) abort " {{{1
+  let l:id = empty(a:id) ? wiki#ui#input(#{info: 'Input id: '}) : a:id
+  return '[' . l:id . ']: ' . a:url
+endfunction
+
+" }}}1
+function! wiki#link#template#word(text, ...) abort " {{{1
   " This template returns a wiki template for the provided word(s). It does
   " a smart search for likely candidates and if there is no unique match, it
   " asks for target link.

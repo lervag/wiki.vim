@@ -5,13 +5,16 @@ let g:wiki_link_transforms = {
       \ 'md': 'MdTransformer',
       \}
 
-function WikiTransformer(url, text) abort dict
-  return wiki#link#md#template(a:url . '.wiki', empty(a:text) ? a:url : a:text)
+function WikiTransformer(url, text, link) abort dict
+  return wiki#link#template#md(
+        \ a:url . '.wiki',
+        \ empty(a:text) ? a:url : a:text,
+        \ a:link)
 endfunction
 
-function MdTransformer(url, text) abort dict
+function MdTransformer(url, text, link) abort dict
   let l:url = substitute(a:url, '\.wiki$', '', '')
-  return wiki#link#wiki#template(l:url, a:text)
+  return wiki#link#template#wiki(l:url, a:text, a:link)
 endfunction
 
 runtime plugin/wiki.vim

@@ -7,13 +7,42 @@
 function! wiki#link#get() abort " {{{1
   if wiki#u#is_code() | return {} | endif
 
-  for l:matcher in s:matchers
-    let l:link = l:matcher.match_at_cursor()
-    if !empty(l:link) | return l:link | endif
+  for l:link_definition in g:wiki#link#def#all
+    let l:match = s:match_at_cursor(l:link_definition.rx)
+    if empty(l:match) | continue | endif
+
+    return wiki#link#class#new(l:link_definition, l:match)
   endfor
 
   return {}
 endfunction
+
+function! s:match_at_cursor(regex) abort " {{{2
+  let l:lnum = line('.')
+
+  " Seach backwards for current regex
+  let l:c1 = searchpos(a:regex, 'ncb', l:lnum)[1]
+  if l:c1 == 0 | return {} | endif
+
+  " Ensure that the cursor is positioned on top of the match
+  let l:c1e = searchpos(a:regex, 'ncbe', l:lnum)[1]
+  if l:c1e >= l:c1 && l:c1e < col('.') | return {} | endif
+
+  " Find the end of the match
+  let l:c2 = searchpos(a:regex, 'nce', l:lnum)[1]
+  if l:c2 == 0 | return {} | endif
+
+  let l:c2 = wiki#u#cnum_to_byte(l:c2)
+
+  return {
+        \ 'content': strpart(getline('.'), l:c1-1, l:c2-l:c1+1),
+        \ 'filename': expand('%:p'),
+        \ 'pos_end': [l:lnum, l:c2],
+        \ 'pos_start': [l:lnum, l:c1],
+        \}
+endfunction
+
+"}}}2
 
 " }}}1
 function! wiki#link#get_at_pos(line, col) abort " {{{1
@@ -41,18 +70,17 @@ function! wiki#link#get_all(...) abort "{{{1
       let l:c1 = match(l:line, g:wiki#rx#link, l:c2) + 1
       if l:c1 == 0 | break | endif
 
-      let l:match = {}
-      let l:match.content = matchstr(l:line, g:wiki#rx#link, l:c2)
-      let l:match.filename = l:file
+      let l:content = matchstr(l:line, g:wiki#rx#link, l:c2)
+      let l:c2 = l:c1 + strlen(l:content)
 
-      let l:c2 = l:c1 + strlen(l:match.content)
-      let l:match.pos_start = [l:lnum, l:c1]
-      let l:match.pos_end = [l:lnum, l:c2]
-
-      " Match link to type and add details
-      for l:matcher in s:matchers_real
-        if l:match.content =~# l:matcher.rx
-          call add(l:links, l:matcher.create_link(l:match))
+      for l:link_definition in g:wiki#link#def#all_real
+        if l:content =~# l:link_definition.rx
+          call add(l:links, wiki#link#class#new(l:link_definition, {
+                \ 'content': l:content,
+                \ 'filename': l:file,
+                \ 'pos_start': [l:lnum, l:c1],
+                \ 'pos_end': [l:lnum, l:c2],
+                \}))
           break
         endif
       endfor
@@ -134,9 +162,9 @@ function! wiki#link#set_text_from_header() abort "{{{1
   if empty(l:title) | return | endif
 
   try
-    let l:new = wiki#link#{l:link.type}#template(l:link.url, l:title)
+    let l:new = wiki#link#template#{l:link.type}(l:link.url, l:title, l:link)
   catch /E117:/
-    let l:new = wiki#link#wiki#template(l:link.url, l:title)
+    let l:new = wiki#link#template#wiki(l:link.url, l:title)
   endtry
 
   call l:link.replace(l:new)
@@ -157,8 +185,7 @@ function! wiki#link#transform_visual() abort " {{{1
   let l:lnum = line('.')
   let l:c1 = getpos("'<")[2]
   let l:c2 = wiki#u#cnum_to_byte(getpos("'>")[2])
-
-  let l:link = wiki#link#word#matcher().create_link({
+  let l:link = wiki#link#class#new(g:wiki#link#def#word, {
         \ 'content': wiki#u#trim(getreg('w')),
         \ 'filename': expand('%:p'),
         \ 'pos_start': [l:lnum, l:c1],
@@ -179,8 +206,7 @@ function! wiki#link#transform_operator(type) abort " {{{1
   let l:lnum = line('.')
   let l:c1 = getpos("'<")[2]
   let l:c2 = getpos("'>")[2] - l:diff
-
-  let l:link = wiki#link#word#matcher().create_link({
+  let l:link = wiki#link#class#new(g:wiki#link#def#word, {
         \ 'content': l:word,
         \ 'filename': expand('%:p'),
         \ 'pos_start': [l:lnum, l:c1],
@@ -200,7 +226,7 @@ function! wiki#link#template(url, text) abort " {{{1
 
   try
     let l:type = wiki#link#get_creator('link_type')
-    return wiki#link#{l:type}#template(a:url, a:text)
+    return wiki#link#template#{l:type}(a:url, a:text)
   catch /E117:/
     call wiki#log#warn(
           \ 'Target link type does not exist: ' . l:type,
@@ -208,51 +234,5 @@ function! wiki#link#template(url, text) abort " {{{1
           \)
   endtry
 endfunction
-
-" }}}1
-
-
-" {{{1 Initialize matcher lists
-
-" s:matchers is an ordered list of matchers used by wiki#link#get() to detect
-" a link at the cursor. Similarly, s:matchers_real is an ordered list of
-" matchers used by wiki#link#get_all() to get all links in a given file.
-"
-" Notice that the order is important. The order between the wiki, md, and org
-" matchers is especially tricky! This is because wiki and org links are
-" equivalent when they lack a description: [[url]]. Thus, the order specified
-" here means wiki.vim will always match [[url]] as a wiki link and never as an
-" org link. This is not a problem for links with a description, though, since
-" they differ: [[url|description]] vs [[url][description]], respectively.
-let s:matchers = [
-      \ wiki#link#wiki#matcher(),
-      \ wiki#link#adoc_xref_bracket#matcher(),
-      \ wiki#link#adoc_xref_inline#matcher(),
-      \ wiki#link#adoc_link#matcher(),
-      \ wiki#link#md_fig#matcher(),
-      \ wiki#link#md#matcher(),
-      \ wiki#link#org#matcher(),
-      \ wiki#link#ref_definition#matcher(),
-      \ wiki#link#ref_shortcut#matcher(),
-      \ wiki#link#ref_collapsed#matcher(),
-      \ wiki#link#ref_full#matcher(),
-      \ wiki#link#url#matcher(),
-      \ wiki#link#cite#matcher(),
-      \ wiki#link#date#matcher(),
-      \ wiki#link#word#matcher(),
-      \]
-
-let s:matchers_real = [
-      \ wiki#link#wiki#matcher(),
-      \ wiki#link#adoc_xref_bracket#matcher(),
-      \ wiki#link#adoc_xref_inline#matcher(),
-      \ wiki#link#adoc_link#matcher(),
-      \ wiki#link#md_fig#matcher(),
-      \ wiki#link#md#matcher(),
-      \ wiki#link#org#matcher(),
-      \ wiki#link#ref_definition#matcher(),
-      \ wiki#link#url#matcher(),
-      \ wiki#link#cite#matcher(),
-      \]
 
 " }}}1

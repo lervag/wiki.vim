@@ -845,14 +845,16 @@ OPTIONS                                                   *wiki-config-options*
   instance, to add/remove extensions for wiki and markdown style links, one
   could use: >vim
 
-    function TransformWikiToMd(url, text) abort dict
-      return wiki#link#md#template(a:url . '.wiki',
-            \ empty(a:text) ? a:url : a:text)
+    function TransformWikiToMd(url, text, link) abort dict
+      return wiki#link#template#md(
+            \ a:url . '.wiki',
+            \ empty(a:text) ? a:url : a:text,
+            \ a:link)
     endfunction
 
-    function TransformMdToWiki(url, text) abort dict
+    function TransformMdToWiki(url, text, link) abort dict
       let l:url = substitute(a:url, '\.wiki$', '', '')
-      return wiki#link#wiki#template(l:url, a:text)
+      return wiki#link#template#wiki(l:url, a:text, a:link)
     endfunction
 
     let g:wiki_link_transforms = {
@@ -863,14 +865,14 @@ OPTIONS                                                   *wiki-config-options*
   Default: >vim
 
     let g:wiki_link_transforms = {
-          \ 'wiki': 'wiki#link#md#template',
-          \ 'md': 'wiki#link#wiki#template',
-          \ 'org': 'wiki#link#org#template',
-          \ 'adoc_xref_bracket': 'wiki#link#adoc_xref_inline#template',
-          \ 'adoc_xref_inline': 'wiki#link#adoc_xref_bracket#template',
-          \ 'date': 'wiki#link#wiki#template',
-          \ 'cite': 'wiki#link#md#template',
-          \ 'url': 'wiki#link#md#template',
+          \ 'wiki': 'wiki#link#template#md',
+          \ 'md': 'wiki#link#template#wiki',
+          \ 'org': 'wiki#link#template#org',
+          \ 'adoc_xref_bracket': 'wiki#link#template#adoc_xref_inline',
+          \ 'adoc_xref_inline': 'wiki#link#template#adoc_xref_bracket',
+          \ 'date': 'wiki#link#template#wiki',
+          \ 'cite': 'wiki#link#template#md',
+          \ 'url': 'wiki#link#template#md',
           \}
 
 *g:wiki_mappings_use_defaults*

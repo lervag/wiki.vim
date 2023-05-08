@@ -20,6 +20,7 @@ let s:link = wiki#link#get_at_pos(13, 42)
 call assert_equal('pageA', s:link.url)
 
 let s:link = wiki#link#get_at_pos(14, 42)
+
 call assert_false(has_key(s:link, 'url'))
 
 let s:link = wiki#link#get_at_pos(15, 54)

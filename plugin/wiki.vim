@@ -77,14 +77,14 @@ call wiki#init#option('wiki_link_default_schemes', {
       \})
 call wiki#init#option('wiki_link_transform_on_follow', 1)
 call wiki#init#option('wiki_link_transforms', {
-      \ 'wiki': 'wiki#link#md#template',
-      \ 'md': 'wiki#link#wiki#template',
-      \ 'org': 'wiki#link#org#template',
-      \ 'adoc_xref_bracket': 'wiki#link#adoc_xref_inline#template',
-      \ 'adoc_xref_inline': 'wiki#link#adoc_xref_bracket#template',
-      \ 'date': 'wiki#link#wiki#template',
-      \ 'cite': 'wiki#link#md#template',
-      \ 'url': 'wiki#link#md#template',
+      \ 'wiki': 'wiki#link#template#md',
+      \ 'md': 'wiki#link#template#wiki',
+      \ 'org': 'wiki#link#template#org',
+      \ 'adoc_xref_bracket': 'wiki#link#template#adoc_xref_inline',
+      \ 'adoc_xref_inline': 'wiki#link#template#adoc_xref_bracket',
+      \ 'date': 'wiki#link#template#wiki',
+      \ 'cite': 'wiki#link#template#md',
+      \ 'url': 'wiki#link#template#md',
       \})
 call wiki#init#option('wiki_mappings_use_defaults', 'all')
 call wiki#init#option('wiki_month_names', [
