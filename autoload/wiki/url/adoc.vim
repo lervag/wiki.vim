@@ -42,10 +42,6 @@ function! s:handler.follow(...) abort dict " {{{1
   " Open wiki file
   let l:same_file = resolve(self.path) ==# resolve(expand('%:p'))
   if !l:same_file
-    let l:origin = deepcopy(self)
-    let l:origin.curpos = getcurpos()
-    call wiki#nav#add_to_stack(l:origin)
-
     try
       execute l:cmd fnameescape(self.path)
     catch /E325:/

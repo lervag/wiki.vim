@@ -140,17 +140,34 @@ function! wiki#link#follow(...) abort "{{{1
   let l:link = wiki#link#get()
   if empty(l:link) | return | endif
 
-  try
-    if has_key(l:link, 'follow')
-      if g:wiki_write_on_nav | update | endif
-      call call(l:link.follow, a:000, l:link)
-    elseif g:wiki_link_transform_on_follow
+  if l:link.type ==# 'word'
+    if g:wiki_link_transform_on_follow
       call l:link.transform()
     endif
+    return
+  endif
+
+  " Save origin location
+  let l:origin = {
+        \ 'file': expand('%:p'),
+        \ 'cursor': getcurpos(),
+        \}
+
+  try
+    if g:wiki_write_on_nav | update | endif
+    call call(l:link.follow, a:000, l:link)
   catch /E37:/
     call wiki#log#error(
           \ "Can't follow link before you've saved the current buffer.")
   endtry
+
+  " Push origin to stack if following the link changed the location
+  if l:origin !=# {
+        \ 'file': expand('%:p'),
+        \ 'cursor': getcurpos(),
+        \}
+    call wiki#nav#add_to_stack(l:origin)
+  endif
 endfunction
 
 " }}}1

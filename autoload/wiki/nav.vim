@@ -35,19 +35,12 @@ endfunction
 
 " }}}1
 function! wiki#nav#return() abort "{{{1
-  if g:wiki_write_on_nav | update | endif
   if empty(s:position_stack) | return | endif
+  if g:wiki_write_on_nav | update | endif
 
-  let l:link = remove(s:position_stack, -1)
-  if empty(l:link.origin) | return | endif
-
-  silent execute ':e ' . substitute(l:link.origin, '\s', '\\\0', 'g')
-
-  if has_key(l:link, 'curpos')
-    call cursor(l:link.curpos[1:])
-  elseif has_key(l:link, 'pos_start')
-    call cursor(l:link.pos_start)
-  endif
+  let l:previous = remove(s:position_stack, -1)
+  silent execute ':edit' fnameescape(l:previous.file)
+  call cursor(l:previous.cursor[1:])
 endfunction
 
 " }}}1
