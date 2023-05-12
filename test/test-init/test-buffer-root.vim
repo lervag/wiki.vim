@@ -19,6 +19,7 @@ try
   call s:link.transform()
 catch
   call assert_true(0, 'Transform should work without buffer root')
+  call assert_true(0, v:exception)
 endtry
 
 call wiki#test#finished()
