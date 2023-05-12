@@ -169,7 +169,7 @@ function! wiki#graph#show_related() abort "{{{1
 
     let l:url = wiki#u#trim(l:name)
     if !empty(l:url)
-      call wiki#url#parse(printf('wiki:%s', l:url)).follow()
+      call wiki#url#follow(l:url)
       if a:continue_in_graph
         WikiGraphRelated
       endif

@@ -36,7 +36,7 @@ function! s:match_at_cursor(regex) abort " {{{2
 
   return {
         \ 'content': strpart(getline('.'), l:c1-1, l:c2-l:c1+1),
-        \ 'filename': expand('%:p'),
+        \ 'origin': expand('%:p'),
         \ 'pos_end': [l:lnum, l:c2],
         \ 'pos_start': [l:lnum, l:c1],
         \}
@@ -77,7 +77,7 @@ function! wiki#link#get_all(...) abort "{{{1
         if l:content =~# l:link_definition.rx
           call add(l:links, wiki#link#class#new(l:link_definition, {
                 \ 'content': l:content,
-                \ 'filename': l:file,
+                \ 'origin': l:file,
                 \ 'pos_start': [l:lnum, l:c1],
                 \ 'pos_end': [l:lnum, l:c2],
                 \}))
@@ -137,6 +137,7 @@ endfunction
 
 " }}}1
 function! wiki#link#follow(...) abort "{{{1
+  let l:edit_cmd = a:0 > 0 ? a:1 : 'edit'
   let l:link = wiki#link#get()
   if empty(l:link) | return | endif
 
@@ -154,8 +155,7 @@ function! wiki#link#follow(...) abort "{{{1
         \}
 
   try
-    if g:wiki_write_on_nav | update | endif
-    call call(l:link.follow, a:000, l:link)
+    call wiki#url#follow(l:link.url, l:edit_cmd)
   catch /E37:/
     call wiki#log#error(
           \ "Can't follow link before you've saved the current buffer.")
@@ -204,7 +204,7 @@ function! wiki#link#transform_visual() abort " {{{1
   let l:c2 = wiki#u#cnum_to_byte(getpos("'>")[2])
   let l:link = wiki#link#class#new(g:wiki#link#definitions#word, {
         \ 'content': wiki#u#trim(getreg('w')),
-        \ 'filename': expand('%:p'),
+        \ 'origin': expand('%:p'),
         \ 'pos_start': [l:lnum, l:c1],
         \ 'pos_end': [l:lnum, l:c2],
         \})
@@ -225,7 +225,7 @@ function! wiki#link#transform_operator(type) abort " {{{1
   let l:c2 = getpos("'>")[2] - l:diff
   let l:link = wiki#link#class#new(g:wiki#link#definitions#word, {
         \ 'content': l:word,
-        \ 'filename': expand('%:p'),
+        \ 'origin': expand('%:p'),
         \ 'pos_start': [l:lnum, l:c1],
         \ 'pos_end': [l:lnum, l:c2],
         \})

@@ -22,7 +22,8 @@ endfunction
 
 "}}}1
 function! wiki#u#eval_filename(input) abort " {{{1
-  " Input:    Something that could indicate a target filename
+  " Input:    Something that could indicate a target filename, e.g. a path,
+  "           a wiki link or url object, or a wiki schemed url.
   " Output:   The filename
   " Fallback: If we can't evaluate the input, then we return the current
   "           buffers filename.
@@ -33,12 +34,19 @@ function! wiki#u#eval_filename(input) abort " {{{1
   if type(a:input) == v:t_string
     return filereadable(a:input)
           \ ? a:input
-          \ : get(wiki#url#parse(a:input), 'path', l:current)
+          \ : get(wiki#url#resolve(a:input), 'path', l:current)
   endif
 
   " A wiki and markdown link object should have the path attribute
   if type(a:input) == v:t_dict
-    return get(a:input, 'path', l:current)
+    if has_key(a:input, 'path')
+      return a:input.path
+    endif
+
+    if has_key(a:input, 'type')
+      let l:url = wiki#url#resolve(a:input.url)
+      return get(l:url, 'path', l:current)
+    endif
   endif
 
   return l:current

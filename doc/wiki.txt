@@ -835,6 +835,9 @@ OPTIONS                                                   *wiki-config-options*
   case they specify the default scheme, or dictionaries between filetype
   extensions and default schemes.
 
+  Note: Reference-style links are special and do not allow to override the
+        scheme. See |wiki-link-reference|.
+
   Default: >vim
 
     let g:wiki_link_default_schemes = {
@@ -845,7 +848,6 @@ OPTIONS                                                   *wiki-config-options*
           \ 'adoc_xref_inline': 'adoc',
           \ 'adoc_xref_bracket': 'adoc',
           \ 'adoc_link': 'file',
-          \ 'reference': '',
           \ 'ref_target': '',
           \ 'date': 'journal',
           \ 'cite': 'zot',
@@ -963,30 +965,6 @@ OPTIONS                                                   *wiki-config-options*
   the month template, |g:wiki_template_title_month|.
 
   Default: `['January', 'February', ..., 'December']`
-
-*g:wiki_resolver*
-  The name of the function to resolve wiki-schemed urls, i.e., the standard
-  link url scheme (see |wiki-link-url| for more info). The default should work
-  well for most people, but this option allows to adjust the resolver to one's
-  own liking.
-
-  The function takes two arguments:
-
-    fname ~
-      The unresolved filename. This may be empty, which is typically the case
-      for inter-page links (e.g. `[[#SomeSection]]`).
-
-    origin ~
-      The path of the origin file, i.e. the file from which the link was
-      activated. This may be empty if a link is followed programmatically from
-      an empty buffer.
-
-  The function must return an absolute path to the destination file.
-
-  Note: The function `wiki#get_root()` can be useful to get the path to the
-        wiki root.
-
-  Default: `'wiki#url#wiki#resolver'`
 
 *g:wiki_root*
   Option to specify the wiki root path, i.e. the wiki that is opened with the
@@ -1735,7 +1713,9 @@ Reference links are implemented as two different link types:
 
 - `reference`: matches links used in the text, such as `[1]` and
   `[description][label]`. Following this link will either open the target URL
-  or move the cursor to the target URL.
+  or move the cursor to the target URL. Notice that this link type does not
+  allow to specify a default scheme, because it will use the reference scheme
+  under the hood for resolving the proper url.
 - `ref_target`: matches link targets, such as `[1]: URL`. Following this will
   open the URL.
 

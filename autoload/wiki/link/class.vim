@@ -16,11 +16,18 @@ function! wiki#link#class#new(link_definition, match) abort " {{{1
   let l:link.url_raw = l:link.url
 
   " Add scheme to URL if it is missing
-  let l:link.scheme = matchstr(l:link.url, '^\w\+:')
-  let l:link.default_scheme = wiki#link#get_scheme(l:link.type)
-  if empty(l:link.scheme) && !empty(l:link.default_scheme)
-    let l:link.scheme = l:link.default_scheme
-    let l:link.url = l:link.default_scheme . ':' . l:link.url
+  if has_key(a:link_definition, '__scheme')
+    let l:link.scheme = a:link_definition.__scheme
+    let l:link.url = l:link.scheme . ':' . l:link.url
+  else
+    let l:link.scheme = matchstr(l:link.url, '^\w\+\ze:')
+    if empty(l:link.scheme)
+      let l:default_scheme = wiki#link#get_scheme(l:link.type)
+      if !empty(l:default_scheme)
+        let l:link.url = l:default_scheme . ':' . l:link.url
+        let l:link.scheme = l:default_scheme
+      endif
+    endif
   endif
 
   " Add transform function
@@ -28,15 +35,6 @@ function! wiki#link#class#new(link_definition, match) abort " {{{1
     let l:link.__transformer = a:link_definition.__transformer
   elseif has_key(g:wiki_link_transforms, l:link.type)
     let l:link.__transformer = function(g:wiki_link_transforms[l:link.type])
-  endif
-
-  if has_key(a:link_definition, 'post_init_hook')
-    call a:link_definition.post_init_hook(l:link)
-  endif
-
-  " Extend link with URL handler
-  if !has_key(l:link, 'follow') && l:link.type !=# 'word'
-    let l:link = wiki#url#extend(l:link)
   endif
 
   return l:link
@@ -115,6 +113,13 @@ function! s:link.transform() dict abort " {{{1
   if empty(l:new) | return | endif
 
   call self.replace(l:new)
+endfunction
+
+" }}}1
+function! s:link.resolve() dict abort " {{{1
+  if self.type ==# 'word' | return | endif
+
+  return wiki#url#resolve(self.url, self.origin)
 endfunction
 
 " }}}1

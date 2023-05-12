@@ -70,7 +70,6 @@ call wiki#init#option('wiki_link_default_schemes', {
       \ 'adoc_xref_inline': 'adoc',
       \ 'adoc_xref_bracket': 'adoc',
       \ 'adoc_link': 'file',
-      \ 'reference': '',
       \ 'ref_target': '',
       \ 'date': 'journal',
       \ 'cite': 'zot',
@@ -91,7 +90,6 @@ call wiki#init#option('wiki_month_names', [
       \ 'January', 'February', 'March', 'April', 'May', 'June', 'July',
       \ 'August', 'September', 'October', 'November', 'December'
       \])
-call wiki#init#option('wiki_resolver', 'wiki#url#wiki#resolver')
 call wiki#init#option('wiki_root', '')
 if has('nvim')
   call wiki#init#option('wiki_select_method', 'ui_select')

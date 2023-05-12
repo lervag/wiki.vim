@@ -61,21 +61,26 @@ function! s:graph.get_links_from(file) abort dict " {{{1
   let l:ftime = getftime(a:file)
   if l:ftime > l:current.ftime
     let l:current.ftime = l:ftime
-    let l:current.links = map(
-          \ filter(
-          \   wiki#link#get_all(a:file),
-          \   { _, x -> get(x, 'scheme', '') ==# 'wiki'
-          \               && a:file !=# resolve(x.path) }),
-          \ { _, x -> {
-          \   'filename_from' : a:file,
-          \   'filename_to' : resolve(x.path),
-          \   'content' : x.content,
-          \   'text' : get(x, 'text'),
-          \   'anchor' : '#' . x.anchor,
-          \   'lnum' : x.pos_start[0],
-          \   'col' : x.pos_start[1]
-          \ }
-          \})
+    let l:current.links =
+          \ map(
+          \   filter(
+          \     map(
+          \       wiki#link#get_all(a:file),
+          \       { _, x -> extend(x, x.resolve()) }
+          \     ),
+          \     { _, x -> x.scheme ==# 'wiki' && a:file !=# resolve(x.path) }
+          \   ),
+          \   { _, x -> {
+          \       'filename_from' : a:file,
+          \       'filename_to' : resolve(x.path),
+          \       'content' : x.content,
+          \       'text' : x.text,
+          \       'anchor' : '#' . x.anchor,
+          \       'lnum' : x.pos_start[0],
+          \       'col' : x.pos_start[1]
+          \     }
+          \   }
+          \)
 
     let self.cache_links_out.modified = 1
     if self.save_cache

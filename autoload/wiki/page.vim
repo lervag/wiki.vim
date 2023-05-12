@@ -20,7 +20,7 @@ function! wiki#page#open(...) abort "{{{1
     endtry
   endif
 
-  call wiki#url#parse('wiki:/' . l:page).follow()
+  call wiki#url#follow('/' . l:page)
 endfunction
 
 "}}}1
