@@ -49,8 +49,8 @@ CONTENTS                                                        *wiki-contents*
     Markdown links                           |wiki-link-md|
     Markdown image links                     |wiki-link-md_fig|
     Orgmode links                            |wiki-link-org|
-    Reference links                          |wiki-link-ref_shortcut|
-                                             |wiki-link-ref_definition|
+    Reference links                          |wiki-link-reference|
+                                             |wiki-link-ref_target|
     Cite links                               |wiki-link-cite|
     AsciiDoc cross references                |wiki-link-adoc_xref_bracket|
                                              |wiki-link-adoc_xref_inline|
@@ -823,8 +823,8 @@ OPTIONS                                                   *wiki-config-options*
           \ 'adoc_xref_inline': 'adoc',
           \ 'adoc_xref_bracket': 'adoc',
           \ 'adoc_link': 'file',
-          \ 'ref_shortcut': '',
-          \ 'ref_definition': '',
+          \ 'reference': '',
+          \ 'ref_target': '',
           \ 'date': 'journal',
           \ 'cite': 'zot',
           \}
@@ -846,7 +846,7 @@ OPTIONS                                                   *wiki-config-options*
   could use: >vim
 
     function TransformWikiToMd(url, text, link) abort dict
-      return wiki#link#template#md(
+      return wiki#link#templates#md(
             \ a:url . '.wiki',
             \ empty(a:text) ? a:url : a:text,
             \ a:link)
@@ -854,7 +854,7 @@ OPTIONS                                                   *wiki-config-options*
 
     function TransformMdToWiki(url, text, link) abort dict
       let l:url = substitute(a:url, '\.wiki$', '', '')
-      return wiki#link#template#wiki(l:url, a:text, a:link)
+      return wiki#link#templates#wiki(l:url, a:text, a:link)
     endfunction
 
     let g:wiki_link_transforms = {
@@ -865,14 +865,14 @@ OPTIONS                                                   *wiki-config-options*
   Default: >vim
 
     let g:wiki_link_transforms = {
-          \ 'wiki': 'wiki#link#template#md',
-          \ 'md': 'wiki#link#template#wiki',
-          \ 'org': 'wiki#link#template#org',
-          \ 'adoc_xref_bracket': 'wiki#link#template#adoc_xref_inline',
-          \ 'adoc_xref_inline': 'wiki#link#template#adoc_xref_bracket',
-          \ 'date': 'wiki#link#template#wiki',
-          \ 'cite': 'wiki#link#template#md',
-          \ 'url': 'wiki#link#template#md',
+          \ 'wiki': 'wiki#link#templates#md',
+          \ 'md': 'wiki#link#templates#wiki',
+          \ 'org': 'wiki#link#templates#org',
+          \ 'adoc_xref_bracket': 'wiki#link#templates#adoc_xref_inline',
+          \ 'adoc_xref_inline': 'wiki#link#templates#adoc_xref_bracket',
+          \ 'date': 'wiki#link#templates#wiki',
+          \ 'cite': 'wiki#link#templates#md',
+          \ 'url': 'wiki#link#templates#md',
           \}
 
 *g:wiki_mappings_use_defaults*
@@ -1635,8 +1635,8 @@ These are the link types that are currently supported with some examples:
 - Orgmode links                      |wiki-link-org|
     `[[URL]]`
     `[[URL][Description]]`
-- Reference links                    |wiki-link-ref_shortcut|
-                                     |wiki-link-ref_definition|
+- Reference links                    |wiki-link-reference|
+                                     |wiki-link-ref_target|
     `[Target]`
     `[Description][Target]`
     `[Target]: URL`
@@ -1689,11 +1689,11 @@ within a second pair of square brackers. Examples: >
   [[URL][Description]]
 
 ------------------------------------------------------------------------------
-REFERENCE LINKS                                      *wiki-link-ref_shortcut*
-                                                     *wiki-link-ref_definition*
+REFERENCE LINKS                                          *wiki-link-reference*
+                                                         *wiki-link-ref_target*
 
-Reference style links are slightly different.  They consist of up to three
-parts: An optional `description`, a `label` and a `link definition.`  The
+Reference style links are slightly different. They consist of up to three
+parts: An optional `description`, a `label` and a `link definition`. The
 syntax is best explained through an example: >
 
   The most simple form, and perhaps the most useful one, is to add a simple
@@ -1709,11 +1709,11 @@ syntax is best explained through an example: >
 
 Reference links are implemented as two different link types:
 
-- `ref_shortcut`: matches links used in the text, such as `[1]` and
+- `reference`: matches links used in the text, such as `[1]` and
   `[description][label]`. Following this link will either open the target URL
   or move the cursor to the target URL.
-- `ref_definition`: matches link targets, such as `[1]: URL`. Following this
-  will open the URL.
+- `ref_target`: matches link targets, such as `[1]: URL`. Following this will
+  open the URL.
 
 ------------------------------------------------------------------------------
 ASCIIDOC CROSS REFERENCES                         *wiki-link-adoc_xref_bracket*

@@ -7,7 +7,7 @@
 function! wiki#link#get() abort " {{{1
   if wiki#u#is_code() | return {} | endif
 
-  for l:link_definition in g:wiki#link#def#all
+  for l:link_definition in g:wiki#link#definitions#all
     let l:match = s:match_at_cursor(l:link_definition.rx)
     if empty(l:match) | continue | endif
 
@@ -73,7 +73,7 @@ function! wiki#link#get_all(...) abort "{{{1
       let l:content = matchstr(l:line, g:wiki#rx#link, l:c2)
       let l:c2 = l:c1 + strlen(l:content)
 
-      for l:link_definition in g:wiki#link#def#all_real
+      for l:link_definition in g:wiki#link#definitions#all_real
         if l:content =~# l:link_definition.rx
           call add(l:links, wiki#link#class#new(l:link_definition, {
                 \ 'content': l:content,
@@ -179,9 +179,9 @@ function! wiki#link#set_text_from_header() abort "{{{1
   if empty(l:title) | return | endif
 
   try
-    let l:new = wiki#link#template#{l:link.type}(l:link.url, l:title, l:link)
+    let l:new = wiki#link#templates#{l:link.type}(l:link.url, l:title, l:link)
   catch /E117:/
-    let l:new = wiki#link#template#wiki(l:link.url, l:title)
+    let l:new = wiki#link#templates#wiki(l:link.url, l:title)
   endtry
 
   call l:link.replace(l:new)
@@ -202,7 +202,7 @@ function! wiki#link#transform_visual() abort " {{{1
   let l:lnum = line('.')
   let l:c1 = getpos("'<")[2]
   let l:c2 = wiki#u#cnum_to_byte(getpos("'>")[2])
-  let l:link = wiki#link#class#new(g:wiki#link#def#word, {
+  let l:link = wiki#link#class#new(g:wiki#link#definitions#word, {
         \ 'content': wiki#u#trim(getreg('w')),
         \ 'filename': expand('%:p'),
         \ 'pos_start': [l:lnum, l:c1],
@@ -223,7 +223,7 @@ function! wiki#link#transform_operator(type) abort " {{{1
   let l:lnum = line('.')
   let l:c1 = getpos("'<")[2]
   let l:c2 = getpos("'>")[2] - l:diff
-  let l:link = wiki#link#class#new(g:wiki#link#def#word, {
+  let l:link = wiki#link#class#new(g:wiki#link#definitions#word, {
         \ 'content': l:word,
         \ 'filename': expand('%:p'),
         \ 'pos_start': [l:lnum, l:c1],
@@ -243,7 +243,7 @@ function! wiki#link#template(url, text) abort " {{{1
 
   try
     let l:type = wiki#link#get_creator('link_type')
-    return wiki#link#template#{l:type}(a:url, a:text)
+    return wiki#link#templates#{l:type}(a:url, a:text)
   catch /E117:/
     call wiki#log#warn(
           \ 'Target link type does not exist: ' . l:type,

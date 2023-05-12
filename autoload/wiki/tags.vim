@@ -182,7 +182,7 @@ function! s:search_output_scratch(cfg, lst) abort " {{{1
   for [l:file, l:lnum] in a:lst
     let l:name = fnamemodify(wiki#paths#shorten_relative(l:file), ':r')
     call add(l:scratch.lines,
-          \ '- ' . wiki#link#template#wiki('/' . l:name, l:name))
+          \ '- ' . wiki#link#templates#wiki('/' . l:name, l:name))
   endfor
 
   function! l:scratch.print_content() abort dict
@@ -195,7 +195,7 @@ function! s:search_output_scratch(cfg, lst) abort " {{{1
     set conceallevel=2
 
     execute 'syntax match wikiLinkWiki'
-          \ '/' . g:wiki#link#def#wiki.rx . '/'
+          \ '/' . g:wiki#link#definitions#wiki.rx . '/'
           \ 'display contains=@NoSpell,wikiLinkWikiConceal'
     syntax match wikiLinkWikiConceal /\[\[\%(\/\|#\)\?\%([^\\\]]\{-}|\)\?/
           \ contained transparent contains=NONE conceal
@@ -217,7 +217,7 @@ function! s:search_output_cursor(cfg, lst) abort " {{{1
   let l:lines = [printf('Wiki pages with tag: %s', a:cfg.tag)]
   for [l:file, l:lnum] in a:lst
     let l:name = fnamemodify(wiki#paths#shorten_relative(l:file), ':r')
-    call add(l:lines, '- ' . wiki#link#template#wiki('/' . l:name, l:name))
+    call add(l:lines, '- ' . wiki#link#templates#wiki('/' . l:name, l:name))
   endfor
   call add(l:lines, '')
 
@@ -270,7 +270,7 @@ function! s:list_output_scratch() abort " {{{1
     for [l:file, l:lnum] in l:locations
       let l:name = fnamemodify(wiki#paths#shorten_relative(l:file), ':r')
       call add(l:scratch.lines,
-            \ '- ' . wiki#link#template#wiki('/' . l:name, l:name))
+            \ '- ' . wiki#link#templates#wiki('/' . l:name, l:name))
     endfor
   endfor
 
@@ -284,7 +284,7 @@ function! s:list_output_scratch() abort " {{{1
     set conceallevel=2
 
     execute 'syntax match wikiLinkWiki'
-          \ '/' . g:wiki#link#def#wiki.rx . '/'
+          \ '/' . g:wiki#link#definitions#wiki.rx . '/'
           \ 'display contains=@NoSpell,wikiLinkWikiConceal'
     syntax match wikiLinkWikiConceal /\[\[\%(\/\|#\)\?\%([^\\\]]\{-}|\)\?/
           \ contained transparent contains=NONE conceal
@@ -308,7 +308,7 @@ function! s:list_output_cursor() abort " {{{1
     let l:lines += ['', printf('Tag: %s', l:tag)]
     for [l:file, l:lnum] in l:locations
       let l:name = fnamemodify(wiki#paths#shorten_relative(l:file), ':r')
-      call add(l:lines, '- ' . wiki#link#template#wiki('/' . l:name, l:name))
+      call add(l:lines, '- ' . wiki#link#templates#wiki('/' . l:name, l:name))
     endfor
   endfor
   call add(l:lines, '')

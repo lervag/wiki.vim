@@ -46,14 +46,14 @@ let wiki#rx#link_adoc_xref_inline = '\<xref:\%(\[[^]]\+\]\|[^[]\+\)\[[^]]*\]'
 let wiki#rx#link_md = '\[[^[\]]\{-}\]([^\\]\{-})'
 let wiki#rx#link_md_fig = '!' . wiki#rx#link_md
 let wiki#rx#link_org = '\[\[\/\?[^\\\]]\{-}\]\%(\[[^\\\]]\{-}\]\)\?\]'
-let wiki#rx#link_ref_shortcut = '[\]\[]\@<!\[' . wiki#rx#reflabel . '\][\]\[]\@!'
+let wiki#rx#link_reference = '[\]\[]\@<!\[' . wiki#rx#reflabel . '\][\]\[]\@!'
 let wiki#rx#link_ref_collapsed = '[\]\[]\@<!\[' . wiki#rx#reflabel . '\]\[\][\]\[]\@!'
 let wiki#rx#link_ref_full =
       \ '[\]\[]\@<!'
       \ . '\[' . wiki#rx#reftext   . '\]'
       \ . '\[' . wiki#rx#reflabel . '\]'
       \ . '[\]\[]\@!'
-let wiki#rx#link_ref_definition =
+let wiki#rx#link_ref_target =
       \ '^\s*\[' . wiki#rx#reflabel . '\]:\s\+' . wiki#rx#url
 let wiki#rx#link_cite = '\%(\s\|^\|\[\)\zs@[-_.a-zA-Z0-9]\+[-_a-zA-Z0-9]'
 let wiki#rx#link_cite_url = '\%(\s\|^\|\[\)@\zs[-_.a-zA-Z0-9]\+[-_a-zA-Z0-9]'
@@ -65,8 +65,8 @@ let wiki#rx#link = join([
       \ wiki#rx#link_adoc_xref_inline,
       \ '!\?' . wiki#rx#link_md,
       \ wiki#rx#link_org,
-      \ wiki#rx#link_ref_definition,
-      \ wiki#rx#link_ref_shortcut,
+      \ wiki#rx#link_ref_target,
+      \ wiki#rx#link_reference,
       \ wiki#rx#link_ref_full,
       \ wiki#rx#url,
       \ wiki#rx#link_cite,

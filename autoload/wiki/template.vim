@@ -109,9 +109,9 @@ function! wiki#template#weekly_summary(year, week) abort " {{{1
   let l:title = substitute(l:title, '%(week)', a:week, 'g')
   let l:title = substitute(l:title, '%(year)', a:year, 'g')
 
-  let l:links = wiki#date#get_week_dates(a:week, a:year)
+  let l:dates = wiki#date#get_week_dates(a:week, a:year)
 
-  call append(0, [l:title] + l:parser.parse(l:links))
+  call append(0, [l:title] + l:parser.parse(l:dates))
   call setpos('.', [0, 3, 0, 0])
 endfunction
 
@@ -142,17 +142,17 @@ function! s:summary.new() abort dict " {{{1
 endfunction
 
 " }}}1
-function! s:summary.parse(links) abort dict " {{{1
-  let self.links = filter(map(copy(a:links),
-        \ { _, date -> self.parse_link('journal:' . date) }),
+function! s:summary.parse(dates) abort dict " {{{1
+  let self.links = filter(map(copy(a:dates),
+        \ { _, date -> self.parse_url('journal:' . date) }),
         \ { _, journal_date -> !empty(journal_date) })
 
   return [''] + self.links + self.get_entries()
 endfunction
 
 " }}}1
-function! s:summary.parse_link(link) abort dict " {{{1
-  let l:url = wiki#url#parse(a:link)
+function! s:summary.parse_url(url_string) abort dict " {{{1
+  let l:url = wiki#url#parse(a:url_string)
   if !filereadable(l:url.path) | return '' | endif
 
   let l:order = 1
@@ -219,7 +219,7 @@ function! s:summary.parse_link(link) abort dict " {{{1
     call add(l:entry.lines, l:line)
   endfor
 
-  return a:link
+  return a:url_string
 endfunction
 
 " }}}1

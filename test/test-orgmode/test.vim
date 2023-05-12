@@ -41,7 +41,7 @@ silent execute "normal \<Plug>(wiki-link-transform)"
 normal! ya]
 call assert_equal('[[test.org][test file]]', @")
 " Actual test: wiki transform changes the link.
-let g:wiki_link_transforms.org = 'wiki#link#template#wiki'
+let g:wiki_link_transforms.org = 'wiki#link#templates#wiki'
 silent execute "normal \<Plug>(wiki-link-transform)"
 normal! ya]
 call assert_equal('[[test.org|test file]]', @")

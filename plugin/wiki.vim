@@ -70,21 +70,21 @@ call wiki#init#option('wiki_link_default_schemes', {
       \ 'adoc_xref_inline': 'adoc',
       \ 'adoc_xref_bracket': 'adoc',
       \ 'adoc_link': 'file',
-      \ 'ref_shortcut': '',
-      \ 'ref_definition': '',
+      \ 'reference': '',
+      \ 'ref_target': '',
       \ 'date': 'journal',
       \ 'cite': 'zot',
       \})
 call wiki#init#option('wiki_link_transform_on_follow', 1)
 call wiki#init#option('wiki_link_transforms', {
-      \ 'wiki': 'wiki#link#template#md',
-      \ 'md': 'wiki#link#template#wiki',
-      \ 'org': 'wiki#link#template#org',
-      \ 'adoc_xref_bracket': 'wiki#link#template#adoc_xref_inline',
-      \ 'adoc_xref_inline': 'wiki#link#template#adoc_xref_bracket',
-      \ 'date': 'wiki#link#template#wiki',
-      \ 'cite': 'wiki#link#template#md',
-      \ 'url': 'wiki#link#template#md',
+      \ 'wiki': 'wiki#link#templates#md',
+      \ 'md': 'wiki#link#templates#wiki',
+      \ 'org': 'wiki#link#templates#org',
+      \ 'adoc_xref_bracket': 'wiki#link#templates#adoc_xref_inline',
+      \ 'adoc_xref_inline': 'wiki#link#templates#adoc_xref_bracket',
+      \ 'date': 'wiki#link#templates#wiki',
+      \ 'cite': 'wiki#link#templates#md',
+      \ 'url': 'wiki#link#templates#md',
       \})
 call wiki#init#option('wiki_mappings_use_defaults', 'all')
 call wiki#init#option('wiki_month_names', [
