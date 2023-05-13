@@ -853,6 +853,55 @@ OPTIONS                                                   *wiki-config-options*
           \ 'cite': 'zot',
           \}
 
+*g:wiki_link_schemes*
+  A dictionary to configure how URLs are handled. The keys represent the
+  schemes and the values are dictionaries that specify the desired `resolver`
+  and `handler` functions:
+
+    resolver ~
+      |Funcref|: (URL object) => URL object (OPTIONAL)
+      This function parses the URL object and returns a new URL object. This
+      is useful to e.g. enrich or change the URL before handing it to the
+      `handler`. For example, the `resolver` can be used to apply URL
+      encoding or decoding.
+
+    handler ~
+      |Funcref|: (URL object, edit_cmd) => NONE (REQUIRED)
+      A function that takes a possibly resolved URL object and an `edit_cmd`
+      and acts on it. The `edit_cmd` is necessary to implement the various
+      commands like |WikiLinkFollow|, |WikiLinkFollowSplit|, and
+      |WikiLinkFollowTab|.
+
+  Only the `handler` is required. Both functions has as input a URL object,
+  which is a dictionary that initially looks like this (before any `resolver`
+  has been applied): >vim
+
+    let l:url = {
+          \ 'url': 'URL HERE',
+          \ 'scheme': 'SCHEME',
+          \ 'stripped': 'URL WITHOUT SCHEME',
+          \ 'origin': 'THE ORIGIN FILE'
+          \}
+<
+  IMPORTANT: The `resolver` can return an object with different properties.
+  However, the `scheme` attribute is required as it is used to select the
+  appropriate `handler`.
+
+  Notice that the `resolver` and `handler` needs to "fit". That is, the
+  `handler` may depend on properties of the URL object that are added or
+  changed by a corresponding `resolver`. For example, many of the built-in
+  resolvers will add a `path` attribute that specifies the full path to
+  a file. This is in turn used by the `handler` to open the corresponding
+  file.
+
+  Finally, notice that built-in resolvers and handlers are found
+  automatically. That is, this option is not the mechanism used internally for
+  resolving the relevant function. Instead, this option provides an interface
+  to users to allow to easily override the built-in functions and add support
+  for new schemes.
+
+  Default: `{}`
+
 *g:wiki_link_transform_on_follow*
   This option allows disabling the transform behaviour in |WikiLinkFollow|
   where "normal" text under the cursor is transformed into links. The

@@ -9,13 +9,18 @@ function! wiki#url#follow(url_string, ...) abort " {{{1
   if empty(l:url) | return | endif
 
   if g:wiki_write_on_nav | update | endif
+  let l:edit_cmd = a:0 > 0 ? a:1 : 'edit'
 
-  try
-    let l:edit_cmd = a:0 > 0 ? a:1 : 'edit'
-    call wiki#url#handlers#{l:url.scheme}(l:url, l:edit_cmd)
-  catch /E117/
-    call wiki#url#handlers#generic(l:url)
-  endtry
+  if has_key(g:wiki_link_schemes, l:url.scheme)
+        \ && has_key(g:wiki_link_schemes[l:url.scheme], 'handler')
+    call g:wiki_link_schemes[l:url.scheme].handler(l:url, l:edit_cmd)
+  else
+    try
+      call wiki#url#handlers#{l:url.scheme}(l:url, l:edit_cmd)
+    catch /E117/
+      call wiki#url#handlers#generic(l:url)
+    endtry
+  endif
 endfunction
 
 " }}}1
@@ -33,6 +38,11 @@ function! wiki#url#resolve(url_string, ...) abort " {{{1
   if empty(l:url.scheme)
     let l:url.scheme = 'wiki'
     let l:url.url = l:url.scheme . ':' . l:url.url
+  endif
+
+  if has_key(g:wiki_link_schemes, l:url.scheme)
+        \ && has_key(g:wiki_link_schemes[l:url.scheme], 'resolve')
+    return g:wiki_link_schemes[l:url.scheme].resolve(l:url)
   endif
 
   try

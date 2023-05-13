@@ -74,6 +74,7 @@ call wiki#init#option('wiki_link_default_schemes', {
       \ 'date': 'journal',
       \ 'cite': 'zot',
       \})
+call wiki#init#option('wiki_link_schemes', {})
 call wiki#init#option('wiki_link_transform_on_follow', 1)
 call wiki#init#option('wiki_link_transforms', {
       \ 'wiki': 'wiki#link#templates#md',
