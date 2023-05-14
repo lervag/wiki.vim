@@ -1181,7 +1181,7 @@ OPTIONS                                                   *wiki-config-options*
   Option to specify whether or not to save the current file automatically
   before navigating (forward or backward) between wiki links.
 
-  Default: 0
+  Default: 1
 
 *g:wiki_zotero_root*
   A string that specifies the Zotero root folder used for the Zotero URL

@@ -117,7 +117,7 @@ call wiki#init#option('wiki_viewer', {
       \ 'md' : ':edit',
       \ 'wiki' : ':edit',
       \})
-call wiki#init#option('wiki_write_on_nav', 0)
+call wiki#init#option('wiki_write_on_nav', 1)
 call wiki#init#option('wiki_zotero_root', '~/.local/zotero')
 
 " Initialize global commands
