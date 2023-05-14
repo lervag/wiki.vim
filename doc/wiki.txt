@@ -1238,12 +1238,6 @@ a reference of all available options.
 <
   Default: Undefined
 
-*g:wiki_month_names*
-  A list of the names for each month. Used for interpolating month names in
-  the month template, |g:wiki_template_title_month|.
-
-  Default: `['January', 'February', ..., 'December']`
-
 *g:wiki_root*
   Option to specify the wiki root path, i.e. the wiki that is opened with the
   `<leader>ww` mapping. The option value must be a string that is either
@@ -1409,12 +1403,18 @@ a reference of all available options.
 
   Default: `[]`
 
+*g:wiki_template_month_names*
+  A list of the names for each month. Used e.g. for interpolating month names
+  in the month template, |g:wiki_template_title_month|.
+
+  Default: `['January', 'February', ..., 'December']`
+
 *g:wiki_template_title_month*
   A string that specifies the title of the month template. The following keys
   are interpolated:
 
     `%(month)`         Month number
-    `%(month-name)`    Name of month (see |g:wiki_month_names|)
+    `%(month-name)`    Name of month (see |g:wiki_template_month_names|)
     `%(year)`          Year (4 digits)
 
   See |wiki-templates-journal-summaries| for more info.

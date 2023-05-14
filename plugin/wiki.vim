@@ -87,7 +87,7 @@ call wiki#init#option('wiki_link_transforms', {
       \ 'url': 'wiki#link#templates#md',
       \})
 call wiki#init#option('wiki_mappings_use_defaults', 'all')
-call wiki#init#option('wiki_month_names', [
+call wiki#init#option('wiki_template_month_names', [
       \ 'January', 'February', 'March', 'April', 'May', 'June', 'July',
       \ 'August', 'September', 'October', 'November', 'December'
       \])

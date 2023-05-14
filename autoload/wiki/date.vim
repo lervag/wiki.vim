@@ -48,7 +48,7 @@ endfunction
 " }}}1
 
 function! wiki#date#get_month_name(month) abort " {{{1
-  return get(g:wiki_month_names, a:month-1)
+  return get(g:wiki_template_month_names, a:month-1)
 endfunction
 
 " }}}1
