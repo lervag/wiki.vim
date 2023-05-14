@@ -28,14 +28,6 @@ endfunction
 
 " }}}1
 function! wiki#url#handlers#file(resolved, ...) abort " {{{1
-  try
-    if call(get(g:, 'wiki_file_handler', ''), a:resolved)
-      return
-    endif
-  catch /E117:/
-    " Pass
-  endtry
-
   let l:cmd = get(g:wiki_viewer, a:resolved.ext, g:wiki_viewer._)
   if l:cmd ==# ':edit'
     silent execute 'edit' fnameescape(a:resolved.path)

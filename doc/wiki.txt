@@ -529,27 +529,6 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: `['md']`
 
-*g:wiki_file_handler*
-  Name of a function or a |FuncRef| for a function that should be used to
-  handle local files (see also |wiki-link-url|). The function should give
-  a non-zero return value if it properly handled the URL. If not, the plugin
-  falls back to opening the URL as explained in |wiki-link-url|.
-
-  An example: >vim
-
-    let g:wiki_file_handler = 'WikiFileHandler'
-
-    function! WikiFileHandler(...) abort dict
-      if self.path =~# 'pdf$'
-        silent execute '!zathura' fnameescape(self.path) '&'
-        return 1
-      endif
-
-      return 0
-    endfunction
-<
-  Default: `''`
-
 *g:wiki_fzf_pages_force_create_key*
   Key combination that, when pressed while searching with |WikiPages|, will
   create a new page with the name of the query. The value must be a string
@@ -1880,9 +1859,9 @@ The following schemes are supported:
           `use_journal_scheme` option (see |g:wiki_journal_index|).
 
   file ~
-    Links to a local file. |g:wiki_viewer| is used by default to open a file.
-    For more user flexibility, one can implement a custom file handler with
-    |g:wiki_file_handler|.
+    Links to a local file. |g:wiki_viewer| is used by the default handler to
+    open a file. As for any scheme, users can implement a custom file handler
+    with |g:wiki_link_schemes|.
 
     This scheme is the default scheme for |wiki-link-md_fig|.
 
