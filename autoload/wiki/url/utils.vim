@@ -150,3 +150,30 @@ function! wiki#url#utils#focus(do_edit) abort " {{{1
 endfunction
 
 " }}}1
+
+function! wiki#url#utils#url_encode(str) abort " {{{1
+  " This code is based on Tip Pope's vim-unimpaired:
+  " https://github.com/tpope/vim-unimpaired
+  return substitute(
+        \ iconv(a:str, 'latin1', 'utf-8'),
+        \ '[^A-Za-z0-9_.~-]',
+        \ '\="%".printf("%02X",char2nr(submatch(0)))',
+        \ 'g'
+        \)
+endfunction
+
+" }}}1
+function! wiki#url#utils#url_decode(str) abort " {{{1
+  " This code is based on Tip Pope's vim-unimpaired:
+  " https://github.com/tpope/vim-unimpaired
+  let l:str =
+        \ substitute(
+        \   substitute(
+        \     substitute(a:str, '%0[Aa]\n$', '%0A', ''),
+        \     '%0[Aa]', '\n', 'g'),
+        \   '+', ' ', 'g')
+  let l:str = substitute(l:str, '%\(\x\x\)', '\=nr2char("0x".submatch(1))', 'g')
+  return iconv(str, 'utf-8', 'latin1')
+endfunction
+
+" }}}1

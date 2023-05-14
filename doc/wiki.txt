@@ -52,6 +52,9 @@ CONTENTS                                                        *wiki-contents*
     Template function context                |wiki-templates-context|
     Template file format                     |wiki-templates-format|
     Journal summaries                        |wiki-templates-journal-summaries|
+  Advanced configuration guide               |wiki-advanced-configuration|
+    Example 1: New scheme                    |wiki-advanced-config-1
+    Example 2: Adjust the wiki scheme        |wiki-advanced-config-2
 
 ==============================================================================
 INTRODUCTION                                                       *wiki-intro*
@@ -503,7 +506,8 @@ sense that many link types have a default "implied" scheme given by
 |g:wiki_link_default_schemes|. The URL scheme is used to select the `resolver`
 and `handler` functions used by `wiki.vim` to follow a link. Users can
 override the default functions by use of the |g:wiki_link_schemes| option.
-This also allows to easily implement custom schemes.
+This also allows to easily implement custom schemes. See the section
+|wiki-advanced-configuration| for examples of how one can do this.
 
 So, in summary: When a user presses `<cr>` to follow a link, `wiki.vim` will
 do these things:
@@ -517,10 +521,7 @@ do these things:
 ------------------------------------------------------------------------------
 URL SCHEMES                                                  *wiki-link-schemes*
 
-The following is a list of the schemes that are supported out of the box. For
-the curious souls and advanced users, one may want to inspect how the builtin
-schemes are defined by reading `autoload/wiki/url/resolvers.vim` and
-`autoload/wiki/url/handlers.vim`.
+The following is a list of the schemes that are supported out of the box.
 
 wiki ~
   Links to internal wiki pages. The address can be both relative and absolute.
@@ -1128,6 +1129,9 @@ a reference of all available options.
   resolving the relevant function. Instead, this option provides an interface
   to users to allow to easily override the built-in functions and add support
   for new schemes.
+
+  See |wiki-advanced-configuration| for examples of how to add support for
+  a new scheme and for how to modify one of the existing schemes.
 
   Default: `{}`
 
@@ -2135,6 +2139,86 @@ Related settings:
 Related commands:
 - |WikiJournalToWeek|
 - |WikiJournalToMonth|
+
+==============================================================================
+ADVANCED CONFIGURATION GUIDE                      *wiki-advanced-configuration*
+
+`wiki.vim` provides options that allow users to customize how link URLs are
+resolved and handled. The following are some examples of how to use these
+options.
+
+Notice that it is possibly to build upon the built-in functions. These
+functions are not documented, but most of the useful functions should be
+relatively self documented. They are found here:
+
+- `autoload/wiki/url/resolvers.vim`
+- `autoload/wiki/url/handlers.vim`
+- `autoload/wiki/url/utils.vim`
+
+Example 1: New scheme `test` ~
+                                                       *wiki-advanced-config-1*
+In this example, we add a new scheme `test` that should act like the `wiki`
+scheme, except we want the handler to simply print the URL object. This way,
+we could inspect the object provided to the handler function, which could be
+useful to understand what you have to work with. In Vimscript, the example
+looks like this: >vim
+
+  function! MyTestHandler(resolved, ...) abort
+    echo a:resolved
+  endfunction
+
+  let g:wiki_link_schemes = {
+        \ 'test': {
+        \   'resolver': function('wiki#url#resolvers#wiki'),
+        \   'handler': function('MyTestHandler'),
+        \ }
+        \}
+
+The same, but for Lua in neovim: >lua
+
+  vim.g.wiki_link_schemes = {
+    test = {
+      resolver = vim.fn["wiki#url#resolvers#wiki"],
+      handler = function(x) print(vim.inspect(x)) end,
+    }
+  }
+
+Example 2: Adjust the `wiki` scheme to apply URL decoding ~
+                                                       *wiki-advanced-config-2*
+The standard `wiki` scheme does not perform any form of URL encoding or
+decoding. If you want the link URLs to be encoded, but the actual file names
+to be unencoded, then you could do something like this: >vim
+
+  " This is basically the same as wiki#url#resolvers#wiki, except we added
+  " a line to decode the encoded URL before we resolve the path.
+  function! MyWikiResolver(url) abort
+    let l:url = deepcopy(a:url)
+
+    let l:url.anchor = wiki#url#utils#extract_anchor(l:url.stripped)
+
+    let l:path = split(l:url.stripped, '#', 1)[0]
+    let l:path = wiki#url#utils#url_decode(l:path)
+    let l:url.path = wiki#url#utils#resolve_path(l:path, l:url.origin)
+
+    return l:url
+  endfunction
+
+  " Change the wiki scheme resolver
+  let g:wiki_link_schemes = {
+        \ 'wiki': {
+        \   'resolver': function('MyWikiResolver'),
+        \ }
+        \}
+
+  " Only change the url_transform - will keep other parts at default settings
+  let g:wiki_link_creation = {
+        \ 'md': {
+        \   'url_transform': { x -> wiki#url#utils#url_encode(x) },
+        \ },
+        \ 'wiki': {
+        \   'url_transform': { x -> wiki#url#utils#url_encode(x) },
+        \ },
+        \}
 
 ==============================================================================
  vim:tw=78:ts=8:ft=help:norl:fdm=marker:cole=2:
