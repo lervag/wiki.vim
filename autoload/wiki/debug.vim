@@ -1,4 +1,4 @@
-" A simple wiki plugin for Vim
+" A wiki plugin for Vim
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
