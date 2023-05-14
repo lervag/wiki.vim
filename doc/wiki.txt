@@ -34,7 +34,7 @@ CONTENTS                                                        *wiki-contents*
     Usage                                    |wiki-intro-usage|
     Features                                 |wiki-intro-features|
     Guide                                    |wiki-intro-guide|
-    Other plugins                            |wiki-intro-plugins|
+    Other useful plugins                     |wiki-intro-plugins|
     Alternatives                             |wiki-intro-alternatives|
   Configuration                              |wiki-config|
     Options                                  |wiki-config-options|
@@ -69,27 +69,32 @@ CONTENTS                                                        *wiki-contents*
 ==============================================================================
 INTRODUCTION                                                       *wiki-intro*
 
-This is a Vim plugin for writing and maintaining a personal wiki, i.e.
-a personal knowledge base. Please see |wiki-intro-usage| for a simple
-quick-start guide, and |wiki-intro-guide| for more in-depth info on what this
-is and how one could use such a system efficiently.
+This is a Vim plugin for writing and maintaining a personal wiki, also known
+as a personal knowledge base. Please see |wiki-intro-usage| for a simple
+quick-start guide. See also |wiki-intro-guide| for more in-depth info on what
+this is and how one could use such a system efficiently.
+
+|wiki.vim| is a "filetype agnostic" plugin that is intended to work well across
+different filetypes. The core functionality is to handle links of various
+kinds and to allow workflows to quickly traverse a wiki and to create new
+links and new pages. The "filetype agnostic" description is only half true,
+because the different link syntaxes are usually tied to a specific
+filetype/file format. Also, features like |WikiTocGenerate| depends on
+assumptions of an underlying file format. However, it is a core idea that
+|wiki.vim| should work well for any text based wiki.
+
+An important point: |wiki.vim| is `not` a filetype plugin! It is designed so
+that it may be used along with dedicated filetype plugins, such as dedicated
+Markdown plugins.
 
 The plugin will activate by default for Markdown files (`*.md`). This may be
 customized with |g:wiki_filetypes| and |g:wiki_global_load|. One may also
 explicitly activate with |WikiEnable|. The wiki root is automatically detected
-as long as there is a top-level index file available, e.g. `index.md` (the
-index name may be changed with |g:wiki_index_name|). If no such file is found,
-it sets the root to the same directory as the current file. In addition, one
-may specify a main wiki with the |g:wiki_root| option. This allows convenient
-mappings and commands for opening the main wiki from anywhere.
-
-The plugin was initially based on Vimwiki [0], but it is written mostly from
-scratch and is based on the philosophy of "do one thing and do it well". Some
-users may therefore find that |wiki.vim| is missing some features such as
-syntax highlighting and/or list interactions. See |wiki-intro-plugins| for
-more info.
-
-[0]: https://github.com/vimwiki/vimwiki
+as long as there is a top-level index file available, e.g. `index.md`. The
+index name may be changed with |g:wiki_index_name|. If no index file is found,
+the root is set to the same directory as the current file. In addition, one
+may specify a "main wiki" with the |g:wiki_root| option. This allows
+convenient mappings and commands for opening this main wiki from anywhere.
 
 ------------------------------------------------------------------------------
 REQUIREMENTS                                          *wiki-intro-requirements*
@@ -104,12 +109,10 @@ Some features require a recent version of Vim (>= 8.1) or NeoVim (>= 0.5).
 The following is a list of external tools that are used for some of the
 features:
 
-  Program      Feature ~
-  =======      =======
-  `date`         Date parsing in the journal
-  `fzf`          A backend for UI selection (|g:wiki_select_method|)
-  `xdg-open`     Opening `pdf` files on Linux
-  `pandoc`       |WikiExport|
+  Program     Feature ~
+  =======     =======
+  `fzf`         A backend for UI selection (|g:wiki_select_method|)
+  `pandoc`      |WikiExport|
 
 ------------------------------------------------------------------------------
 USAGE                                                        *wiki-intro-usage*
@@ -119,13 +122,32 @@ This outlines the basic steps to get started:
 1. Create a wiki directory where the wiki files should be stored, for instance
    `~/wiki`.
 
-2. Add the following to your `vimrc` file: >vim
+2. Add the following corresponding configuration to your `vimrc` file: >vim
 
      let g:wiki_root = '~/wiki'
 
-3. Now you can open the index file (by default `index.md`; see also
-   |g:wiki_index_name|) with `<leader>ww` and start to add your notes as
-   desired.
+3. Now you can open the index file with `<leader>ww` and start to add your
+   notes as desired.
+
+The mappings are listed in |wiki-mappings-default|. The most essential
+mappings that most users will want to learn are:
+
+- `<cr>` (normal mode): Either follow the link under the cursor, or create
+  a link from the text under the cursor.
+- `<cr>` (visual mode): Create a link from the selected text.
+- `gl`: An |operator| to create a link from the operated text.
+- `<bs>`: After following a link: go back to previous location.
+- `<tab>`: Move to next link.
+- `<shift-tab>`: Move to previous link.
+- `<leader>wd`: Delete current page.
+- `<leader>wr`: Rename current page and update all incoming links.
+
+All mappings can be changed. See:
+
+- |g:wiki_mappings_use_defaults|
+- |g:wiki_mappings_global|
+- |g:wiki_mappings_local|
+- |g:wiki_mappings_local_journal|
 
 ------------------------------------------------------------------------------
 FEATURES                                                  *wiki-intro-features*
@@ -134,6 +156,7 @@ FEATURES                                                  *wiki-intro-features*
   - Global
     - Commands (and mappings) to access a pre-specified wiki (|g:wiki_root|)
       - |WikiIndex| to open the index
+      - |WikiJournal| to open the journal
       - |WikiPages| to select from list of all pages
       - |WikiTags| to select from list of tags
   - Local commands and mappings for
@@ -141,7 +164,7 @@ FEATURES                                                  *wiki-intro-features*
     - Renaming pages (will also update links in other pages)
     - Navigate through a table of contents (|WikiToc|)
     - Creating a table of contents (|WikiTocGenerate|)
-    - Toggling links
+    - Transforming links (from text to link or between link types)
     - Viewing wiki link graphs
   - Completion of wiki links and link anchors
   - Text objects
@@ -339,7 +362,7 @@ References ~
 [11]: https://github.com/lervag/dotnvim/blob/main/ftplugin/calendar.lua
 
 ------------------------------------------------------------------------------
-OTHER PLUGINS                                              *wiki-intro-plugins*
+OTHER USEFUL PLUGINS                                       *wiki-intro-plugins*
 
 Some users may find that |wiki.vim| does not provide all of the features they
 want for taking notes. Users who are used to Vimwiki will probably miss things
@@ -347,10 +370,6 @@ like features to interact with lists and check lists. This is a natural
 consequence of the idea to "do one thing and do it well"; the core feature of
 |wiki.vim| is to handle links in various formats and shapes. It has additional
 wiki features and some fringe features, but these are not as important.
-
-An important point: |wiki.vim| is `not` a filetype plugin! It is designed so
-that it may be used along with dedicated filetype plugins, such as dedicated
-Markdown plugins.
 
 The following is a list of plugins that one may want to use alongside
 |wiki.vim| for a more "complete" experience. If a user reads this list and
@@ -401,7 +420,7 @@ journal or diary in |wiki.vim|: >vim
 ALTERNATIVES                                          *wiki-intro-alternatives*
 
 There exist a lot of alternatives to `wiki.vim`. Within the Vim ecosystem,
-the main alternative is vimwiki. But there are also a lot of other
+the main alternative is Vimwiki. But there are also a lot of other
 alternatives. The following list is probably not very comprehensive. It may be
 useful if only as an inspiration to read about alternative approaches. The
 descriptions are mostly a copy of the initial text from the relevant home
@@ -411,7 +430,10 @@ Vimwiki ~
 https://github.com/vimwiki/vimwiki
 Type: Plugin; Vim
 Vimwiki is a personal wiki system for Vim. It relies on its own filetype,
-although recent versions also support more traditional markdown formats.
+although recent versions also support more traditional Markdown formats.
+
+Fun fact: wiki.vim was initially based on Vimwiki, but it is written from
+scratch and is based on the philosophy of "do one thing and do it well".
 
 Waikiki ~
 https://github.com/fcpg/vim-waikiki
@@ -838,8 +860,8 @@ OPTIONS                                                   *wiki-config-options*
   Default: 1
 
 *g:wiki_link_transforms*
-  This option specifies the template for toggling a specific type of link with
-  |WikiLingTransform| or |<plug>(wiki-link-transform)|.
+  This option specifies the template for transforming a specific type of link
+  with |WikiLingTransform| or |<plug>(wiki-link-transform)|.
 
   This allows customizing how links are changed when they are transformed. For
   instance, to add/remove extensions for wiki and markdown style links, one
@@ -1585,11 +1607,11 @@ specify global mappings available anywhere, and the liens annotated
   `n`     <leader>wsn         |<plug>(wiki-tag-rename)|
   `n`     <leader>wss         |<plug>(wiki-tag-search)|
   `n`     <tab>               |<plug>(wiki-link-next)|
+  `n`     <s-tab>             |<plug>(wiki-link-prev)|
   `n`     <cr>                |<plug>(wiki-link-follow)|
   `n`     <c-w><cr>           |<plug>(wiki-link-follow-split)|
   `n`     <c-w><tab>          |<plug>(wiki-link-follow-vsplit)|
   `n`     <c-w>u              |<plug>(wiki-link-follow-tab)|
-  `n`     <s-tab>             |<plug>(wiki-link-prev)|
   `n`     <bs>                |<plug>(wiki-link-return)|
   `n`     gl                  |<plug>(wiki-link-transform-operator)|
   `x`     <cr>                |<plug>(wiki-link-transform-visual)|
