@@ -74,16 +74,16 @@ as a personal knowledge base. Please see |wiki-intro-usage| for a simple
 quick-start guide. See also |wiki-intro-guide| for more in-depth info on what
 this is and how one could use such a system efficiently.
 
-|wiki.vim| is a "filetype agnostic" plugin that is intended to work well across
+`wiki.vim` is a "filetype agnostic" plugin that is intended to work well across
 different filetypes. The core functionality is to handle links of various
 kinds and to allow workflows to quickly traverse a wiki and to create new
 links and new pages. The "filetype agnostic" description is only half true,
 because the different link syntaxes are usually tied to a specific
 filetype/file format. Also, features like |WikiTocGenerate| depends on
 assumptions of an underlying file format. However, it is a core idea that
-|wiki.vim| should work well for any text based wiki.
+`wiki.vim` should work well for any text based wiki.
 
-An important point: |wiki.vim| is `not` a filetype plugin! It is designed so
+An important point: `wiki.vim` is `not` a filetype plugin! It is designed so
 that it may be used along with dedicated filetype plugins, such as dedicated
 Markdown plugins.
 
@@ -216,7 +216,7 @@ is a way to extend my memory. And writing the notes is itself a useful
 process, because it often helps both to learn and to remember things.
 
 I find the idea of keeping my notes linked and easily searchable in pure text
-to be extremely potent. With wiki.vim, I can very quickly locate relevant
+to be extremely potent. With `wiki.vim`, I can very quickly locate relevant
 notes for a topic. I believe strongly that speed or efficiency is the key
 aspect of a good personal-knowledge system. However, before I continue, I want
 to stress that `wiki.vim` is just one such system. There are probably
@@ -284,7 +284,7 @@ makes the concept so important.
 Although I do add a lot of text to my wiki, I've also realized that I should
 not add all data there. For instance, I've come to use Zotero [7] for managing
 my literature database. This is also why there is now some support for Zotero
-within wiki.vim (see |wiki-link-cite|).
+within `wiki.vim` (see |wiki-link-cite|).
 
 For some topics, I may write a wiki page about stuff where I have links to
 data files in which I can append new data and to scripts I can run to
@@ -364,19 +364,19 @@ References ~
 ------------------------------------------------------------------------------
 OTHER USEFUL PLUGINS                                       *wiki-intro-plugins*
 
-Some users may find that |wiki.vim| does not provide all of the features they
+Some users may find that `wiki.vim` does not provide all of the features they
 want for taking notes. Users who are used to Vimwiki will probably miss things
 like features to interact with lists and check lists. This is a natural
 consequence of the idea to "do one thing and do it well"; the core feature of
-|wiki.vim| is to handle links in various formats and shapes. It has additional
+`wiki.vim` is to handle links in various formats and shapes. It has additional
 wiki features and some fringe features, but these are not as important.
 
 The following is a list of plugins that one may want to use alongside
-|wiki.vim| for a more "complete" experience. If a user reads this list and
+`wiki.vim` for a more "complete" experience. If a user reads this list and
 things that it is lacking, they are very welcome to suggest additions!
 
 Markdown ~
-Many users prefer to use |wiki.vim| with the Markdown filetype. Vim and neovim
+Many users prefer to use `wiki.vim` with the Markdown filetype. Vim and neovim
 ship with a decent Markdown plugin by default, but there are also popular and
 well maintained alternatives with more features. Here are some popular
 options:
@@ -406,8 +406,8 @@ There are a lot of plugins to work with tables. These are both excellent:
 calendar.vim ~
 https://github.com/itchyny/calendar.vim
 A plugin that provides a neat calendar feature. It can be integrated with
-|wiki.vim| with e.g. this to map `<cr>` to open the selected date in the
-journal or diary in |wiki.vim|: >vim
+`wiki.vim` with e.g. this to map `<cr>` to open the selected date in the
+journal or diary in `wiki.vim`: >vim
 
   augroup init_calendar
     autocmd!
@@ -432,7 +432,7 @@ Type: Plugin; Vim
 Vimwiki is a personal wiki system for Vim. It relies on its own filetype,
 although recent versions also support more traditional Markdown formats.
 
-Fun fact: wiki.vim was initially based on Vimwiki, but it is written from
+Fun fact: `wiki.vim` was initially based on Vimwiki, but it is written from
 scratch and is based on the philosophy of "do one thing and do it well".
 
 Waikiki ~
@@ -473,13 +473,13 @@ top of a local folder of plain text Markdown files.
 CONFIGURATION                                                     *wiki-config*
 
 The following subsections present a list of available options and events that
-can be used to customize the behaviour of wiki.vim.
+can be used to customize the behaviour of `wiki.vim`.
 
 ------------------------------------------------------------------------------
 OPTIONS                                                   *wiki-config-options*
 
 *g:wiki_cache_root*
-  Specify the cache directory for |wiki.vim|.
+  Specify the cache directory for `wiki.vim`.
 
   Default value: OS dependent
 
@@ -519,7 +519,7 @@ OPTIONS                                                   *wiki-config-options*
           \}
 
 *g:wiki_filetypes*
-  List of filetype extensions for which |wiki.vim| should be enabled. Notice
+  List of filetype extensions for which `wiki.vim` should be enabled. Notice
   that file extensions are not always the same as the filetype. For example,
   the common extension for Markdown is `.md`, whereas the filetype is called
   `markdown`. The option should list the file extensions.
@@ -581,8 +581,8 @@ OPTIONS                                                   *wiki-config-options*
   Default: `''`
 
 *g:wiki_global_load*
-  |wiki.vim| is inherently agnostic in that it assumes any recognized filetype
-  specifies a wiki. However, some people might want to load |wiki.vim| for
+  `wiki.vim` is inherently agnostic in that it assumes any recognized filetype
+  specifies a wiki. However, some people might want to load `wiki.vim` for
   ONLY files within a globally specified directory |g:wiki_root|. To allow
   this behaviour, one can set this option to 0.
 
@@ -1214,8 +1214,8 @@ OPTIONS                                                   *wiki-config-options*
 ------------------------------------------------------------------------------
 EVENTS                                                     *wiki-config-events*
 
-The following |User| events are available. The following shows an example for
-how to use this: >vim
+`wiki.vim` provides a few |User| events. These can be used for instance as
+shown in the following example: >vim
 
   augroup MyWikiAutocmds
     autocmd!
@@ -1223,6 +1223,8 @@ how to use this: >vim
     autocmd User WikiBufferInitialized
           \ nmap <buffer> gf <plug>(wiki-link-follow)
   augroup END
+
+The available events are:
 
 *WikiBufferInitialized*
   Event is triggered after the buffer features are initialized. This event
@@ -1232,7 +1234,7 @@ how to use this: >vim
   Event is triggered after a link has been followed.
 
 *WikiReloadPost*
-  Event is triggered after wiki.vim has been reloaded with |WikiReload|.
+  Event is triggered after `wiki.vim` has been reloaded with |WikiReload|.
 
 ==============================================================================
 COMMANDS                                                        *wiki-commands*
@@ -1241,7 +1243,7 @@ The following is a list of commands that are available in the wiki. Most of
 the commands are also available as mappings of the form `<plug>(wiki-[name])`.
 
 *WikiEnable*
-  Load |wiki.vim| for the current file. If the current file type is not in
+  Load `wiki.vim` for the current file. If the current file type is not in
   |g:wiki_filetypes|, then it will be added, so that interwiki links will be
   possible.
 
@@ -1766,7 +1768,7 @@ The AsciiDoc link macro [0] is a generic link syntax that looks like this: >
 
   link:<target>[<attrlist>]
 
-The `[<attrlist>]` will be recognized by wiki.vim as the link text.
+The `[<attrlist>]` will be recognized by `wiki.vim` as the link text.
 
 [0]: https://docs.asciidoctor.org/asciidoc/latest/macros/link-macro/
 
@@ -1915,7 +1917,7 @@ several good plugins that provide this: |coc-nvim|, |deoplete|, |neocomplete|,
 Moreover, there is |VimCompletesMe| that overrides <tab> to trigger different
 built-in completions, such as omni completion, depending on the
 context. Below are instructions for how to setup some of these autocomplete
-plugins for wiki.vim.
+plugins for `wiki.vim`.
 
 ncm2 ~
 |ncm2| is a modern remake and replacement of |nvim-completion-manager| and is
@@ -1944,7 +1946,7 @@ links after `[[`: >vim
 TAGS                                                                *wiki-tags*
 
 Wiki pages may be tagged with keywords for organization. It is relatively easy
-to define and specify custom tag parsers with |g:wiki_tag_parsers|. wiki.vim
+to define and specify custom tag parsers with |g:wiki_tag_parsers|. `wiki.vim`
 ships a default parser that is automatically used, see |wiki-tags-default|.
 
 The number of lines in which tags are recognized can be customized by modifying
@@ -2013,7 +2015,7 @@ and `make`. E.g., to instead recognize hashed tags like `#tag1` and
 ORGMODE TAG PARSER                                          *wiki-tags-orgmode*
                                                    *g:wiki#tags#orgmode_parser*
 
-|wiki.vim| also ships a parser for Orgmode style tags, though it is not
+`wiki.vim` also ships a parser for Orgmode style tags, though it is not
 activated my default. The main difference to the default parser is that
 Orgmode style tags always use the short form `:tag1:tag2:`. They also only
 ever appear at the end of headlines and the `#+FILETAGS:` property.
@@ -2123,7 +2125,7 @@ to the user, but it would look something like this: >vim
 ------------------------------------------------------------------------------
 JOURNAL SUMMARIES                            *wiki-templates-journal-summaries*
 
-|wiki.vim| supports parsing the journal entries in order to make weekly and
+`wiki.vim` supports parsing the journal entries in order to make weekly and
 monthly summaries. A summary is automatically created when a summary file is
 opened. One may also move from a daily entry to the corresponding week with
 |WikiJournalToWeek|, and similarly to the corresponding month with
