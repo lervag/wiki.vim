@@ -1,4 +1,4 @@
-" A simple wiki plugin for Vim
+" A wiki plugin for Vim
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
@@ -18,7 +18,7 @@ function! wiki#journal#open(...) abort " {{{1
   let l:date = a:0 > 0
         \ ? a:1
         \ : strftime(s:date_format[g:wiki_journal.frequency])
-  call wiki#url#parse('journal:' . l:date).follow()
+  call wiki#url#follow('journal:' . l:date)
 endfunction
 
 " }}}1
@@ -36,7 +36,7 @@ function! wiki#journal#go(step) abort " {{{1
   endif
   let l:target_node = l:nodes[l:target]
 
-  call s:node_to_link(l:target_node).follow()
+  call s:follow_node(l:target_node)
 endfunction
 
 " }}}1
@@ -267,17 +267,17 @@ function! s:node_to_path(node) abort " {{{1
 endfunction
 
 " }}}1
-function! s:node_to_link(node) abort " {{{1
+function! s:follow_node(node) abort " {{{1
   let l:path = s:node_to_path(a:node)
 
   " Use standard wiki rooted link if possible
   let l:wiki_path = wiki#paths#relative(l:path, wiki#get_root())
   if strlen(l:wiki_path) < strlen(l:path)
-    return wiki#url#parse('/' . l:wiki_path)
+    return wiki#url#follow('/' . l:wiki_path)
   endif
 
   " Use file scheme if necessary
-  return wiki#url#parse('file:' . l:path)
+  return wiki#url#follow('file:' . l:path)
 endfunction
 
 " }}}1

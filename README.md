@@ -62,6 +62,7 @@ Please also read the `Guide` section in the [documentation](doc/wiki.txt).
   - Global
     - Commands (and mappings) to access a pre-specified wiki (`g:wiki_root`)
       - `WikiIndex` to open the index
+      - `WikiJournal` to open the journal
       - `WikiPages` to select from list of all pages
       - `WikiTags` to select from list of tags
   - Local commands and mappings for

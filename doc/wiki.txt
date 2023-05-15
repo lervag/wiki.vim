@@ -1,4 +1,4 @@
-*wiki.txt*    A simple wiki plugin for Vim
+*wiki.txt*    A wiki plugin for Vim
 *wiki.vim*
 
 Author:  Karl Yngve Lervåg <karl.yngve@gmail.com>
@@ -36,28 +36,15 @@ CONTENTS                                                        *wiki-contents*
     Guide                                    |wiki-intro-guide|
     Other useful plugins                     |wiki-intro-plugins|
     Alternatives                             |wiki-intro-alternatives|
-  Configuration                              |wiki-config|
-    Options                                  |wiki-config-options|
-    Events                                   |wiki-config-events|
-  Commands                                   |wiki-commands|
-  Mappings                                   |wiki-mappings|
-    Text objects                             |wiki-mappings-text-obj|
-    Journal mappings                         |wiki-mappings-default|
   Links                                      |wiki-link|
-    Overview of link types                   |wiki-link-types|
-    Wiki links                               |wiki-link-wiki|
-    Markdown links                           |wiki-link-md|
-    Markdown image links                     |wiki-link-md_fig|
-    Orgmode links                            |wiki-link-org|
-    Reference links                          |wiki-link-reference|
-                                             |wiki-link-ref_target|
-    Cite links                               |wiki-link-cite|
-    AsciiDoc cross references                |wiki-link-adoc_xref_bracket|
-                                             |wiki-link-adoc_xref_inline|
-    AsciiDoc link macro                      |wiki-link-adoc_link|
-    URLs                                     |wiki-link-url|
+    URL schemes                              |wiki-link-schemes|
+    Supported link types                     |wiki-link-types|
+  Options                                    |wiki-options|
+  Events                                     |wiki-events|
+  Mappings and commands                      |wiki-mappings|
+    Default mappings                         |wiki-mappings-default|
+    Reference                                |wiki-mappings-reference|
   Completion                                 |wiki-completion|
-    Autocomplete                             |wiki-completion-auto|
   Tags                                       |wiki-tags|
     Default tag parser                       |wiki-tags-default|
     Orgmode tag parser                       |wiki-tags-orgmode|
@@ -65,6 +52,9 @@ CONTENTS                                                        *wiki-contents*
     Template function context                |wiki-templates-context|
     Template file format                     |wiki-templates-format|
     Journal summaries                        |wiki-templates-journal-summaries|
+  Advanced configuration guide               |wiki-advanced-configuration|
+    Example 1: New scheme                    |wiki-advanced-config-1
+    Example 2: Adjust the wiki scheme        |wiki-advanced-config-2
 
 ==============================================================================
 INTRODUCTION                                                       *wiki-intro*
@@ -122,7 +112,7 @@ This outlines the basic steps to get started:
 1. Create a wiki directory where the wiki files should be stored, for instance
    `~/wiki`.
 
-2. Add the following corresponding configuration to your `vimrc` file: >vim
+2. Add the corresponding option to your `vimrc` file: >vim
 
      let g:wiki_root = '~/wiki'
 
@@ -142,12 +132,8 @@ mappings that most users will want to learn are:
 - `<leader>wd`: Delete current page.
 - `<leader>wr`: Rename current page and update all incoming links.
 
-All mappings can be changed. See:
-
-- |g:wiki_mappings_use_defaults|
-- |g:wiki_mappings_global|
-- |g:wiki_mappings_local|
-- |g:wiki_mappings_local_journal|
+See |wiki-mappings-default| for a full list of default options and info on how
+to change them.
 
 ------------------------------------------------------------------------------
 FEATURES                                                  *wiki-intro-features*
@@ -470,13 +456,278 @@ Type: Software
 top of a local folder of plain text Markdown files.
 
 ==============================================================================
-CONFIGURATION                                                     *wiki-config*
+LINKS                                                               *wiki-link*
 
-The following subsections present a list of available options and events that
-can be used to customize the behaviour of `wiki.vim`.
+Links are the most essential concept of a wiki. As such, it is important to
+understand them. Simply stated, a link is a "structure" that consists of a URL
+and a possibly empty description. URL is short for Uniform Resource Locator
+and is an address to a resource.
+
+The URL concept is specified in RFC 3986 "Uniform Resource Identifier (URI):
+Generic Syntax" (https://datatracker.ietf.org/doc/html/rfc3986). A typical URL
+looks like this: `scheme:target-address`. Some examples of URLs:
+
+- `http://www.example.com`
+- `wiki:index`
+- `journal:2013-04-05`
+- `doi:10.1002%2Fandp.19053220607`
+
+It is easy to confuse the concept of the link with that of the URL itself, but
+these are two distinct concepts. A URL is by definition a link, but a link may
+be "more" than just a URL. Some examples of valid links recognized by
+`wiki.vim`: >
+
+  http://www.example.com                     link is just a URL
+  <wiki:a wiki link with spaces>             <…> allows URLs with spaces
+  [[http://www.example.com]]                 wiki link without description
+  [[http://www.example.com|a wiki link]]     wiki link with description
+  [a markdown link](http://www.example.com)  markdown link with description
+
+The mappings that act on links are listed in |wiki-mappings-default|. The most
+notable default mappings are:
+- A link may be followed with `<cr>`.
+- `<cr>` used on normal text (not on a link) will transform the text into
+  a link of the type specified by |g:wiki_link_creation|. This also works in
+  visual mode.
+- Similarly, `gl` may be used to turn operated text into a link.
+- One may use `<bs>` to navigate back after following a link.
+- `<leader>wf` can be used to transform a link between different types (see
+  |g:wiki_link_transforms|).
+
+`wiki.vim` is very customizable with respect to how it should behave for
+a given link. Consider the following example: >
+
+  [[scheme:target-address|describing text goes here]]
+
+    \______ URL ________/ \_____ description _____/
+
+The `scheme:` part of the URL is important. It is "optional", but only in the
+sense that many link types have a default "implied" scheme given by
+|g:wiki_link_default_schemes|. The URL scheme is used to select the `resolver`
+and `handler` functions used by `wiki.vim` to follow a link. Users can
+override the default functions by use of the |g:wiki_link_schemes| option.
+This also allows to easily implement custom schemes. See the section
+|wiki-advanced-configuration| for examples of how one can do this.
+
+So, in summary: When a user presses `<cr>` to follow a link, `wiki.vim` will
+do these things:
+- The link is first parsed to detect the URL and possibly prepend a default
+  scheme.
+- The link URL is then passed to an optional `resolver` function that "parses"
+  the raw link.
+- The possibly resolved URL is then passed to a `handler` that opens/follows
+  the link.
 
 ------------------------------------------------------------------------------
-OPTIONS                                                   *wiki-config-options*
+URL SCHEMES                                                  *wiki-link-schemes*
+
+The following is a list of the schemes that are supported out of the box.
+
+wiki ~
+  Links to internal wiki pages. The address can be both relative and absolute.
+  Absolute addresses are relative to the wiki root. Further, the addresses may
+  include anchors to specific sections of the wiki entry. Some examples might
+  be enlightening: >
+
+    wiki:index
+
+    If the address has whitespace, we need to use a full link style, for
+    instance:
+
+    [[wiki:index#section 1]]
+
+    With default settings, wiki link types also imply the wiki scheme, thus
+    the following is equivalent to the latter:
+
+    [[index#section 1]]
+<
+journal ~
+  Links to journal pages. The address should be a date format at a specified
+  level/frequency:
+
+    - daily: `YYYY-MM-DD` (standard ISO date)
+    - weekly: `YYYY-wWW`
+    - monthly: `YYYY-MM`
+
+  Notice that these formats will be translated to the corresponding filename
+  formats in the `date_format` key of |g:wiki_journal|. Some examples of
+  journal urls: >
+
+    journal:2014-03-02
+    journal:2014-w09
+    journal:2014-03
+<
+  For convenience, the ISO date will also be recognized as a journal url
+  without the scheme.
+
+  Note: This scheme works well as long as there is only a single page per
+        date. If you want to use multiple entries per date you should avoid
+        this scheme and you should probably consider to change the
+        `use_journal_scheme` option (see |g:wiki_journal_index|).
+
+file ~
+  Links to a local file. |g:wiki_viewer| is used by the default handler to
+  open a file. It can be useful to define a custom `handler` function for the
+  `file:` scheme to specify desired behaviour for different filetypes. As for
+  any scheme, users can implement a custom file handler with
+  |g:wiki_link_schemes|.
+
+doi ~
+  Resolves `doi:ADDRESS` to `http://dx.doi.org/ADDRESS` and uses the `generic`
+  scheme handler to open.
+
+zot ~
+  This is an early version of a Zotero scheme. It uses `fd`, `fdfind`, or
+  `find` (in preferred order) to search the Zotero storage for a matching pdf.
+  This works very well if one uses the Zotfile extension and the Better Bibtex
+  extension to ensure that all pdf files are named according to the format
+  `%b - {%T - } {%t}`, where `%b` is the citekey. Then links like
+  `zot:citekey` should result in unique matches. The resulting file is opened
+  with |g:wiki_viewer|. The Zotero storage root may be specified with
+  |g:wiki_zotero_root|.
+
+  The same link type can also work well for JabRef bibliographies. JabRef does
+  not allow to open the database on a specific key. But if your JabRef library
+  has PDFs that are named similarly as explained above, then it should suffice
+  to point |g:wiki_zotero_root| to your literature folder. Now following
+  `zot:citekey` (or the shorthand `@citekey`) will allow to open the PDFs in
+  your JabRef bibliography directly.
+
+generic ~
+  If the scheme is not otherwise recognized, then the URL is opened with the
+  system handler. This is defined by the `_` key of |g:wiki_viewer| on Linux.
+  Currently, only Linux is supported here.  This will work quite well on
+  standard Linux distributions, e.g. for following `http` and `https` URLs.
+
+------------------------------------------------------------------------------
+SUPPORTED LINK TYPES                                          *wiki-link-types*
+
+These are the currently supported link types:
+
+- Wiki links                             |wiki-link-wiki|
+- Markdown links                         |wiki-link-md|
+- Markdown image links                   |wiki-link-md_fig|
+- Orgmode links                          |wiki-link-org|
+- Reference links                        |wiki-link-reference|
+                                         |wiki-link-ref_target|
+- AsciiDoc cross references              |wiki-link-adoc_xref_bracket|
+                                         |wiki-link-adoc_xref_inline|
+- AsciiDoc link macro                    |wiki-link-adoc_link|
+- Cite links                             |wiki-link-cite|
+- ISO dates                              |wiki-link-date|
+
+Wiki links ~
+                                                               *wiki-link-wiki*
+Wiki links are similar in style to the standard Mediawiki links [0]. A couple
+of examples: >
+
+  [[URL]]
+  [[URL|Description]]
+
+In `wiki.vim`, the wiki link URL is recognized as any general URL except it
+has `wiki` as the default implied scheme.
+
+[0]: https://www.mediawiki.org/wiki/Help:Links
+
+Markdown links ~
+                                                                 *wiki-link-md*
+Markdown links look like this: >
+
+  [Description](URL)
+
+Markdown image links ~
+                                                             *wiki-link-md_fig*
+Markdown image links are similar to markdown links: >
+
+  ![Caption text](URL)
+
+Orgmode links ~
+                                                                *wiki-link-org*
+Orgmode links look identical to wiki links if they don't have a description.
+If they have a description, it is added within the outer square brackets
+within a second pair of square brackers. Examples: >
+
+  [[URL]]
+  [[URL][Description]]
+
+Reference links ~
+                                                          *wiki-link-reference*
+                                                         *wiki-link-ref_target*
+Reference style links consist of up to three parts: A `label`, an optional
+`description`, and a `link target`. The syntax is best explained through an
+example: >
+
+  The most simple form, and perhaps the most useful one, is to add a simple
+  reference like this [1].
+
+  One may also add a [description][label].
+
+  The target may consist of both words and numbers, e.g. [like this][Ref 3].
+
+  [1]: <URL 1>
+  [label]: <URL 2>
+  [Ref 3]: <URL 3>
+
+Reference links are implemented as two different link types:
+
+- `reference`: matches links used in the text, such as `[1]` and
+  `[text][label]`. Following this link will either open the target URL or move
+  the cursor to the target URL. Notice that this link type does not allow to
+  specify a default scheme, because it will use the reference scheme under the
+  hood for resolving the proper url.
+
+- `ref_target`: matches link targets, such as `[1]: URL`. Following this will
+  open the URL.
+
+Asciidoc cross references ~
+                                                  *wiki-link-adoc_xref_bracket*
+                                                  *wiki-link-adoc_xref_inline*
+AsciiDoc cross-reference links or xrefs [0] look like this: >
+
+  Bracket style
+    <<anchor>>
+    <<anchor,Description>>
+    <<filename.adoc#anchor>>
+    <<filename.adoc#anchor,Description>>
+
+  Inline macro
+    xref:anchor[Description]
+    xref:filename.adoc#anchor[Description]
+    xref:[LONG URL][Description]
+
+The `[LONG URL]` variant is supported for cases where the filename contains
+spaces.
+
+[0]: https://docs.asciidoctor.org/asciidoc/latest/macros/xref/
+
+Asciidoc link macros ~
+                                                          *wiki-link-adoc_link*
+The AsciiDoc link macro [0] is a generic link syntax that looks like this: >
+
+  link:<target>[<attrlist>]
+
+The `[<attrlist>]` will be recognized by `wiki.vim` as the link text.
+
+[0]: https://docs.asciidoctor.org/asciidoc/latest/macros/link-macro/
+
+Cite links ~
+                                                               *wiki-link-cite*
+The cite links are a convenient link type that can be used with e.g. Zotero
+URLs. That is, instead of writing a link with URL `zot:citekey` one may simply
+write `@citekey`.
+
+See also |wiki-link-url| for more info on the Zotero URL scheme and handler.
+
+Iso dates ~
+                                                               *wiki-link-date*
+Dates written in ISO date format, e.g. 2023-05-05, will be recognized as
+a link to `journal:2023-05-05`.
+
+==============================================================================
+OPTIONS                                                          *wiki-options*
+
+`wiki.vim` has several options to configure the behaviour. The following is
+a reference of all available options.
 
 *g:wiki_cache_root*
   Specify the cache directory for `wiki.vim`.
@@ -528,27 +779,6 @@ OPTIONS                                                   *wiki-config-options*
   is relevant.
 
   Default: `['md']`
-
-*g:wiki_file_handler*
-  Name of a function or a |FuncRef| for a function that should be used to
-  handle local files (see also |wiki-link-url|). The function should give
-  a non-zero return value if it properly handled the URL. If not, the plugin
-  falls back to opening the URL as explained in |wiki-link-url|.
-
-  An example: >vim
-
-    let g:wiki_file_handler = 'WikiFileHandler'
-
-    function! WikiFileHandler(...) abort dict
-      if self.path =~# 'pdf$'
-        silent execute '!zathura' fnameescape(self.path) '&'
-        return 1
-      endif
-
-      return 0
-    endfunction
-<
-  Default: `''`
 
 *g:wiki_fzf_pages_force_create_key*
   Key combination that, when pressed while searching with |WikiPages|, will
@@ -835,6 +1065,9 @@ OPTIONS                                                   *wiki-config-options*
   case they specify the default scheme, or dictionaries between filetype
   extensions and default schemes.
 
+  Note: Reference-style links are special and do not allow to override the
+        scheme. See |wiki-link-reference|.
+
   Default: >vim
 
     let g:wiki_link_default_schemes = {
@@ -845,11 +1078,62 @@ OPTIONS                                                   *wiki-config-options*
           \ 'adoc_xref_inline': 'adoc',
           \ 'adoc_xref_bracket': 'adoc',
           \ 'adoc_link': 'file',
-          \ 'reference': '',
           \ 'ref_target': '',
           \ 'date': 'journal',
           \ 'cite': 'zot',
           \}
+
+*g:wiki_link_schemes*
+  A dictionary to configure how URLs are handled. The keys represent the
+  schemes and the values are dictionaries that specify the desired `resolver`
+  and `handler` functions:
+
+    resolver ~
+      |Funcref|: (URL object) => URL object (OPTIONAL)
+      This function parses the URL object and returns a new URL object. This
+      is useful to e.g. enrich or change the URL before handing it to the
+      `handler`. For example, the `resolver` can be used to apply URL
+      encoding or decoding.
+
+    handler ~
+      |Funcref|: (URL object, edit_cmd) => NONE (REQUIRED)
+      A function that takes a possibly resolved URL object and an `edit_cmd`
+      and acts on it. The `edit_cmd` is necessary to implement the various
+      commands like |WikiLinkFollow|, |WikiLinkFollowSplit|, and
+      |WikiLinkFollowTab|.
+
+  Only the `handler` is required. Both functions has as input a URL object,
+  which is a dictionary that initially looks like this (before any `resolver`
+  has been applied): >vim
+
+    let l:url = {
+          \ 'url': 'URL HERE',
+          \ 'scheme': 'SCHEME',
+          \ 'stripped': 'URL WITHOUT SCHEME',
+          \ 'origin': 'THE ORIGIN FILE'
+          \}
+<
+  IMPORTANT: The `resolver` can return an object with different properties.
+  However, the `scheme` attribute is required as it is used to select the
+  appropriate `handler`.
+
+  Notice that the `resolver` and `handler` needs to "fit". That is, the
+  `handler` may depend on properties of the URL object that are added or
+  changed by a corresponding `resolver`. For example, many of the built-in
+  resolvers will add a `path` attribute that specifies the full path to
+  a file. This is in turn used by the `handler` to open the corresponding
+  file.
+
+  Finally, notice that built-in resolvers and handlers are found
+  automatically. That is, this option is not the mechanism used internally for
+  resolving the relevant function. Instead, this option provides an interface
+  to users to allow to easily override the built-in functions and add support
+  for new schemes.
+
+  See |wiki-advanced-configuration| for examples of how to add support for
+  a new scheme and for how to modify one of the existing schemes.
+
+  Default: `{}`
 
 *g:wiki_link_transform_on_follow*
   This option allows disabling the transform behaviour in |WikiLinkFollow|
@@ -957,36 +1241,6 @@ OPTIONS                                                   *wiki-config-options*
           \}
 <
   Default: Undefined
-
-*g:wiki_month_names*
-  A list of the names for each month. Used for interpolating month names in
-  the month template, |g:wiki_template_title_month|.
-
-  Default: `['January', 'February', ..., 'December']`
-
-*g:wiki_resolver*
-  The name of the function to resolve wiki-schemed urls, i.e., the standard
-  link url scheme (see |wiki-link-url| for more info). The default should work
-  well for most people, but this option allows to adjust the resolver to one's
-  own liking.
-
-  The function takes two arguments:
-
-    fname ~
-      The unresolved filename. This may be empty, which is typically the case
-      for inter-page links (e.g. `[[#SomeSection]]`).
-
-    origin ~
-      The path of the origin file, i.e. the file from which the link was
-      activated. This may be empty if a link is followed programmatically from
-      an empty buffer.
-
-  The function must return an absolute path to the destination file.
-
-  Note: The function `wiki#get_root()` can be useful to get the path to the
-        wiki root.
-
-  Default: `'wiki#url#wiki#resolver'`
 
 *g:wiki_root*
   Option to specify the wiki root path, i.e. the wiki that is opened with the
@@ -1153,12 +1407,18 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: `[]`
 
+*g:wiki_template_month_names*
+  A list of the names for each month. Used e.g. for interpolating month names
+  in the month template, |g:wiki_template_title_month|.
+
+  Default: `['January', 'February', ..., 'December']`
+
 *g:wiki_template_title_month*
   A string that specifies the title of the month template. The following keys
   are interpolated:
 
     `%(month)`         Month number
-    `%(month-name)`    Name of month (see |g:wiki_month_names|)
+    `%(month-name)`    Name of month (see |g:wiki_template_month_names|)
     `%(year)`          Year (4 digits)
 
   See |wiki-templates-journal-summaries| for more info.
@@ -1211,11 +1471,11 @@ OPTIONS                                                   *wiki-config-options*
 
   Default: `'~/.local/zotero'`
 
-------------------------------------------------------------------------------
-EVENTS                                                     *wiki-config-events*
+==============================================================================
+EVENTS                                                            *wiki-events*
 
-`wiki.vim` provides a few |User| events. These can be used for instance as
-shown in the following example: >vim
+Users events can be used by users to add custom behaviour after an event is
+triggered. It is probably best explained by a simple example: >vim
 
   augroup MyWikiAutocmds
     autocmd!
@@ -1224,7 +1484,7 @@ shown in the following example: >vim
           \ nmap <buffer> gf <plug>(wiki-link-follow)
   augroup END
 
-The available events are:
+`wiki.vim` provides the following |User| events:
 
 *WikiBufferInitialized*
   Event is triggered after the buffer features are initialized. This event
@@ -1237,10 +1497,76 @@ The available events are:
   Event is triggered after `wiki.vim` has been reloaded with |WikiReload|.
 
 ==============================================================================
-COMMANDS                                                        *wiki-commands*
+MAPPINGS AND COMMANDS                                           *wiki-mappings*
 
-The following is a list of commands that are available in the wiki. Most of
-the commands are also available as mappings of the form `<plug>(wiki-[name])`.
+Here we describe the mappings and commands provided by `wiki.vim`. We first
+list the default mappings, then provide a full reference of all mappings and
+commands.
+
+------------------------------------------------------------------------------
+DEFAULT MAPPINGS                                        *wiki-mappings-default*
+
+This is a list of default mappings. Follow the help tags to see more detailed
+description of each mapping. The default mappings can be changed with the
+following configuration options:
+
+- |g:wiki_mappings_use_defaults|
+- |g:wiki_mappings_global|
+- |g:wiki_mappings_local|
+- |g:wiki_mappings_local_journal|
+
+In the table below, the mode specifier is a single letter which indicates
+which mode the mapping is valid in. See e.g. |nmap|, |imap|, |omap| or |xmap|
+for more information about the different modes. The lines annotated with
+`[GLOBAL]` specify global mappings available anywhere, and the lines annotated
+`[JOURNAL]` are only available within the journal.
+
+  MODE  LHS                 RHS ~
+  ====  ===                 ===
+  `n`     <leader>ww          |<plug>(wiki-index)|                 [GLOBAL]
+  `n`     <leader>wn          |<plug>(wiki-open)|                  [GLOBAL]
+  `n`     <leader>w<leader>w  |<plug>(wiki-journal)|               [GLOBAL]
+  `n`     <leader>wx          |<plug>(wiki-reload)|                [GLOBAL]
+  `n`     <leader>wgb         |<plug>(wiki-graph-find-backlinks)|
+  `n`     <leader>wgr         |<plug>(wiki-graph-related)|
+  `n`     <leader>wgc         |<plug>(wiki-graph-check-links)|
+  `n`     <leader>wgC         |<plug>(wiki-graph-check-links-g)|
+  `n`     <leader>wgi         |<plug>(wiki-graph-in)|
+  `n`     <leader>wgo         |<plug>(wiki-graph-out)|
+  `n`     <leader>wf          |<plug>(wiki-link-transform)|
+  `n`     <leader>wd          |<plug>(wiki-page-delete)|
+  `n`     <leader>wr          |<plug>(wiki-page-rename)|
+  `n`     <leader>wt          |<plug>(wiki-page-toc)|
+  `n`     <leader>wT          |<plug>(wiki-page-toc-local)|
+  `n`     <leader>wp          |<plug>(wiki-export)|
+  `x`     <leader>wp          |<plug>(wiki-export)|
+  `n`     <leader>wll         |<plug>(wiki-link-show)|
+  `n`     <leader>wlh         |<plug>(wiki-link-extract-header)|
+  `n`     <leader>wsl         |<plug>(wiki-tag-list)|
+  `n`     <leader>wsr         |<plug>(wiki-tag-reload)|
+  `n`     <leader>wsn         |<plug>(wiki-tag-rename)|
+  `n`     <leader>wss         |<plug>(wiki-tag-search)|
+  `n`     <tab>               |<plug>(wiki-link-next)|
+  `n`     <s-tab>             |<plug>(wiki-link-prev)|
+  `n`     <cr>                |<plug>(wiki-link-follow)|
+  `n`     <c-w><cr>           |<plug>(wiki-link-follow-split)|
+  `n`     <c-w><tab>          |<plug>(wiki-link-follow-vsplit)|
+  `n`     <c-w>u              |<plug>(wiki-link-follow-tab)|
+  `n`     <bs>                |<plug>(wiki-link-return)|
+  `n`     gl                  |<plug>(wiki-link-transform-operator)|
+  `x`     <cr>                |<plug>(wiki-link-transform-visual)|
+  `ox`    au                  |<plug>(wiki-au)|
+  `ox`    iu                  |<plug>(wiki-iu)|
+  `ox`    at                  |<plug>(wiki-at)|
+  `ox`    it                  |<plug>(wiki-it)|
+  `n`     <c-p>               |<plug>(wiki-journal-prev)|          [JOURNAL]
+  `n`     <c-n>               |<plug>(wiki-journal-next)|          [JOURNAL]
+  `n`     <leader><c-n>       |<plug>(wiki-journal-copy-tonext)|   [JOURNAL]
+  `n`     <leader>wu          |<plug>(wiki-journal-toweek)|        [JOURNAL]
+  `n`     <leader>wm          |<plug>(wiki-journal-tomonth)|       [JOURNAL]
+
+------------------------------------------------------------------------------
+MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
 
 *WikiEnable*
   Load `wiki.vim` for the current file. If the current file type is not in
@@ -1541,6 +1867,14 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
       page "My Fzf Page.wiki" (or similar, depending on the value of other
       options).
 
+*<plug>(wiki-au)*
+*<plug>(wiki-iu)*
+  Text object for link URLs.
+
+*<plug>(wiki-at)*
+*<plug>(wiki-it)*
+  Text object for link texts.
+
 *<plug>(wiki-tags)*
 *WikiTags*
   List tags from the current wiki. Allows to search for and navigate to
@@ -1552,354 +1886,17 @@ the commands are also available as mappings of the form `<plug>(wiki-[name])`.
   specified by |g:wiki_select_method|.
 
 ==============================================================================
-MAPPINGS                                                        *wiki-mappings*
-
-Here we describe the mappings provided by the wiki plugin, as well as the
-default maps. Note that most of the mappings are also available as commands.
-These mappings are described in |wiki-commands|.
-
-------------------------------------------------------------------------------
-TEXT OBJECTS                                           *wiki-mappings-text-obj*
-
-The following mappings are available as visual mode and operator mode
-mappings, i.e. |xmap| and |omap|.
-
-*<plug>(wiki-au)*
-*<plug>(wiki-iu)*
-  Text object for link URLs.
-
-*<plug>(wiki-at)*
-*<plug>(wiki-it)*
-  Text object for link texts.
-
-------------------------------------------------------------------------------
-DEFAULT MAPPINGS                                        *wiki-mappings-default*
-
-This is a list of default mappings. For a more detailed description of each
-mapping, read the documentation of the `<plug>(wiki-[name])` form of the
-mapping. The mode specifier is a single letter which indicates which mode the
-mapping is valid in. See e.g. |nmap|, |imap|, |omap| or |xmap| for more
-information about the different modes. The lines annotated with `[GLOBAL]`
-specify global mappings available anywhere, and the liens annotated
-`[JOURNAL]` are only available within the journal.
-
-  MODE  LHS                 RHS ~
-  ====  ===                 ===
-  `n`     <leader>ww          |<plug>(wiki-index)|                 [GLOBAL]
-  `n`     <leader>wn          |<plug>(wiki-open)|                  [GLOBAL]
-  `n`     <leader>w<leader>w  |<plug>(wiki-journal)|               [GLOBAL]
-  `n`     <leader>wx          |<plug>(wiki-reload)|                [GLOBAL]
-  `n`     <leader>wgb         |<plug>(wiki-graph-find-backlinks)|
-  `n`     <leader>wgr         |<plug>(wiki-graph-related)|
-  `n`     <leader>wgc         |<plug>(wiki-graph-check-links)|
-  `n`     <leader>wgC         |<plug>(wiki-graph-check-links-g)|
-  `n`     <leader>wgi         |<plug>(wiki-graph-in)|
-  `n`     <leader>wgo         |<plug>(wiki-graph-out)|
-  `n`     <leader>wf          |<plug>(wiki-link-transform)|
-  `n`     <leader>wd          |<plug>(wiki-page-delete)|
-  `n`     <leader>wr          |<plug>(wiki-page-rename)|
-  `n`     <leader>wt          |<plug>(wiki-page-toc)|
-  `n`     <leader>wT          |<plug>(wiki-page-toc-local)|
-  `n`     <leader>wp          |<plug>(wiki-export)|
-  `x`     <leader>wp          |<plug>(wiki-export)|
-  `n`     <leader>wll         |<plug>(wiki-link-show)|
-  `n`     <leader>wlh         |<plug>(wiki-link-extract-header)|
-  `n`     <leader>wsl         |<plug>(wiki-tag-list)|
-  `n`     <leader>wsr         |<plug>(wiki-tag-reload)|
-  `n`     <leader>wsn         |<plug>(wiki-tag-rename)|
-  `n`     <leader>wss         |<plug>(wiki-tag-search)|
-  `n`     <tab>               |<plug>(wiki-link-next)|
-  `n`     <s-tab>             |<plug>(wiki-link-prev)|
-  `n`     <cr>                |<plug>(wiki-link-follow)|
-  `n`     <c-w><cr>           |<plug>(wiki-link-follow-split)|
-  `n`     <c-w><tab>          |<plug>(wiki-link-follow-vsplit)|
-  `n`     <c-w>u              |<plug>(wiki-link-follow-tab)|
-  `n`     <bs>                |<plug>(wiki-link-return)|
-  `n`     gl                  |<plug>(wiki-link-transform-operator)|
-  `x`     <cr>                |<plug>(wiki-link-transform-visual)|
-  `ox`    au                  |<plug>(wiki-au)|
-  `ox`    iu                  |<plug>(wiki-iu)|
-  `ox`    at                  |<plug>(wiki-at)|
-  `ox`    it                  |<plug>(wiki-it)|
-  `n`     <c-p>               |<plug>(wiki-journal-prev)|          [JOURNAL]
-  `n`     <c-n>               |<plug>(wiki-journal-next)|          [JOURNAL]
-  `n`     <leader><c-n>       |<plug>(wiki-journal-copy-tonext)|   [JOURNAL]
-  `n`     <leader>wu          |<plug>(wiki-journal-toweek)|        [JOURNAL]
-  `n`     <leader>wm          |<plug>(wiki-journal-tomonth)|       [JOURNAL]
-
-==============================================================================
-LINKS                                                               *wiki-link*
-
-Links are one of the most essential features of a wiki. As such, it is
-important to understand them. A link is a "structure" that consists of an URL
-and a possibly empty description, e.g. the wiki link `[[URL]]`. The supported
-link types are listed below.
-
-The mappings that act on links are listed in |wiki-mappings-default|. The most
-notable default mappings are:
-- A link may be followed with `<cr>`.
-- `<cr>` used on normal text (not on a link) will transform the text into
-  a link of the type specified by |g:wiki_link_creation|. This also works in
-  visual mode.
-- Similarly, `gl` may be used to turn operated text into a link.
-- One may use `<bs>` to navigate back after following a link.
-- `<leader>wf` can be used to transform a link between different types (see
-  |g:wiki_link_transforms|).
-
-                                                              *wiki-link-types*
-These are the link types that are currently supported with some examples:
-
-- Wiki links                         |wiki-link-wiki|
-    `[[URL]]`
-    `[[URL|Description]]`
-- Markdown links                     |wiki-link-md|
-    `[Description](URL)`
-- Markdown image links               |wiki-link-md_fig|
-    `![Caption text](URL)`
-- Orgmode links                      |wiki-link-org|
-    `[[URL]]`
-    `[[URL][Description]]`
-- Reference links                    |wiki-link-reference|
-                                     |wiki-link-ref_target|
-    `[Target]`
-    `[Description][Target]`
-    `[Target]: URL`
-- AsciiDoc cross-reference links     |wiki-link-adoc_xref_bracket|
-                                     |wiki-link-adoc_xref_inline|
-    `<<URL#,Description>>`
-    `xref:URL[Description]`
-- AsciiDoc link macro                |wiki-link-adoc_link|
-    `link:URL[Description]`
-- Cite links                         |wiki-link-cite|
-    `@citekey`
-- ISO dates                          |wiki-link-date|
-    `2023-05-05`
-- URLs                               |wiki-link-url|
-    `https://www.example.com`
-
-------------------------------------------------------------------------------
-WIKI LINKS                                                     *wiki-link-wiki*
-
-Wiki links are similar in style to the standard Mediawiki links. This is the
-standard syntax for creating internal wiki links. The description part is
-optional. Examples: >
-
-  [[URL]]
-  [[URL|Description]]
-
-------------------------------------------------------------------------------
-MARKDOWN LINKS                                                   *wiki-link-md*
-
-Markdown links are one of the more common types of links. They look like
-this: >
-
-  [Description](URL)
-
-------------------------------------------------------------------------------
-MARKDOWN IMAGE LINKS                                         *wiki-link-md_fig*
-
-Markdown image links are similar to markdown links: >
-
-  ![Caption text](URL)
-
-------------------------------------------------------------------------------
-ORGMODE LINKS                                                   *wiki-link-org*
-
-Orgmode links look identical to wiki links if they don't have a description.
-If they have a description, it is added within the outer square brackets
-within a second pair of square brackers. Examples: >
-
-  [[URL]]
-  [[URL][Description]]
-
-------------------------------------------------------------------------------
-REFERENCE LINKS                                          *wiki-link-reference*
-                                                         *wiki-link-ref_target*
-
-Reference style links are slightly different. They consist of up to three
-parts: An optional `description`, a `label` and a `link definition`. The
-syntax is best explained through an example: >
-
-  The most simple form, and perhaps the most useful one, is to add a simple
-  reference like this [1].
-
-  One may also add a [description][label].
-
-  The target may consist of both words and numbers, e.g. [like this][Ref 3].
-
-  [1]: <URL 1>
-  [label]: <URL 2>
-  [Ref 3]: <URL 3>
-
-Reference links are implemented as two different link types:
-
-- `reference`: matches links used in the text, such as `[1]` and
-  `[description][label]`. Following this link will either open the target URL
-  or move the cursor to the target URL.
-- `ref_target`: matches link targets, such as `[1]: URL`. Following this will
-  open the URL.
-
-------------------------------------------------------------------------------
-ASCIIDOC CROSS REFERENCES                         *wiki-link-adoc_xref_bracket*
-                                                  *wiki-link-adoc_xref_inline*
-
-AsciiDoc cross-reference links or xrefs [0] look like this: >
-
-  Bracket style
-    <<anchor>>
-    <<anchor,Description>>
-    <<filename.adoc#anchor>>
-    <<filename.adoc#anchor,Description>>
-
-  Inline macro
-    xref:anchor[Description]
-    xref:filename.adoc#anchor[Description]
-    xref:[LONG URL][Description]
-
-The `[LONG URL]` variant is supported for cases where the filename contains
-spaces.
-
-[0]: https://docs.asciidoctor.org/asciidoc/latest/macros/xref/
-
-------------------------------------------------------------------------------
-ASCIIDOC LINK MACROS                                      *wiki-link-adoc_link*
-
-The AsciiDoc link macro [0] is a generic link syntax that looks like this: >
-
-  link:<target>[<attrlist>]
-
-The `[<attrlist>]` will be recognized by `wiki.vim` as the link text.
-
-[0]: https://docs.asciidoctor.org/asciidoc/latest/macros/link-macro/
-
-------------------------------------------------------------------------------
-CITE LINKS                                                     *wiki-link-cite*
-
-The cite links are a convenient link type that can be used with e.g. Zotero
-URLs. That is, instead of writing a link with URL `zot:citekey` one may simply
-write `@citekey`.
-
-See also |wiki-link-url| for more info on the Zotero URL scheme and handler.
-
-------------------------------------------------------------------------------
-ISO DATES                                                      *wiki-link-date*
-
-Dates written in ISO date format, e.g. 2023-05-05, will be recognized as
-a link to `journal:2023-05-05`.
-
-------------------------------------------------------------------------------
-URLS                                                            *wiki-link-url*
-
-URL is short for Uniform Resource Locator and is an address to a resource. The
-concept of URLs is specified in RFC 3986 "Uniform Resource Identifier (URI):
-Generic Syntax" (https://datatracker.ietf.org/doc/html/rfc3986).
-
-A typical URL looks like this: `scheme:address`. Some example of URLs:
-
-- `http://www.example.com`
-- `wiki:index`
-- `journal:2013-04-05`
-- `doi:10.1002%2Fandp.19053220607`
-
-The `scheme` part specifies "which kind" of URL it is and is typically used to
-identify which service should handle the URL. When the URL is typed directly
-and with a proper scheme, it will typically be possible to follow the URL
-directly without putting it inside a proper link type. However, if the
-`address` part has spaces in it, the URL must be surrounded by angled
-brackets, like this: `<scheme:address with spaces>`.
-
-When the scheme is not specified for URLs inside a link, then the scheme is
-specified from |g:wiki_link_default_schemes|.
-
-The following schemes are supported:
-
-  wiki ~
-    Links to internal wiki pages. The address can be both relative and
-    absolute. Absolute addresses are relative to the wiki root. Further, the
-    addresses may include anchors to specific sections of the wiki entry. Some
-    examples might be enlightening: >
-
-      wiki:index
-
-      If the address has whitespace, we need to use a full link style, for
-      instance:
-
-      [[wiki:index#section 1]]
-<
-  journal ~
-    Links to journal pages. The address should be a date format at a specified
-    level/frequency:
-
-      - daily: `YYYY-MM-DD` (standard ISO date)
-      - weekly: `YYYY-wWW`
-      - monthly: `YYYY-MM`
-
-    Notice that these formats will be translated to the corresponding filename
-    formats in the `date_format` key of |g:wiki_journal|. Some examples of
-    journal urls: >
-
-      journal:2014-03-02
-      journal:2014-w09
-      journal:2014-03
-<
-    For convenience, the ISO date will also be recognized as a journal url
-    without the scheme.
-
-    Note: This scheme works well as long as there is only a single page per
-          date. If you want to use multiple entries per date you should avoid
-          this scheme and you should probably consider to change the
-          `use_journal_scheme` option (see |g:wiki_journal_index|).
-
-  file ~
-    Links to a local file. |g:wiki_viewer| is used by default to open a file.
-    For more user flexibility, one can implement a custom file handler with
-    |g:wiki_file_handler|.
-
-    This scheme is the default scheme for |wiki-link-md_fig|.
-
-  doi ~
-    Will use the `generic` scheme handler on an expanded URL of the form
-    `http://dx.doi.org/<address>`, where `<address>` is the link address.
-
-  zot ~
-    This is an early version of a Zotero scheme. It uses `fd`, `fdfind`, or
-    `find` (in preferred order) to search the Zotero storage for a matching
-    pdf. This works very well if one uses the Zotfile extension and the Better
-    Bibtex extension to ensure that all pdf files are named according to the
-    format `%b - {%T - } {%t}`, where `%b` is the citekey. Then links like
-    `zot:citekey` should result in unique matches. The resulting file is
-    opened with |g:wiki_viewer|. The Zotero storage root may be specified with
-    |g:wiki_zotero_root|.
-
-    The same link type can also work well for JabRef bibliographies. JabRef
-    does not allow to open the database on a specific key. But if your JabRef
-    library has PDFs that are named similarly as explained above, then it
-    should suffice to point |g:wiki_zotero_root| to your literature folder. Now
-    following `zot:citekey` (or the shorthand `@citekey`) will allow to open
-    the PDFs in your JabRef bibliography directly.
-
-  generic ~
-    If the scheme is not recognized, the link is followed with the system
-    handler. This is defined by the `_` key of |g:wiki_viewer| on Linux.
-    Currently, only Linux is supported here.  This will work quite well on
-    standard Linux distributions, e.g. for following `http` and `https` URLs.
-
-Schemes are defined in `autoload/wiki/url/{scheme}.vim`, which means it is
-relatively easy to define new custom schemes. See the generic scheme for
-a simple example of how this is implemented.
-
-==============================================================================
 COMPLETION                                                    *wiki-completion*
 
-This plugin provides an |omni-complete| function that completes intern link
-targets, including anchors, and tags. This feature is enabled by default.
-You can set |g:wiki_completion_enabled| to 0 to disable it, e.g. if you have
-a different 'omnifunc' that you would rather use (for example one provided by
-your filetype plugin).
+`wiki.vim` provides an |omni-complete| function to complete various link URLs
+and tags. The feature is enabled by default; set |g:wiki_completion_enabled|
+to 0 to disable it.
 
-Link completion should work for markdown, wiki, and Orgmode style links for
-inter-wiki URLs (i.e. the `wiki` scheme, which is also the default scheme).
-See |wiki-link| for more info on links and the URL schemes.
+Link completion is available for:
+- Markdown links with implied `wiki` scheme (|wiki-link-md|)
+- Wiki links with implied `wiki` scheme (|wiki-link-wiki|)
+- AsciiDoc links with implied `adoc` scheme (|wiki-link-adoc_xref_bracket|)
+- Cite links with implied `zot` scheme (|wiki-link-cite|)
 
 Tag completion completes tags where the tag parser's `re_findstart` value
 matches the current line. See |g:wiki#tags#default_parser| for more info.
@@ -1907,40 +1904,6 @@ matches the current line. See |g:wiki#tags#default_parser| for more info.
 Related settings:
 - |g:wiki_completion_enabled|
 - |g:wiki_completion_case_sensitive|
-
-------------------------------------------------------------------------------
-AUTOCOMPLETE                                             *wiki-completion-auto*
-
-Vim does not provide automatic completion by itself, but there exist at least
-several good plugins that provide this: |coc-nvim|, |deoplete|, |neocomplete|,
-|ncm2|, |nvim-completion-manager|, |youcompleteme|, and |nvim-compe|.
-Moreover, there is |VimCompletesMe| that overrides <tab> to trigger different
-built-in completions, such as omni completion, depending on the
-context. Below are instructions for how to setup some of these autocomplete
-plugins for `wiki.vim`.
-
-ncm2 ~
-|ncm2| is a modern remake and replacement of |nvim-completion-manager| and is
-supposed to be a "Slim, Fast and Hackable Completion Framework for Neovim":
-https://github.com/ncm2/ncm2
-
-The following configuration shows how to enable autocompletion of wiki style
-links after `[[`: >vim
-
-  augroup my_cm_setup
-    autocmd!
-    autocmd BufEnter * call ncm2#enable_for_buffer()
-    autocmd User WikiBufferInitialized call ncm2#register_source({
-          \ 'name': 'wiki',
-          \ 'priority': 9,
-          \ 'scope': ['wiki'],
-          \ 'word_pattern': '\w+',
-          \ 'complete_pattern': '\[\[',
-          \ 'on_complete': ['ncm2#on_complete#delay', 200,
-          \                 'ncm2#on_complete#omni',
-          \                 'wiki#complete#omnicomplete'],
-          \})
-  augroup END
 
 ==============================================================================
 TAGS                                                                *wiki-tags*
@@ -2176,6 +2139,86 @@ Related settings:
 Related commands:
 - |WikiJournalToWeek|
 - |WikiJournalToMonth|
+
+==============================================================================
+ADVANCED CONFIGURATION GUIDE                      *wiki-advanced-configuration*
+
+`wiki.vim` provides options that allow users to customize how link URLs are
+resolved and handled. The following are some examples of how to use these
+options.
+
+Notice that it is possibly to build upon the built-in functions. These
+functions are not documented, but most of the useful functions should be
+relatively self documented. They are found here:
+
+- `autoload/wiki/url/resolvers.vim`
+- `autoload/wiki/url/handlers.vim`
+- `autoload/wiki/url/utils.vim`
+
+Example 1: New scheme `test` ~
+                                                       *wiki-advanced-config-1*
+In this example, we add a new scheme `test` that should act like the `wiki`
+scheme, except we want the handler to simply print the URL object. This way,
+we could inspect the object provided to the handler function, which could be
+useful to understand what you have to work with. In Vimscript, the example
+looks like this: >vim
+
+  function! MyTestHandler(resolved, ...) abort
+    echo a:resolved
+  endfunction
+
+  let g:wiki_link_schemes = {
+        \ 'test': {
+        \   'resolver': function('wiki#url#resolvers#wiki'),
+        \   'handler': function('MyTestHandler'),
+        \ }
+        \}
+
+The same, but for Lua in neovim: >lua
+
+  vim.g.wiki_link_schemes = {
+    test = {
+      resolver = vim.fn["wiki#url#resolvers#wiki"],
+      handler = function(x) print(vim.inspect(x)) end,
+    }
+  }
+
+Example 2: Adjust the `wiki` scheme to apply URL decoding ~
+                                                       *wiki-advanced-config-2*
+The standard `wiki` scheme does not perform any form of URL encoding or
+decoding. If you want the link URLs to be encoded, but the actual file names
+to be unencoded, then you could do something like this: >vim
+
+  " This is basically the same as wiki#url#resolvers#wiki, except we added
+  " a line to decode the encoded URL before we resolve the path.
+  function! MyWikiResolver(url) abort
+    let l:url = deepcopy(a:url)
+
+    let l:url.anchor = wiki#url#utils#extract_anchor(l:url.stripped)
+
+    let l:path = split(l:url.stripped, '#', 1)[0]
+    let l:path = wiki#url#utils#url_decode(l:path)
+    let l:url.path = wiki#url#utils#resolve_path(l:path, l:url.origin)
+
+    return l:url
+  endfunction
+
+  " Change the wiki scheme resolver
+  let g:wiki_link_schemes = {
+        \ 'wiki': {
+        \   'resolver': function('MyWikiResolver'),
+        \ }
+        \}
+
+  " Only change the url_transform - will keep other parts at default settings
+  let g:wiki_link_creation = {
+        \ 'md': {
+        \   'url_transform': { x -> wiki#url#utils#url_encode(x) },
+        \ },
+        \ 'wiki': {
+        \   'url_transform': { x -> wiki#url#utils#url_encode(x) },
+        \ },
+        \}
 
 ==============================================================================
  vim:tw=78:ts=8:ft=help:norl:fdm=marker:cole=2:

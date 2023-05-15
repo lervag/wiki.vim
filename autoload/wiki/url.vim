@@ -1,61 +1,54 @@
-" A simple wiki plugin for Vim
+" A wiki plugin for Vim
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#url#parse(url, ...) abort " {{{1
-  " This function parses a URL and returns a URL handler.
+function! wiki#url#follow(url_string, ...) abort " {{{1
+  let l:url = wiki#url#resolve(a:url_string)
+  if empty(l:url) | return | endif
 
-  " The URL scheme specifies the desired handler with a generic handler as
-  " a fallback. The handler is created with the following input:
-  "
-  "   url = {
-  "     'origin':   Where the url originates
-  "     'scheme':   The scheme of the url
-  "     'stripped': The url without the preceding scheme
-  "     'url':      The full url
-  "   }
-  let l:url = s:parse_url(a:url, a:0 > 0 ? a:1 : expand('%:p'))
+  if g:wiki_write_on_nav | update | endif
+  let l:edit_cmd = a:0 > 0 ? a:1 : 'edit'
 
-  " A handler is a dictionary object:
-  "
-  "   handler = {
-  "     'follow': Method to follow the url
-  "     '...':    Necessary state vars
-  "   }
-  try
-    let l:handler = wiki#url#{l:url.scheme}#handler(l:url)
-  catch /E117:/
-    let l:handler = wiki#url#generic#handler(l:url)
-  endtry
-
-  let l:handler.scheme = l:url.scheme
-  return l:handler
+  if has_key(g:wiki_link_schemes, l:url.scheme)
+        \ && has_key(g:wiki_link_schemes[l:url.scheme], 'handler')
+    call g:wiki_link_schemes[l:url.scheme].handler(l:url, l:edit_cmd)
+  else
+    try
+      call wiki#url#handlers#{l:url.scheme}(l:url, l:edit_cmd)
+    catch /E117/
+      call wiki#url#handlers#generic(l:url)
+    endtry
+  endif
 endfunction
 
 " }}}1
-function! wiki#url#extend(link) abort " {{{1
-  return extend(a:link,
-        \ wiki#url#parse(a:link.url, a:link.filename))
-endfunction
+function! wiki#url#resolve(url_string, ...) abort " {{{1
+  let l:parts = matchlist(a:url_string, '\v%((\w+):)?(.*)')
 
-" }}}1
+  let l:url = {
+        \ 'url': a:url_string,
+        \ 'scheme': tolower(l:parts[1]),
+        \ 'stripped': l:parts[2],
+        \ 'origin': a:0 > 0 ? a:1 : expand('%:p'),
+        \}
 
-function! s:parse_url(url, origin) abort " {{{1
-  let l:url = {}
-  let l:url.url = a:url
-  let l:url.origin = a:origin
-
-  " Decompose the url into its scheme and stripped url
-  let l:parts = matchlist(l:url.url, '\v((\w+):%(//)?)?(.*)')
-  let l:url.stripped = l:parts[3]
-  if empty(l:parts[2])
+  " The wiki scheme is default if no other scheme is applied
+  if empty(l:url.scheme)
     let l:url.scheme = 'wiki'
     let l:url.url = l:url.scheme . ':' . l:url.url
-  else
-    let l:url.scheme = tolower(l:parts[2])
   endif
+
+  if has_key(g:wiki_link_schemes, l:url.scheme)
+        \ && has_key(g:wiki_link_schemes[l:url.scheme], 'resolve')
+    return g:wiki_link_schemes[l:url.scheme].resolve(l:url)
+  endif
+
+  try
+    let l:url = wiki#url#resolvers#{l:url.scheme}(l:url)
+  catch /E117/
+  endtry
 
   return l:url
 endfunction

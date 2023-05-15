@@ -1,4 +1,4 @@
-" A simple wiki plugin for Vim
+" A wiki plugin for Vim
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
@@ -94,7 +94,7 @@ function! s:completer_wikilink.complete(regex) dict abort " {{{2
 endfunction
 
 function! s:completer_wikilink.complete_anchor(regex) dict abort " {{{2
-  let l:url = wiki#url#parse(self.base)
+  let l:url = wiki#url#resolve(self.base)
   let l:base = '#' . (empty(l:url.anchor) ? '' : l:url.anchor . '#')
   let l:length = strlen(l:base)
 

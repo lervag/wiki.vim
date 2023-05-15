@@ -1,4 +1,4 @@
-" A simple wiki plugin for Vim
+" A wiki plugin for Vim
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
@@ -152,7 +152,7 @@ endfunction
 
 " }}}1
 function! s:summary.parse_url(url_string) abort dict " {{{1
-  let l:url = wiki#url#parse(a:url_string)
+  let l:url = wiki#url#resolve(a:url_string)
   if !filereadable(l:url.path) | return '' | endif
 
   let l:order = 1

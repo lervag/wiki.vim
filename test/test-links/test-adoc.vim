@@ -34,11 +34,11 @@ call assert_equal(1, col('.'))
 
 silent %bwipeout!
 silent edit ../wiki-adoc/index.adoc
-let s:link = wiki#link#get_at_pos(7, 1)
-call assert_equal('foo.adoc', fnamemodify(s:link.path, ':t'))
-let s:link = wiki#link#get_at_pos(8, 1)
-call assert_equal('_section_2', s:link.anchor)
-call assert_equal('foo.adoc', fnamemodify(s:link.path, ':t'))
+let s:url = wiki#link#get_at_pos(7, 1).resolve()
+call assert_equal('foo.adoc', fnamemodify(s:url.path, ':t'))
+let s:url = wiki#link#get_at_pos(8, 1).resolve()
+call assert_equal('_section_2', s:url.anchor)
+call assert_equal('foo.adoc', fnamemodify(s:url.path, ':t'))
 
 
 call wiki#test#finished()

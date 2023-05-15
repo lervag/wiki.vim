@@ -1,4 +1,4 @@
-" A simple wiki plugin for Vim
+" A wiki plugin for Vim
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
@@ -20,7 +20,7 @@ function! wiki#page#open(...) abort "{{{1
     endtry
   endif
 
-  call wiki#url#parse('wiki:/' . l:page).follow()
+  call wiki#url#follow('/' . l:page)
 endfunction
 
 "}}}1

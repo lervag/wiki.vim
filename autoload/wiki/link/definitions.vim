@@ -1,4 +1,4 @@
-" A simple wiki plugin for Vim
+" A wiki plugin for Vim
 "
 " Maintainer: Karl Yngve Lervåg
 " Email:      karl.yngve@gmail.com
@@ -65,55 +65,22 @@ let g:wiki#link#definitions#ref_target = {
 let g:wiki#link#definitions#reference = {
       \ 'type': 'reference',
       \ 'rx': wiki#rx#link_reference,
-      \ 'rx_target': '\[\zs' . wiki#rx#reflabel . '\ze\]',
-      \ '__transformer': { _u, _t, l -> wiki#link#templates#md(l.url, l.id) },
+      \ 'rx_url': '\[\zs' . wiki#rx#reflabel . '\ze\]',
+      \ '__scheme': 'reference',
+      \ '__transformer': { _u, _t, l -> wiki#link#template#md(l.url, l.id) },
       \}
-function! wiki#link#def#reference.post_init_hook(link) dict abort " {{{1
-  let a:link.id = matchstr(a:link.content, self.rx_target)
-
-  " Locate target url
-  let a:link.lnum_target = searchpos('^\s*\[' . a:link.id . '\]: ', 'nW')[0]
-  if a:link.lnum_target == 0
-    function! a:link.__transformer(_url, _text, link) abort dict
-      call wiki#log#warn(
-            \ 'Could not locate reference ',
-            \ ['ModeMsg', a:link.url]
-            \)
-    endfunction
-  endif
-
-  let l:line = getline(a:link.lnum_target)
-  let a:link.url = matchstr(l:line, g:wiki#rx#url)
-  if !empty(a:link.url) | return | endif
-
-  let a:link.url = matchstr(l:line, '^\s*\[' . a:link.id . '\]: \s*\zs.*\ze\s*$')
-  let l:url = wiki#url#parse(a:link.url)
-  if l:url.scheme ==# 'wiki' && filereadable(l:url.path)
-    return
-  endif
-
-  " The url is not recognized, so we add a fallback follower to link to the
-  " reference position.
-  unlet a:link.url
-  function! a:link.follow(...) abort dict
-    normal! m'
-    call cursor(a:link.lnum_target, 1)
-  endfunction
-endfunction
-
-" }}}1
 
 let g:wiki#link#definitions#ref_collapsed = extend(
       \ deepcopy(wiki#link#definitions#reference), {
       \ 'rx': g:wiki#rx#link_ref_collapsed,
-      \ 'rx_target': '\[\zs' . g:wiki#rx#reflabel . '\ze\]\[\]',
+      \ 'rx_url': '\[\zs' . g:wiki#rx#reflabel . '\ze\]\[\]',
       \ 'rx_text': '\[\zs' . g:wiki#rx#reflabel . '\ze\]\[\]',
       \})
 
 let g:wiki#link#definitions#ref_full = extend(
       \ deepcopy(wiki#link#definitions#reference), {
       \ 'rx': g:wiki#rx#link_ref_full,
-      \ 'rx_target':
+      \ 'rx_url':
       \   '\['    . g:wiki#rx#reftext   . '\]'
       \ . '\[\zs' . g:wiki#rx#reflabel . '\ze\]',
       \ 'rx_text':
