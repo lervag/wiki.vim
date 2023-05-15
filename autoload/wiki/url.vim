@@ -41,8 +41,8 @@ function! wiki#url#resolve(url_string, ...) abort " {{{1
   endif
 
   if has_key(g:wiki_link_schemes, l:url.scheme)
-        \ && has_key(g:wiki_link_schemes[l:url.scheme], 'resolve')
-    return g:wiki_link_schemes[l:url.scheme].resolve(l:url)
+        \ && has_key(g:wiki_link_schemes[l:url.scheme], 'resolver')
+    return g:wiki_link_schemes[l:url.scheme].resolver(l:url)
   endif
 
   try

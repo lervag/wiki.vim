@@ -104,6 +104,10 @@ function! s:link.describe() dict abort " {{{1
 
   let l:content += [['Description:', empty(self.text) ? 'N/A' : self.text]]
 
+  for [l:key, l:value] in items(self.resolve())
+    let l:content += [['  ' . l:key . ':', l:value]]
+  endfor
+
   return l:content
 endfunction
 
