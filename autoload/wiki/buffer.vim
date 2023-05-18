@@ -50,7 +50,8 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiJournalIndex       call wiki#journal#make_index()
   command! -buffer WikiLinkNext           call wiki#nav#next_link()
   command! -buffer WikiLinkShow           call wiki#link#show()
-  command! -buffer WikiLinkExtractHeader  call wiki#link#set_text_from_header()
+  command! -buffer -range WikiLinkExtractHeader
+        \ call wiki#link#set_text_from_header(<range>, <line1>, <line2>)
   command! -buffer WikiLinkFollow         call wiki#link#follow()
   command! -buffer WikiLinkFollowSplit    call wiki#link#follow(expand(<q-mods>) . ' split')
   command! -buffer WikiLinkFollowTab      call wiki#link#follow('tabedit')
@@ -99,6 +100,7 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-link-next)            :WikiLinkNext<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-show)            :WikiLinkShow<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-extract-header)  :WikiLinkExtractHeader<cr>
+  xnoremap <silent><buffer> <plug>(wiki-link-extract-header)  :WikiLinkExtractHeader<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-follow)          :WikiLinkFollow<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-follow-split)    :WikiLinkFollowSplit<cr>
   nnoremap         <buffer> <plug>(wiki-link-follow-vsplit)   :vert WikiLinkFollowSplit<cr>
@@ -155,6 +157,7 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-link-prev)': '<s-tab>',
           \ '<plug>(wiki-link-show)': '<leader>wll',
           \ '<plug>(wiki-link-extract-header)': '<leader>wlh',
+          \ 'x_<plug>(wiki-link-extract-header)': '<leader>wlh',
           \ '<plug>(wiki-link-follow)': '<cr>',
           \ '<plug>(wiki-link-follow-split)': '<c-w><cr>',
           \ '<plug>(wiki-link-follow-vsplit)': '<c-w><tab>',

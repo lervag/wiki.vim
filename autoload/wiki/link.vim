@@ -183,20 +183,28 @@ function! wiki#link#follow(...) abort "{{{1
 endfunction
 
 " }}}1
-function! wiki#link#set_text_from_header() abort "{{{1
-  let l:link = wiki#link#get()
-  if index(['wiki', 'journal'], l:link.scheme) < 0 | return | endif
+function! wiki#link#set_text_from_header(range, line1, line2) abort "{{{1
+  if a:range == 0
+    let l:links = [wiki#link#get()]
+  else
+    let l:links = wiki#link#get_all_from_range(a:line1, a:line2)
+  endif
 
-  let l:title = wiki#toc#get_page_title(l:link)
-  if empty(l:title) | return | endif
+  for l:link in filter(
+        \ l:links,
+        \ { _, x -> index(['wiki', 'journal'], x.scheme) >= 0 }
+        \)
+    let l:title = wiki#toc#get_page_title(l:link)
+    if empty(l:title) | return | endif
 
-  try
-    let l:new = wiki#link#templates#{l:link.type}(l:link.url, l:title, l:link)
-  catch /E117:/
-    let l:new = wiki#link#templates#wiki(l:link.url, l:title)
-  endtry
+    try
+      let l:new = wiki#link#templates#{l:link.type}(l:link.url, l:title, l:link)
+    catch /E117:/
+      let l:new = wiki#link#templates#wiki(l:link.url, l:title)
+    endtry
 
-  call l:link.replace(l:new)
+    call l:link.replace(l:new)
+  endfor
 endfunction
 
 " }}}1

@@ -1714,7 +1714,9 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
 
 *<plug>(wiki-link-extract-header)*
 *WikiLinkExtractHeader*
-  Set link title from the first header of the target file.
+  Set link titles from the first header of the target file. In normal mode,
+  this works on the link under the cursor. In visual mode, it works on all
+  links in the current visual selection.
 
 *<plug>(wiki-page-delete)*
 *WikiPageDelete*
