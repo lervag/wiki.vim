@@ -65,7 +65,7 @@ function! s:graph.get_links_from(file) abort dict " {{{1
           \ map(
           \   filter(
           \     map(
-          \       wiki#link#get_all(a:file),
+          \       wiki#link#get_all_from_file(a:file),
           \       { _, x -> extend(x, x.resolve()) }
           \     ),
           \     { _, x -> x.scheme ==# 'wiki' && a:file !=# resolve(x.path) }

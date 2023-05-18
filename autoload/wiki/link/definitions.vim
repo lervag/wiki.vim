@@ -112,9 +112,7 @@ let g:wiki#link#definitions#word = {
 
 
 " wiki#link#definitions#all is an ordered list of definitions used by
-" wiki#link#get() to detect a link at the cursor. Similarly,
-" wiki#link#definitions#all_real is an ordered list of definitions used by
-" wiki#link#get_all() to get all links in a given file.
+" wiki#link#get() to detect a link at the cursor.
 "
 " Notice that the order is important! The order between the wiki, md, and org
 " definitions is especially tricky! This is because wiki and org links are
@@ -140,6 +138,8 @@ let g:wiki#link#definitions#all = [
       \ g:wiki#link#definitions#word,
       \]
 
+" wiki#link#definitions#all_real is an ordered list of definitions used by
+" wiki#link#get_all_from_lines() to get all links from a list of lines.
 let g:wiki#link#definitions#all_real = [
       \ g:wiki#link#definitions#wiki,
       \ g:wiki#link#definitions#adoc_xref_bracket,

@@ -1145,7 +1145,7 @@ a reference of all available options.
 
 *g:wiki_link_transforms*
   This option specifies the template for transforming a specific type of link
-  with |WikiLingTransform| or |<plug>(wiki-link-transform)|.
+  with |WikiLinkTransform| or |<plug>(wiki-link-transform)|.
 
   This allows customizing how links are changed when they are transformed. For
   instance, to add/remove extensions for wiki and markdown style links, one

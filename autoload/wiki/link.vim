@@ -57,13 +57,25 @@ endfunction
 
 " }}}1
 
-function! wiki#link#get_all(...) abort "{{{1
-  let l:file = a:0 > 0 ? a:1 : expand('%')
+function! wiki#link#get_all_from_file(...) abort "{{{1
+  let l:file = a:0 > 0 ? a:1 : expand('%:p')
   if !filereadable(l:file) | return [] | endif
 
+  return wiki#link#get_all_from_lines(readfile(l:file), l:file)
+endfunction
+
+"}}}1
+function! wiki#link#get_all_from_range(line1, line2) abort "{{{1
+  let l:lines = getline(a:line1, a:line2)
+  return wiki#link#get_all_from_lines(l:lines, expand('%:p'), a:line1)
+endfunction
+
+"}}}1
+function! wiki#link#get_all_from_lines(lines, file, ...) abort "{{{1
   let l:links = []
-  let l:lnum = 0
-  for l:line in readfile(l:file)
+
+  let l:lnum = a:0 > 0 ? (a:1 - 1) : 0
+  for l:line in a:lines
     let l:lnum += 1
     let l:c2 = 0
     while v:true
@@ -77,7 +89,7 @@ function! wiki#link#get_all(...) abort "{{{1
         if l:content =~# l:link_definition.rx
           call add(l:links, wiki#link#class#new(l:link_definition, {
                 \ 'content': l:content,
-                \ 'origin': l:file,
+                \ 'origin': a:file,
                 \ 'pos_start': [l:lnum, l:c1],
                 \ 'pos_end': [l:lnum, l:c2],
                 \}))
