@@ -198,9 +198,9 @@ function! wiki#link#set_text_from_header(range, line1, line2) abort "{{{1
     if empty(l:title) | return | endif
 
     try
-      let l:new = wiki#link#templates#{l:link.type}(l:link.url, l:title, l:link)
+      let l:new = wiki#link#templates#{l:link.type}(l:link.url_raw, l:title, l:link)
     catch /E117:/
-      let l:new = wiki#link#templates#wiki(l:link.url, l:title)
+      let l:new = wiki#link#templates#wiki(l:link.url_raw, l:title)
     endtry
 
     call l:link.replace(l:new)
