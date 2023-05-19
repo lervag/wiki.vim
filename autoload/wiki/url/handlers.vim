@@ -50,7 +50,7 @@ endfunction
 
 " }}}1
 function! wiki#url#handlers#man(resolved, ...) abort " {{{1
-  execute 'edit' fnameescape(self.path)
+  execute 'edit' fnameescape(a:resolved.path)
 endfunction
 
 " }}}1
