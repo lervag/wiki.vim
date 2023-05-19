@@ -5,8 +5,8 @@
 "
 
 function! wiki#page#open(...) abort "{{{1
-  let l:page = a:0 > 0 ?
-        \ a:1
+  let l:page = a:0 > 0
+        \ ? a:1
         \ : wiki#ui#input(#{info: 'Open page (or create new): '})
   if empty(l:page) | return | endif
 

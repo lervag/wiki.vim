@@ -120,11 +120,11 @@ call wiki#init#option('wiki_write_on_nav', 1)
 call wiki#init#option('wiki_zotero_root', '~/.local/zotero')
 
 " Initialize global commands
-command! WikiEnable   call wiki#buffer#init()
-command! WikiIndex    call wiki#goto_index()
-command! WikiOpen     call wiki#page#open()
-command! WikiReload   call wiki#reload()
-command! WikiJournal  call wiki#journal#open()
+command!          WikiEnable  call wiki#buffer#init()
+command!          WikiIndex   call wiki#goto_index()
+command! -nargs=? WikiOpen    call wiki#page#open(<f-args>)
+command!          WikiReload  call wiki#reload()
+command!          WikiJournal call wiki#journal#open()
 if has('nvim') && g:wiki_select_method == 'ui_select'
   command! WikiPages lua require('wiki').get_pages()
   command! WikiTags lua require('wiki').get_tags()
