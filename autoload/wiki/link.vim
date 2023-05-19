@@ -160,11 +160,12 @@ function! wiki#link#follow(...) abort "{{{1
     return
   endif
 
-  " Save origin location
+  " Push origin location to navigation stack
   let l:origin = {
         \ 'file': expand('%:p'),
         \ 'cursor': getcurpos(),
         \}
+  call wiki#nav#add_to_stack(l:origin)
 
   try
     call wiki#url#follow(l:link.url, l:edit_cmd)
@@ -173,12 +174,12 @@ function! wiki#link#follow(...) abort "{{{1
           \ "Can't follow link before you've saved the current buffer.")
   endtry
 
-  " Push origin to stack if following the link changed the location
-  if l:origin !=# {
+  " Pop origin from stack if following the link did not change the location
+  if l:origin ==# {
         \ 'file': expand('%:p'),
         \ 'cursor': getcurpos(),
         \}
-    call wiki#nav#add_to_stack(l:origin)
+    call wiki#nav#pop_from_stack()
   endif
 endfunction
 

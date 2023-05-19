@@ -26,6 +26,12 @@ endfunction
 let s:position_stack = []
 
 " }}}1
+function! wiki#nav#pop_from_stack() abort " {{{1
+  if empty(s:position_stack) | return [] | endif
+  return remove(s:position_stack, -1)
+endfunction
+
+" }}}1
 function! wiki#nav#get_previous() abort "{{{1
   let l:previous = get(s:position_stack, -1, [])
   if !empty(l:previous) | return l:previous | endif
