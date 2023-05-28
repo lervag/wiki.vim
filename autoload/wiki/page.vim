@@ -127,7 +127,7 @@ function! wiki#page#rename(...) abort "{{{1
           \   fnamemodify(l:path_new, ':t')))
   endtry
 
-  call s:update_links(l:path_old, l:path_new, 'paths')
+  call s:update_links(l:path_old, l:path_new, 'rename_path')
 endfunction
 
 " }}}1
@@ -166,7 +166,7 @@ function! wiki#page#rename_section(...) abort "{{{1
   call cursor(l:pos[1:])
   silent update
 
-  call s:update_links(l:old_anchor, l:new_anchor, 'anchors')
+  call s:update_links(l:old_anchor, l:new_anchor, 'rename_section')
 endfunction
 
 " }}}1
@@ -314,7 +314,7 @@ function! s:update_links(old, new, type) abort "{{{1
 endfunction
 
 " }}}1
-function! s:update_link_paths(path_old, path_new) abort "{{{1
+function! s:update_link_rename_path(path_old, path_new) abort "{{{1
   let l:replacement_patterns
         \ = s:get_replacement_patterns(a:path_old, a:path_new)
 
@@ -348,7 +348,7 @@ function! s:update_link_paths(path_old, path_new) abort "{{{1
 endfunction
 
 " }}}1
-function! s:update_link_anchors(anchor_old, anchor_new) abort "{{{1
+function! s:update_link_rename_section(anchor_old, anchor_new) abort "{{{1
   let l:graph = wiki#graph#builder#get()
   let l:all_links = filter(
         \ l:graph.get_links_to(expand('%:p'), {'nudge': v:true}),
