@@ -1,0 +1,11 @@
+# Intro
+
+This is a wiki.
+
+[[BadName]]
+[[subdir/BadName]]
+
+[[index#Section 1]]
+[[index#Section 1#Foo bar Baz]]
+
+[[source-1#Inbox#Bar#Subheading]]
