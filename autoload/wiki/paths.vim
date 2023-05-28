@@ -102,6 +102,19 @@ function! wiki#paths#to_node(path) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#paths#to_wiki_url(path, root) abort " {{{1
+  " Input: An absolute path
+  " Output: A wiki url (relative to specified root)
+
+  let l:path = wiki#paths#relative(a:path, a:root)
+  let l:ext = '.' . fnamemodify(l:path, ':e')
+
+  return l:ext ==# wiki#link#get_creator('url_extension')
+        \ ? l:path
+        \ : fnamemodify(l:path, ':r')
+endfunction
+
+" }}}1
 
 
 let s:cd = haslocaldir()

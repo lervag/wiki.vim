@@ -375,11 +375,10 @@ endfunction
 
 " }}}1
 function! s:get_replacement_patterns(path_old, path_new) abort " {{{1
-  let l:root = wiki#get_root()
-
   " Update "absolute" links (i.e. assume link is rooted)
-  let l:url_old = s:path_to_url(l:root, a:path_old)
-  let l:url_new = s:path_to_url(l:root, a:path_new)
+  let l:root = wiki#get_root()
+  let l:url_old = wiki#paths#to_wiki_url(a:path_old, l:root)
+  let l:url_new = wiki#paths#to_wiki_url(a:path_new, l:root)
   let l:url_pairs = [[l:url_old, l:url_new]]
 
   " Update "relative" links (look within the specific common subdir)
@@ -395,8 +394,8 @@ function! s:get_replacement_patterns(path_old, path_new) abort " {{{1
   if !empty(l:subdirs)
     let l:root .= '/' . join(l:subdirs, '/')
     let l:url_pairs += [[
-          \ s:path_to_url(l:root, a:path_old),
-          \ s:path_to_url(l:root, a:path_new)
+          \ wiki#paths#to_wiki_url(a:path_old, l:root),
+          \ wiki#paths#to_wiki_url(a:path_new, l:root)
           \]]
   endif
 
@@ -416,16 +415,6 @@ function! s:get_replacement_patterns(path_old, path_new) abort " {{{1
   endfor
 
   return l:replacement_patterns
-endfunction
-
-" }}}1
-function! s:path_to_url(root, path) abort " {{{1
-  let l:path = wiki#paths#relative(a:path, a:root)
-  let l:ext = '.' . fnamemodify(l:path, ':e')
-
-  return l:ext ==# wiki#link#get_creator('url_extension')
-        \ ? l:path
-        \ : fnamemodify(l:path, ':r')
 endfunction
 
 " }}}1
