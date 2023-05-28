@@ -13,7 +13,7 @@ function! wiki#complete#omnicomplete(findstart, base) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#complete#link(lead, line, pos) abort " {{{1
+function! wiki#complete#url(lead, line, pos) abort " {{{1
   let l:parts = split(a:lead, '::')
   if empty(l:parts) || len(l:parts) > 1 | return [] | endif
 
