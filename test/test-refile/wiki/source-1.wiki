@@ -1,0 +1,26 @@
+# Inbox
+Link to: [[#Inbox#Bar]]
+## Foo
+
+Random text here.
+
+## Bar
+
+More random text here.
+
+### Subheading
+
+More here.
+
+# Tasks
+
+## Baz
+
+Even more random text here.
+
+# Someday
+
+## Qux
+
+More text.
+
