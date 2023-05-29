@@ -114,7 +114,7 @@ function! s:completer_wikilink.complete_page(regex) dict abort " {{{2
 
   let l:cands = executable('fd')
         \ ? wiki#jobs#capture(
-        \     'fd -a -t f -e ' . b:wiki.extension . ' . ' . l:root)
+        \     printf('fd -Ia -t f -e %s . %s', b:wiki.extension, l:root))
         \ : globpath(l:root, '**/*.' . b:wiki.extension, 0, 1)
 
   call map(l:cands, 'strpart(v:val, strlen(l:root)+1)')
