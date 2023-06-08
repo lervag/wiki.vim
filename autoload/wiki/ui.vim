@@ -172,6 +172,15 @@ function! s:choose_from(list, options) abort " {{{1
   let l:digits = len(l:length)
   if l:length == 1 | return [0, a:list[0]] | endif
 
+  " Use simple menu for buffered output
+  if g:wiki#ui#buffered
+    let l:choices = map(deepcopy(a:list), { i, x -> (i+1) . ': ' . x })
+    let l:choice = inputlist(l:choices) - 1
+    return l:choice >= 0 && l:choice < l:length
+          \ ? [l:choice, a:list[l:choice]]
+          \ : [-1, '']
+  endif
+
   " Create the menu
   let l:menu = []
   let l:format = printf('%%%dd', l:digits)
@@ -191,7 +200,7 @@ function! s:choose_from(list, options) abort " {{{1
   endif
 
   " Loop to get a valid choice
-  while 1
+  while v:true
     redraw!
 
     call wiki#ui#echo(a:options.prompt)
@@ -206,7 +215,7 @@ function! s:choose_from(list, options) abort " {{{1
         return [-1, '']
       endif
 
-      if l:choice >= 0 && l:choice < len(a:list)
+      if l:choice >= 0 && l:choice < l:length
         return [l:choice, a:list[l:choice]]
       endif
     endtry
