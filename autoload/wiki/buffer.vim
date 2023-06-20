@@ -24,8 +24,7 @@ function! wiki#buffer#init() abort " {{{1
     let b:wiki.root = l:root
   endif
 
-  let l:root_journal = wiki#journal#get_root(l:root)
-  let b:wiki.in_journal = stridx(l:path, l:root_journal) == 0
+  let b:wiki.in_journal = wiki#journal#is_in_journal(l:path, l:root)
 
   call s:init_buffer_commands()
   call s:init_buffer_mappings()
@@ -45,6 +44,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiGraphRelated       call wiki#graph#show_related()
   command! -buffer WikiGraphCheckLinks    call wiki#graph#check_links(expand('%:p'))
   command! -buffer WikiGraphCheckLinksG   call wiki#graph#check_links()
+  command! -buffer WikiGraphCheckOrphans  call wiki#graph#check_orphans()
   command! -buffer -count=99 WikiGraphIn  call wiki#graph#in(<count>)
   command! -buffer -count=99 WikiGraphOut call wiki#graph#out(<count>)
   command! -buffer WikiJournalIndex       call wiki#journal#make_index()
@@ -94,6 +94,7 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-graph-related)        :WikiGraphRelated<cr>
   nnoremap <silent><buffer> <plug>(wiki-graph-check-links)    :WikiGraphCheckLinks<cr>
   nnoremap <silent><buffer> <plug>(wiki-graph-check-links-g)  :WikiGraphCheckLinksG<cr>
+  nnoremap <silent><buffer> <plug>(wiki-graph-check-orphans)  :WikiGraphCheckOrphans<cr>
   nnoremap <silent><buffer> <plug>(wiki-graph-in)             :WikiGraphIn<cr>
   nnoremap <silent><buffer> <plug>(wiki-graph-out)            :WikiGraphOut<cr>
   nnoremap <silent><buffer> <plug>(wiki-journal-index)        :WikiJournalIndex<cr>
@@ -151,6 +152,7 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-graph-related)': '<leader>wgr',
           \ '<plug>(wiki-graph-check-links)': '<leader>wgc',
           \ '<plug>(wiki-graph-check-links-g)': '<leader>wgC',
+          \ '<plug>(wiki-graph-check-orphans)': '<leader>wgO',
           \ '<plug>(wiki-graph-in)': '<leader>wgi',
           \ '<plug>(wiki-graph-out)': '<leader>wgo',
           \ '<plug>(wiki-link-next)': '<tab>',

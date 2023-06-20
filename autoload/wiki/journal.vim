@@ -143,6 +143,12 @@ function! wiki#journal#get_root(...) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#journal#is_in_journal(path, ...) abort " {{{1
+  let l:root_journal = call('wiki#journal#get_root', a:000)
+  return stridx(a:path, l:root_journal) == 0
+endfunction
+
+" }}}1
 
 
 " The following are functions to convert between journal nodes and date

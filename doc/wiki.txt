@@ -1531,6 +1531,7 @@ for more information about the different modes. The lines annotated with
   `n`     <leader>wgr         |<plug>(wiki-graph-related)|
   `n`     <leader>wgc         |<plug>(wiki-graph-check-links)|
   `n`     <leader>wgC         |<plug>(wiki-graph-check-links-g)|
+  `n`     <leader>wgO         |<plug>(wiki-graph-check-orphans)|
   `n`     <leader>wgi         |<plug>(wiki-graph-in)|
   `n`     <leader>wgo         |<plug>(wiki-graph-out)|
   `n`     <leader>wf          |<plug>(wiki-link-transform)|
@@ -1619,6 +1620,12 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
   Check the entire wiki for broken links. If any broken links are found, they
   are added to the location list (|location-list|) and the location list is
   opened. This can take a while if you have a large wiki.
+
+*<plug>(wiki-graph-check-orphans)*
+*WikiGraphCheckOrphans*
+  Check the entire wiki for orphaned pages; i.e. pages without any incoming
+  links. These pages are added to the location list (|location-list|) and the
+  location list is opened.
 
 *<plug>(wiki-graph-in)*
 *<plug>(wiki-graph-out)*

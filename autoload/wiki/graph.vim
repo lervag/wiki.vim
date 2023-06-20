@@ -33,6 +33,30 @@ function! wiki#graph#check_links(...) abort "{{{1
 endfunction
 
 "}}}1
+function! wiki#graph#check_orphans() abort "{{{1
+  let l:graph = wiki#graph#builder#get()
+
+  let l:orphans = filter(
+        \ l:graph.get_files(),
+        \ 'empty(l:graph.get_links_to(v:val))'
+        \)
+  call filter(l:orphans, { _, x -> !wiki#journal#is_in_journal(x) })
+  call map(l:orphans, { _, x -> {
+        \   'filename': x,
+        \   'text': 'Does not have any incoming links'
+        \ }
+        \})
+
+  if empty(l:orphans)
+    call wiki#log#info('No orphans found.')
+    return
+  endif
+
+  call setloclist(0, l:orphans, 'r')
+  lopen
+endfunction
+
+"}}}1
 function! wiki#graph#find_backlinks() abort "{{{1
   let l:file = expand('%:p')
   if !filereadable(l:file)
