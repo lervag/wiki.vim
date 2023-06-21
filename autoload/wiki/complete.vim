@@ -112,10 +112,16 @@ function! s:completer_wikilink.complete_page(regex) dict abort " {{{2
   let l:root = self.rooted ? b:wiki.root : expand('%:p:h')
   let l:pre = self.rooted ? '/' : ''
 
-  let l:cands = executable('fd')
-        \ ? wiki#jobs#capture(
-        \     printf('fd -Ia -t f -e %s . %s', b:wiki.extension, l:root))
-        \ : globpath(l:root, '**/*.' . b:wiki.extension, 0, 1)
+  if executable('fd')
+    let l:extensions = ' -e ' . join(g:wiki_filetypes, ' -e ')
+    let l:cands = wiki#jobs#capture(
+        \ printf('fd -Ia -t f %s . %s', l:extensions, l:root))
+  else
+    let l:cands = []
+    for l:ext in g:wiki_filetypes
+      let l:cands += globpath(l:root, '**/*.' . l:ext, 0, 1)
+    endfor
+  endif
 
   call map(l:cands, 'strpart(v:val, strlen(l:root)+1)')
   call map(l:cands,
