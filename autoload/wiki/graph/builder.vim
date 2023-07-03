@@ -191,6 +191,8 @@ endfunction
 " }}}1
 
 function! s:graph.refresh_cache_links_in(...) abort dict " {{{1
+  call self.cache_links_in.read()
+
   let l:force_update = a:0 > 0 ? a:1 : v:false
   if !l:force_update
         \ && (localtime() - self.cache_links_in.ftime <= self._cache_threshold)
