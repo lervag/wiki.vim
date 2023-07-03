@@ -1026,7 +1026,7 @@ a reference of all available options.
       into a single dash character. >vim
 
         let g:wiki_link_creation = {
-              \ 'markdown': {
+              \ 'md': {
               \   'link_type': 'md',
               \   'url_extension': '.md',
               \   'url_transform': { x ->
