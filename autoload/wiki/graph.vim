@@ -57,6 +57,21 @@ function! wiki#graph#check_orphans() abort "{{{1
 endfunction
 
 "}}}1
+function! wiki#graph#get_backlinks_enriched() abort "{{{1
+  let l:toc = wiki#u#associate_by(wiki#toc#gather_entries(), 'anchor')
+
+  let l:graph = wiki#graph#builder#get()
+  let l:links = l:graph.get_links_to(expand('%:p'))
+
+  for l:link in l:links
+    let l:section = get(l:toc, remove(l:link, 'anchor'), {})
+    let l:link.target_lnum = get(l:section, 'lnum', 0)
+  endfor
+
+  return l:links
+endfunction
+
+"}}}1
 function! wiki#graph#find_backlinks() abort "{{{1
   let l:file = expand('%:p')
   if !filereadable(l:file)
