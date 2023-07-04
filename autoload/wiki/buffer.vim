@@ -37,6 +37,35 @@ function! wiki#buffer#init() abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#buffer#refresh_incoming_links() abort " {{{1
+  call sign_define("wiki-incoming", {
+        \ 'text': '',
+        \ 'texthl': 'DiagnosticSignInfo',
+        \})
+  call sign_unplace("wiki.vim")
+
+  let l:id = nvim_create_namespace("wiki.vim")
+  call nvim_buf_clear_namespace(0, l:id, 0, -1)
+
+  let l:links_enriched = filter(
+        \ wiki#graph#get_backlinks_enriched(),
+        \ 'v:val.target_lnum > 0'
+        \)
+
+  for [l:lnum, l:links] in items(wiki#u#group_by(l:links_enriched, 'target_lnum'))
+    call sign_place(0, "wiki.vim", "wiki-incoming", "", #{ lnum: l:lnum })
+
+    let l:text = len(l:links) > 1
+          \ ? printf(" incoming (%d links)", len(l:links))
+          \ : printf(" incoming (from %s)", l:links[0].filename_from)
+
+    call nvim_buf_set_extmark(0, l:id, l:lnum - 1, 0, {
+          \ 'virt_text': [[l:text, "DiagnosticVirtualTextHint"]]
+          \})
+  endfor
+endfunction
+
+" }}}1
 
 
 function! s:init_buffer_commands() abort " {{{1
