@@ -1,3 +1,4 @@
 doc/tags
 test/issues
+test/perf-graph/*.log
 wiki-tmp
