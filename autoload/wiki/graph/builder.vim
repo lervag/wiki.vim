@@ -20,9 +20,10 @@ let s:graphs = {}
 
 
 let s:graph = {
-      \ 'save_cache': v:true,
-      \ '_cache_threshold': 7200,
-      \ '_cache_threshold_def': 7200,
+      \ '_cache_save': v:true,
+      \ '_cache_threshold_full': 7200,
+      \ '_cache_threshold_fast': 30,
+      \ '_cache_updated': [],
       \}
 
 function! s:graph.create(root) abort dict " {{{1
@@ -82,10 +83,13 @@ function! s:graph.get_links_from(file) abort dict " {{{1
           \   }
           \)
 
-    let self.cache_links_out.modified = 1
-    if self.save_cache
-      call self.cache_links_out.write()
+    if self._cache_save
+      call self.cache_links_out.write('force')
+    else
+      let self.cache_links_out.modified = v:true
     endif
+
+    call add(self._cache_updated, a:file)
   endif
 
   return deepcopy(l:current.links)
@@ -93,13 +97,11 @@ endfunction
 
 " }}}1
 function! s:graph.get_links_to(file, ...) abort dict " {{{1
-  if a:0 > 0
-    let self._cache_threshold = a:1
-    call self.refresh_cache_links_in()
-    let self._cache_threshold = self._cache_threshold_def
-  else
-    call self.refresh_cache_links_in()
-  endif
+  let l:refresh_opts = extend(
+        \ { 'file': a:file },
+        \ a:0 > 0 ? a:1 : {}
+        \)
+  call self._refresh_cache(l:refresh_opts)
 
   return deepcopy(self.cache_links_in.get(a:file))
 endfunction
@@ -117,11 +119,11 @@ endfunction
 function! s:graph.get_broken_links_global() abort dict " {{{1
   let l:broken_links = []
 
-  let self.save_cache = v:false
+  let self._cache_save = v:false
   for l:file in self.get_files()
     call extend(l:broken_links, self.get_broken_links_from(l:file))
   endfor
-  let self.save_cache = v:true
+  let self._cache_save = v:true
   call self.cache_links_out.write()
 
   return l:broken_links
@@ -130,7 +132,7 @@ endfunction
 " }}}1
 
 function! s:graph.get_tree_to(file, depth) abort " {{{1
-  call self.refresh_cache_links_in()
+  call self._refresh_cache({ 'file': a:file })
 
   let l:tree = {}
   let l:stack = [[a:file, []]]
@@ -190,44 +192,88 @@ endfunction
 
 " }}}1
 
-function! s:graph.refresh_cache_links_in(...) abort dict " {{{1
+
+function! s:graph._refresh_cache(opts) abort dict " {{{1
+  let l:opts = extend({
+        \ 'force': v:false,
+        \ 'nudge': v:false,
+        \ 'file': '',
+        \}, a:opts)
+
   call self.cache_links_in.read()
 
-  let l:force_update = a:0 > 0 ? a:1 : v:false
-  if !l:force_update
-        \ && (localtime() - self.cache_links_in.ftime <= self._cache_threshold)
+  let l:secs_since_updated = localtime() - self.cache_links_in.ftime
+  if l:opts.force || (l:secs_since_updated > self._cache_threshold_full)
+    let self._cache_save = v:false
+    call self._refresh_cache_full()
+  elseif l:opts.nudge || l:secs_since_updated > self._cache_threshold_fast
+    let self._cache_save = v:false
+    call self._refresh_cache_fast(l:opts.file)
+  else
     return
   endif
 
-  call self.cache_links_in.clear()
-
-  " Refresh links_out for entire wiki
-  let self.save_cache = v:false
-  for l:file in self.get_files()
-    call self.get_links_from(l:file)
-    let self.cache_links_in.data[l:file] = []
-  endfor
-  let self.save_cache = v:true
   call self.cache_links_out.write()
-
-  " Populate links_in
-  for l:file_with_links in values(self.cache_links_out.data)
-    if type(l:file_with_links) == v:t_dict
-      for l:link in l:file_with_links.links
-        if !has_key(self.cache_links_in.data, l:link.filename_to)
-          let self.cache_links_in.data[l:link.filename_to] = [l:link]
-        else
-          call add(self.cache_links_in.data[l:link.filename_to], l:link)
-        endif
-      endfor
-    endif
-  endfor
-
   call self.cache_links_in.write('force')
 
-  if self.cache_links_in.type ==# 'volatile'
-    let self.cache_links_in.ftime = localtime()
+  let self._cache_save = v:true
+  let self._cache_updated = []
+endfunction
+
+" }}}1
+function! s:graph._refresh_cache_fast(file) abort dict " {{{1
+  let l:links = self.cache_links_in.get(a:file)
+  if !empty(l:links)
+    for l:link in l:links
+      call add(self._cache_updated, l:link.filename_from)
+    endfor
+    let self.cache_links_in.data[a:file] = []
   endif
+
+  for l:file in wiki#u#uniq_unsorted(self._cache_updated)
+    if !has_key(self.cache_links_in.data, l:file)
+      let self.cache_links_in.data[l:file] = []
+    endif
+
+    " We need to force refresh the links_out cache because getftime is
+    " restricted to a temporal resolution of 1 second. If we did not do this,
+    " then the tests will fail.
+    if has_key(self.cache_links_out.data, l:file)
+      let self.cache_links_out.data[l:file].ftime -= 1
+    endif
+
+    " This is similar to the full refresh, except we only add the link if it is
+    " not already there.
+    for l:link in self.get_links_from(l:file)
+      if !has_key(self.cache_links_in.data, l:link.filename_to)
+        let self.cache_links_in.data[l:link.filename_to] = [l:link]
+      elseif index(self.cache_links_in.data[l:link.filename_to], l:link) < 0
+        call add(self.cache_links_in.data[l:link.filename_to], l:link)
+      endif
+    endfor
+  endfor
+endfunction
+
+" }}}1
+function! s:graph._refresh_cache_full() abort dict " {{{1
+  call self.cache_links_in.clear()
+
+  " Refresh cache for links_out and links_in in entire wiki
+  for l:file in self.get_files()
+    if !has_key(self.cache_links_in.data, l:file)
+      let self.cache_links_in.data[l:file] = []
+    endif
+
+    for l:link in self.get_links_from(l:file)
+      if !has_key(self.cache_links_in.data, l:link.filename_to)
+        let self.cache_links_in.data[l:link.filename_to] = [l:link]
+      else
+        call add(self.cache_links_in.data[l:link.filename_to], l:link)
+      endif
+    endfor
+  endfor
+
+  let self.cache_links_in.modified = v:true
 endfunction
 
 " }}}1

@@ -156,7 +156,7 @@ endfunction
 
 let s:cache_persistent = {
       \ 'type': 'persistent',
-      \ 'modified': 0,
+      \ 'modified': v:false,
       \}
 function! s:cache_persistent.validate() dict abort " {{{1
   let self.__validated = 1
@@ -216,7 +216,7 @@ function! s:cache_persistent.write(...) dict abort " {{{1
 
   call writefile([json_encode(self.data)], self.path)
   let self.ftime = getftime(self.path)
-  let self.modified = 0
+  let self.modified = v:false
 endfunction
 
 " }}}1
@@ -249,7 +249,7 @@ endfunction
 function! s:cache_persistent.clear() dict abort " {{{1
   let self.data = { '__validate': deepcopy(self.__validation_value) }
   let self.ftime = -1
-  let self.modified = 0
+  let self.modified = v:false
   call delete(self.path)
 endfunction
 
@@ -280,6 +280,7 @@ endfunction
 
 " }}}1
 function! s:cache_volatile.write(...) dict abort " {{{1
+  let self.ftime = localtime()
 endfunction
 
 " }}}1

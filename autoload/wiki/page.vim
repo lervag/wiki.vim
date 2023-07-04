@@ -319,7 +319,7 @@ function! s:update_link_paths(path_old, path_new) abort "{{{1
         \ = s:get_replacement_patterns(a:path_old, a:path_new)
 
   let l:graph = wiki#graph#builder#get()
-  let l:all_links = l:graph.get_links_to(a:path_old, 15)
+  let l:all_links = l:graph.get_links_to(a:path_old, {'nudge': v:true})
   let l:files_with_links = wiki#u#group_by(l:all_links, 'filename_from')
   for [l:file, l:file_links] in items(l:files_with_links)
     if !filereadable(l:file) | continue | endif
@@ -336,6 +336,8 @@ function! s:update_link_paths(path_old, path_new) abort "{{{1
     endfor
 
     call writefile(l:lines, l:file, 's')
+
+    let l:graph._cache_updated += [l:file]
   endfor
 
   " Move graph nodes from old to new path
@@ -349,7 +351,7 @@ endfunction
 function! s:update_link_anchors(anchor_old, anchor_new) abort "{{{1
   let l:graph = wiki#graph#builder#get()
   let l:all_links = filter(
-        \ l:graph.get_links_to(expand('%:p')),
+        \ l:graph.get_links_to(expand('%:p'), {'nudge': v:true}),
         \ { _, x -> x.anchor =~# a:anchor_old })
   let l:files_with_links = wiki#u#group_by(l:all_links, 'filename_from')
   for [l:file, l:file_links] in items(l:files_with_links)
@@ -364,18 +366,8 @@ function! s:update_link_anchors(anchor_old, anchor_new) abort "{{{1
     endfor
 
     call writefile(l:lines, l:file, 's')
-  endfor
 
-  " Update graph link anchors from old to new (avoid cache issues for repeated
-  " wiki#page#rename_section calls)
-  for l:link in l:graph.cache_links_in.data[expand('%:p')]
-    if l:link.anchor =~# a:anchor_old
-      let l:link.anchor = substitute(
-            \ l:link.anchor,
-            \ a:anchor_old,
-            \ a:anchor_new,
-            \ 'g')
-    endif
+    let l:graph._cache_updated += [l:file]
   endfor
 
   return [len(l:all_links), len(l:files_with_links)]
