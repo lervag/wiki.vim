@@ -36,21 +36,30 @@ endfunction
 function! wiki#graph#check_orphans() abort "{{{1
   let l:graph = wiki#graph#builder#get()
 
-  let l:orphans = filter(
-        \ l:graph.get_files(),
-        \ 'empty(l:graph.get_links_to(v:val))'
-        \)
-  call filter(l:orphans, { _, x -> !wiki#journal#is_in_journal(x) })
-  call map(l:orphans, { _, x -> {
-        \   'filename': x,
-        \   'text': 'Does not have any incoming links'
+  " Fully refresh the cache - this takes some extra time, but it ensures that
+  " the data is up to date.
+  call l:graph.refresh_cache(#{force: v:true})
+
+  " Manually fetch data from the cache
+  let l:orphans = keys(filter(
+        \ deepcopy(l:graph.cache_links_in.data),
+        \ { file, links ->
+        \   type(links) == v:t_list
+        \   && empty(links)
+        \   && !wiki#journal#is_in_journal(file)
         \ }
-        \})
+        \))
 
   if empty(l:orphans)
     call wiki#log#info('No orphans found.')
     return
   endif
+
+  call map(l:orphans, { _, x -> {
+        \   'filename': x,
+        \   'text': 'Does not have any incoming links'
+        \ }
+        \})
 
   call setloclist(0, l:orphans, 'r')
   lopen
