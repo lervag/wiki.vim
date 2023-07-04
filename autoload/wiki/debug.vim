@@ -127,8 +127,9 @@ endfunction
 
 " }}}1
 
-function! wiki#debug#profile_start() abort " {{{1
-  profile start prof.log
+function! wiki#debug#profile_start(...) abort " {{{1
+  let l:fname = a:0 > 0 ? a:1 : 'prof.log'
+  execute 'profile start' l:fname
   profile func *
 endfunction
 
