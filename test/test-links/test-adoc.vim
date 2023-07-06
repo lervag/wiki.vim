@@ -14,6 +14,7 @@ call assert_equal('Some text, cf. <<foo.adoc#,foo>>.', getline('.'))
 
 " Test link to other document
 set hidden
+let g:wiki_write_on_nav = v:false
 silent execute "normal \<Plug>(wiki-link-follow)"
 call assert_equal('foo.adoc', expand('%:t'))
 
