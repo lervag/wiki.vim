@@ -404,8 +404,9 @@ function! s:tags.rename(old_tag, new_tag, ...) abort dict " {{{1
 
   if has_key(self.collection, a:new_tag)
     redraw!
-    call wiki#log#warn('Tag "' . a:new_tag . '" already exists!')
-    if !l:rename_to_existing && !wiki#ui#confirm('Rename anyway?')
+    let l:warn = 'Tag "' . a:new_tag . '" already exists!'
+    call wiki#log#warn(l:warn)
+    if !l:rename_to_existing && !wiki#ui#confirm([l:warn, 'Rename anyway?'])
       return
     endif
   endif
