@@ -69,8 +69,8 @@ function! wiki#ui#nvim#confirm(prompt) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#ui#nvim#select(list, options) abort " {{{1
-  return wiki#ui#legacy#select(a:list, a:options)
+function! wiki#ui#nvim#select(prompt, list) abort " {{{1
+  return wiki#ui#legacy#select(a:prompt, a:list)
 endfunction
 
 " }}}1

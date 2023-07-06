@@ -251,9 +251,7 @@ function! wiki#link#transform_operator(type) abort " {{{1
         \ 'pos_end': [l:lnum, l:c2],
         \})
 
-  let g:wiki#ui#buffered = v:true
   call l:link.transform()
-  let g:wiki#ui#buffered = v:false
 endfunction
 
 " }}}1
