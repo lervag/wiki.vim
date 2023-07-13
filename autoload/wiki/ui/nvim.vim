@@ -5,55 +5,72 @@
 "
 
 function! wiki#ui#nvim#input(options) abort " {{{1
-  return wiki#ui#legacy#input(a:options)
+  if has_key(a:options, 'completer')
+    " We can't replicate completion, so let's just fall back.
+    return wiki#ui#legacy#input(a:options)
+  endif
+
+  let l:content = empty(a:options.info) ? [] : [a:options.info]
+  let l:content += [a:options.prompt]
+  let l:popup_cfg = {
+        \ 'content': l:content,
+        \ 'min_width': 0.7,
+        \ 'prompt': a:options.prompt,
+        \}
+  function l:popup_cfg.highlight() abort dict
+    syntax match WikiPopupContent ".*" contains=WikiPopupPrompt
+    execute 'syntax match WikiPopupPrompt'
+          \ '"^\s*' . self.prompt . '"'
+          \ 'nextgroup=WikiPopupPromptInput'
+    syntax match WikiPopupPromptInput ".*"  contained
+  endfunction
+  let l:popup = wiki#ui#nvim#popup(l:popup_cfg)
+
+  let l:value = a:options.text
+  while v:true
+    call nvim_buf_set_lines(0, -2, -1, v:false, [' > ' . l:value])
+    redraw!
+
+    let l:input_raw = getchar()
+    let l:input = nr2char(l:input_raw)
+
+    if index(["\<c-c>", "\<esc>", "\<c-q>"], l:input) >= 0
+      let l:value = ""
+      break
+    endif
+
+    if l:input ==# "\<cr>"
+      break
+    endif
+
+    if l:input_raw ==# "\<bs>"
+      let l:value = strcharpart(l:value, 0, strchars(l:value) - 1)
+    elseif l:input ==# "\<c-u>"
+      let l:value = ""
+    else
+      let l:value .= l:input
+    endif
+  endwhile
+
+  call l:popup.close()
+  return l:value
 endfunction
 
 " }}}1
 function! wiki#ui#nvim#confirm(prompt) abort " {{{1
-  let l:padding = 1
-  let l:pad = repeat(' ', l:padding)
+  let l:content = type(a:prompt) == v:t_list ? a:prompt : [a:prompt]
+  let l:content += ['']
+  let l:content += ['  y = Yes']
+  let l:content += ['  n = No ']
 
-  " Prepare the confirm dialog lines
-  let l:lines = type(a:prompt) == v:t_list ? a:prompt : [a:prompt]
-  let l:lines += ['']
-  let l:lines += ['  y = Yes']
-  let l:lines += ['  n = No ']
-  call map(l:lines, { _, x -> empty(x) ? x : l:pad . x })
-  let l:lines = repeat([''], l:padding) + l:lines
-
-  " Calculate window dimensions
-  let l:winheight = winheight(0)
-  let l:winwidth = winwidth(0)
-  let l:height = len(l:lines) + l:padding
-  let l:width = 0
-  for l:line in l:lines
-    if strdisplaywidth(l:line) > l:width
-      let l:width = strdisplaywidth(l:line)
-    endif
-  endfor
-  let l:width += 2*l:padding
-
-  " Create window and buffer
-  call nvim_open_win(bufadd(''), v:true, #{
-        \ relative: 'win',
-        \ row: (l:winheight - l:height)/3,
-        \ col: (l:winwidth - l:width)/2,
-        \ width: l:width,
-        \ height: l:height,
-        \ style: "minimal",
-        \ noautocmd: v:true,
-        \})
-  setlocal buftype=nofile
-  call nvim_buf_set_lines(0, 0, -1, v:false, l:lines)
-
-  " Apply some simple highlighting
-  syntax match ConfirmPrompt ".*" contains=ConfirmHelp
-  syntax match ConfirmHelp   "[yn] = \(Yes\|No\)" contains=ConfirmKey
-  syntax match ConfirmKey    "[yn]\ze ="
-  highlight link ConfirmPrompt Statement
-  highlight link ConfirmHelp Comment
-  highlight link ConfirmKey Title
-  redraw!
+  let l:popup_cfg = { 'content': l:content }
+  function l:popup_cfg.highlight() abort
+    syntax match WikiPopupContent ".*" contains=WikiPopupPrompt
+    syntax match WikiPopupPrompt "[yn] = \(Yes\|No\)"
+          \ contains=WikiPopupPromptInput
+    syntax match WikiPopupPromptInput "= \(Yes\|No\)" contained
+  endfunction
+  let l:popup = wiki#ui#nvim#popup(l:popup_cfg)
 
   " Wait for input
   while v:true
@@ -63,14 +80,104 @@ function! wiki#ui#nvim#confirm(prompt) abort " {{{1
     endif
   endwhile
 
-  " Close and return confirmation result
-  close
+  call l:popup.close()
   return l:input ==? 'y'
 endfunction
 
 " }}}1
 function! wiki#ui#nvim#select(prompt, list) abort " {{{1
   return wiki#ui#legacy#select(a:prompt, a:list)
+endfunction
+
+" }}}1
+
+function! wiki#ui#nvim#popup(cfg) abort " {{{1
+  let l:popup = extend({
+        \ 'name': 'WikiPopup',
+        \ 'content': [],
+        \ 'padding': 1,
+        \ 'position': 'cursor',
+        \ 'min_width': 0.0,
+        \ 'min_height': 0.0,
+        \}, a:cfg)
+
+  " Prepare content
+  let l:content = map(
+        \ repeat([''], l:popup.padding) + deepcopy(l:popup.content),
+        \ { _, x -> empty(x) ? x : repeat(' ', l:popup.padding) . x }
+        \)
+
+  " Calculate window dimensions
+  let l:winheight = winheight(0)
+  let l:winwidth = winwidth(0)
+  let l:height = len(l:content) + l:popup.padding
+  let l:height = max([l:height, float2nr(l:popup.min_height*l:winheight)])
+
+  let l:width = 0
+  for l:line in l:content
+    if strdisplaywidth(l:line) > l:width
+      let l:width = strdisplaywidth(l:line)
+    endif
+  endfor
+  let l:width += 2*l:popup.padding
+  let l:width = max([l:width, float2nr(l:popup.min_width*l:winwidth)])
+
+  " Create and fill the buffer
+  let l:bufnr = bufadd(l:popup.name)
+  call nvim_buf_set_lines(l:bufnr, 0, -1, v:false, l:content)
+  call nvim_buf_set_option(l:bufnr, 'buftype', 'nofile')
+
+  " Create popup window
+  let l:winopts = #{
+        \ width: l:width,
+        \ height: l:height,
+        \ style: "minimal",
+        \ noautocmd: v:true,
+        \}
+  if l:popup.position ==# 'cursor'
+    let l:winopts.relative = 'cursor'
+
+    let l:c = col('.')
+    if l:width < l:winwidth - l:c - 1
+      let l:winopts.row = 1 - l:height/2
+      let l:winopts.col = 2
+    else
+      let l:winopts.row = 1
+      let l:winopts.col = 1
+      " let l:winopts.col = (l:winwidth - width)/2 - l:c
+    endif
+  elseif l:popup.position ==# 'window'
+    let l:winopts.relative = 'win'
+    let l:winopts.row = (l:winheight - l:height)/3
+    let l:winopts.col = (l:winwidth - l:width)/2
+  endif
+  call nvim_open_win(l:bufnr, v:true, l:winopts)
+
+  " Define default highlight groups
+  if !hlexists("WikiPopupContent")
+    highlight default link WikiPopupContent PreProc
+    highlight default link WikiPopupPrompt Special
+    highlight default link WikiPopupPromptInput Type
+  endif
+
+  " Apply highlighting
+  if has_key(l:popup, 'highlight')
+    call l:popup.highlight()
+  endif
+
+  call extend(l:popup, #{
+        \ bufnr: l:bufnr,
+        \ height: height,
+        \ width: width,
+        \})
+
+  function l:popup.close() abort dict
+    close
+    call nvim_buf_delete(self.bufnr, #{force: v:true})
+  endfunction
+
+  redraw!
+  return l:popup
 endfunction
 
 " }}}1
