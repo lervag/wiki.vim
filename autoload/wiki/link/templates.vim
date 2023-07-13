@@ -126,7 +126,7 @@ function! wiki#link#templates#word(text, ...) abort " {{{1
   let l:new = l:url . ' (NEW PAGE)'
   let l:choice = wiki#ui#select(l:candidates + [l:new])
 
-  return empty(l:choice) ? a:text : (
+  return empty(l:choice) ? "" : (
         \ l:choice ==# l:new
         \   ? wiki#link#template(l:url, a:text)
         \   : wiki#link#template(l:prefix . l:choice, ''))
