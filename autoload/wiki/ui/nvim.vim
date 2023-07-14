@@ -5,7 +5,7 @@
 "
 
 function! wiki#ui#nvim#input(options) abort " {{{1
-  if has_key(a:options, 'completer')
+  if has_key(a:options, 'completion')
     " We can't replicate completion, so let's just fall back.
     return wiki#ui#legacy#input(a:options)
   endif

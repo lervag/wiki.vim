@@ -36,6 +36,11 @@ function! wiki#complete#url(lead, line, pos) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#complete#tag_names(lead, line, pos) abort " {{{1
+  return wiki#tags#get_tag_names()
+endfunction
+
+" }}}1
 
 function! wiki#complete#findstart(line) abort " {{{1
   if exists('s:completer') | unlet s:completer | endif

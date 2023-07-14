@@ -105,7 +105,7 @@ function! wiki#tags#rename_ask(...) abort " {{{1
   if empty(l:old_tag)
     let l:old_tag = wiki#ui#input(#{
           \ info: 'Enter tag to rename (without delimiters):',
-          \ completer: 'custom,wiki#tags#get_tag_names'
+          \ completion: 'customlist,wiki#complete#tag_names'
           \})
   endif
   if empty(l:old_tag) | return | endif

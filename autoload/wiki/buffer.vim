@@ -98,7 +98,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer          WikiTagReload call wiki#tags#reload()
   command! -buffer -nargs=* WikiTagList   call wiki#tags#list(<f-args>)
   command! -buffer -nargs=* WikiTagSearch call wiki#tags#search(<f-args>)
-  command! -buffer -nargs=+ -complete=custom,wiki#tags#get_tag_names
+  command! -buffer -nargs=+ -complete=customlist,wiki#complete#tag_names
         \ WikiTagRename call wiki#tags#rename_ask(<f-args>)
 
   if has('nvim') && g:wiki_select_method == 'ui_select'
