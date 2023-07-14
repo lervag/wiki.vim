@@ -86,7 +86,54 @@ endfunction
 
 " }}}1
 function! wiki#ui#nvim#select(prompt, list) abort " {{{1
-  return wiki#ui#legacy#select(a:prompt, a:list)
+  if empty(a:list) | return [-1, ''] | endif
+
+  let l:length = len(a:list)
+  if l:length == 1 | return [0, a:list[0]] | endif
+
+  " Prepare menu of choices
+  let l:content = [a:prompt, '']
+  let l:digits = len(l:length)
+  call add(l:content, repeat(' ', l:digits - 1) . 'x: Abort')
+  let l:format = printf('%%%dd: %%s', l:digits)
+  let l:i = 0
+  for l:x in a:list
+    let l:i += 1
+    call add(l:content, printf(
+          \ l:format, l:i, type(l:x) == v:t_dict ? l:x.name : l:x))
+  endfor
+
+  " Create popup window
+  let l:popup_cfg = {
+        \ 'content': l:content,
+        \ 'position': 'window',
+        \ 'min_width': 0.8,
+        \}
+  function l:popup_cfg.highlight() abort
+    syntax match WikiPopupContent ".*" contains=WikiPopupPrompt
+    syntax match WikiPopupPrompt "^\s*\(\d\+\|x\):\s*"
+          \ nextgroup=WikiPopupPromptInput
+    syntax match WikiPopupPromptInput ".*" contained
+  endfunction
+  let l:popup = wiki#ui#nvim#popup(l:popup_cfg)
+
+  let l:value = [-1, '']
+  while v:true
+    try
+      let l:choice = s:get_number(l:length, l:digits)
+      if l:choice == -2
+        break
+      endif
+
+      if l:choice >= 0 && l:choice < l:length
+        let l:value = [l:choice, a:list[l:choice]]
+        break
+      endif
+    endtry
+  endwhile
+
+  call l:popup.close()
+  return l:value
 endfunction
 
 " }}}1
@@ -178,6 +225,36 @@ function! wiki#ui#nvim#popup(cfg) abort " {{{1
 
   redraw!
   return l:popup
+endfunction
+
+" }}}1
+
+function! s:get_number(max, digits) abort " {{{1
+  let l:choice = ''
+
+  while len(l:choice) < a:digits
+    if len(l:choice) > 0 && (l:choice . '0') > a:max
+      return l:choice - 1
+    endif
+
+    let l:input = nr2char(getchar())
+
+    if l:input ==# 'x'
+      return -2
+    endif
+
+    if len(l:choice) > 0 && l:input ==# "\<cr>"
+      return l:choice - 1
+    endif
+
+    if l:input !~# '\d' | continue | endif
+
+    if (l:choice . l:input) > 0
+      let l:choice .= l:input
+    endif
+  endwhile
+
+  return l:choice - 1
 endfunction
 
 " }}}1
