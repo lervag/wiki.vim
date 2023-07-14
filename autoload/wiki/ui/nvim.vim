@@ -140,7 +140,6 @@ endfunction
 
 function! wiki#ui#nvim#popup(cfg) abort " {{{1
   let l:popup = extend({
-        \ 'name': 'WikiPopup',
         \ 'content': [],
         \ 'padding': 1,
         \ 'position': 'cursor',
@@ -170,7 +169,7 @@ function! wiki#ui#nvim#popup(cfg) abort " {{{1
   let l:width = max([l:width, float2nr(l:popup.min_width*l:winwidth)])
 
   " Create and fill the buffer
-  let l:bufnr = bufadd(l:popup.name)
+  let l:bufnr = nvim_create_buf(v:false, v:true)
   call nvim_buf_set_lines(l:bufnr, 0, -1, v:false, l:content)
   call nvim_buf_set_option(l:bufnr, 'buftype', 'nofile')
 
