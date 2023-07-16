@@ -4,10 +4,38 @@
 " Email:      karl.yngve@gmail.com
 "
 
+function! wiki#ui#nvim#confirm(prompt) abort " {{{1
+  let l:content = type(a:prompt) == v:t_list ? a:prompt : [a:prompt]
+  let l:content += ['']
+  let l:content += ['  y = Yes']
+  let l:content += ['  n = No ']
+
+  let l:popup_cfg = { 'content': l:content }
+  function l:popup_cfg.highlight() abort
+    syntax match WikiPopupContent ".*" contains=WikiPopupPrompt
+    syntax match WikiPopupPrompt "[yn] = \(Yes\|No\)"
+          \ contains=WikiPopupPromptInput
+    syntax match WikiPopupPromptInput "= \(Yes\|No\)" contained
+  endfunction
+  let l:popup = wiki#ui#nvim#popup(l:popup_cfg)
+
+  " Wait for input
+  while v:true
+    let l:input = nr2char(getchar())
+    if index(["\<C-c>", "\<Esc>", 'y', 'Y', 'n', 'N'], l:input) >= 0
+      break
+    endif
+  endwhile
+
+  call l:popup.close()
+  return l:input ==? 'y'
+endfunction
+
+" }}}1
 function! wiki#ui#nvim#input(options) abort " {{{1
   if has_key(a:options, 'completion')
     " We can't replicate completion, so let's just fall back.
-    return wiki#ui#legacy#input(a:options)
+    return wiki#ui#vim#input(a:options)
   endif
 
   let l:content = empty(a:options.info) ? [] : [a:options.info]
@@ -57,44 +85,15 @@ function! wiki#ui#nvim#input(options) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#ui#nvim#confirm(prompt) abort " {{{1
-  let l:content = type(a:prompt) == v:t_list ? a:prompt : [a:prompt]
-  let l:content += ['']
-  let l:content += ['  y = Yes']
-  let l:content += ['  n = No ']
-
-  let l:popup_cfg = { 'content': l:content }
-  function l:popup_cfg.highlight() abort
-    syntax match WikiPopupContent ".*" contains=WikiPopupPrompt
-    syntax match WikiPopupPrompt "[yn] = \(Yes\|No\)"
-          \ contains=WikiPopupPromptInput
-    syntax match WikiPopupPromptInput "= \(Yes\|No\)" contained
-  endfunction
-  let l:popup = wiki#ui#nvim#popup(l:popup_cfg)
-
-  " Wait for input
-  while v:true
-    let l:input = nr2char(getchar())
-    if index(["\<C-c>", "\<Esc>", 'y', 'Y', 'n', 'N'], l:input) >= 0
-      break
-    endif
-  endwhile
-
-  call l:popup.close()
-  return l:input ==? 'y'
-endfunction
-
-" }}}1
-function! wiki#ui#nvim#select(prompt, list) abort " {{{1
-  if empty(a:list) | return [-1, ''] | endif
-
+function! wiki#ui#nvim#select(options, list) abort " {{{1
   let l:length = len(a:list)
-  if l:length == 1 | return [0, a:list[0]] | endif
+  let l:digits = len(l:length)
 
   " Prepare menu of choices
-  let l:content = [a:prompt, '']
-  let l:digits = len(l:length)
-  call add(l:content, repeat(' ', l:digits - 1) . 'x: Abort')
+  let l:content = [a:options.prompt, '']
+  if !a:options.force_choice
+    call add(l:content, repeat(' ', l:digits - 1) . 'x: Abort')
+  endif
   let l:format = printf('%%%dd: %%s', l:digits)
   let l:i = 0
   for l:x in a:list
@@ -121,8 +120,10 @@ function! wiki#ui#nvim#select(prompt, list) abort " {{{1
   let l:value = [-1, '']
   while v:true
     try
-      let l:choice = wiki#ui#get_number(l:length, l:digits, v:false)
-      if l:choice == -2
+      let l:choice = wiki#ui#get_number(
+            \ l:length, l:digits, a:options.force_choice, v:true)
+
+      if !a:options.force_choice && l:choice == -2
         break
       endif
 

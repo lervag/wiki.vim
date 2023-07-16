@@ -24,7 +24,7 @@ endfunction
 function! wiki#ui#confirm(prompt) abort " {{{1
   return has('nvim')
         \ ? wiki#ui#nvim#confirm(a:prompt)
-        \ : wiki#ui#legacy#confirm(a:prompt)
+        \ : wiki#ui#vim#confirm(a:prompt)
 endfunction
 
 " }}}1
@@ -37,7 +37,7 @@ function! wiki#ui#input(options) abort " {{{1
 
   return has('nvim')
         \ ? wiki#ui#nvim#input(l:options)
-        \ : wiki#ui#legacy#input(l:options)
+        \ : wiki#ui#vim#input(l:options)
 endfunction
 
 " }}}1
@@ -46,15 +46,20 @@ function! wiki#ui#select(container, ...) abort " {{{1
         \ {
         \   'prompt': 'Please choose item:',
         \   'return': 'value',
+        \   'force_choice': v:false,
         \ },
         \ a:0 > 0 ? a:1 : {})
 
   let l:list = type(a:container) == v:t_dict
         \ ? values(a:container)
         \ : a:container
-  let [l:index, l:value] = has('nvim')
-        \ ? wiki#ui#nvim#select(l:options.prompt, l:list)
-        \ : wiki#ui#legacy#select(l:options.prompt, l:list)
+  let [l:index, l:value] = empty(l:list)
+        \ ? [-1, '']
+        \ : (len(l:list) == 1
+        \   ? [0, l:list[0]]
+        \   : (has('nvim')
+        \     ? wiki#ui#nvim#select(l:options, l:list)
+        \     : wiki#ui#vim#select(l:options, l:list)))
 
   if l:options.return ==# 'value'
     return l:value
@@ -69,7 +74,7 @@ endfunction
 
 " }}}1
 
-function! wiki#ui#get_number(max, digits, do_echo) abort " {{{1
+function! wiki#ui#get_number(max, digits, force_choice, do_echo) abort " {{{1
   let l:choice = ''
 
   if a:do_echo
@@ -83,9 +88,9 @@ function! wiki#ui#get_number(max, digits, do_echo) abort " {{{1
 
     let l:input = nr2char(getchar())
 
-    if l:input ==# 'x'
+    if !a:force_choice && index(["\<C-c>", "\<Esc>", 'x'], l:input) >= 0
       if a:do_echo
-        echon l:input
+        echon 'aborted!'
       endif
       return -2
     endif
