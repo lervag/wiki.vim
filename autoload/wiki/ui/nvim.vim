@@ -108,6 +108,7 @@ function! wiki#ui#nvim#select(prompt, list) abort " {{{1
         \ 'content': l:content,
         \ 'position': 'window',
         \ 'min_width': 0.8,
+        \ 'hide_cursor': v:true,
         \}
   function l:popup_cfg.highlight() abort
     syntax match WikiPopupContent ".*" contains=WikiPopupPrompt
@@ -120,7 +121,7 @@ function! wiki#ui#nvim#select(prompt, list) abort " {{{1
   let l:value = [-1, '']
   while v:true
     try
-      let l:choice = s:get_number(l:length, l:digits)
+      let l:choice = wiki#ui#get_number(l:length, l:digits, v:false)
       if l:choice == -2
         break
       endif
@@ -145,7 +146,16 @@ function! wiki#ui#nvim#popup(cfg) abort " {{{1
         \ 'position': 'cursor',
         \ 'min_width': 0.0,
         \ 'min_height': 0.0,
+        \ 'hide_cursor': v:false,
         \}, a:cfg)
+
+  " Define default highlight groups
+  if !hlexists("WikiHideCursor")
+    call nvim_set_hl(0, "WikiHideCursor", #{ blend: 100, nocombine: v:true })
+    highlight default link WikiPopupContent PreProc
+    highlight default link WikiPopupPrompt Special
+    highlight default link WikiPopupPromptInput Type
+  endif
 
   " Prepare content
   let l:content = map(
@@ -198,12 +208,9 @@ function! wiki#ui#nvim#popup(cfg) abort " {{{1
     let l:winopts.col = (l:winwidth - l:width)/2
   endif
   call nvim_open_win(l:bufnr, v:true, l:winopts)
-
-  " Define default highlight groups
-  if !hlexists("WikiPopupContent")
-    highlight default link WikiPopupContent PreProc
-    highlight default link WikiPopupPrompt Special
-    highlight default link WikiPopupPromptInput Type
+  if l:popup.hide_cursor
+    let l:popup._guicursor = &guicursor
+    let &guicursor = 'a:WikiHideCursor'
   endif
 
   " Apply highlighting
@@ -220,40 +227,13 @@ function! wiki#ui#nvim#popup(cfg) abort " {{{1
   function l:popup.close() abort dict
     close
     call nvim_buf_delete(self.bufnr, #{force: v:true})
+    if self.hide_cursor
+      let &guicursor = self._guicursor
+    endif
   endfunction
 
   redraw!
   return l:popup
-endfunction
-
-" }}}1
-
-function! s:get_number(max, digits) abort " {{{1
-  let l:choice = ''
-
-  while len(l:choice) < a:digits
-    if len(l:choice) > 0 && (l:choice . '0') > a:max
-      return l:choice - 1
-    endif
-
-    let l:input = nr2char(getchar())
-
-    if l:input ==# 'x'
-      return -2
-    endif
-
-    if len(l:choice) > 0 && l:input ==# "\<cr>"
-      return l:choice - 1
-    endif
-
-    if l:input !~# '\d' | continue | endif
-
-    if (l:choice . l:input) > 0
-      let l:choice .= l:input
-    endif
-  endwhile
-
-  return l:choice - 1
 endfunction
 
 " }}}1

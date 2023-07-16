@@ -69,6 +69,46 @@ endfunction
 
 " }}}1
 
+function! wiki#ui#get_number(max, digits, do_echo) abort " {{{1
+  let l:choice = ''
+
+  if a:do_echo
+    echo '> '
+  endif
+
+  while len(l:choice) < a:digits
+    if len(l:choice) > 0 && (l:choice . '0') > a:max
+      return l:choice - 1
+    endif
+
+    let l:input = nr2char(getchar())
+
+    if l:input ==# 'x'
+      if a:do_echo
+        echon l:input
+      endif
+      return -2
+    endif
+
+    if len(l:choice) > 0 && l:input ==# "\<cr>"
+      return l:choice - 1
+    endif
+
+    if l:input !~# '\d' | continue | endif
+
+    if (l:choice . l:input) > 0
+      let l:choice .= l:input
+      if a:do_echo
+        echon l:input
+      endif
+    endif
+  endwhile
+
+  return l:choice - 1
+endfunction
+
+" }}}1
+
 function! s:echo_string(msg, opts) abort " {{{1
   let l:msg = repeat(' ', a:opts.indent) . a:msg
 

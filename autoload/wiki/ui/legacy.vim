@@ -83,7 +83,7 @@ function! wiki#ui#legacy#select(prompt, list) abort " {{{1
     endfor
 
     try
-      let l:choice = s:get_number(l:length, l:digits)
+      let l:choice = wiki#ui#get_number(l:length, l:digits, v:true)
       if l:choice == -2
         sleep 75m
         redraw!
@@ -97,39 +97,6 @@ function! wiki#ui#legacy#select(prompt, list) abort " {{{1
       endif
     endtry
   endwhile
-endfunction
-
-" }}}1
-
-function! s:get_number(max, digits) abort " {{{1
-  let l:choice = ''
-  echo '> '
-
-  while len(l:choice) < a:digits
-    if len(l:choice) > 0 && (l:choice . '0') > a:max
-      return l:choice - 1
-    endif
-
-    let l:input = nr2char(getchar())
-
-    if l:input ==# 'x'
-      echon l:input
-      return -2
-    endif
-
-    if len(l:choice) > 0 && l:input ==# "\<cr>"
-      return l:choice - 1
-    endif
-
-    if l:input !~# '\d' | continue | endif
-
-    if (l:choice . l:input) > 0
-      let l:choice .= l:input
-      echon l:input
-    endif
-  endwhile
-
-  return l:choice - 1
 endfunction
 
 " }}}1
