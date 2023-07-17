@@ -24,13 +24,11 @@ function! wiki#toc#get_page_title(...) abort " {{{1
     let l:opts.lines = readfile(l:filename)
   endif
 
-  let l:toc = wiki#toc#gather_entries(l:opts)
-  return empty(l:toc) ? '' : l:toc[0].header
+  return get(wiki#toc#gather_entries(l:opts), 'header', '')
 endfunction
 
 function! wiki#toc#get_section_at(lnum) abort " {{{1
-  let l:toc = wiki#toc#gather_entries(#{ at_lnum: a:lnum })
-  return empty(l:toc) ? {} : l:toc[-1]
+  return wiki#toc#gather_entries(#{ at_lnum: a:lnum })
 endfunction
 
 " }}}1
@@ -65,7 +63,7 @@ function! wiki#toc#gather_entries(...) abort " {{{1
   for l:line in l:opts.lines
     " Optional: Return current section
     if has_key(l:opts, 'at_lnum') && l:lnum >= l:opts.at_lnum
-      return l:entries[-1:]
+      return empty(l:entries) ? {} : l:entries[-1]
     endif
     let l:lnum += 1
 
@@ -94,11 +92,17 @@ function! wiki#toc#gather_entries(...) abort " {{{1
 
     " Optional: Return first section only
     if l:opts.first_only
-      return l:entries[:0]
+      return l:entries[0]
     endif
   endfor
 
-  return l:entries
+  if has_key(l:opts, 'at_lnum')
+    return l:lnum >= l:opts.at_lnum && !empty(l:entries)
+          \ ? l:entries[-1]
+          \ : {}
+  else
+    return l:entries
+  endif
 endfunction
 
 let s:header_spec = {
