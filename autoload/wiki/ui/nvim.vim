@@ -5,7 +5,7 @@
 "
 
 function! wiki#ui#nvim#confirm(prompt) abort " {{{1
-  let l:content = type(a:prompt) == v:t_list ? a:prompt : [a:prompt]
+  let l:content = [s:formatted_to_string(a:prompt)]
   let l:content += ['']
   let l:content += ['  y = Yes']
   let l:content += ['  n = No ']
@@ -38,7 +38,9 @@ function! wiki#ui#nvim#input(options) abort " {{{1
     return wiki#ui#vim#input(a:options)
   endif
 
-  let l:content = empty(a:options.info) ? [] : [a:options.info]
+  let l:content = empty(a:options.info)
+        \ ? []
+        \ : [s:formatted_to_string(a:options.info)]
   let l:content += [a:options.prompt]
   let l:popup_cfg = {
         \ 'content': l:content,
@@ -90,7 +92,7 @@ function! wiki#ui#nvim#select(options, list) abort " {{{1
   let l:digits = len(l:length)
 
   " Prepare menu of choices
-  let l:content = [a:options.prompt, '']
+  let l:content = [s:formatted_to_string(a:options.prompt), '']
   if !a:options.force_choice
     call add(l:content, repeat(' ', l:digits - 1) . 'x: Abort')
   endif
@@ -235,6 +237,21 @@ function! wiki#ui#nvim#popup(cfg) abort " {{{1
 
   redraw!
   return l:popup
+endfunction
+
+" }}}1
+
+function! s:formatted_to_string(list_or_string) abort " {{{1
+  " The input can be a string or an echo-formatted list (see vimtex#ui#echo).
+  " If the latter, then we must "flatten" and join it.
+  if type(a:list_or_string) == v:t_string
+    return a:list_or_string
+  endif
+
+  let l:strings = map(
+        \ a:list_or_string,
+        \ { _, x -> type(x) == v:t_list ? x[1] : x })
+  return join(l:strings, '')
 endfunction
 
 " }}}1
