@@ -5,100 +5,17 @@
 "
 
 function! wiki#ui#vim#confirm(prompt) abort " {{{1
-  let l:prompt = type(a:prompt) == v:t_list ? a:prompt : [a:prompt]
-  let l:prompt[-1] .= ' [y]es/[n]o: '
-
-  while v:true
-    redraw!
-    call wiki#ui#echo(l:prompt)
-
-    let l:input = nr2char(getchar())
-    if index(["\<c-c>", "\<esc>"], l:input) >= 0
-      break
-    endif
-
-    if index(['y', 'Y', 'n', 'N'], l:input) >= 0
-      echon l:input
-      sleep 75m
-      redraw!
-      break
-    endif
-  endwhile
-
-  return l:input ==? 'y'
+  return wiki#ui#legacy#confirm(a:prompt)
 endfunction
 
 " }}}1
 function! wiki#ui#vim#input(options) abort " {{{1
-  if !empty(a:options.info)
-    redraw!
-    call wiki#ui#echo(a:options.info)
-  endif
-
-  let l:input = has_key(a:options, 'completion')
-        \ ? input(a:options.prompt, a:options.text, a:options.completion)
-        \ : input(a:options.prompt, a:options.text)
-
-  return l:input
+  return wiki#ui#legacy#input(a:options)
 endfunction
 
 " }}}1
 function! wiki#ui#vim#select(options, list) abort " {{{1
-  let l:length = len(a:list)
-  let l:digits = len(l:length)
-
-  " Use simple menu when in operator mode
-  if !empty(&operatorfunc)
-    let l:choices = map(deepcopy(a:list), { i, x -> (i+1) . ': ' . x })
-    let l:choice = inputlist(l:choices) - 1
-    return l:choice >= 0 && l:choice < l:length
-          \ ? [l:choice, a:list[l:choice]]
-          \ : [-1, '']
-  endif
-
-  " Create the menu
-  let l:menu = [a:options.prompt]
-  let l:format = printf('%%%dd: ', l:digits)
-  let l:i = 0
-  for l:x in a:list
-    let l:i += 1
-    call add(l:menu, [
-          \ ['ModeMsg', printf(l:format, l:i)],
-          \ type(l:x) == v:t_dict ? l:x.name : l:x
-          \])
-  endfor
-  if !a:options.force_choice
-    call add(l:menu, [
-          \ ['ModeMsg', repeat(' ', l:digits - 1) . 'x: '],
-          \ 'Abort'
-          \])
-  endif
-
-  " Loop to get a valid choice
-  let l:value = ''
-  while v:true
-    redraw!
-
-    for l:line in l:menu
-      call wiki#ui#echo(l:line)
-    endfor
-
-    let l:choice = wiki#ui#get_number(
-          \ l:length, l:digits, a:options.force_choice, v:true)
-
-    if !a:options.force_choice && l:choice == -2
-      break
-    endif
-
-    if l:choice >= 0 && l:choice < l:length
-      let l:value = a:list[l:choice]
-      break
-    endif
-  endwhile
-
-  sleep 75m
-  redraw!
-  return [l:choice, l:value]
+  return wiki#ui#legacy#select(a:options, a:list)
 endfunction
 
 " }}}1

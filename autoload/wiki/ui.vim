@@ -22,9 +22,7 @@ endfunction
 " }}}1
 
 function! wiki#ui#confirm(prompt) abort " {{{1
-  return has('nvim')
-        \ ? wiki#ui#nvim#confirm(a:prompt)
-        \ : wiki#ui#vim#confirm(a:prompt)
+  return wiki#ui#{g:wiki_ui_method.confirm}#confirm(a:prompt)
 endfunction
 
 " }}}1
@@ -35,9 +33,7 @@ function! wiki#ui#input(options) abort " {{{1
         \ info: '',
         \}, a:options)
 
-  return has('nvim')
-        \ ? wiki#ui#nvim#input(l:options)
-        \ : wiki#ui#vim#input(l:options)
+  return wiki#ui#{g:wiki_ui_method.input}#input(l:options)
 endfunction
 
 " }}}1
@@ -57,9 +53,7 @@ function! wiki#ui#select(container, ...) abort " {{{1
         \ ? [-1, '']
         \ : (len(l:list) == 1
         \   ? [0, l:list[0]]
-        \   : (has('nvim')
-        \     ? wiki#ui#nvim#select(l:options, l:list)
-        \     : wiki#ui#vim#select(l:options, l:list)))
+        \   : wiki#ui#{g:wiki_ui_method.select}#select(l:options, l:list))
 
   if l:options.return ==# 'value'
     return l:value

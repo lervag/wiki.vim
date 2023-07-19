@@ -1436,6 +1436,43 @@ a reference of all available options.
 
   Default: `'# Summary, %(year) week %(week)'`
 
+*g:wiki_ui_method*
+  A dictionary that specifies the backend for various input methods. The
+  method names are the keys of the dictionary and the backend choices are the
+  values.
+
+  The available methods:
+
+    confirm:  Confirm dialogues, e.g. before deleting a pages.
+    input:    Input dialogues, e.g. when renaming a page.
+    select:   Selection dialogues, e.g. when creating a link from text with
+              |<plug>(wiki-link-follow)|, where the text can refer to multiple
+              target pages.
+
+  The available backends:
+
+    nvim:     Popup menu created with neovim APIs.
+    vim:      Currently there is no Vim-specific implementation. Setting the
+              backend to "vim" will currently fallback to "legacy".
+    legacy:   Legacy backends that are created by |:echo|ing the menus and
+              using |input()| and similar for getting input.
+
+  Default: >vim
+
+    " On neovim
+    let g:wiki_ui_method = {
+          \ 'confirm': 'nvim',
+          \ 'input': 'nvim',
+          \ 'select': 'nvim',
+          \}
+
+    " Otherwise
+    let g:wiki_ui_method = {
+          \ 'confirm': 'legacy',
+          \ 'input': 'legacy',
+          \ 'select': 'legacy',
+          \}
+
 *g:wiki_viewer*
   A dictionary that specifies which viewer to use for a given filetype. The
   entry `_` specifies the fallback or generic viewer. This option thus allows
