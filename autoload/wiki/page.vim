@@ -37,7 +37,7 @@ function! wiki#page#delete() abort "{{{1
   endtry
 
   call wiki#nav#return()
-  execute 'bdelete!' fnameescape(l:filename)
+  execute 'bwipeout!' fnameescape(l:filename)
 endfunction
 
 "}}}1
@@ -57,7 +57,8 @@ function! wiki#page#rename(...) abort "{{{1
   endif
 
   let l:opts = extend(#{
-        \ dir_mode: 'ask'
+        \ dir_mode: 'ask',
+        \ new_name: '',
         \}, a:0 > 0 ? a:1 : {})
 
   if index(['abort', 'ask', 'create'], l:opts.dir_mode) < 0
@@ -68,16 +69,7 @@ function! wiki#page#rename(...) abort "{{{1
           \)
   end
 
-  " Check if current file exists
-  let l:path_old = expand('%:p')
-  if !filereadable(l:path_old)
-    return wiki#log#error(
-          \ 'Cannot rename "' . l:path_old . '".',
-          \ 'It does not exist! (New file? Save it before renaming.)'
-          \)
-  endif
-
-  if !has_key(l:opts, 'new_name')
+  if empty(l:opts.new_name)
     let l:opts.new_name = wiki#ui#input(
           \ #{info: 'Enter new name (without extension) [empty cancels]:'})
   endif
@@ -88,18 +80,28 @@ function! wiki#page#rename(...) abort "{{{1
     return wiki#log#error('Cannot rename to a whitespace filename!')
   endif
 
-  " The target path must not exist
-  let l:path_new = wiki#paths#s(printf('%s/%s.%s',
-        \ expand('%:p:h'), l:opts.new_name, b:wiki.extension))
-  if filereadable(l:path_new)
+  " Check if current file exists
+  let l:source = #{ path: expand('%:p') }
+  if !filereadable(l:source.path)
     return wiki#log#error(
-          \ 'Cannot rename to "' . l:path_new . '".',
+          \ 'Cannot rename "' . l:source.path . '".',
+          \ 'It does not exist! (New file? Save it before renaming.)'
+          \)
+  endif
+
+  " The target path must not exist
+  let l:target = {}
+  let l:target.path = wiki#paths#s(printf('%s/%s.%s',
+        \ expand('%:p:h'), l:opts.new_name, b:wiki.extension))
+  if filereadable(l:target.path)
+    return wiki#log#error(
+          \ 'Cannot rename to "' . l:target.path . '".',
           \ 'File with that name exist!'
           \)
   endif
 
   " Check if target directory exists
-  let l:target_dir = fnamemodify(l:path_new, ':p:h')
+  let l:target_dir = fnamemodify(l:target.path, ':p:h')
   if !isdirectory(l:target_dir)
     if l:opts.dir_mode ==# 'abort'
       call wiki#log#warn(
@@ -119,58 +121,45 @@ function! wiki#page#rename(...) abort "{{{1
   endif
 
   try
-    call s:rename_file(l:path_old, l:path_new)
+    call s:rename_file(l:source.path, l:target.path)
   catch
     return wiki#log#error(
           \ printf('Cannot rename "%s" to "%s" ...',
-          \   fnamemodify(l:path_old, ':t'),
-          \   fnamemodify(l:path_new, ':t')))
+          \   fnamemodify(l:source.path, ':t'),
+          \   fnamemodify(l:target.path, ':t')))
   endtry
 
-  let [l:n, l:m] = s:update_links(#{path: l:path_old}, #{path: l:path_new})
-  call wiki#log#info(printf('Updated %d links in %d files', l:n, l:m))
+  call s:update_links_external(l:source, l:target)
 endfunction
 
 " }}}1
 function! wiki#page#rename_section(...) abort "{{{1
-  let l:section = wiki#toc#get_section()
-  if empty(l:section)
+  let l:source = wiki#toc#get_section()
+  if empty(l:source)
     return wiki#log#error('No current section recognized!')
   endif
 
-  " Get new name (must be nontrivial)
-  let l:new_name = a:0 > 0
+  let l:target = {}
+  let l:target.name = a:0 > 0
         \ ? a:1
         \ : wiki#ui#input(#{info: 'Enter new section name:'})
-  if empty(substitute(l:new_name, '\s*', '', ''))
+  if empty(substitute(l:target.name, '\s*', '', ''))
     return wiki#log#warn('New section name cannot be empty!')
   endif
+  let l:target.anchor = join(
+        \ [''] + l:source.anchors[:-2] + [l:target.name], '#')
 
   call wiki#log#info(
         \ printf('Renaming section from "%s" to "%s"',
-        \ l:section.header, l:new_name))
+        \ l:source.header, l:target.name))
 
   " Update header
-  call setline(l:section.lnum,
-        \ printf('%s %s',
-        \   repeat('#', l:section.level),
-        \   l:new_name))
+  call setline(l:source.lnum,
+        \ printf('%s %s', repeat('#', l:source.level), l:target.name))
+  silent write
 
-  " Update local anchors
-  let l:pos = getcurpos()
-  let l:old_anchor = '\V' . l:section.anchor
-  let l:new_anchor = join([''] + l:section.anchors[:-2] + [l:new_name], '#')
-  keepjumps execute '%s'
-        \ . '/' . l:old_anchor
-        \ . '/' . l:new_anchor
-        \ . '/e' . (&gdefault ? '' : 'g')
-  call cursor(l:pos[1:])
-  silent update
-
-  let [l:n, l:m] = s:update_links(
-        \ #{anchor: l:old_anchor},
-        \ #{anchor: l:new_anchor})
-  call wiki#log#info(printf('Updated %d links in %d files', l:n, l:m))
+  call s:update_links_local(l:source, l:target)
+  call s:update_links_external(l:source, l:target)
 endfunction
 
 " }}}1
@@ -292,7 +281,18 @@ function! s:rename_file(path_old, path_new) abort "{{{1
 endfunction
 
 " }}}1
-function! s:update_links(old, new) abort "{{{1
+function! s:update_links_local(old, new) abort "{{{1
+  let l:pos = getcurpos()
+  keeppattern keepjumps execute printf('%%s/\V%s/%s/e%s',
+        \ a:old.anchor,
+        \ a:new.anchor,
+        \ &gdefault ? '' : 'g')
+  silent update
+  call cursor(l:pos[1:])
+endfunction
+
+" }}}1
+function! s:update_links_external(old, new) abort "{{{1
   let l:old = extend(#{anchor: '', path: expand('%:p')}, a:old)
   let l:new = extend(#{anchor: '', path: ''}, a:new)
 
@@ -356,8 +356,9 @@ function! s:update_links(old, new) abort "{{{1
   " Restore the original buffer
   execute 'buffer' l:current_bufnr
 
-  " Return number of links and files that are updated
-  return [len(l:all_links), len(l:files_with_links)]
+  call wiki#log#info(
+        \ printf('Updated %d links in %d files',
+        \ len(l:all_links), len(l:files_with_links)))
 endfunction
 
 " }}}1
