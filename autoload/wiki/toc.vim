@@ -23,8 +23,12 @@ function! wiki#toc#get_page_title(...) abort " {{{1
   return get(l:section, 'header', '')
 endfunction
 
-function! wiki#toc#get_section_at(lnum) abort " {{{1
-  return wiki#toc#gather_entries(#{ at_lnum: a:lnum })
+function! wiki#toc#get_section(...) abort " {{{1
+  let l:opts = extend(#{
+        \ path: expand('%:h'),
+        \ at_lnum: line('.'),
+        \}, a:0 > 0 ? a:1 : {})
+  return wiki#toc#gather_entries(l:opts)
 endfunction
 
 " }}}1

@@ -133,7 +133,7 @@ endfunction
 
 " }}}1
 function! wiki#page#rename_section(...) abort "{{{1
-  let l:section = wiki#toc#get_section_at(line('.'))
+  let l:section = wiki#toc#get_section()
   if empty(l:section)
     return wiki#log#error('No current section recognized!')
   endif
