@@ -116,6 +116,18 @@ endfunction
 
 " }}}1
 
+function! wiki#paths#get_filetype(path) abort " {{{1
+  return get(#{
+        \ md: 'markdown',
+        \ adoc: 'asciidoc',
+        \ wiki: 'wiki',
+        \ org: 'org',
+        \},
+        \ fnamemodify(a:path, ':e'),
+        \ !empty(&filetype) ? &filetype : 'wiki')
+endfunction
+
+" }}}1
 
 let s:cd = haslocaldir()
       \ ? 'lcd'
