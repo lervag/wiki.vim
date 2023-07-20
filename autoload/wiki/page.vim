@@ -119,7 +119,7 @@ function! wiki#page#rename(...) abort "{{{1
   endif
 
   try
-    call s:rename_files(l:path_old, l:path_new)
+    call s:rename_file(l:path_old, l:path_new)
   catch
     return wiki#log#error(
           \ printf('Cannot rename "%s" to "%s" ...',
@@ -127,7 +127,8 @@ function! wiki#page#rename(...) abort "{{{1
           \   fnamemodify(l:path_new, ':t')))
   endtry
 
-  call s:update_links(l:path_old, l:path_new, 'rename_path')
+  let [l:n, l:m] = s:update_links(#{path: l:path_old}, #{path: l:path_new})
+  call wiki#log#info(printf('Updated %d links in %d files', l:n, l:m))
 endfunction
 
 " }}}1
@@ -166,7 +167,10 @@ function! wiki#page#rename_section(...) abort "{{{1
   call cursor(l:pos[1:])
   silent update
 
-  call s:update_links(l:old_anchor, l:new_anchor, 'rename_section')
+  let [l:n, l:m] = s:update_links(
+        \ #{anchor: l:old_anchor},
+        \ #{anchor: l:new_anchor})
+  call wiki#log#info(printf('Updated %d links in %d files', l:n, l:m))
 endfunction
 
 " }}}1
@@ -269,7 +273,7 @@ let s:slash = exists('+shellslash') && !&shellslash ? '\' : '/'
 
 " }}}1
 
-function! s:rename_files(path_old, path_new) abort "{{{1
+function! s:rename_file(path_old, path_new) abort "{{{1
   let l:bufnr = bufnr('')
   call wiki#log#info(
         \ printf('Renaming "%s" to "%s" ...',
@@ -288,7 +292,10 @@ function! s:rename_files(path_old, path_new) abort "{{{1
 endfunction
 
 " }}}1
-function! s:update_links(old, new, type) abort "{{{1
+function! s:update_links(old, new) abort "{{{1
+  let l:old = extend(#{anchor: '', path: expand('%:p')}, a:old)
+  let l:new = extend(#{anchor: '', path: ''}, a:new)
+
   let l:current_bufnr = bufnr('')
 
   " Save all open wiki buffers (prepare for updating links)
@@ -296,80 +303,60 @@ function! s:update_links(old, new, type) abort "{{{1
         \ {_, x -> buflisted(x) && !empty(getbufvar(x, 'wiki'))})
   for l:bufnr in l:wiki_bufnrs
     execute 'buffer' l:bufnr
-    update
+    silent update
   endfor
 
   " Update links
-  let [l:n, l:m] = s:update_link_{a:type}(a:old, a:new)
-  call wiki#log#info(printf('Updated %d links in %d files', l:n, l:m))
+  let l:graph = wiki#graph#builder#get()
+  let l:all_links = l:graph.get_links_to(l:old.path, {'nudge': v:true})
+  if !empty(l:old.anchor)
+    call filter(l:all_links, { _, x -> x.anchor =~# '^' . l:old.anchor })
+  endif
+  let l:files_with_links = wiki#u#group_by(l:all_links, 'filename_from')
+
+  let l:replacement_patterns = !empty(l:new.path)
+        \ ? s:get_replacement_patterns(l:old.path, l:new.path)
+        \ : []
+  for [l:file, l:file_links] in items(l:files_with_links)
+    let l:lines = readfile(l:file)
+
+    for l:link in l:file_links
+      " Update file
+      for [l:pattern, l:replace] in l:replacement_patterns
+        let l:lines[l:link.lnum - 1] = substitute(
+              \ l:lines[l:link.lnum - 1],
+              \ l:pattern, l:replace, 'g')
+      endfor
+
+      " Update anchor
+      if !empty(l:old.anchor)
+        let l:lines[l:link.lnum - 1] = substitute(
+              \ l:lines[l:link.lnum - 1],
+              \ l:old.anchor, l:new.anchor, 'g')
+      endif
+    endfor
+
+    call writefile(l:lines, l:file, 's')
+    let l:graph._cache_updated += [l:file]
+  endfor
+
+  " If we've just renamed a file: move graph nodes from old to new path.
+  " This is purely to help maintain the cache state.
+  if empty(l:old.anchor)
+    let l:graph.cache_links_in.data[l:new.path]
+          \ = remove(l:graph.cache_links_in.data, l:old.path)
+  endif
 
   " Refresh other wiki buffers
   for l:bufnr in l:wiki_bufnrs
     execute 'buffer' l:bufnr
-    edit
+    silent edit
   endfor
 
   " Restore the original buffer
   execute 'buffer' l:current_bufnr
-endfunction
 
-" }}}1
-function! s:update_link_rename_path(path_old, path_new) abort "{{{1
-  let l:replacement_patterns
-        \ = s:get_replacement_patterns(a:path_old, a:path_new)
-
-  let l:graph = wiki#graph#builder#get()
-  let l:all_links = l:graph.get_links_to(a:path_old, {'nudge': v:true})
-  let l:files_with_links = wiki#u#group_by(l:all_links, 'filename_from')
-  for [l:file, l:file_links] in items(l:files_with_links)
-    if !filereadable(l:file) | continue | endif
-    let l:lines = readfile(l:file)
-
-    for l:link in l:file_links
-      for [l:pattern, l:replace] in l:replacement_patterns
-        let l:lines[l:link.lnum - 1] = substitute(
-              \ l:lines[l:link.lnum - 1],
-              \ l:pattern,
-              \ l:replace,
-              \ 'g')
-      endfor
-    endfor
-
-    call writefile(l:lines, l:file, 's')
-
-    let l:graph._cache_updated += [l:file]
-  endfor
-
-  " Move graph nodes from old to new path
-  let l:graph.cache_links_in.data[a:path_new]
-        \ = remove(l:graph.cache_links_in.data, a:path_old)
-
-  return [len(l:all_links), len(l:files_with_links)]
-endfunction
-
-" }}}1
-function! s:update_link_rename_section(anchor_old, anchor_new) abort "{{{1
-  let l:graph = wiki#graph#builder#get()
-  let l:all_links = filter(
-        \ l:graph.get_links_to(expand('%:p'), {'nudge': v:true}),
-        \ { _, x -> x.anchor =~# a:anchor_old })
-  let l:files_with_links = wiki#u#group_by(l:all_links, 'filename_from')
-  for [l:file, l:file_links] in items(l:files_with_links)
-    let l:lines = readfile(l:file)
-
-    for l:link in l:file_links
-      let l:lines[l:link.lnum - 1] = substitute(
-            \ l:lines[l:link.lnum - 1],
-            \ a:anchor_old,
-            \ a:anchor_new,
-            \ 'g')
-    endfor
-
-    call writefile(l:lines, l:file, 's')
-
-    let l:graph._cache_updated += [l:file]
-  endfor
-
+  " Return number of links and files that are updated
   return [len(l:all_links), len(l:files_with_links)]
 endfunction
 
