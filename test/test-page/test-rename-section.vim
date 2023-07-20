@@ -12,6 +12,10 @@ silent call wiki#page#rename_section('Subsection ii')
 call cursor(7, 1)
 silent call wiki#page#rename_section('Section II')
 
+" Clear cache here because (cache ftime has 1 second resolution, which is too
+" slow for these tests)
+call wiki#cache#clear('toc')
+
 call cursor(11, 1)
 silent call wiki#page#rename_section('New sub section')
 

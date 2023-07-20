@@ -16,15 +16,11 @@ endfunction
 " }}}1
 
 function! wiki#toc#get_page_title(...) abort " {{{1
-  let l:filename = wiki#u#eval_filename(a:0 > 0 ? a:1 : '')
-  if !filereadable(l:filename) | return '' | endif
-
-  let l:opts = #{ first_only: v:true }
-  if l:filename !=# expand('%:p')
-    let l:opts.lines = readfile(l:filename)
-  endif
-
-  return get(wiki#toc#gather_entries(l:opts), 'header', '')
+  let l:section = wiki#toc#gather_entries(#{
+        \ url: a:0 > 0 ? a:1 : '',
+        \ first_only: v:true,
+        \})
+  return get(l:section, 'header', '')
 endfunction
 
 function! wiki#toc#get_section_at(lnum) abort " {{{1
@@ -34,37 +30,71 @@ endfunction
 " }}}1
 
 function! wiki#toc#gather_entries(...) abort " {{{1
-  " Gather ToC entries from list of lines
-  "
-  " Input:  Options dictionary with following keys
-  "   lines:      List of lines to parse
-  "   first_only: Return only first ToC entry
-  "   at_lnum:    Return the entry that covers specified line
-  " Output: ToC entries
+  let l:opts = extend(#{
+        \ url: '',
+        \ path: '',
+        \ lines: [],
+        \ filetype: !empty(&filetype) ? &filetype : 'wiki',
+        \ first_only: v:false,
+        \ at_lnum: -1,
+        \}, a:0 > 0 ? a:1 : {})
 
-  let l:filetype = !empty(&filetype) ? &filetype : 'wiki'
-  let l:hd = get(s:header_spec, l:filetype, {})
-  if empty(l:hd)
-    call wiki#log#error("No TOC support for filetype: " . l:filetype . "!")
-    return []
+  if !empty(l:opts.lines)
+    let l:toc = wiki#toc#gather_entries_from_lines(l:opts.lines, l:opts.filetype)
+  else
+    let l:cache = wiki#cache#open('toc', {
+          \ 'local': 1,
+          \ 'default': { 'ftime': -1 },
+          \})
+
+    let l:path = empty(l:opts.path)
+          \ ? wiki#u#eval_filename(l:opts.url)
+          \ : l:opts.path
+    let l:current = l:cache.get(l:path)
+    let l:ftime = getftime(l:path)
+    if l:ftime > l:current.ftime
+      let l:cache.modified = 1
+      let l:current.ftime = l:ftime
+      let l:current.toc = wiki#toc#gather_entries_from_lines(
+            \ readfile(l:path),
+            \ wiki#paths#get_filetype(l:path))
+    endif
+    call l:cache.write()
+
+    let l:toc = deepcopy(l:current.toc)
   endif
 
-  let l:opts = extend(a:0 > 0 ? a:1 : {}, #{
-        \ first_only: v:false
-        \}, 'keep')
-  if !has_key(l:opts, 'lines')
-    let l:opts.lines = getline(1, '$')
+  if l:opts.first_only
+    return empty(l:toc) ? {} : l:toc[0]
+  endif
+
+  if l:opts.at_lnum >= 0
+    let l:previous = {}
+    for l:sec in l:toc
+      if l:sec.lnum > l:opts.at_lnum
+        break
+      endif
+      let l:previous = l:sec
+    endfor
+    return l:previous
+  endif
+
+  return l:toc
+endfunction
+
+" }}}1
+function! wiki#toc#gather_entries_from_lines(lines, filetype) abort " {{{1
+  let l:hd = get(s:header_spec, a:filetype, {})
+  if empty(l:hd)
+    call wiki#log#error("No TOC support for filetype: " . a:filetype . "!")
+    return []
   endif
 
   let l:entries = []
   let l:lnum = 0
   let l:preblock = v:false
   let l:anchors = ['', '', '', '', '', '', '']
-  for l:line in l:opts.lines
-    " Optional: Return current section
-    if has_key(l:opts, 'at_lnum') && l:lnum >= l:opts.at_lnum
-      return empty(l:entries) ? {} : l:entries[-1]
-    endif
+  for l:line in a:lines
     let l:lnum += 1
 
     " Ignore fenced code blocks
@@ -89,20 +119,27 @@ function! wiki#toc#gather_entries(...) abort " {{{1
           \ 'level' : l:level,
           \ 'lnum' : l:lnum,
           \})
-
-    " Optional: Return first section only
-    if l:opts.first_only
-      return l:entries[0]
-    endif
   endfor
 
-  if has_key(l:opts, 'at_lnum')
-    return l:lnum >= l:opts.at_lnum && !empty(l:entries)
-          \ ? l:entries[-1]
-          \ : {}
-  else
-    return l:entries
+  " Enrich entries with additional metadata
+  if !empty(l:entries)
+    let l:n = len(l:entries)
+    for l:i in range(l:n)
+      let l:current = l:entries[l:i]
+      let l:current.lnum_end = -1
+      for l:next in l:entries[l:i + 1:]
+        if l:next.level <= l:current.level
+          let l:current.lnum_end = l:next.lnum - 1
+          break
+        endif
+      endfor
+      if l:current.lnum_end < 0
+        let l:current.lnum_end = l:lnum
+      endif
+    endfor
   endif
+
+  return l:entries
 endfunction
 
 let s:header_spec = {
@@ -133,6 +170,7 @@ let s:header_spec = {
       \}
 
 " }}}1
+
 function! wiki#toc#gather_anchors(...) abort " {{{1
   let l:cache = wiki#cache#open('anchors', {
         \ 'local': 1,
@@ -146,7 +184,7 @@ function! wiki#toc#gather_anchors(...) abort " {{{1
     let l:cache.modified = 1
     let l:current.ftime = l:ftime
     let l:current.anchors = map(
-          \ wiki#toc#gather_entries(#{lines: readfile(l:filename)}),
+          \ wiki#toc#gather_entries(#{path: l:filename}),
           \ 'v:val.anchor')
   endif
   call l:cache.write()
