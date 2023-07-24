@@ -56,7 +56,10 @@ function! wiki#toc#gather_entries(...) abort " {{{1
           \ : l:opts.path
     let l:current = l:cache.get(l:path)
     let l:ftime = getftime(l:path)
-    if l:ftime > l:current.ftime
+    if l:ftime < 0
+      let l:current.ftime = l:ftime
+      let l:current.toc = []
+    elseif l:ftime > l:current.ftime
       let l:cache.modified = 1
       let l:current.ftime = l:ftime
       let l:current.toc = wiki#toc#gather_entries_from_lines(
