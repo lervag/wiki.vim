@@ -1,6 +1,6 @@
 local M = {}
 
-function M.get_pages()
+function M.pages()
   -- wiki#page#get_all returns a list of path pairs, where the first element is
   -- the absolute path and the second element is the path relative to wiki
   -- root.
@@ -20,7 +20,7 @@ function M.get_pages()
   end)
 end
 
-function M.get_tags()
+function M.tags()
   local tags_with_locations = vim.fn["wiki#tags#get_all"]()
 
   local length = 0
