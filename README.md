@@ -70,8 +70,9 @@ Please also read the `Guide` section in the [documentation](doc/wiki.txt).
     - Renaming pages (will also update links in other pages)
     - Navigate through a table of contents (`WikiToc`)
     - Creating a table of contents (`WikiTocGenerate`)
-    - Toggling links
+    - Transforming links (from text to link or between link types)
     - Viewing wiki link graphs
+    - Displaying incoming links (see `WikiLinkIncomingToggle`)
   - Completion of wiki links and link anchors
   - Text objects
     - `iu au` Link URL

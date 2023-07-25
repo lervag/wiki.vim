@@ -152,6 +152,7 @@ FEATURES                                                  *wiki-intro-features*
     - Creating a table of contents (|WikiTocGenerate|)
     - Transforming links (from text to link or between link types)
     - Viewing wiki link graphs
+    - Displaying incoming links (see |WikiLinkIncomingToggle|)
   - Completion of wiki links and link anchors
   - Text objects
     - `iu au` Link URL
@@ -1519,6 +1520,7 @@ triggered. It is probably best explained by a simple example: >vim
     autocmd User WikiLinkFollowed normal! zz
     autocmd User WikiBufferInitialized
           \ nmap <buffer> gf <plug>(wiki-link-follow)
+    autocmd User WikiBufferInitialized WikiLinkIncomingToggle
   augroup END
 
 `wiki.vim` provides the following |User| events:
@@ -1580,6 +1582,8 @@ for more information about the different modes. The lines annotated with
   `x`     <leader>wp          |<plug>(wiki-export)|
   `n`     <leader>wll         |<plug>(wiki-link-show)|
   `n`     <leader>wlh         |<plug>(wiki-link-extract-header)|
+  `n`     <leader>wli         |<plug>(wiki-link-incoming-toggle)|
+  `n`     <leader>wlI         |<plug>(wiki-link-incoming-hover)|
   `n`     <leader>wsl         |<plug>(wiki-tag-list)|
   `n`     <leader>wsr         |<plug>(wiki-tag-reload)|
   `n`     <leader>wsn         |<plug>(wiki-tag-rename)|
@@ -1763,6 +1767,18 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
   Set link titles from the first header of the target file. In normal mode,
   this works on the link under the cursor. In visual mode, it works on all
   links in the current visual selection.
+
+*<plug>(wiki-link-incoming-toggle)*
+*WikiLinkIncomingToggle*
+  NB: Neovim only!
+  Toggle display of incoming links. When enabled, the buffer will be enriched
+  with signs and virtual text to indicate any incoming links.
+
+*<plug>(wiki-link-incoming-hover)*
+*WikiLinkIncomingHover*
+  When activated at a line to which there is an incoming link, this will show
+  a menu that lists all incoming links to this line. If one of these are
+  selected, you will navigate there.
 
 *<plug>(wiki-page-delete)*
 *WikiPageDelete*
