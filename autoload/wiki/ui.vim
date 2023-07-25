@@ -43,6 +43,7 @@ function! wiki#ui#select(container, ...) abort " {{{1
         \   'prompt': 'Please choose item:',
         \   'return': 'value',
         \   'force_choice': v:false,
+        \   'auto_select': v:true,
         \ },
         \ a:0 > 0 ? a:1 : {})
 
@@ -51,7 +52,7 @@ function! wiki#ui#select(container, ...) abort " {{{1
         \ : a:container
   let [l:index, l:value] = empty(l:list)
         \ ? [-1, '']
-        \ : (len(l:list) == 1
+        \ : (len(l:list) == 1 && l:options.auto_select
         \   ? [0, l:list[0]]
         \   : wiki#ui#{g:wiki_ui_method.select}#select(l:options, l:list))
 
