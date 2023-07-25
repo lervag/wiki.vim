@@ -127,6 +127,86 @@ endfunction
 
 " }}}1
 
+function! wiki#link#incoming_hover() abort " {{{1
+  let l:links_all = wiki#graph#get_backlinks_enriched()
+
+  let l:lnum = line('.')
+  if l:lnum == 1
+    call filter(l:links_all, { _, x -> x.target_lnum <= 1 })
+  else
+    call filter(l:links_all, { _, x -> x.target_lnum == l:lnum })
+  endif
+
+  let l:links_per_source = wiki#u#group_by(l:links_all, 'filename_from')
+  let l:keys = keys(l:links_per_source)
+  let l:sources = map(deepcopy(l:keys), { _, x -> wiki#paths#to_node(x) })
+  let l:source_idx = wiki#ui#select(l:sources, #{
+          \ prompt: 'Incoming links (select one to go to source):',
+          \ return: 'index',
+          \ auto_select: v:false,
+          \})
+
+  if l:source_idx >= 0
+    let l:filename = l:keys[l:source_idx]
+    let l:link = l:links_per_source[l:filename][0]
+    execute 'edit' fnameescape(l:filename)
+    call cursor([l:link.lnum, l:link.col])
+    normal! zv
+  endif
+endfunction
+
+" }}}1
+function! wiki#link#incoming_display_toggle() abort " {{{1
+  let l:id = nvim_create_namespace("wiki.vim")
+  let l:extmarks = nvim_buf_get_extmarks(0, l:id, 0, -1, {})
+  if !empty(l:extmarks)
+    call nvim_buf_clear_namespace(0, l:id, 0, -1)
+  else
+    call wiki#link#incoming_display()
+  endif
+endfunction
+
+" }}}1
+function! wiki#link#incoming_display() abort " {{{1
+  let l:id = nvim_create_namespace("wiki.vim")
+  call nvim_buf_clear_namespace(0, l:id, 0, -1)
+
+  for [l:lnum, l:links_per_line] in items(
+        \ wiki#u#group_by(
+        \   wiki#graph#get_backlinks_enriched(),
+        \   'target_lnum'))
+
+    let l:links_per_source = wiki#u#group_by(l:links_per_line, 'filename_from')
+    let l:text = len(l:links_per_source) > 1
+          \ ? printf(" from %d sources", len(l:links_per_source))
+          \ : printf(" from %s",
+          \     wiki#paths#to_node(l:links_per_line[0].filename_from))
+
+    if l:lnum == 0
+      call nvim_buf_set_extmark(0, l:id, 0, 0, {
+            \ 'virt_text': [[l:text . " ", "DiagnosticVirtualTextWarn"]],
+            \ 'virt_text_pos': 'right_align',
+            \ 'sign_text': '',
+            \ 'sign_hl_group': 'DiagnosticSignWarn',
+            \})
+    else
+      call nvim_buf_set_extmark(0, l:id, l:lnum - 1, 0, {
+            \ 'virt_text': [[l:text, "DiagnosticVirtualTextHint"]],
+            \ 'sign_text': '',
+            \ 'sign_hl_group': 'DiagnosticSignHint',
+            \})
+    endif
+  endfor
+endfunction
+
+" }}}1
+function! wiki#link#incoming_clear() abort " {{{1
+  let l:id = nvim_create_namespace("wiki.vim")
+  call nvim_buf_clear_namespace(0, l:id, 0, -1)
+endfunction
+
+" }}}1
+
 function! wiki#link#show(...) abort "{{{1
   let l:link = wiki#link#get()
 

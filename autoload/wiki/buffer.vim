@@ -37,41 +37,6 @@ function! wiki#buffer#init() abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#buffer#refresh_incoming_links() abort " {{{1
-  call sign_define("wiki-incoming", {
-        \ 'text': '',
-        \ 'texthl': 'DiagnosticSignInfo',
-        \})
-  call sign_unplace("wiki.vim")
-
-  let l:id = nvim_create_namespace("wiki.vim")
-  call nvim_buf_clear_namespace(0, l:id, 0, -1)
-
-  for [l:lnum, l:links_per_line] in items(
-        \ wiki#u#group_by(
-        \   wiki#graph#get_backlinks_enriched(),
-        \   'target_lnum'))
-
-    let l:links_per_source = wiki#u#group_by(l:links_per_line, 'filename_from')
-    let l:text = len(l:links_per_source) > 1
-          \ ? printf(" incoming (%d sources)", len(l:links_per_source))
-          \ : printf(" incoming (from %s)", l:links_per_line[0].filename_from)
-
-    if l:lnum == 0
-      call sign_place(0, "wiki.vim", "wiki-incoming", "", #{ lnum: 1 })
-      call nvim_buf_set_extmark(0, l:id, 0, 0, {
-            \ 'virt_text': [[l:text, "DiagnosticVirtualTextHint"]]
-            \})
-    else
-      call sign_place(0, "wiki.vim", "wiki-incoming", "", #{ lnum: l:lnum })
-      call nvim_buf_set_extmark(0, l:id, l:lnum - 1, 0, {
-            \ 'virt_text': [[l:text, "DiagnosticVirtualTextHint"]]
-            \})
-    endif
-  endfor
-endfunction
-
-" }}}1
 
 
 function! s:init_buffer_commands() abort " {{{1
@@ -93,6 +58,8 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiLinkPrev           call wiki#nav#prev_link()
   command! -buffer WikiLinkReturn         call wiki#nav#return()
   command! -buffer WikiLinkTransform      call wiki#link#transform_current()
+  command! -buffer WikiLinkIncomingToggle call wiki#link#incoming_display_toggle()
+  command! -buffer WikiLinkIncomingHover  call wiki#link#incoming_hover()
   command! -buffer WikiPageDelete         call wiki#page#delete()
   command! -buffer WikiPageRename         call wiki#page#rename()
   command! -buffer WikiPageRenameSection  call wiki#page#rename_section()
@@ -144,6 +111,8 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-link-prev)            :WikiLinkPrev<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-return)          :WikiLinkReturn<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-transform)       :WikiLinkTransform<cr>
+  nnoremap <silent><buffer> <plug>(wiki-link-incoming-toggle) :WikiLinkIncomingToggle<cr>
+  nnoremap <silent><buffer> <plug>(wiki-link-incoming-hover)  :WikiLinkIncomingHover<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-delete)          :WikiPageDelete<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-rename)          :WikiPageRename<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-rename-section)  :WikiPageRenameSection<cr>
@@ -202,6 +171,8 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-link-return)': '<bs>',
           \ '<plug>(wiki-link-transform)': '<leader>wf',
           \ '<plug>(wiki-link-transform-operator)': 'gl',
+          \ '<plug>(wiki-link-incoming-toggle)': '<leader>wli',
+          \ '<plug>(wiki-link-incoming-hover)': '<leader>wlI',
           \ '<plug>(wiki-page-delete)': '<leader>wd',
           \ '<plug>(wiki-page-rename)': '<leader>wr',
           \ '<plug>(wiki-page-rename-section)': '<f2>',
