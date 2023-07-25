@@ -74,11 +74,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer -nargs=+ -complete=customlist,wiki#complete#tag_names
         \ WikiTagRename call wiki#tags#rename_ask(<f-args>)
 
-  if has('nvim') && g:wiki_select_method == 'ui_select'
-    command! -buffer WikiToc lua require('wiki').toc()
-  else
-    command! -buffer WikiToc call wiki#fzf#toc()
-  endif
+  command! -buffer WikiToc call g:wiki_select_method.toc()
   command! -buffer -nargs=1 WikiClearCache call wiki#cache#clear(<q-args>)
 
   if b:wiki.in_journal

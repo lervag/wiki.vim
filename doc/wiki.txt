@@ -820,23 +820,58 @@ a reference of all available options.
   Default: 1
 
 *g:wiki_select_method*
-  A string to represent the UI select method used for the following commands:
+  A dictionary of functions that lets allow the user to choose his preferred
+  the behaviour for the builtin commands: |WikiPage|, |WikiTags| and
+  |WikiToc|.
 
-    - |WikiPages|
-    - |WikiTags|
-    - |WikiToc|
+  This allows the user quite a lot of flexibility in specifying how which
+  command will behave by letting him deciding wich builtin function use or
+  let him create one himself (see |wiki).
 
-  Possible values:
+  The following table shows the option keys and the related commands:
 
-    - `'ui_select'`  Use |vim.ui.select| (neovim only!)
-    - `'fzf'`        Use fzf (https://github.com/junegunn/fzf.vim). This has
-                   a few additional options for more fine tuned control:
-                   - |g:wiki_fzf_pages_opts|
-                   - |g:wiki_fzf_tags_opts|
-                   - |g:wiki_fzf_pages_force_create_key|
+    key     command
+    ---     -------
+    `pages` |WikiPages|
+    `tags`  |WikiTags|
+    `toc`   |WikiToc|
 
-  Default (neovim): `'ui_select'`
-  Default (Vim):    `'fzf'`
+  The dictionary values can be one of two types:
+
+    - |String|: The name of a function to be executed;
+    - |Funcref|: A function that will be executed.
+
+  The following builtin alternatives can be used:
+
+    - fzf (https://github.com/junegunn/fzf.vim):
+      - `wiki#fzf#pages()`
+      - `wiki#fzf#tags()`
+      - `wiki#fzf#toc()`
+      - Note: This has a few additional options for more fine tuned control:
+        - |g:wiki_fzf_pages_opts|
+        - |g:wiki_fzf_tags_opts|
+        - |g:wiki_fzf_pages_force_create_key|
+    - Lua backend that uses |vim.ui.select| (neovim only!)
+      - `require("wiki.ui_select").pages()`
+      - `require("wiki.ui_select").tags()`
+      - `require("wiki.ui_select").toc()`
+
+  Default (neovim): >lua
+
+    vim.g.wiki_select_method = {
+      pages = require("wiki.ui_select").pages,
+      tags = 'equire("wiki.ui_select").tags,
+      toc = require("wiki.ui_select").toc,
+    }
+<
+  Default (Vim): >vim
+
+    let g:wiki_select_method = {
+          \ 'pages': 'wiki#fzf#pages',
+          \ 'tags': 'wiki#fzf#tags',
+          \ 'toc': 'wiki#fzf#toc',
+          \}
+<
 
 *g:wiki_index_name*
   A string with the index page name for the wiki. The value should not include
@@ -2280,6 +2315,17 @@ to be unencoded, then you could do something like this: >vim
         \   'url_transform': { x -> wiki#url#utils#url_encode(x) },
         \ },
         \}
+
+Example 3: Customize the `wiki` select method ~
+                                                       *wiki-advanced-config-3*
+>lua
+
+  -- Using fzf-lua instead of ui-select for WikiPages
+  vim.g.wiki_select_method = {
+    pages = function()
+      require'fzf-lua'.files({ cwd = vim.g.wiki_root })
+    end,
+  }
 
 ==============================================================================
  vim:tw=78:ts=8:ft=help:norl:fdm=marker:cole=2:
