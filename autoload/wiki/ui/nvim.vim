@@ -123,7 +123,7 @@ function! wiki#ui#nvim#select(options, list) abort " {{{1
   while v:true
     try
       let l:choice = wiki#ui#get_number(
-            \ l:length, l:digits, a:options.force_choice, v:true)
+            \ l:length, l:digits, a:options.force_choice, v:false)
 
       if !a:options.force_choice && l:choice == -2
         break
