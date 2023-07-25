@@ -70,7 +70,7 @@ function! wiki#graph#get_backlinks_enriched() abort "{{{1
   let l:toc = wiki#u#associate_by(wiki#toc#gather_entries(), 'anchor')
 
   let l:graph = wiki#graph#builder#get()
-  let l:links = l:graph.get_links_to(expand('%:p'))
+  let l:links = l:graph.get_links_to(expand('%:p'), #{nudge: v:true})
 
   for l:link in l:links
     let l:section = get(l:toc, remove(l:link, 'anchor'), {})
