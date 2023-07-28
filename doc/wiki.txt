@@ -855,6 +855,10 @@ a reference of all available options.
       - `require("wiki.ui_select").pages()`
       - `require("wiki.ui_select").tags()`
       - `require("wiki.ui_select").toc()`
+    - Telescope (https://github.com/nvim-telescope/telescope.nvim)
+      - `require("wiki.telescope").pages()
+      - `require("wiki.telescope").tags()
+      - `require("wiki.telescope").toc()
 
   Default (neovim): >lua
 
