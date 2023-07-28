@@ -706,119 +706,119 @@ The AsciiDoc link macro [0] is a generic link syntax that looks like this: >
 
   link:<target>[<attrlist>]
 
-The `[<attrlist>]` will be recognized by `wiki.vim` as the link text.
+  The `[<attrlist>]` will be recognized by `wiki.vim` as the link text.
 
-[0]: https://docs.asciidoctor.org/asciidoc/latest/macros/link-macro/
+  [0]: https://docs.asciidoctor.org/asciidoc/latest/macros/link-macro/
 
-Cite links ~
-                                                               *wiki-link-cite*
-The cite links are a convenient link type that can be used with e.g. Zotero
-URLs. That is, instead of writing a link with URL `zot:citekey` one may simply
-write `@citekey`.
+  Cite links ~
+  *wiki-link-cite*
+  The cite links are a convenient link type that can be used with e.g. Zotero
+  URLs. That is, instead of writing a link with URL `zot:citekey` one may simply
+  write `@citekey`.
 
-See also |wiki-link-url| for more info on the Zotero URL scheme and handler.
+  See also |wiki-link-url| for more info on the Zotero URL scheme and handler.
 
-Iso dates ~
-                                                               *wiki-link-date*
-Dates written in ISO date format, e.g. 2023-05-05, will be recognized as
-a link to `journal:2023-05-05`.
+  Iso dates ~
+  *wiki-link-date*
+  Dates written in ISO date format, e.g. 2023-05-05, will be recognized as
+  a link to `journal:2023-05-05`.
 
-==============================================================================
-OPTIONS                                                          *wiki-options*
+  ==============================================================================
+  OPTIONS                                                          *wiki-options*
 
-`wiki.vim` has several options to configure the behaviour. The following is
-a reference of all available options.
+  `wiki.vim` has several options to configure the behaviour. The following is
+  a reference of all available options.
 
-*g:wiki_cache_root*
+  *g:wiki_cache_root*
   Specify the cache directory for `wiki.vim`.
 
   Default value: OS dependent
 
-    `Linux and MacOS`: `'~/.cache/wiki.vim/'`
-    `Windows`:         Standard temporary folder (based on |tempname()|)
+  `Linux and MacOS`: `'~/.cache/wiki.vim/'`
+  `Windows`:         Standard temporary folder (based on |tempname()|)
 
-*g:wiki_cache_persistent*
+  *g:wiki_cache_persistent*
   Specify whether to use persistent caching.
 
   Default value: 1
 
-*g:wiki_completion_enabled*
+  *g:wiki_completion_enabled*
   Specify whether to override 'omnifunc' when entering a wiki buffer. Set this
   to 0 if you want to use another omnifunc.
 
   Default value: 1
 
-*g:wiki_completion_case_sensitive*
+  *g:wiki_completion_case_sensitive*
   Specify whether to use case-sensitive matching for omnicompletion of links
   and tags.
 
   Default value: 1
 
-*g:wiki_export*
+  *g:wiki_export*
   A dictionary that specifies the default configuration for |WikiExport|
   options. See the specifications for the options for more information.
 
   Default: >vim
 
-    let g:wiki_export = {
-          \ 'args' : '',
-          \ 'from_format' : 'markdown',
-          \ 'ext' : 'pdf',
-          \ 'link_ext_replace': v:false,
-          \ 'view' : v:false,
-          \ 'output': fnamemodify(tempname(), ':h'),
-          \}
+  let g:wiki_export = {
+    \ 'args' : '',
+    \ 'from_format' : 'markdown',
+    \ 'ext' : 'pdf',
+    \ 'link_ext_replace': v:false,
+    \ 'view' : v:false,
+    \ 'output': fnamemodify(tempname(), ':h'),
+    \}
 
-*g:wiki_filetypes*
-  List of filetype extensions for which `wiki.vim` should be enabled. Notice
-  that file extensions are not always the same as the filetype. For example,
-  the common extension for Markdown is `.md`, whereas the filetype is called
-  `markdown`. The option should list the file extensions.
+  *g:wiki_filetypes*
+    List of filetype extensions for which `wiki.vim` should be enabled. Notice
+    that file extensions are not always the same as the filetype. For example,
+         the common extension for Markdown is `.md`, whereas the filetype is called
+           `markdown`. The option should list the file extensions.
 
-  The first element of the list is considered the default filetype where that
-  is relevant.
+           The first element of the list is considered the default filetype where that
+           is relevant.
 
-  Default: `['md']`
+           Default: `['md']`
 
-*g:wiki_fzf_pages_force_create_key*
-  Key combination that, when pressed while searching with |WikiPages|, will
-  create a new page with the name of the query. The value must be a string
-  recognized by fzf's `--expect` argument; see fzf's manual page for a list of
-  available keys.
+           *g:wiki_fzf_pages_force_create_key*
+           Key combination that, when pressed while searching with |WikiPages|, will
+           create a new page with the name of the query. The value must be a string
+           recognized by fzf's `--expect` argument; see fzf's manual page for a list of
+           available keys.
 
-  Default: `'alt-enter'`
+           Default: `'alt-enter'`
 
-*g:wiki_fzf_pages_opts*
-  A string with additional user options for |WikiPages|. This can be used
-  e.g. to add a previewer. Users should be aware that the page candidates are
-  "prettified" with the `--with-nth=1` and `-d` options for fzf, so to obtain
-  the page path in a previewer option one must use the field index expression `1`.
-  E.g.: >vim
+           *g:wiki_fzf_pages_opts*
+           A string with additional user options for |WikiPages|. This can be used
+           e.g. to add a previewer. Users should be aware that the page candidates are
+           "prettified" with the `--with-nth=1` and `-d` options for fzf, so to obtain
+           the page path in a previewer option one must use the field index expression `1`.
+           E.g.: >vim
 
-    let g:wiki_fzf_pages_opts = '--preview "cat {1}"'
-<
-  Default: `''`
+           let g:wiki_fzf_pages_opts = '--preview "cat {1}"'
+           <
+           Default: `''`
 
-*g:wiki_fzf_tags_opts*
-  A string with additional user options for |WikiTags|. This can be used
-  e.g. to add a previewer. Users should be aware that the page candidates are
-  "prettified" with the `-d` option for fzf, so to obtain the page path in a
-  previewer option one must use the field index expression `2..`.
-  E.g.: >vim
+           *g:wiki_fzf_tags_opts*
+           A string with additional user options for |WikiTags|. This can be used
+           e.g. to add a previewer. Users should be aware that the page candidates are
+           "prettified" with the `-d` option for fzf, so to obtain the page path in a
+           previewer option one must use the field index expression `2..`.
+           E.g.: >vim
 
-    let g:wiki_fzf_tags_opts = '--preview "bat --color=always {2..}"'
-<
-  Default: `''`
+           let g:wiki_fzf_tags_opts = '--preview "bat --color=always {2..}"'
+           <
+           Default: `''`
 
-*g:wiki_global_load*
-  `wiki.vim` is inherently agnostic in that it assumes any recognized filetype
-  specifies a wiki. However, some people might want to load `wiki.vim` for
-  ONLY files within a globally specified directory |g:wiki_root|. To allow
-  this behaviour, one can set this option to 0.
+           *g:wiki_global_load*
+           `wiki.vim` is inherently agnostic in that it assumes any recognized filetype
+           specifies a wiki. However, some people might want to load `wiki.vim` for
+           ONLY files within a globally specified directory |g:wiki_root|. To allow
+           this behaviour, one can set this option to 0.
 
-  Default: 1
+           Default: 1
 
-*g:wiki_select_method*
+           *g:wiki_select_method*
   A dictionary of functions that lets allow the user to choose his preferred
   the behaviour for the builtin commands: |WikiPage|, |WikiTags| and
   |WikiToc|.
@@ -854,6 +854,10 @@ a reference of all available options.
       - `require("wiki.ui_select").pages()`
       - `require("wiki.ui_select").tags()`
       - `require("wiki.ui_select").toc()`
+    - Telescope (https://github.com/nvim-telescope/telescope.nvim)
+      - `require("wiki.telescope").pages()
+      - `require("wiki.telescope").tags()
+      - `require("wiki.telescope").toc()
 
   Default (neovim): >lua
 
