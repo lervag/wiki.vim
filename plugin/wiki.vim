@@ -161,6 +161,10 @@ let s:mappings = index(['all', 'global'], g:wiki_mappings_use_defaults) >= 0
 call extend(s:mappings, get(g:, 'wiki_mappings_global', {}))
 call wiki#init#apply_mappings_from_dict(s:mappings, '')
 
+if type(g:wiki_select_method) == 1
+  echoerr 'Deprecation notice: wiki_select_method wants different arguments, see :h wiki_select_method to learn more'
+endif
+
 " Enable on desired filetypes
 augroup wiki
   autocmd!
