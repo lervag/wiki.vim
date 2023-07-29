@@ -94,7 +94,7 @@ call wiki#init#option('wiki_template_month_names', [
 call wiki#init#option('wiki_root', '')
 if has('nvim')
 lua << EOF
-  vim.fn['wiki#init#option']('wiki_select_method', {
+  vim.fn["wiki#init#option"]("wiki_select_method", {
     pages = require("wiki.ui_select").pages,
     tags = require("wiki.ui_select").tags,
     toc = require("wiki.ui_select").toc,
@@ -102,9 +102,9 @@ lua << EOF
 EOF
 else
   call wiki#init#option('wiki_select_method', {
-        \ 'pages': 'wiki#wiki#fzf#pages',
-        \ 'tags': 'wiki#wiki#fzf#tags',
-        \ 'toc': 'wiki#wiki#fzf#toc',
+        \ 'pages': function('wiki#fzf#pages'),
+        \ 'tags': function('wiki#fzf#tags'),
+        \ 'toc': function('wiki#fzf#toc'),
         \})
 endif
 call wiki#init#option('wiki_tag_list', { 'output' : 'loclist' })
@@ -142,6 +142,7 @@ command!          WikiReload  call wiki#reload()
 command!          WikiJournal call wiki#journal#open()
 command!          WikiPages   call g:wiki_select_method.pages()
 command!          WikiTags    call g:wiki_select_method.tags()
+
 " Initialize mappings
 nnoremap <silent> <plug>(wiki-index)     :WikiIndex<cr>
 nnoremap <silent> <plug>(wiki-open)      :WikiOpen<cr>

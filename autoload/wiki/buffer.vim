@@ -63,6 +63,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiPageDelete         call wiki#page#delete()
   command! -buffer WikiPageRename         call wiki#page#rename()
   command! -buffer WikiPageRenameSection  call wiki#page#rename_section()
+  command! -buffer WikiToc                call g:wiki_select_method.toc()
   command! -buffer WikiTocGenerate        call wiki#toc#create(0)
   command! -buffer WikiTocGenerateLocal   call wiki#toc#create(1)
   command! -buffer -range=% -nargs=* WikiExport
@@ -74,7 +75,6 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer -nargs=+ -complete=customlist,wiki#complete#tag_names
         \ WikiTagRename call wiki#tags#rename_ask(<f-args>)
 
-  command! -buffer WikiToc call g:wiki_select_method.toc()
   command! -buffer -nargs=1 WikiClearCache call wiki#cache#clear(<q-args>)
 
   if b:wiki.in_journal
