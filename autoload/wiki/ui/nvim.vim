@@ -93,9 +93,6 @@ function! wiki#ui#nvim#select(options, list) abort " {{{1
 
   " Prepare menu of choices
   let l:content = [s:formatted_to_string(a:options.prompt), '']
-  if !a:options.force_choice
-    call add(l:content, repeat(' ', l:digits - 1) . 'x: Abort')
-  endif
   let l:format = printf('%%%dd: %%s', l:digits)
   let l:i = 0
   for l:x in a:list
@@ -103,6 +100,9 @@ function! wiki#ui#nvim#select(options, list) abort " {{{1
     call add(l:content, printf(
           \ l:format, l:i, type(l:x) == v:t_dict ? l:x.name : l:x))
   endfor
+  if !a:options.force_choice
+    call add(l:content, repeat(' ', l:digits - 1) . 'x: Abort')
+  endif
 
   " Create popup window
   let l:popup_cfg = {
