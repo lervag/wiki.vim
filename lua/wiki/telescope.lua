@@ -9,7 +9,7 @@ local M = {}
 function M.pages(opts)
   builtin.find_files(vim.tbl_deep_extend("force", {
     prompt_title = "Wiki files",
-    cwd = vim.g.wiki_root,
+    cwd = vim.fn["wiki#get_root"](),
     file_ignore_patterns = {
       "%.stversions/",
       "%.git/",
@@ -49,7 +49,8 @@ function M.tags(opts)
   for tag, locations in pairs(tags_with_locations) do
     for _, loc in pairs(locations) do
       local path_rel = vim.fn["wiki#paths#relative"](loc[1], root)
-      local str = string.format("%-" .. length .. "s  %s:%s", tag, path_rel, loc[2])
+      local str =
+        string.format("%-" .. length .. "s  %s:%s", tag, path_rel, loc[2])
       table.insert(items, { str, loc[1], loc[2] })
     end
   end
@@ -58,23 +59,25 @@ function M.tags(opts)
 
   local telescope_opts = vim.tbl_deep_extend("force", {
     prompt_title = "Wiki Tags",
-    sorter       = conf.generic_sorter(opts),
-    previewer    = conf.grep_previewer(opts),
+    sorter = conf.generic_sorter(opts),
+    previewer = conf.grep_previewer(opts),
   }, opts)
 
-  pickers.new(telescope_opts, {
-    finder = finders.new_table {
-      results = items,
-      entry_maker = function(entry)
-        return {
-          value = entry[2],
-          display = entry[1],
-          ordinal = entry[1],
-          lnum = entry[3],
-        }
-      end
-    },
-  }):find()
+  pickers
+    .new(telescope_opts, {
+      finder = finders.new_table {
+        results = items,
+        entry_maker = function(entry)
+          return {
+            value = entry[2],
+            display = entry[1],
+            ordinal = entry[1],
+            lnum = entry[3],
+          }
+        end,
+      },
+    })
+    :find()
 end
 
 function M.toc(opts)
@@ -91,30 +94,34 @@ function M.toc(opts)
 
   local telescope_opts = vim.tbl_deep_extend("force", {
     prompt_title = "Wiki Toc",
-    sorter       = conf.generic_sorter(opts),
-    previewer    = false,
+    sorter = conf.generic_sorter(opts),
+    previewer = false,
+    attach_mappings = function(prompt_buf, _)
+      actions.select_default:replace(function()
+        actions.close(prompt_buf)
+        local entry = action_state.get_selected_entry()
+        vim.cmd.execute(entry.lnum)
+      end)
+
+      return true
+    end,
   }, opts)
 
-  pickers.new(telescope_opts, {
-    finder = finders.new_table {
-      results = items,
-      entry_maker = function(entry)
-        return {
-          value = entry[2],
-          display = entry[1],
-          ordinal = entry[1],
-          lnum = entry[2],
-        }
-      end,
-      attach_mappings = function(prompt_buf, _)
-        actions.select_default:replace(function()
-          actions.close(prompt_buf)
-          local entry = action_state.get_selected_entry()
-          vim.cmd.execute(entry)
-        end)
-      end
-    },
-  }):find()
+  pickers
+    .new(telescope_opts, {
+      finder = finders.new_table {
+        results = items,
+        entry_maker = function(entry)
+          return {
+            display = entry[1],
+            ordinal = entry[1],
+            value = entry[1],
+            lnum = entry[2],
+          }
+        end,
+      },
+    })
+    :find()
 end
 
 return M
