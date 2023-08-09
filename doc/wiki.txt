@@ -820,13 +820,10 @@ a reference of all available options.
   Default: 1
 
 *g:wiki_select_method*
-  A dictionary of functions that lets allow the user to choose his preferred
-  the behaviour for the builtin commands: |WikiPage|, |WikiTags| and
-  |WikiToc|.
-
-  This allows the user quite a lot of flexibility in specifying how which
-  command will behave by letting him deciding wich builtin function use or
-  let him create one himself (see |wiki-advanced-config-3|).
+  A dictionary of functions that allows the user to choose the preferred
+  behaviour for |WikiPage|, |WikiTags| and |WikiToc|. This gives the user
+  a lot of flexibility to specify how these commands will work. See
+  |wiki-advanced-config-3| for an example configuration.
 
   The following table shows the option keys and the related commands:
 
@@ -847,7 +844,7 @@ a reference of all available options.
       - `wiki#fzf#pages()`
       - `wiki#fzf#tags()`
       - `wiki#fzf#toc()`
-      - Note: This has a few additional options for more fine tuned control:
+      - Note: These have additional options for more fine tuned control:
         - |g:wiki_fzf_pages_opts|
         - |g:wiki_fzf_tags_opts|
         - |g:wiki_fzf_pages_force_create_key|
@@ -864,16 +861,16 @@ a reference of all available options.
 
     vim.g.wiki_select_method = {
       pages = require("wiki.ui_select").pages,
-      tags = 'equire("wiki.ui_select").tags,
+      tags = require("wiki.ui_select").tags,
       toc = require("wiki.ui_select").toc,
     }
 <
   Default (Vim): >vim
 
     let g:wiki_select_method = {
-          \ 'pages': 'wiki#fzf#pages',
-          \ 'tags': 'wiki#fzf#tags',
-          \ 'toc': 'wiki#fzf#toc',
+          \ 'pages': function('wiki#fzf#pages'),
+          \ 'tags': function('wiki#fzf#tags'),
+          \ 'toc': function('wiki#fzf#toc'),
           \}
 <
 
@@ -2322,9 +2319,10 @@ to be unencoded, then you could do something like this: >vim
 
 Example 3: Customize the `wiki` select method ~
                                                        *wiki-advanced-config-3*
-We support officially: Telescope, vim.ui.select and fzf.vim. But, if you want,
-you can use watever fuzzy finder you want. The following is a setup using
-`fzf-lua`: >lua
+`wiki.vim` allows to customize the select method used for |WikiPage|, |WikiTags|
+and |WikiToc|. Built-in choices include Telescope, |vim.ui.select| and
+fzf.vim. But you can use watever fuzzy finder you want by creating the
+selection functions yourself. The following is a setup using `fzf-lua`: >lua
 
   local fzf = require "fzf-lua"
   local fzf_data = require "fzf-lua".config.__resume_data
