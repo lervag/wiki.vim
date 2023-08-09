@@ -93,9 +93,19 @@ call wiki#init#option('wiki_template_month_names', [
       \])
 call wiki#init#option('wiki_root', '')
 if has('nvim')
-  call wiki#init#option('wiki_select_method', 'ui_select')
+lua << EOF
+  vim.fn["wiki#init#option"]("wiki_select_method", {
+    pages = require("wiki.ui_select").pages,
+    tags = require("wiki.ui_select").tags,
+    toc = require("wiki.ui_select").toc,
+  })
+EOF
 else
-  call wiki#init#option('wiki_select_method', 'fzf')
+  call wiki#init#option('wiki_select_method', {
+        \ 'pages': function('wiki#fzf#pages'),
+        \ 'tags': function('wiki#fzf#tags'),
+        \ 'toc': function('wiki#fzf#toc'),
+        \})
 endif
 call wiki#init#option('wiki_tag_list', { 'output' : 'loclist' })
 call wiki#init#option('wiki_tag_search', { 'output' : 'loclist' })
@@ -130,13 +140,8 @@ command!          WikiIndex   call wiki#goto_index()
 command! -nargs=? WikiOpen    call wiki#page#open(<f-args>)
 command!          WikiReload  call wiki#reload()
 command!          WikiJournal call wiki#journal#open()
-if has('nvim') && g:wiki_select_method == 'ui_select'
-  command! WikiPages lua require('wiki').get_pages()
-  command! WikiTags lua require('wiki').get_tags()
-else
-  command! WikiPages call wiki#fzf#pages()
-  command! WikiTags call wiki#fzf#tags()
-endif
+command!          WikiPages   call g:wiki_select_method.pages()
+command!          WikiTags    call g:wiki_select_method.tags()
 
 " Initialize mappings
 nnoremap <silent> <plug>(wiki-index)     :WikiIndex<cr>
