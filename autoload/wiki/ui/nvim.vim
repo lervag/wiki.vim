@@ -184,7 +184,7 @@ function! wiki#ui#nvim#popup(cfg) abort " {{{1
   " Create and fill the buffer
   let l:bufnr = nvim_create_buf(v:false, v:true)
   call nvim_buf_set_lines(l:bufnr, 0, -1, v:false, l:content)
-  call nvim_buf_set_option(l:bufnr, 'buftype', 'nofile')
+  call nvim_set_option_value('buftype', 'nofile', #{ buf: l:bufnr })
 
   " Create popup window
   let l:winopts = #{
@@ -210,7 +210,8 @@ function! wiki#ui#nvim#popup(cfg) abort " {{{1
     let l:winopts.row = (l:winheight - l:height)/3
     let l:winopts.col = (l:winwidth - l:width)/2
   endif
-  call nvim_open_win(l:bufnr, v:true, l:winopts)
+  let l:winid = nvim_open_win(l:bufnr, v:true, l:winopts)
+  call nvim_set_option_value('foldenable', v:false, #{ win: l:winid })
   if l:popup.hide_cursor
     let l:popup._guicursor = &guicursor
     let &guicursor = 'a:WikiHideCursor'
@@ -223,6 +224,7 @@ function! wiki#ui#nvim#popup(cfg) abort " {{{1
 
   call extend(l:popup, #{
         \ bufnr: l:bufnr,
+        \ winid: l:winid,
         \ height: height,
         \ width: width,
         \})
