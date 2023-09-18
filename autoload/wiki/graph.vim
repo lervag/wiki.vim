@@ -38,7 +38,7 @@ function! wiki#graph#check_orphans() abort "{{{1
 
   " Fully refresh the cache - this takes some extra time, but it ensures that
   " the data is up to date.
-  call l:graph.refresh_cache(#{force: v:true})
+  call l:graph._refresh_cache(#{force: v:true})
 
   " Manually fetch data from the cache
   let l:orphans = keys(filter(
