@@ -120,7 +120,9 @@ function! wiki#toc#gather_entries_from_lines(lines, filetype) abort " {{{1
 
     " Add the new entry
     call add(l:entries, {
-          \ 'anchor' : join(l:anchors[:l:level], l:hd.anchor_char),
+          \ 'anchor' : join(
+          \   [''] + filter(copy(l:anchors[:l:level]), '!empty(v:val)'),
+          \   l:hd.anchor_char),
           \ 'anchors' : copy(l:anchors[1:l:level]),
           \ 'header': l:header,
           \ 'level' : l:level,
