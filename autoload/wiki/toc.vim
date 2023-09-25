@@ -322,13 +322,14 @@ function! s:toc_create_markdown(local) abort " {{{1
   endfor
 
   " Remove the first entry if it is "trivial"
-  if !a:local
+  let l:toc_internal = l:start > l:entries[0].lnum
+  if !a:local && l:toc_internal
     let l:count = -1
     for l:e in l:entries
       let l:count += 1
       if (l:e.level == 1 && l:e.lnum > l:start) || l:count > 1 | break | endif
     endfor
-    if l:count == 1
+    if l:count == 1 && len(l:entries) > 2
       let l:entries = l:entries[1:]
     endif
   endif
