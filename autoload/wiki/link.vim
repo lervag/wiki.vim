@@ -104,6 +104,23 @@ endfunction
 
 "}}}1
 
+function! wiki#link#add(url, ...) abort " {{{1
+  let l:options = extend({
+        \ 'position': getcurpos()[1:2],
+        \ 'text': '',
+        \}, a:0 > 0 ? a:1 : {})
+
+  let l:link_string = wiki#link#template(a:url, l:options.text)
+
+  let l:line = getline(l:options.position[0])
+  call setline(l:options.position[0],
+        \   strpart(l:line, 0, l:options.position[1]-1)
+        \ . l:link_string
+        \ . strpart(l:line, l:options.position[1]))
+endfunction
+
+" }}}1
+
 function! wiki#link#get_creator(...) abort " {{{1
   let l:ft = expand('%:e')
   if empty(l:ft) || index(g:wiki_filetypes, l:ft) < 0
