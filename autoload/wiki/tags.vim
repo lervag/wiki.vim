@@ -477,8 +477,11 @@ endfunction
 " }}}1
 function! s:parse_tags_in_file(file) abort " {{{1
   let l:tags = []
+
+  let l:in_code = v:false
+  let l:skip = v:false
+
   let l:lnum = 0
-  let l:is_code = v:false
   let l:lines = g:wiki_tag_scan_num_lines ==# 'all'
         \ ? readfile(a:file)
         \ : readfile(a:file, 0, g:wiki_tag_scan_num_lines)
@@ -486,14 +489,8 @@ function! s:parse_tags_in_file(file) abort " {{{1
   for l:line in l:lines
     let l:lnum += 1
 
-    " Ignore code fenced lines
-    if l:is_code
-      let l:is_code = l:line !~# '^\s*```\s*$'
-      continue
-    elseif l:line =~# '^\s*```\w*\s*$'
-      let l:is_code = v:true
-      continue
-    endif
+    let [l:in_code, l:skip] = wiki#u#is_code_by_string(l:line, l:in_code)
+    if l:skip | continue | endif
 
     for l:parser in g:wiki_tag_parsers
       if l:parser.match(l:line)

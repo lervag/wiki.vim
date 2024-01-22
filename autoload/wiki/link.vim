@@ -74,9 +74,16 @@ endfunction
 function! wiki#link#get_all_from_lines(lines, file, ...) abort "{{{1
   let l:links = []
 
+  let l:in_code = v:false
+  let l:skip = v:false
+
   let l:lnum = a:0 > 0 ? (a:1 - 1) : 0
   for l:line in a:lines
     let l:lnum += 1
+
+    let [l:in_code, l:skip] = wiki#u#is_code_by_string(l:line, l:in_code)
+    if l:skip | continue | endif
+
     let l:c2 = 0
     while v:true
       let l:c1 = match(l:line, g:wiki#rx#link, l:c2) + 1

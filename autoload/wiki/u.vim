@@ -124,6 +124,29 @@ function! wiki#u#is_code(...) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#u#is_code_by_string(line, in_code) abort " {{{1
+  " Check if we are inside a fenced code block by inspecting a given line. The
+  " in_code argument indicates if we were already within a code block.
+  "
+  " We return two values: [in_code, skip]
+  "
+  " `in_code` is taken to be true for all lines within a fenced code block
+  " except the last fence. `skip` is true for all lines, including the last
+  " fence. This means we can use the output to properly skip lines while
+  " parsing a set of lines.
+
+  if a:in_code
+    let l:code_ended = a:line =~# '^\s*```\s*$'
+    return [!l:code_ended, v:true]
+  endif
+
+  if a:line =~# '^\s*```\w*\s*$'
+    return [v:true, v:true]
+  endif
+
+  return [v:false, v:false]
+endfunction
+
 function! wiki#u#trim(str) abort " {{{1
   if exists('*trim') | return trim(a:str) | endif
 
