@@ -1708,9 +1708,9 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
 *<plug>(wiki-graph-out)*
 *WikiGraphIn*
 *WikiGraphOut*
-  Show link graph in to or out of the current page. A count may be given to
-  limit the depth of the graph. Notice that this can take a while if you have
-  a large wiki.
+  Show links in to or out of the current page. A count may be given to show
+  a specified depth of links. Notice that a large count can take a while if
+  you have a large wiki.
 
 *<plug>(wiki-link-next)*
 *WikiLinkNext*
