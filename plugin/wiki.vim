@@ -98,6 +98,7 @@ lua << EOF
     pages = require("wiki.ui_select").pages,
     tags = require("wiki.ui_select").tags,
     toc = require("wiki.ui_select").toc,
+    links = require("wiki.ui_select").links,
   })
 EOF
 else

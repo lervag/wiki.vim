@@ -48,6 +48,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer -count=1 WikiGraphIn   call wiki#graph#in(<count>)
   command! -buffer -count=1 WikiGraphOut  call wiki#graph#out(<count>)
   command! -buffer WikiJournalIndex       call wiki#journal#make_index()
+  command! -buffer WikiLinkAdd            call g:wiki_select_method.links()
   command! -buffer WikiLinkNext           call wiki#nav#next_link()
   command! -buffer WikiLinkShow           call wiki#link#show()
   command! -buffer -range WikiLinkExtractHeader
@@ -96,6 +97,8 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-graph-in)             :WikiGraphIn<cr>
   nnoremap <silent><buffer> <plug>(wiki-graph-out)            :WikiGraphOut<cr>
   nnoremap <silent><buffer> <plug>(wiki-journal-index)        :WikiJournalIndex<cr>
+  nnoremap <silent><buffer> <plug>(wiki-link-add)             :WikiLinkAdd<cr>
+  inoremap <silent><buffer> <plug>(wiki-link-add)             <c-o>:call g:wiki_select_method.links(v:true)<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-next)            :WikiLinkNext<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-show)            :WikiLinkShow<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-extract-header)  :WikiLinkExtractHeader<cr>
@@ -155,6 +158,8 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-graph-check-orphans)': '<leader>wgO',
           \ '<plug>(wiki-graph-in)': '<leader>wgi',
           \ '<plug>(wiki-graph-out)': '<leader>wgo',
+          \ '<plug>(wiki-link-add)': '<f5>',
+          \ 'i_<plug>(wiki-link-add)': '<f5>',
           \ '<plug>(wiki-link-next)': '<tab>',
           \ '<plug>(wiki-link-prev)': '<s-tab>',
           \ '<plug>(wiki-link-show)': '<leader>wll',

@@ -73,4 +73,24 @@ function M.toc()
   end)
 end
 
+---Select a wiki page and insert a link to it
+---@param insert_mode boolean True if function is called from insert mode
+function M.links(insert_mode)
+  vim.ui.select(vim.fn["wiki#page#get_all"](), {
+    prompt = "WikiLinkAdd> ",
+    format_item = format_page_item,
+  }, function(item)
+    if item then
+      local root = vim.fn["wiki#get_root"]()
+      local url = vim.fn["wiki#paths#to_wiki_url"](item[1], root)
+
+      vim.fn["wiki#link#add"](url)
+
+      if insert_mode then
+        vim.cmd "startinsert"
+      end
+    end
+  end)
+end
+
 return M
