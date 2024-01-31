@@ -123,7 +123,14 @@ function! wiki#link#add(url, ...) abort " {{{1
   call setline(l:options.position[0],
         \   strpart(l:line, 0, l:options.position[1]-1)
         \ . l:link_string
-        \ . strpart(l:line, l:options.position[1]))
+        \ . strpart(l:line, l:options.position[1]-1))
+
+  if l:options.position == getcurpos()[1:2]
+    call cursor(
+          \ l:options.position[0],
+          \ l:options.position[1] + len(l:link_string)
+          \)
+  endif
 endfunction
 
 " }}}1
