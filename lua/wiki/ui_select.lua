@@ -1,18 +1,20 @@
 local M = {}
 
+---Format a page item for display in vim.ui.select
+---@param item table
+---@return string
+local function format_page_item(item)
+  if item[2]:sub(1, 1) == "/" then
+    return item[2]:sub(2)
+  else
+    return item[2]
+  end
+end
+
 function M.pages()
-  -- wiki#page#get_all returns a list of path pairs, where the first element is
-  -- the absolute path and the second element is the path relative to wiki
-  -- root.
   vim.ui.select(vim.fn["wiki#page#get_all"](), {
     prompt = "WikiPages> ",
-    format_item = function(item)
-      if item[2]:sub(1, 1) == "/" then
-        return item[2]:sub(2)
-      else
-        return item[2]
-      end
-    end,
+    format_item = format_page_item,
   }, function(item)
     if item then
       vim.cmd.edit(item[1])

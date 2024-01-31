@@ -235,6 +235,10 @@ endfunction
 " }}}1
 
 function! wiki#page#get_all() abort " {{{1
+  " Return: List of pairs
+  "   first element:  absolute path
+  "   second element: relative path to wiki root
+
   let l:root = wiki#get_root() . s:slash
 
   " Note: It may be tempting to do a globpath() with a single pattern
