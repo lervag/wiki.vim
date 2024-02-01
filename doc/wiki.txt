@@ -846,15 +846,13 @@ a reference of all available options.
   The following builtin alternatives can be used:
 
     - fzf (https://github.com/junegunn/fzf.vim):
-      - `wiki#fzf#pages()`
-      - `wiki#fzf#tags()`
+      - `wiki#fzf#pages()`     |g:wiki_fzf_pages_opts|
+                             |g:wiki_fzf_pages_force_create_key|
+      - `wiki#fzf#tags()`      |g:wiki_fzf_tags_opts|
       - `wiki#fzf#toc()`
-      - `wiki#fzf#links()`
-      - Note: These have additional options for more fine tuned control:
-        - |g:wiki_fzf_pages_opts|
-        - |g:wiki_fzf_pages_force_create_key|
-        - |g:wiki_fzf_tags_opts|
-        - |g:wiki_fzf_links_opts|
+      - `wiki#fzf#links()`     |g:wiki_fzf_links_opts|
+        - Note: I don't know how to return to insert mode with fzf, so the
+          insert mode mapping does not work optimally here. Sorry.
     - Lua backend that uses |vim.ui.select| (neovim only!)
       - `require("wiki.ui_select").pages()`
       - `require("wiki.ui_select").tags()`

@@ -3,7 +3,8 @@
 default: fzf fzf.vim
 
 fzf:
-	@git clone https://github.com/junegunn/fzf
+	@git clone --depth 1 https://github.com/junegunn/fzf
+	@make -C fzf bin/fzf
 
 fzf.vim:
-	@git clone https://github.com/junegunn/fzf.vim
+	@git clone --depth 1 https://github.com/junegunn/fzf.vim
