@@ -84,10 +84,18 @@ function M.links(insert_mode)
       local root = vim.fn["wiki#get_root"]()
       local url = vim.fn["wiki#paths#to_wiki_url"](item[1], root)
 
+      local col_cursor = vim.fn.col "."
+      local col_end = vim.fn.col "$"
+      local cursor_at_end = col_cursor + 1 >= col_end
+
       vim.fn["wiki#link#add"](url)
 
       if insert_mode then
-        vim.cmd "startinsert"
+        if cursor_at_end then
+          vim.cmd "startinsert!"
+        else
+          vim.cmd "startinsert"
+        end
       end
     end
   end)

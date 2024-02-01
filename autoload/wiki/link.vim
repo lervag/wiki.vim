@@ -120,10 +120,14 @@ function! wiki#link#add(url, ...) abort " {{{1
   let l:link_string = wiki#link#template(a:url, l:options.text)
 
   let l:line = getline(l:options.position[0])
-  call setline(l:options.position[0],
-        \   strpart(l:line, 0, l:options.position[1]-1)
-        \ . l:link_string
-        \ . strpart(l:line, l:options.position[1]-1))
+  if l:options.position[1] + 1 == col('$')
+    call setline(l:options.position[0], l:line . l:link_string)
+  else
+    call setline(l:options.position[0],
+          \   strpart(l:line, 0, l:options.position[1]-1)
+          \ . l:link_string
+          \ . strpart(l:line, l:options.position[1]-1))
+  endif
 
   if l:options.position == getcurpos()[1:2]
     call cursor(
