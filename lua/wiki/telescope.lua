@@ -124,4 +124,46 @@ function M.toc(opts)
     :find()
 end
 
+---Select a wiki page and insert a link to it
+---@param insert_mode boolean True if function is called from insert mode
+---@param opts table User options for telescope
+function M.links(insert_mode, opts)
+  builtin.find_files(vim.tbl_deep_extend("force", {
+    prompt_title = "Add wiki link",
+    cwd = vim.fn["wiki#get_root"](),
+    file_ignore_patterns = {
+      "%.stversions/",
+      "%.git/",
+    },
+    path_display = function(_, path)
+      local name = path:match "(.+)%.[^.]+$"
+      return name or path
+    end,
+    attach_mappings = function(prompt_bufnr, _)
+      actions.select_default:replace(function()
+        actions.close(prompt_bufnr)
+        vim.notify "strange..."
+        local path = action_state.get_selected_entry().path
+        local root = vim.fn["wiki#get_root"]()
+        local url = vim.fn["wiki#paths#to_wiki_url"](path, root)
+
+        local col_cursor = vim.fn.col "."
+        local col_end = vim.fn.col "$"
+        local cursor_at_end = col_cursor + 1 >= col_end
+
+        vim.fn["wiki#link#add"](url)
+
+        if insert_mode then
+          if cursor_at_end then
+            vim.cmd "startinsert!"
+          else
+            vim.cmd "startinsert"
+          end
+        end
+      end)
+      return true
+    end,
+  }, opts or {}))
+end
+
 return M
