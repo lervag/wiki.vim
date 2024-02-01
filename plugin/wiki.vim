@@ -106,6 +106,7 @@ else
         \ 'pages': function('wiki#fzf#pages'),
         \ 'tags': function('wiki#fzf#tags'),
         \ 'toc': function('wiki#fzf#toc'),
+        \ 'links': function('wiki#fzf#links'),
         \})
 endif
 call wiki#init#option('wiki_tag_list', { 'output' : 'loclist' })

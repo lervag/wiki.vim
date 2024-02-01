@@ -801,13 +801,17 @@ a reference of all available options.
   Default: `''`
 
 *g:wiki_fzf_tags_opts*
-  A string with additional user options for |WikiTags|. This can be used
-  e.g. to add a previewer. Users should be aware that the page candidates are
-  "prettified" with the `-d` option for fzf, so to obtain the page path in a
-  previewer option one must use the field index expression `2..`.
-  E.g.: >vim
+  A string with additional user options for |WikiTags|. Similar to
+  |g:wiki_fzf_pages_opts|, except one should use the field index expression
+  `2..` to obtain the page path. E.g.: >vim
 
     let g:wiki_fzf_tags_opts = '--preview "bat --color=always {2..}"'
+<
+  Default: `''`
+
+*g:wiki_fzf_links_opts*
+  A string with additional user options for |WikiLinkAdd|. Similar to
+  |g:wiki_fzf_pages_opts|.
 <
   Default: `''`
 
@@ -821,9 +825,9 @@ a reference of all available options.
 
 *g:wiki_select_method*
   A dictionary of functions that allows the user to choose the preferred
-  behaviour for |WikiPage|, |WikiTags| and |WikiToc|. This gives the user
-  a lot of flexibility to specify how these commands will work. See
-  |wiki-advanced-config-3| for an example configuration.
+  behaviour for |WikiPage|, |WikiTags|, |WikiToc| and |WikiLinkAdd|. This
+  gives the user a lot of flexibility to specify how these commands will work.
+  See |wiki-advanced-config-3| for an example configuration.
 
   The following table shows the option keys and the related commands:
 
@@ -832,6 +836,7 @@ a reference of all available options.
     `pages` |WikiPages|
     `tags`  |WikiTags|
     `toc`   |WikiToc|
+    `links` |WikiLinkAdd|
 
   The dictionary values can be one of two types:
 
@@ -844,18 +849,22 @@ a reference of all available options.
       - `wiki#fzf#pages()`
       - `wiki#fzf#tags()`
       - `wiki#fzf#toc()`
+      - `wiki#fzf#links()`
       - Note: These have additional options for more fine tuned control:
         - |g:wiki_fzf_pages_opts|
-        - |g:wiki_fzf_tags_opts|
         - |g:wiki_fzf_pages_force_create_key|
+        - |g:wiki_fzf_tags_opts|
+        - |g:wiki_fzf_links_opts|
     - Lua backend that uses |vim.ui.select| (neovim only!)
       - `require("wiki.ui_select").pages()`
       - `require("wiki.ui_select").tags()`
       - `require("wiki.ui_select").toc()`
+      - `require("wiki.ui_select").links()`
     - Telescope (https://github.com/nvim-telescope/telescope.nvim)
       - `require("wiki.telescope").pages()
       - `require("wiki.telescope").tags()
       - `require("wiki.telescope").toc()
+      - `require("wiki.telescope").links()
 
   Default (neovim): >lua
 
@@ -863,6 +872,7 @@ a reference of all available options.
       pages = require("wiki.ui_select").pages,
       tags = require("wiki.ui_select").tags,
       toc = require("wiki.ui_select").toc,
+      links = require("wiki.ui_select").links,
     }
 <
   Default (Vim): >vim
@@ -871,6 +881,7 @@ a reference of all available options.
           \ 'pages': function('wiki#fzf#pages'),
           \ 'tags': function('wiki#fzf#tags'),
           \ 'toc': function('wiki#fzf#toc'),
+          \ 'links': function('wiki#fzf#links'),
           \}
 <
 
@@ -1624,6 +1635,8 @@ for more information about the different modes. The lines annotated with
   `n`     <leader>wsr         |<plug>(wiki-tag-reload)|
   `n`     <leader>wsn         |<plug>(wiki-tag-rename)|
   `n`     <leader>wss         |<plug>(wiki-tag-search)|
+  `n`     <leader>wa          |<plug>(wiki-link-add)|
+  `i`     <c-a>               |<plug>(wiki-link-add)|
   `n`     <tab>               |<plug>(wiki-link-next)|
   `n`     <s-tab>             |<plug>(wiki-link-prev)|
   `n`     <cr>                |<plug>(wiki-link-follow)|
@@ -1711,6 +1724,12 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
   Show links in to or out of the current page. A count may be given to show
   a specified depth of links. Notice that a large count can take a while if
   you have a large wiki.
+
+*<plug>(wiki-link-add)*
+*WikiLinkAdd*
+  List the wiki files in the current wiki. Select from the list to add a link
+  to that target page. This uses the UI select method defined by
+  |g:wiki_select_method|. The mapping also works from insert mode.
 
 *<plug>(wiki-link-next)*
 *WikiLinkNext*

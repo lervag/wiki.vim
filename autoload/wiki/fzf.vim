@@ -82,6 +82,28 @@ function! wiki#fzf#toc() abort "{{{1
 endfunction
 
 "}}}1
+function! wiki#fzf#links(insert_mode) abort "{{{1
+  if !exists('*fzf#run')
+    call wiki#log#warn('fzf must be installed for this to work')
+    return
+  endif
+
+  let s:insert_mode = a:insert_mode
+  let l:fzf_opts = join([
+        \ '-d"#####" --with-nth=-1 --print-query --prompt "WikiLinkAdd> "',
+        \ g:wiki_fzf_links_opts,
+        \])
+
+  call fzf#run(fzf#wrap({
+        \ 'source': map(
+        \   wiki#page#get_all(),
+        \   {_, x -> x[0] . '#####' . x[1] }),
+        \ 'sink*': funcref('s:accept_link'),
+        \ 'options': l:fzf_opts
+        \}))
+endfunction
+
+" }}}1
 
 function! s:accept_page(lines) abort "{{{1
   " a:lines is a list with two or three elements. Two if there were no matches,
@@ -129,3 +151,23 @@ function! s:accept_toc_entry(line) abort "{{{1
 endfunction
 
 "}}}1
+function! s:accept_link(lines) abort "{{{1
+  " a:lines is a list with two or three elements. Two if there were no matches,
+  " and three if there is one or more matching names. The first element is the
+  " search query; the second is an empty string; the third element contains the
+  " selected item.
+  if len(a:lines) < 2 | return | endif
+
+  let l:file = split(a:lines[2], '#####')[0]
+
+  let l:root = wiki#get_root()
+  let l:url = wiki#paths#to_wiki_url(l:file, l:root)
+
+  call wiki#link#add(l:url)
+
+  if s:insert_mode
+    startinsert
+  end
+endfunction
+
+" }}}1
