@@ -1,4 +1,5 @@
 set runtimepath^=../..
+set runtimepath^=fzf.vim
 set nocompatible
 set noswapfile
 set nomore
