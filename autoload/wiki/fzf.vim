@@ -151,16 +151,17 @@ endfunction
 
 "}}}1
 function! s:accept_link(lines) abort "{{{1
-  " a:lines is a list with two or three elements. Two if there were no matches,
-  " and three if there is one or more matching names. The first element is the
-  " search query; the second is an empty string; the third element contains the
+  " a:lines is a list with one or two elements. Two if there was a match, else
+  " one. The first element is the search query; the second element contains the
   " selected item.
-  if len(a:lines) < 2 | return | endif
+  if len(a:lines) == 2
+    let l:file = split(a:lines[1], '#####')[0]
 
-  let l:file = split(a:lines[1], '#####')[0]
-
-  let l:root = wiki#get_root()
-  let l:url = wiki#paths#to_wiki_url(l:file, l:root)
+    let l:root = wiki#get_root()
+    let l:url = wiki#paths#to_wiki_url(l:file, l:root)
+  else
+    let l:url = a:lines[0]
+  endif
 
   call wiki#link#add(l:url)
 endfunction

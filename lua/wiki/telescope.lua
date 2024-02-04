@@ -142,10 +142,17 @@ function M.links(insert_mode, opts)
     attach_mappings = function(prompt_bufnr, _)
       actions.select_default:replace(function()
         actions.close(prompt_bufnr)
-        vim.notify "strange..."
-        local path = action_state.get_selected_entry().path
-        local root = vim.fn["wiki#get_root"]()
-        local url = vim.fn["wiki#paths#to_wiki_url"](path, root)
+
+        local url = ""
+        local entry = action_state.get_selected_entry()
+        if entry then
+          vim.notify(vim.inspect(entry))
+          local path = entry.path
+          local root = vim.fn["wiki#get_root"]()
+          url = vim.fn["wiki#paths#to_wiki_url"](path, root)
+        else
+          url = action_state.get_current_line()
+        end
 
         local col_cursor = vim.fn.col "."
         local col_end = vim.fn.col "$"
