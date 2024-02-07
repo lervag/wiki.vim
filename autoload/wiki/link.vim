@@ -117,11 +117,17 @@ function! wiki#link#add(path, ...) abort " {{{1
         \ 'text': '',
         \}, a:0 > 0 ? a:1 : {})
 
-  " a:path is either an absolute file-system path or a relative path with
-  " respect to the _current_ file.
-  let l:url = wiki#paths#is_abs(a:path)
-        \ ? wiki#paths#to_wiki_url(a:path)
-        \ : a:path
+  if wiki#paths#is_abs(a:path)
+    let l:cwd = expand('%:p:h')
+    let l:url = stridx(a:path, l:cwd) == 0
+          \ ? wiki#paths#to_wiki_url(a:path, l:cwd)
+          \ : '/' .. wiki#paths#to_wiki_url(a:path)
+  else
+    let l:creator = wiki#link#get_creator()
+    let l:url = has_key(l:creator, 'url_transform')
+          \ ? l:creator.url_transform(a:path)
+          \ : a:path
+  endif
 
   let l:link_string = wiki#link#template(l:url, l:options.text)
 

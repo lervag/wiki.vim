@@ -155,7 +155,7 @@ function M.links(insert_mode, opts)
         local col_end = vim.fn.col "$"
         local cursor_at_end = col_cursor + 1 >= col_end
 
-        vim.fn["wiki#link#add"](path)
+        vim.fn["wiki#link#add"](path, { transform_relative = true })
 
         if insert_mode then
           if cursor_at_end then

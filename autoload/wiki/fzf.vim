@@ -158,7 +158,7 @@ function! s:accept_link(lines) abort "{{{1
         \ ? split(a:lines[1], '#####')[0]
         \ : a:lines[0]
 
-  call wiki#link#add(l:path)
+  call wiki#link#add(l:path, { 'transform_relative': v:true })
 endfunction
 
 " }}}1
