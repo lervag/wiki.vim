@@ -102,14 +102,14 @@ function! wiki#paths#to_node(path) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#paths#to_wiki_url(path, root) abort " {{{1
-  " Input: An absolute path
-  " Output: A wiki url (relative to specified root)
+function! wiki#paths#to_wiki_url(path, ...) abort " {{{1
+  " Input:  absolute path
+  " Output: wiki url (relative to root)
+  let l:root = a:0 > 0 ? a:1 : wiki#get_root()
+  let l:path = wiki#paths#relative(a:path, l:root)
 
-  let l:path = wiki#paths#relative(a:path, a:root)
-  let l:ext = '.' . fnamemodify(l:path, ':e')
-
-  return l:ext ==# wiki#link#get_creator('url_extension')
+  let l:ext = '.' .. fnamemodify(l:path, ':e')
+  return wiki#link#get_creator('url_extension') ==# l:ext
         \ ? l:path
         \ : fnamemodify(l:path, ':r')
 endfunction

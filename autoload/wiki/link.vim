@@ -111,22 +111,28 @@ endfunction
 
 "}}}1
 
-function! wiki#link#add(url, ...) abort " {{{1
+function! wiki#link#add(path, ...) abort " {{{1
   let l:options = extend({
         \ 'position': getcurpos()[1:2],
         \ 'text': '',
         \}, a:0 > 0 ? a:1 : {})
 
-  let l:link_string = wiki#link#template(a:url, l:options.text)
+  " a:path is either an absolute file-system path or a relative path with
+  " respect to the _current_ file.
+  let l:url = wiki#paths#is_abs(a:path)
+        \ ? wiki#paths#to_wiki_url(a:path)
+        \ : a:path
+
+  let l:link_string = wiki#link#template(l:url, l:options.text)
 
   let l:line = getline(l:options.position[0])
   if l:options.position[1] + 1 == col('$')
     call setline(l:options.position[0], l:line . l:link_string)
   else
     call setline(l:options.position[0],
-          \   strpart(l:line, 0, l:options.position[1]-1)
-          \ . l:link_string
-          \ . strpart(l:line, l:options.position[1]-1))
+          \ strpart(l:line, 0, l:options.position[1]-1)
+          \ .. l:link_string
+          \ .. strpart(l:line, l:options.position[1]-1))
   endif
 
   if l:options.position == getcurpos()[1:2]

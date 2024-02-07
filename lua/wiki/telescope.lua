@@ -143,22 +143,19 @@ function M.links(insert_mode, opts)
       actions.select_default:replace(function()
         actions.close(prompt_bufnr)
 
-        local url = ""
+        local path = ""
         local entry = action_state.get_selected_entry()
         if entry then
-          vim.notify(vim.inspect(entry))
-          local path = entry.path
-          local root = vim.fn["wiki#get_root"]()
-          url = vim.fn["wiki#paths#to_wiki_url"](path, root)
+          path = entry.path
         else
-          url = action_state.get_current_line()
+          path = action_state.get_current_line()
         end
 
         local col_cursor = vim.fn.col "."
         local col_end = vim.fn.col "$"
         local cursor_at_end = col_cursor + 1 >= col_end
 
-        vim.fn["wiki#link#add"](url)
+        vim.fn["wiki#link#add"](path)
 
         if insert_mode then
           if cursor_at_end then

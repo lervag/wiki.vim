@@ -81,14 +81,11 @@ function M.links(insert_mode)
     format_item = format_page_item,
   }, function(item)
     if item then
-      local root = vim.fn["wiki#get_root"]()
-      local url = vim.fn["wiki#paths#to_wiki_url"](item[1], root)
-
       local col_cursor = vim.fn.col "."
       local col_end = vim.fn.col "$"
       local cursor_at_end = col_cursor + 1 >= col_end
 
-      vim.fn["wiki#link#add"](url)
+      vim.fn["wiki#link#add"](item[1])
 
       if insert_mode then
         if cursor_at_end then

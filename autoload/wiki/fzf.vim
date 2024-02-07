@@ -154,16 +154,11 @@ function! s:accept_link(lines) abort "{{{1
   " a:lines is a list with one or two elements. Two if there was a match, else
   " one. The first element is the search query; the second element contains the
   " selected item.
-  if len(a:lines) == 2
-    let l:file = split(a:lines[1], '#####')[0]
+  let l:path = len(a:lines) == 2
+        \ ? split(a:lines[1], '#####')[0]
+        \ : a:lines[0]
 
-    let l:root = wiki#get_root()
-    let l:url = wiki#paths#to_wiki_url(l:file, l:root)
-  else
-    let l:url = a:lines[0]
-  endif
-
-  call wiki#link#add(l:url)
+  call wiki#link#add(l:path)
 endfunction
 
 " }}}1
