@@ -159,7 +159,7 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-graph-in)': '<leader>wgi',
           \ '<plug>(wiki-graph-out)': '<leader>wgo',
           \ '<plug>(wiki-link-add)': '<leader>wa',
-          \ 'i_<plug>(wiki-link-add)': '<c-a>',
+          \ 'i_<plug>(wiki-link-add)': '<c-q>',
           \ '<plug>(wiki-link-next)': '<tab>',
           \ '<plug>(wiki-link-prev)': '<s-tab>',
           \ '<plug>(wiki-link-show)': '<leader>wll',
