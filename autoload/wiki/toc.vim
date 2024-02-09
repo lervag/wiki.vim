@@ -34,6 +34,17 @@ endfunction
 " }}}1
 
 function! wiki#toc#gather_entries(...) abort " {{{1
+  " Returns:
+  "   List[Entry]
+  "
+  " Entry is a dict with the following keys:
+  "   anchor      '#Foo#Bar#Baz'
+  "   anchors     ['Foo', 'Bar', 'Baz']
+  "   header      'Baz'
+  "   level       3
+  "   lnum        123
+  "   lnum_end    128
+
   let l:opts = extend(#{
         \ url: '',
         \ path: '',

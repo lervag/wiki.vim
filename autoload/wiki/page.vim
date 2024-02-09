@@ -286,6 +286,9 @@ endfunction
 
 " }}}1
 function! s:update_links_local(old, new) abort "{{{1
+  " Arguments:
+  "   old: dict(anchor)
+  "   new: dict(anchor)
   let l:pos = getcurpos()
   keeppattern keepjumps execute printf('%%s/\V%s/%s/e%s',
         \ a:old.anchor,
@@ -297,6 +300,10 @@ endfunction
 
 " }}}1
 function! s:update_links_external(old, new) abort "{{{1
+  " Arguments:
+  "   old: dict(anchor?, path?)
+  "   new: dict(anchor?, path)
+
   let l:old = extend(#{anchor: '', path: expand('%:p')}, a:old)
   let l:new = extend(#{anchor: '', path: ''}, a:new)
 
