@@ -93,3 +93,12 @@ Without [vimwiki](https://github.com/vimwiki/vimwiki), this plugin would never
 have existed. So my thanks go to the smart people that developed and maintains
 `vimwiki`, both for the inspiration and for the ideas.
 
+# Alternatives
+
+Feel free to consider any of the many available alternatives. There are likely many more, but these are the ones I'm aware of:
+
+* [Vimwiki](https://github.com/vimwiki/vimwiki)
+* [neorg](https://github.com/nvim-neorg/neorg)
+* [tdo.nvim](https://github.com/2KAbhishek/tdo.nvim)
+* [notes.nvim](https://github.com/dhananjaylatkar/notes.nvim)
+
