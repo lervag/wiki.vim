@@ -21,6 +21,7 @@ Note: Some features require a recent version of Vim (>= 8.1) or NeoVim (>= 0.5).
 - [Quick Start](#quick-start)
 - [Features](#features)
 - [Acknowledgements](#acknowledgements)
+- [Alternatives](#alternatives)
 
 # Quick Start
 
