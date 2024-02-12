@@ -120,7 +120,7 @@ function! s:completer_wikilink.complete_page(regex) dict abort " {{{2
   if executable('fd')
     let l:extensions = ' -e ' . join(g:wiki_filetypes, ' -e ')
     let l:cands = wiki#jobs#capture(
-        \ printf('fd -Ia -t f %s . %s', l:extensions, l:root))
+        \ printf("fd -Ia -t f %s . '%s'", l:extensions, l:root))
   else
     let l:cands = []
     for l:ext in g:wiki_filetypes
