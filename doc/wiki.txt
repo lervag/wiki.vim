@@ -717,7 +717,8 @@ The cite links are a convenient link type that can be used with e.g. Zotero
 URLs. That is, instead of writing a link with URL `zot:citekey` one may simply
 write `@citekey`.
 
-See also |wiki-link-url| for more info on the Zotero URL scheme and handler.
+See also |wiki-link-schemes| for more info on the Zotero URL scheme and
+handler.
 
 Iso dates ~
                                                                *wiki-link-date*
@@ -1004,7 +1005,7 @@ a reference of all available options.
       `link_text_parser`.
 
       The default setting uses the `journal:` scheme on link urls (see
-      |wiki-link-url| for more info). Note that the journal scheme does not
+      |wiki-link-schemes| for more info). Note that the journal scheme does not
       work well if there are multiple pages per single date!
 
       Here are some examples of alternative configurations: >vim
@@ -1523,7 +1524,7 @@ a reference of all available options.
   A dictionary that specifies which viewer to use for a given filetype. The
   entry `_` specifies the fallback or generic viewer. This option thus allows
   one to setup different viewers for different file types that are used by the
-  generic link scheme handler (|wiki-link-url|) and by |WikiExport|.
+  generic link scheme handler (|g:wiki_link_schemes|) and by |WikiExport|.
 
   The special value `':edit'` indicates to open the file in the current Vim or
   neovim session as with |:edit|.
@@ -1550,7 +1551,7 @@ a reference of all available options.
 
 *g:wiki_zotero_root*
   A string that specifies the Zotero root folder used for the Zotero URL
-  scheme, see |wiki-link-url|.
+  scheme, see |wiki-link-schemes|.
 
   Default: `'~/.local/zotero'`
 
