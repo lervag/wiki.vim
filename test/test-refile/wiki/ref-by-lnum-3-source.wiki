@@ -1,0 +1,13 @@
+Intro text here.
+
+# Intro
+
+This is a wiki.
+
+[[#Section 1]]
+[[target-2#Second#Foo bar Baz]]
+
+This-is-a-wiki.
+
+# Section 1
+

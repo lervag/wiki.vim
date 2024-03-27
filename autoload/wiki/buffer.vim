@@ -62,6 +62,7 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiLinkIncomingToggle call wiki#link#incoming_display_toggle()
   command! -buffer WikiLinkIncomingHover  call wiki#link#incoming_hover()
   command! -buffer WikiPageDelete         call wiki#page#delete()
+  command! -buffer WikiPageRefile         call wiki#page#refile()
   command! -buffer WikiPageRename         call wiki#page#rename()
   command! -buffer WikiPageRenameSection  call wiki#page#rename_section()
   command! -buffer WikiToc                call g:wiki_select_method.toc()
@@ -113,6 +114,7 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-link-incoming-toggle) :WikiLinkIncomingToggle<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-incoming-hover)  :WikiLinkIncomingHover<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-delete)          :WikiPageDelete<cr>
+  nnoremap <silent><buffer> <plug>(wiki-page-refile)          :WikiPageRefile<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-rename)          :WikiPageRename<cr>
   nnoremap <silent><buffer> <plug>(wiki-page-rename-section)  :WikiPageRenameSection<cr>
   nnoremap <silent><buffer> <plug>(wiki-toc-generate)         :WikiTocGenerate<cr>
@@ -175,6 +177,7 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-link-incoming-toggle)': '<leader>wli',
           \ '<plug>(wiki-link-incoming-hover)': '<leader>wlI',
           \ '<plug>(wiki-page-delete)': '<leader>wd',
+          \ '<plug>(wiki-page-refile)' : '<leader>wq',
           \ '<plug>(wiki-page-rename)': '<leader>wr',
           \ '<plug>(wiki-page-rename-section)': '<f2>',
           \ '<plug>(wiki-toc-generate)': '<leader>wt',
