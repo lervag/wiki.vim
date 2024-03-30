@@ -66,9 +66,9 @@ function! wiki#paths#relative(path, current) abort " {{{1
     let l:common = l:common[:-2]
   endif
 
-  if has('win32') || v:true
-    let l:target = substitute(l:target, '^[A-Z]:', '', '')
-    let l:common = substitute(l:common, '^[A-Z]:', '', '')
+  if has('win32')
+    let l:target = substitute(l:target, '^\a:', '', '')
+    let l:common = substitute(l:common, '^\a:', '', '')
   endif
 
   " This only works on absolute paths
