@@ -61,14 +61,11 @@ function! wiki#paths#relative(path, current) abort " {{{1
   "       http://stackoverflow.com/a/12498485/51634
 
   let l:target = simplify(substitute(a:path, '\\', '/', 'g'))
+  let l:target = substitute(l:target, '^\a:', '', '')
   let l:common = simplify(substitute(a:current, '\\', '/', 'g'))
+  let l:common = substitute(l:common, '^\a:', '', '')
   if l:common[-1:] ==# '/'
     let l:common = l:common[:-2]
-  endif
-
-  if has('win32')
-    let l:target = substitute(l:target, '^\a:', '', '')
-    let l:common = substitute(l:common, '^\a:', '', '')
   endif
 
   " This only works on absolute paths
