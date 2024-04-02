@@ -113,6 +113,14 @@ function! wiki#url#handlers#zot(resolved, ...) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#url#handlers#bdsk(resolved, ...) abort " {{{1
+  let a:resolved.url = 'x-bdsk://' . a:resolved.stripped
+  let a:resolved.scheme = 'x-bdsk'
+
+  return wiki#url#handlers#generic(a:resolved)
+endfunction
+
+" }}}1
 
 
 function! s:menu_open_pdf(val) abort " {{{1
