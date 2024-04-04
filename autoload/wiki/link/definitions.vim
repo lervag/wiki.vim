@@ -133,8 +133,8 @@ let g:wiki#link#definitions#all = [
       \ g:wiki#link#definitions#reference,
       \ g:wiki#link#definitions#ref_collapsed,
       \ g:wiki#link#definitions#ref_full,
-      \ g:wiki#link#definitions#url,
       \ g:wiki#link#definitions#cite,
+      \ g:wiki#link#definitions#url,
       \ g:wiki#link#definitions#date,
       \ g:wiki#link#definitions#word,
       \]
@@ -150,6 +150,6 @@ let g:wiki#link#definitions#all_real = [
       \ g:wiki#link#definitions#md,
       \ g:wiki#link#definitions#org,
       \ g:wiki#link#definitions#ref_target,
-      \ g:wiki#link#definitions#url,
       \ g:wiki#link#definitions#cite,
+      \ g:wiki#link#definitions#url,
       \]
