@@ -114,9 +114,9 @@ endfunction
 
 " }}}1
 function! wiki#url#handlers#bdsk(resolved, ...) abort " {{{1
-  let l:encoded_url = stridx(a:url.stripped, "%") < 0
-        \ ? wiki#url#utils#url_encode(a:url.stripped)
-        \ : a:url.stripped
+  let l:encoded_url = stridx(a:resolved.stripped, "%") < 0
+        \ ? wiki#url#utils#url_encode(a:resolved.stripped)
+        \ : a:resolved.stripped
 
   let a:resolved.url = 'x-bdsk://' . l:encoded_url
   let a:resolved.scheme = 'x-bdsk'
