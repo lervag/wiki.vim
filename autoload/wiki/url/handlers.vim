@@ -114,7 +114,11 @@ endfunction
 
 " }}}1
 function! wiki#url#handlers#bdsk(resolved, ...) abort " {{{1
-  let a:resolved.url = 'x-bdsk://' . a:resolved.stripped
+  let l:encoded_url = stridx(a:url.stripped, "%") < 0
+        \ ? wiki#url#utils#url_encode(a:url.stripped)
+        \ : a:url.stripped
+
+  let a:resolved.url = 'x-bdsk://' . l:encoded_url
   let a:resolved.scheme = 'x-bdsk'
 
   return wiki#url#handlers#generic(a:resolved)
