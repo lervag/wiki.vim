@@ -97,6 +97,7 @@ let g:wiki#link#definitions#cite = {
       \ 'type': 'cite',
       \ 'rx': wiki#rx#link_cite,
       \ 'rx_url': wiki#rx#link_cite_url,
+      \ '__scheme': { -> wiki#link#get_scheme('cite') },
       \}
 
 let g:wiki#link#definitions#date = {

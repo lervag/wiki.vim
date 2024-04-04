@@ -17,7 +17,9 @@ function! wiki#link#class#new(link_definition, match) abort " {{{1
 
   " Add scheme to URL if it is missing
   if has_key(a:link_definition, '__scheme')
-    let l:link.scheme = a:link_definition.__scheme
+    let l:link.scheme = type(a:link_definition.__scheme) == v:t_func
+          \ ? a:link_definition.__scheme()
+          \ : a:link_definition.__scheme
     let l:link.url = l:link.scheme . ':' . l:link.url
   else
     let l:link.scheme = matchstr(l:link.url, '^\w\+\ze:')
