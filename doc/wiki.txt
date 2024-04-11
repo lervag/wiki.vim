@@ -2133,24 +2133,29 @@ TEMPLATE FUNCTION CONTEXT                              *wiki-templates-context*
 The functions in |g:wiki_templates| assume a single argument `context` which
 is a dictionary with the following values:
 
-  Key          Description              Example ~
-  ===          ===========              =======
-  `name`         Filename (no extension)  "New Page"
-  `path`         Full path                "/path/to/wiki/sub/New Page.md"
-  `path_wiki`    Wiki path                "/sub/New Page.md"
-  `origin`       Origin position          `{...}`
-  `date`         ISO date                 2021-07-01
-  `time`         Time (24h format)        19:30
+  Key          Description                 Example ~
+  ===          ===========                 =======
+  `name`         Filename (no extension)     "New Page"
+  `path`         Full path                   "/path/to/wiki/sub/New Page.md"
+  `path_wiki`    Wiki path                   "/sub/New Page.md"
+  `origin`       Origin position and link    `{...}`
+  `date`         ISO date                    2021-07-01
+  `time`         Time (24h format)           19:30
 
 The `origin` value is a dictionary that represents the position before
-following a link to create the page. One may expect it to have one or more of
-the following keys:
+following a link to create the page. It also includes the link object itself.
+One may expect it to have one or more of the following keys:
 
-  origin ~
+  file ~
     Filename of file that contains the link.
 
   curpos ~
     Cursor position when the link was followed/activated.
+
+  link ~
+    A dictionary that contains the link object itself. This includes the link
+    url and link text. The text part can be of interest if one wants to use it
+    as the title of a document.
 
 ------------------------------------------------------------------------------
 TEMPLATE FILE FORMAT                                    *wiki-templates-format*
