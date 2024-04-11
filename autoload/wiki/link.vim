@@ -291,6 +291,7 @@ function! wiki#link#follow(...) abort "{{{1
   let l:origin = {
         \ 'file': expand('%:p'),
         \ 'cursor': getcurpos(),
+        \ 'link': l:link
         \}
   call wiki#nav#add_to_stack(l:origin)
 
@@ -302,10 +303,8 @@ function! wiki#link#follow(...) abort "{{{1
   endtry
 
   " Pop origin from stack if following the link did not change the location
-  if l:origin ==# {
-        \ 'file': expand('%:p'),
-        \ 'cursor': getcurpos(),
-        \}
+  if l:origin.file ==# expand('%:p')
+        \ && l:origin.cursor == getcurpos()
     call wiki#nav#pop_from_stack()
   endif
 endfunction
