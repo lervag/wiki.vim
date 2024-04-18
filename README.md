@@ -1,6 +1,6 @@
 # Introduction
 
-This is a [Vim](http://www.vim.org/) plugin for writing and maintaining
+This is a [Vim](http://www.vim.org/) and [neovim](https://neovim.io/) plugin for writing and maintaining
 a personal wiki. The plugin was initially based on
 [vimwiki](https://github.com/vimwiki/vimwiki), but it is written mostly from
 scratch and is based on a more "do one thing and do it well" philosophy.
@@ -14,7 +14,7 @@ Note: `wiki.vim` is _not_ a filetype plugin. It is designed to be used _with_
       read `:help wiki-intro-plugins` for a list of plugins that work well with
       `wiki.vim`.
 
-Note: Some features require a recent version of Vim (>= 8.1) or NeoVim (>= 0.5).
+Note: `wiki.vim` requires Vim 9.1 or Neovim 0.9.5.
 
 ## Table of contents
 
