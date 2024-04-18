@@ -86,6 +86,12 @@ the root is set to the same directory as the current file. In addition, one
 may specify a "main wiki" with the |g:wiki_root| option. This allows
 convenient mappings and commands for opening this main wiki from anywhere.
 
+                                                  *wiki-filetype-specification*
+`wiki.vim` uses the filename extension to specify a filetype. Notice that
+a file extension is not always named the same as the corresponding 'filetype'
+option value. For example, the common extension for Markdown is `.md`, whereas
+the corresponding 'filetype' is `markdown`.
+
 ------------------------------------------------------------------------------
 REQUIREMENTS                                          *wiki-intro-requirements*
 
@@ -772,10 +778,8 @@ a reference of all available options.
           \}
 
 *g:wiki_filetypes*
-  List of filetype extensions for which `wiki.vim` should be enabled. Notice
-  that file extensions are not always the same as the filetype. For example,
-  the common extension for Markdown is `.md`, whereas the filetype is called
-  `markdown`. The option should list the file extensions.
+  List of filetypes for which `wiki.vim` should be enabled. As explained in
+  |wiki-filetype-spec|, the filetypes are specified by the file extension.
 
   The first element of the list is considered the default filetype where that
   is relevant.
@@ -1032,10 +1036,8 @@ a reference of all available options.
           \}
 
 *g:wiki_link_creation*
-  A dictionary to configure how links are created from text for any given
-  filetype. Filetypes are specified by file extension so as to correspond with
-  |g:wiki_filetypes|, that is, we use `md` and not `markdown`.
-
+  A dictionary to configure how links are created from text for a given
+  filetype. The keys are filetype extensions (|wiki-filetype-specification|).
   The corresponding value is a dictionary of options. If there is no key for
   the current filetype, then the fallback key `"_"` is used.
 
@@ -1109,8 +1111,8 @@ a reference of all available options.
   definition of URLs and schemes.
 
   The keys represent the link type and the values are either strings, in which
-  case they specify the default scheme, or dictionaries between filetype
-  extensions and default schemes.
+  case they specify the default scheme, or dictionaries between filetypes
+  (notice |wiki-filetype-specification|) and default schemes.
 
   Note: Reference-style links are special and do not allow to override the
         scheme. See |wiki-link-reference|.
@@ -1316,10 +1318,32 @@ a reference of all available options.
 
   Default: `''`
 
+*g:wiki_toc_filetypes*
+  A dictionary to map a filetype extension to a filetype used to parse the TOC.
+  The supported filetype formats are currently:
+
+  * markdown
+  * asciidoc
+  * org
+
+  Default: >vim
+
+    let g:wiki_toc_filetypes = {
+          \ '_' : 'markdown',
+          \ 'md' : 'markdown',
+          \ 'adoc' : 'asciidoc',
+          \ 'org' : 'org',
+          \}
+
 *g:wiki_toc_title*
   The title of TOC listings.
 
   Default: `'Contents'`
+
+*g:wiki_toc_depth*
+  The number of sections to parse for the TOC.
+
+  Default: `6
 
 *g:wiki_tag_list*
   A dictionary that specifies the default options for |WikiTagList|.
@@ -1521,10 +1545,11 @@ a reference of all available options.
           \}
 
 *g:wiki_viewer*
-  A dictionary that specifies which viewer to use for a given filetype. The
-  entry `_` specifies the fallback or generic viewer. This option thus allows
-  one to setup different viewers for different file types that are used by the
-  generic link scheme handler (|g:wiki_link_schemes|) and by |WikiExport|.
+  A dictionary that specifies which viewer to use for any given filetype, see
+  |wiki-filetype-specification|. The entry `_` specifies the fallback or
+  generic viewer. This option thus allows one to setup different viewers for
+  different file types that are used by the generic link scheme handler
+  (|g:wiki_link_schemes|) and by |WikiExport|.
 
   The special value `':edit'` indicates to open the file in the current Vim or
   neovim session as with |:edit|.

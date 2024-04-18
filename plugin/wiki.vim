@@ -119,6 +119,12 @@ call wiki#init#option('wiki_template_title_month',
       \ '# Summary, %(year) %(month-name)')
 call wiki#init#option('wiki_template_title_week',
       \ '# Summary, %(year) week %(week)')
+call wiki#init#option('wiki_toc_filetypes', {
+      \ '_' : 'markdown',
+      \ 'md' : 'markdown',
+      \ 'adoc' : 'asciidoc',
+      \ 'org' : 'org',
+      \})
 call wiki#init#option('wiki_toc_title', 'Contents')
 call wiki#init#option('wiki_toc_depth', 6)
 call wiki#init#option('wiki_ui_method', {

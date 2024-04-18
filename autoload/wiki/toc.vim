@@ -5,11 +5,12 @@
 "
 
 function! wiki#toc#create(local) abort " {{{1
+  let l:filetype = s:get_filetype()
+
   try
-    let l:filetype = !empty(&filetype) ? &filetype : 'wiki'
     call s:toc_create_{l:filetype}(a:local)
   catch /E117:/
-    call wiki#log#error("No TOC support for filetype: " . &filetype . "!")
+    call wiki#log#error("No TOC support for filetype: " . l:filetype . "!")
   endtry
 endfunction
 
@@ -49,7 +50,7 @@ function! wiki#toc#gather_entries(...) abort " {{{1
         \ url: '',
         \ path: '',
         \ lines: [],
-        \ filetype: !empty(&filetype) ? &filetype : 'wiki',
+        \ filetype: s:get_filetype(),
         \ first_only: v:false,
         \ at_lnum: -1,
         \}, a:0 > 0 ? a:1 : {})
@@ -75,7 +76,7 @@ function! wiki#toc#gather_entries(...) abort " {{{1
       let l:current.ftime = l:ftime
       let l:current.toc = wiki#toc#gather_entries_from_lines(
             \ readfile(l:path),
-            \ wiki#paths#get_filetype(l:path))
+            \ s:get_filetype(l:path))
     endif
     call l:cache.write()
 
@@ -368,12 +369,17 @@ function! s:toc_create_markdown(local) abort " {{{1
 endfunction
 
 " }}}1
-function! s:toc_create_wiki(local) abort " {{{1
-  call s:toc_create_markdown(a:local)
+
+function! s:get_filetype(...) abort " {{{1
+  let l:ext = a:0 > 0 ? fnamemodify(a:1, ':e') : expand('%:e')
+  if empty(l:ext)
+    let l:ext = g:wiki_filetypes[0]
+  endif
+
+  return get(g:wiki_toc_filetypes, l:ext, g:wiki_toc_filetypes._)
 endfunction
 
 " }}}1
-
 function! s:get_local_toc(entries, lnum_current) abort " {{{1
     " Get ToC for the section for lnum_current
     "
