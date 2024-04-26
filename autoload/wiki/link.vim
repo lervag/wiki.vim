@@ -295,6 +295,8 @@ function! wiki#link#follow(...) abort "{{{1
         \}
   call wiki#nav#add_to_stack(l:origin)
 
+  call wiki#graph#mark_refreshed(l:origin.file)
+
   try
     call wiki#url#follow(l:link.url, l:edit_cmd)
   catch /E37:/

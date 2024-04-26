@@ -38,7 +38,7 @@ function! wiki#graph#check_orphans() abort "{{{1
 
   " Fully refresh the cache - this takes some extra time, but it ensures that
   " the data is up to date.
-  call l:graph._refresh_cache(#{force: v:true})
+  call l:graph.refresh_cache(#{force: v:true})
 
   " Manually fetch data from the cache
   let l:orphans = keys(filter(
@@ -271,6 +271,15 @@ function! wiki#graph#out(...) abort " {{{1
   call wiki#log#info('Building tree, please wait ... done!')
 
   call s:output_to_scratch('WikiGraphOut', sort(values(l:tree)))
+endfunction
+
+" }}}1
+
+function! wiki#graph#mark_refreshed(file) abort " {{{1
+  if !empty(a:file)
+    let l:graph = wiki#graph#builder#get()
+    call l:graph.mark_refreshed(a:file)
+  endif
 endfunction
 
 " }}}1

@@ -97,12 +97,7 @@ endfunction
 
 " }}}1
 function! s:graph.get_links_to(file, ...) abort dict " {{{1
-  let l:refresh_opts = extend(
-        \ { 'file': a:file },
-        \ a:0 > 0 ? a:1 : {}
-        \)
-  call self._refresh_cache(l:refresh_opts)
-
+  call self.refresh_cache(a:0 > 0 ? a:1 : {})
   return deepcopy(self.cache_links_in.get(a:file))
 endfunction
 
@@ -131,8 +126,8 @@ endfunction
 
 " }}}1
 
-function! s:graph.get_tree_to(file, depth) abort " {{{1
-  call self._refresh_cache({ 'file': a:file })
+function! s:graph.get_tree_to(file, depth) abort dict " {{{1
+  call self.refresh_cache()
 
   let l:tree = {}
   let l:stack = [[a:file, []]]
@@ -162,7 +157,7 @@ function! s:graph.get_tree_to(file, depth) abort " {{{1
 endfunction
 
 " }}}1
-function! s:graph.get_tree_from(file, depth) abort " {{{1
+function! s:graph.get_tree_from(file, depth) abort dict " {{{1
   let l:tree = {}
   let l:stack = [[a:file, []]]
   let l:visited = []
@@ -192,13 +187,30 @@ endfunction
 
 " }}}1
 
+function! s:graph.mark_refreshed(file) abort " {{{1
+  call add(self._cache_updated, a:file)
+endfunction
 
-function! s:graph._refresh_cache(opts) abort dict " {{{1
+" }}}1
+function! s:graph.mark_tainted(file) abort dict " {{{1
+  if empty(a:file) | return | endif
+
+  for l:link in self.cache_links_in.get(a:file)
+    call add(self._cache_updated, l:link.filename_from)
+  endfor
+
+  if !filereadable(a:file)
+    unlet! self.cache_links_in.data[a:file]
+  endif
+endfunction
+
+" }}}1
+
+function! s:graph.refresh_cache(...) abort dict " {{{1
   let l:opts = extend({
         \ 'force': v:false,
         \ 'nudge': v:false,
-        \ 'file': '',
-        \}, a:opts)
+        \}, a:0 > 0 ? a:1 : {})
 
   call self.cache_links_in.read()
 
@@ -208,7 +220,7 @@ function! s:graph._refresh_cache(opts) abort dict " {{{1
     call self._refresh_cache_full()
   elseif l:opts.nudge || l:secs_since_updated > self._cache_threshold_fast
     let self._cache_save = v:false
-    call self._refresh_cache_fast(l:opts.file)
+    call self._refresh_cache_fast()
   else
     return
   endif
@@ -221,15 +233,7 @@ function! s:graph._refresh_cache(opts) abort dict " {{{1
 endfunction
 
 " }}}1
-function! s:graph._refresh_cache_fast(file) abort dict " {{{1
-  let l:links = self.cache_links_in.get(a:file)
-  if !empty(l:links)
-    for l:link in l:links
-      call add(self._cache_updated, l:link.filename_from)
-    endfor
-    let self.cache_links_in.data[a:file] = []
-  endif
-
+function! s:graph._refresh_cache_fast() abort dict " {{{1
   for l:file in wiki#u#uniq_unsorted(self._cache_updated)
     if !has_key(self.cache_links_in.data, l:file)
       let self.cache_links_in.data[l:file] = []

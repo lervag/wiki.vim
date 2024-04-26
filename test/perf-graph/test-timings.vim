@@ -44,12 +44,12 @@ let s:t1 = wiki#debug#time(s:t1, 'get_links_to (2nd)     ')
 call wiki#debug#profile_stop()
 
 call wiki#debug#profile_start('prof_fast.log')
-call s:graph._refresh_cache(#{file: s:file})
+call s:graph.refresh_cache(#{file: s:file})
 let s:t1 = wiki#debug#time(s:t1, '_refresh_fast          ')
 call wiki#debug#profile_stop()
 
 call wiki#debug#profile_start('prof_full.log')
-call s:graph._refresh_cache(#{file: s:file, force: v:true})
+call s:graph.refresh_cache(#{file: s:file, force: v:true})
 let s:t1 = wiki#debug#time(s:t1, '_refresh_full          ')
 call wiki#debug#profile_stop()
 

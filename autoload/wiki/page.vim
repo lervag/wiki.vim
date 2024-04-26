@@ -319,11 +319,11 @@ function! s:update_links_external(old, new) abort "{{{1
 
   " Update links
   let l:graph = wiki#graph#builder#get()
-  let l:all_links = l:graph.get_links_to(l:old.path, {'nudge': v:true})
+  let l:links = l:graph.get_links_to(l:old.path, {'nudge': v:true})
   if !empty(l:old.anchor)
-    call filter(l:all_links, { _, x -> x.anchor =~# '^' . l:old.anchor })
+    call filter(l:links, { _, x -> x.anchor =~# '^' . l:old.anchor })
   endif
-  let l:files_with_links = wiki#u#group_by(l:all_links, 'filename_from')
+  let l:files_with_links = wiki#u#group_by(l:links, 'filename_from')
 
   let l:replacement_patterns = !empty(l:new.path)
         \ ? s:get_replacement_patterns(l:old.path, l:new.path)
@@ -348,15 +348,9 @@ function! s:update_links_external(old, new) abort "{{{1
     endfor
 
     call writefile(l:lines, l:file, 's')
-    let l:graph._cache_updated += [l:file]
   endfor
 
-  " If we've just renamed a file: move graph nodes from old to new path.
-  " This is purely to help maintain the cache state.
-  if empty(l:old.anchor)
-    let l:graph.cache_links_in.data[l:new.path]
-          \ = remove(l:graph.cache_links_in.data, l:old.path)
-  endif
+  call l:graph.mark_tainted(l:old.path)
 
   " Refresh other wiki buffers
   for l:bufnr in l:wiki_bufnrs
@@ -369,7 +363,7 @@ function! s:update_links_external(old, new) abort "{{{1
 
   call wiki#log#info(
         \ printf('Updated %d links in %d files',
-        \ len(l:all_links), len(l:files_with_links)))
+        \ len(l:links), len(l:files_with_links)))
 endfunction
 
 " }}}1
