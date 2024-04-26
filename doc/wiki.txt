@@ -55,6 +55,8 @@ CONTENTS                                                        *wiki-contents*
   Advanced configuration guide               |wiki-advanced-configuration|
     Example 1: New scheme                    |wiki-advanced-config-1|
     Example 2: Adjust the wiki scheme        |wiki-advanced-config-2|
+    Example 3: Customize the select method   |wiki-advanced-config-3|
+    Example 4: Template matching             |wiki-advanced-config-4|
 
 ==============================================================================
 INTRODUCTION                                                       *wiki-intro*
@@ -1528,6 +1530,8 @@ a reference of all available options.
           \   'source_func': function('TemplateFallback')},
           \]
 <
+  See |wiki-advanced-config-4| for an example of matching file names and
+  directory structures.
 
   Default: `[]`
 
@@ -2236,6 +2240,9 @@ in |wiki-templates-format|.
 There is also a special kind of journal summary template. It is described in
 detail in |wiki-templates-journal-summaries|.
 
+See |wiki-advanced-config-4| for an example of how to match templates against
+file names and directory structures.
+
 Related settings:
 - |g:wiki_templates|
 
@@ -2456,8 +2463,33 @@ Example 3: Customize the `wiki` select method ~
                                                        *wiki-advanced-config-3*
 `wiki.vim` allows to customize the select method used for |WikiPage|,
 |WikiTags| and |WikiToc|. Built-in choices include Telescope, |vim.ui.select|,
-fzf.vim, and fzf-lua (see |g:wiki_select_method|). But you can use watever
+fzf.vim, and fzf-lua (see |g:wiki_select_method|). But you can use whatever
 fuzzy finder you want by creating the selection functions yourself. See e.g.
 `lua/wiki/fzf_lua.lua` for an example of how to do this.
+
+Example 4: Template matching ~
+                                                       *wiki-advanced-config-4*
+Templates are matched against new pages with |g:wiki_templates|. Matching file
+names and directory structures is done a bit differently. To match a file
+name, you can use a regular expression: >lua
+
+  vim.g.wiki_templates = {
+    {
+      match_re = [[\d\d\d\d-\d\d-\d\d]],
+      source_filename = "/home/USER/wiki/.templates/daily.md"
+    },
+  }
+
+To match a template for a new file in an ISO date-based directory structure,
+you might use a custom matcher function instead: >lua
+
+  vim.g.wiki_templates = {
+    {
+      match_func = function(context)
+        return context.path_wiki:find "%d%d%d%d/%d%d/%d%d"
+      end,
+      source_filename = "~/wiki/templates/daily.md"
+    },
+  }
 
  vim:tw=78:ts=8:ft=help:norl:fdm=marker:cole=2:
