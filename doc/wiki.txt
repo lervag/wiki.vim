@@ -2182,6 +2182,28 @@ One may expect it to have one or more of the following keys:
     url and link text. The text part can be of interest if one wants to use it
     as the title of a document.
 
+Matching file names and directory structures is done a bit differently. To
+match a file name, you can use regex (Lua for Neovim):
+
+  vim.g.wiki_templates = {
+    {
+      match_re = [[\d\d\d\d-\d\d-\d\d]],
+      source_filename = "/home/USER/wiki/.templates/daily.md"
+    },
+  },
+
+To match a template for a new file in an ISO date-based
+directory structure, you might use this (Lua for Neovim):
+
+  vim.g.wiki_templates = {
+    {
+      match_func = function(context)
+        return context.path_wiki:find "%d%d%d%d/%d%d/%d%d"
+      end,
+      source_filename = "~/wiki/templates/daily.md"
+    },
+  }
+
 ------------------------------------------------------------------------------
 TEMPLATE FILE FORMAT                                    *wiki-templates-format*
 
