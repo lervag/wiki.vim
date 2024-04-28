@@ -12,7 +12,7 @@ endfunction
 
 " }}}1
 function! wiki#u#command(cmd) abort " {{{1
-  return split(execute(a:cmd, 'silent!'), "\n")
+  return execute(a:cmd, 'silent!')->split("\n")
 endfunction
 
 " }}}1
@@ -56,7 +56,7 @@ endfunction
 function! wiki#u#extend_recursive(dict1, dict2, ...) abort " {{{1
   let l:option = a:0 > 0 ? a:1 : 'force'
   if index(['force', 'keep', 'error'], l:option) < 0
-    throw 'E475: Invalid argument: ' . l:option
+    throw 'E475: Invalid argument: ' .. l:option
   endif
 
   for [l:key, l:Value] in items(a:dict2)
@@ -65,7 +65,7 @@ function! wiki#u#extend_recursive(dict1, dict2, ...) abort " {{{1
     elseif type(l:Value) == type({})
       call wiki#u#extend_recursive(a:dict1[l:key], l:Value, l:option)
     elseif l:option ==# 'error'
-      throw 'E737: Key already exists: ' . l:key
+      throw 'E737: Key already exists: ' .. l:key
     elseif l:option ==# 'force'
       let a:dict1[l:key] = l:Value
     endif
@@ -108,9 +108,9 @@ function! wiki#u#in_syntax(name, ...) abort " {{{1
   call map(l:pos, 'max([v:val, 1])')
 
   " Check syntax at position
-  return match(map(synstack(l:pos[0], l:pos[1]),
-        \          "synIDattr(v:val, 'name')"),
-        \      '^' . a:name) >= 0
+  return synstack(l:pos[0], l:pos[1])
+        \ ->map("synIDattr(v:val, 'name')")
+        \ ->match('^' .. a:name) >= 0
 endfunction
 
 " }}}1
@@ -118,9 +118,9 @@ function! wiki#u#is_code(...) abort " {{{1
   let l:lnum = a:0 > 0 ? a:1 : line('.')
   let l:col = a:0 > 1 ? a:2 : col('.')
 
-  return match(map(synstack(l:lnum, l:col),
-          \        "synIDattr(v:val, 'name')"),
-          \    '^\%(wikiPre\|mkd\%(Code\|Snippet\)\|markdownCode\)') > -1
+  return synstack(l:lnum, l:col)
+        \ ->map("synIDattr(v:val, 'name')")
+        \ ->match('^\%(wikiPre\|mkd\%(Code\|Snippet\)\|markdownCode\)') >= 0
 endfunction
 
 " }}}1
@@ -168,8 +168,8 @@ function! wiki#u#group_by(list_of_dicts, key) abort " {{{1
   if type(a:list_of_dicts) !=# v:t_list | return {} | endif
 
   let l:result = {}
-  for l:dict in filter(
-        \ deepcopy(a:list_of_dicts),
+  for l:dict in deepcopy(a:list_of_dicts)
+        \ ->filter(
         \ { _, x -> type(x) ==# v:t_dict && has_key(x, a:key) }
         \)
     let l:value = remove(l:dict, a:key)
@@ -188,8 +188,8 @@ function! wiki#u#associate_by(list_of_dicts, key) abort " {{{1
   if type(a:list_of_dicts) !=# v:t_list | return {} | endif
 
   let l:result = {}
-  for l:dict in filter(
-        \ deepcopy(a:list_of_dicts),
+  for l:dict in deepcopy(a:list_of_dicts)
+        \ ->filter(
         \ { _, x -> type(x) ==# v:t_dict && has_key(x, a:key) }
         \)
     let l:result[remove(l:dict, a:key)] = l:dict
