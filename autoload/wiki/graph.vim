@@ -215,7 +215,7 @@ function! wiki#graph#show_related() abort "{{{1
       return self.close()
     endif
 
-    let l:url = wiki#u#trim(l:name)
+    let l:url = trim(l:name)
     if !empty(l:url)
       call wiki#url#follow(l:url)
       if a:continue_in_graph

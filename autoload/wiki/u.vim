@@ -147,16 +147,6 @@ function! wiki#u#is_code_by_string(line, in_code) abort " {{{1
   return [v:false, v:false]
 endfunction
 
-function! wiki#u#trim(str) abort " {{{1
-  if exists('*trim') | return trim(a:str) | endif
-
-  let l:str = substitute(a:str, '^\s*', '', '')
-  let l:str = substitute(l:str, '\s*$', '', '')
-
-  return l:str
-endfunction
-
-" }}}1
 function! wiki#u#uniq_unsorted(list) abort " {{{1
   if len(a:list) <= 1 | return a:list | endif
 

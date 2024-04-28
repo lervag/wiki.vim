@@ -352,7 +352,7 @@ function! wiki#link#transform_visual() abort " {{{1
   let l:c1 = getpos("'<")[2]
   let l:c2 = wiki#u#cnum_to_byte(getpos("'>")[2])
   let l:link = wiki#link#class#new(g:wiki#link#definitions#word, {
-        \ 'content': wiki#u#trim(getreg('w')),
+        \ 'content': trim(getreg('w')),
         \ 'origin': expand('%:p'),
         \ 'pos_start': [l:lnum, l:c1],
         \ 'pos_end': [l:lnum, l:c2],
