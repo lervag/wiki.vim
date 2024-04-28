@@ -431,8 +431,8 @@ function! s:export(start, end, cfg) abort " {{{1
   let l:cmd = printf('pandoc %s -f %s -o %s %s',
         \ a:cfg.args,
         \ a:cfg.from_format,
-        \ shellescape(a:cfg.fname),
-        \ shellescape(l:fwiki))
+        \ wiki#u#shellescape(a:cfg.fname),
+        \ wiki#u#shellescape(l:fwiki))
 
   " Execute pandoc command
   call wiki#paths#pushd(fnamemodify(l:fwiki, ':h'))

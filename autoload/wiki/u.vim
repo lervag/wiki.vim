@@ -147,6 +147,25 @@ function! wiki#u#is_code_by_string(line, in_code) abort " {{{1
   return [v:false, v:false]
 endfunction
 
+function! wiki#u#shellescape(string) abort " {{{1
+  "
+  " Path used in "cmd" only needs to be enclosed by double quotes.
+  " shellescape() on Windows with "shellslash" set will produce a path
+  " enclosed by single quotes, which "cmd" does not recognize and reports an
+  " error.
+  "
+  if has('win32')
+    let l:shellslash = &shellslash
+    set noshellslash
+    let l:cmd = escape(shellescape(a:cmd), '\')
+    let &shellslash = l:shellslash
+    return l:cmd
+  endif
+
+  return escape(shellescape(a:cmd), '\')
+endfunction
+
+" }}}1
 function! wiki#u#uniq_unsorted(list) abort " {{{1
   if len(a:list) <= 1 | return a:list | endif
 

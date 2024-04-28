@@ -19,7 +19,7 @@ endfunction
 
 " }}}1
 function! wiki#url#handlers#doi(resolved, ...) abort " {{{1
-  let a:resolved.url = 'http://dx.doi.org/' . a:resolved.stripped
+  let a:resolved.url = 'http://dx.doi.org/' .. a:resolved.stripped
   let a:resolved.scheme = 'http'
   let a:resolved.stripped = strpart(a:resolved.url, 5)
 
@@ -32,7 +32,8 @@ function! wiki#url#handlers#file(resolved, ...) abort " {{{1
   if l:cmd ==# ':edit'
     silent execute 'edit' fnameescape(a:resolved.path)
   else
-    call wiki#jobs#run(l:cmd . ' ' . shellescape(a:resolved.path) . '&')
+    call wiki#jobs#run(
+          \ l:cmd .. ' ' .. wiki#u#shellescape(a:resolved.path) .. '&')
   endif
 endfunction
 
@@ -45,7 +46,7 @@ function! wiki#url#handlers#generic(resolved, ...) abort " {{{1
   endtry
 
   call wiki#jobs#run(
-        \ g:wiki_viewer['_'] . ' ' . shellescape(a:resolved.url) . '&')
+        \ g:wiki_viewer._ .. ' ' .. wiki#u#shellescape(a:resolved.url) .. '&')
 endfunction
 
 " }}}1
@@ -65,7 +66,7 @@ function! wiki#url#handlers#vimdoc(resolved, ...) abort " {{{1
     execute 'help' a:resolved.stripped
     execute winnr('#') 'hide'
   catch
-    call wiki#log#warn('can''t find vimdoc page "' . a:resolved.stripped . '"')
+    call wiki#log#warn("can't find vimdoc page: " .. a:resolved.stripped)
   endtry
 endfunction
 
@@ -89,7 +90,7 @@ function! wiki#url#handlers#zot(resolved, ...) abort " {{{1
 
   if len(l:files) > 0
     let l:choice = wiki#ui#select(
-          \ ['Follow in Zotero: ' . a:resolved.stripped]
+          \ ['Follow in Zotero: ' .. a:resolved.stripped]
           \   + map(copy(l:files), 's:menu_open_pdf(v:val)'),
           \ {
           \   'prompt': 'Please select desired action:',
@@ -102,7 +103,7 @@ function! wiki#url#handlers#zot(resolved, ...) abort " {{{1
     if l:choice > 0
       let l:file = l:files[l:choice-1]
       let l:viewer = get(g:wiki_viewer, 'pdf', g:wiki_viewer._)
-      call wiki#jobs#start(l:viewer . ' ' . shellescape(l:file))
+      call wiki#jobs#start(l:viewer .. ' ' .. wiki#u#shellescape(l:file))
       return
     endif
   endif
@@ -118,7 +119,7 @@ function! wiki#url#handlers#bdsk(resolved, ...) abort " {{{1
         \ ? wiki#url#utils#url_encode(a:resolved.stripped)
         \ : a:resolved.stripped
 
-  let a:resolved.url = 'x-bdsk://' . l:encoded_url
+  let a:resolved.url = 'x-bdsk://' .. l:encoded_url
   let a:resolved.scheme = 'x-bdsk'
 
   return wiki#url#handlers#generic(a:resolved)
@@ -135,10 +136,10 @@ function! s:menu_open_pdf(val) abort " {{{1
   if l:strlen > l:width
     let l:pre = strcharpart(l:filename, 0, l:width/2 - 3)
     let l:post = strcharpart(l:filename, l:strlen - l:width/2 + 3)
-    let l:filename = l:pre . ' ... ' . l:post
+    let l:filename = l:pre .. ' ... ' .. l:post
   endif
 
-  return 'Open PDF: ' . l:filename
+  return 'Open PDF: ' .. l:filename
 endfunction
 
 " }}}1
