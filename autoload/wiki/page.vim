@@ -20,7 +20,7 @@ function! wiki#page#open(...) abort "{{{1
     endtry
   endif
 
-  call wiki#url#follow('/' . l:page)
+  call wiki#url#follow('/' .. l:page)
 endfunction
 
 "}}}1
@@ -65,7 +65,7 @@ function! wiki#page#rename(...) abort "{{{1
     return wiki#log#error(
           \ 'The dir_mode option for wiki#page#rename must be one of',
           \ '"abort", "ask", or "create"!',
-          \ 'Recieved: ' . l:opts.dir_mode,
+          \ 'Recieved: ' .. l:opts.dir_mode,
           \)
   end
 
@@ -84,7 +84,7 @@ function! wiki#page#rename(...) abort "{{{1
   let l:source = #{ path: expand('%:p') }
   if !filereadable(l:source.path)
     return wiki#log#error(
-          \ 'Cannot rename "' . l:source.path . '".',
+          \ 'Cannot rename "' .. l:source.path .. '".',
           \ 'It does not exist! (New file? Save it before renaming.)'
           \)
   endif
@@ -95,7 +95,7 @@ function! wiki#page#rename(...) abort "{{{1
         \ expand('%:p:h'), l:opts.new_name, b:wiki.extension))
   if filereadable(l:target.path)
     return wiki#log#error(
-          \ 'Cannot rename to "' . l:target.path . '".',
+          \ 'Cannot rename to "' .. l:target.path .. '".',
           \ 'File with that name exist!'
           \)
   endif
@@ -105,7 +105,7 @@ function! wiki#page#rename(...) abort "{{{1
   if !isdirectory(l:target_dir)
     if l:opts.dir_mode ==# 'abort'
       call wiki#log#warn(
-            \ 'Directory "' . l:target_dir . '" does not exist. Aborting.')
+            \ 'Directory "' .. l:target_dir .. '" does not exist. Aborting.')
       return
     elseif l:opts.dir_mode ==# 'ask'
       if !wiki#ui#confirm([
@@ -116,7 +116,7 @@ function! wiki#page#rename(...) abort "{{{1
       endif
     end
 
-    call wiki#log#info('Creating directory "' . l:target_dir . '".')
+    call wiki#log#info('Creating directory "' .. l:target_dir .. '".')
     call mkdir(l:target_dir, 'p')
   endif
 
@@ -189,7 +189,7 @@ function! wiki#page#export(line1, line2, ...) abort " {{{1
       let l:cfg.fname = expand(simplify(l:arg))
     else
       return wiki#log#error(
-            \ 'WikiExport argument "' . l:arg . '" not recognized',
+            \ 'WikiExport argument "' .. l:arg .. '" not recognized',
             \ 'Please see :help WikiExport'
             \)
     endif
@@ -197,7 +197,7 @@ function! wiki#page#export(line1, line2, ...) abort " {{{1
 
   " Ensure output directory is an absolute path
   if !wiki#paths#is_abs(l:cfg.output)
-    let l:cfg.output = wiki#get_root() . '/' . l:cfg.output
+    let l:cfg.output = wiki#get_root() .. '/' .. l:cfg.output
   endif
 
   " Ensure output directory exists
@@ -223,7 +223,7 @@ function! wiki#page#export(line1, line2, ...) abort " {{{1
 
   " Generate the output file
   call s:export(a:line1, a:line2, l:cfg)
-  call wiki#log#info('Page was exported to ' . l:cfg.fname)
+  call wiki#log#info('Page was exported to ' .. l:cfg.fname)
 
   if l:cfg.view
     call call(has('nvim') ? 'jobstart' : 'job_start',
@@ -239,7 +239,7 @@ function! wiki#page#get_all() abort " {{{1
   "   first element:  absolute path
   "   second element: relative path to wiki root
 
-  let l:root = wiki#get_root() . s:slash
+  let l:root = wiki#get_root() .. s:slash
 
   " Note: It may be tempting to do a globpath() with a single pattern
   "       `**/*.{ext1,ext2,...}`, but this is not portable. On at least some
@@ -247,15 +247,15 @@ function! wiki#page#get_all() abort " {{{1
   "       `**` globbing and turns the latter into a non-recursive `*`.
   let l:pages = []
   for l:extension in g:wiki_filetypes
-    let l:pages += globpath(l:root, '**/*.' . l:extension, v:false, v:true)
+    let l:pages += globpath(l:root, '**/*.' .. l:extension, v:false, v:true)
   endfor
 
   " Enrich the results with paths from wiki root and up
   call map(l:pages, {_, x ->
         \ [
         \   x,
-        \   '/' . fnamemodify(
-        \     substitute(x, '\V' . escape(l:root, '\'), '', ''), ':r')
+        \   '/' .. fnamemodify(
+        \     substitute(x, '\V' .. escape(l:root, '\'), '', ''), ':r')
         \ ]
         \})
 
@@ -321,7 +321,7 @@ function! s:update_links_external(old, new) abort "{{{1
   let l:graph = wiki#graph#builder#get()
   let l:links = l:graph.get_links_to(l:old.path, {'nudge': v:true})
   if !empty(l:old.anchor)
-    call filter(l:links, { _, x -> x.anchor =~# '^' . l:old.anchor })
+    call filter(l:links, { _, x -> x.anchor =~# '^' .. l:old.anchor })
   endif
   let l:files_with_links = wiki#u#group_by(l:links, 'filename_from')
 
@@ -385,7 +385,7 @@ function! s:get_replacement_patterns(path_old, path_new) abort " {{{1
     call remove(l:new_subdirs, 0)
   endwhile
   if !empty(l:subdirs)
-    let l:root .= '/' . join(l:subdirs, '/')
+    let l:root .= '/' .. join(l:subdirs, '/')
     let l:url_pairs += [[
           \ wiki#paths#to_wiki_url(a:path_old, l:root),
           \ wiki#paths#to_wiki_url(a:path_new, l:root)
@@ -395,14 +395,14 @@ function! s:get_replacement_patterns(path_old, path_new) abort " {{{1
   " Create pattern to match relevant old link urls
   let l:replacement_patterns = []
   for [l:url_old, l:url_new] in l:url_pairs
-    let l:re_url_old = '(\.\/|\/)?\zs' . escape(l:url_old, '.')
-    let l:pattern = '\v' . join([
-          \ '\[\[' . l:re_url_old . '\ze%(#.*)?%(\|.*)?\]\]',
-          \ '\[\[' . l:re_url_old . '\ze%(#.*)?\]\[.*\]\]',
-          \ '\[.*\]\(' . l:re_url_old . '\ze%(#.*)?\)',
-          \ '\[.*\]\[' . l:re_url_old . '\ze%(#.*)?\]',
-          \ '\[' . l:re_url_old . '\ze%(#.*)?\]\[\]',
-          \ '\<\<' . l:re_url_old . '\ze#,[^>]{-}\>\>',
+    let l:re_url_old = '(\.\/|\/)?\zs' .. escape(l:url_old, '.')
+    let l:pattern = '\v' .. join([
+          \ '\[\[' .. l:re_url_old .. '\ze%(#.*)?%(\|.*)?\]\]',
+          \ '\[\[' .. l:re_url_old .. '\ze%(#.*)?\]\[.*\]\]',
+          \ '\[.*\]\(' .. l:re_url_old .. '\ze%(#.*)?\)',
+          \ '\[.*\]\[' .. l:re_url_old .. '\ze%(#.*)?\]',
+          \ '\[' .. l:re_url_old .. '\ze%(#.*)?\]\[\]',
+          \ '\<\<' .. l:re_url_old .. '\ze#,[^>]{-}\>\>',
           \], '|')
     let l:replacement_patterns += [[l:pattern, l:url_new]]
   endfor
@@ -413,7 +413,7 @@ endfunction
 " }}}1
 
 function! s:export(start, end, cfg) abort " {{{1
-  let l:fwiki = expand('%:p') . '.tmp'
+  let l:fwiki = expand('%:p') .. '.tmp'
 
   " Parse wiki page content
   let l:lines = getline(a:start, a:end)
@@ -459,18 +459,18 @@ function! s:convert_links_to_html(lines) abort " {{{1
 
   if l:creator.link_type ==# 'md'
     let l:rx = '\[\([^\\\[\]]\{-}\)\]'
-          \ . '(\([^\(\)\\]\{-}\)' . l:creator.url_extension
-          \ . '\(#[^#\(\)\\]\{-}\)\{-})'
+          \ .. '(\([^\(\)\\]\{-}\)' .. l:creator.url_extension
+          \ .. '\(#[^#\(\)\\]\{-}\)\{-})'
     let l:sub = '[\1](\2.html\3)'
   elseif l:creator.link_type ==# 'wiki'
-    let l:rx = '\[\[\([^\\\[\]]\{-}\)' . l:creator.url_extension
-          \ . '\(#[^#\\\[\]]\{-}\)'
-          \ . '|\([^\[\]\\]\{-}\)\]\]'
+    let l:rx = '\[\[\([^\\\[\]]\{-}\)' .. l:creator.url_extension
+          \ .. '\(#[^#\\\[\]]\{-}\)'
+          \ .. '|\([^\[\]\\]\{-}\)\]\]'
     let l:sub = '\[\[\1.html\2|\3\]\]'
   elseif l:creator.link_type ==# 'org'
-    let l:rx = '\[\[\([^\\\[\]]\{-}\)' . l:creator.url_extension
-          \ . '\(#[^#\\\[\]]\{-}\)'
-          \ . '\]\[\([^\[\]\\]\{-}\)\]\]'
+    let l:rx = '\[\[\([^\\\[\]]\{-}\)' .. l:creator.url_extension
+          \ .. '\(#[^#\\\[\]]\{-}\)'
+          \ .. '\]\[\([^\[\]\\]\{-}\)\]\]'
     let l:sub = '\[\[\1.html\2|\3\]\]'
   else
     return wiki#log#error(
@@ -479,7 +479,7 @@ function! s:convert_links_to_html(lines) abort " {{{1
           \)
   endif
 
-  call map(a:lines, 'substitute(v:val, l:rx, l:sub, ''g'')')
+  call map(a:lines, {_, x -> substitute(x, l:rx, l:sub, 'g') })
 endfunction
 
 " }}}1
