@@ -157,12 +157,12 @@ function! wiki#u#shellescape(string) abort " {{{1
   if has('win32')
     let l:shellslash = &shellslash
     set noshellslash
-    let l:cmd = escape(shellescape(a:string), '\')
+    let l:cmd = shellescape(a:string)
     let &shellslash = l:shellslash
     return l:cmd
   endif
 
-  return escape(shellescape(a:string), '\')
+  return shellescape(a:string)
 endfunction
 
 " }}}1
