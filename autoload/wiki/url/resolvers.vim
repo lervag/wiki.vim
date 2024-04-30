@@ -78,7 +78,7 @@ endfunction
 function! wiki#url#resolvers#man(url) abort " {{{1
   let l:url = deepcopy(a:url)
 
-  let l:url.path = 'man://' . matchstr(l:url.url, 'man:\(\/\/\)\?\zs[^-]*')
+  let l:url.path = 'man://' . matchstr(l:url.url, 'man:\(\/\/\)\?\zs[^ (]*')
 
   let l:section = matchstr(l:url.url, '-\zs\d$')
   if !empty(l:section)
