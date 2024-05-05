@@ -163,6 +163,39 @@ function! wiki#page#rename_section(...) abort "{{{1
 endfunction
 
 " }}}1
+function! wiki#page#refile(...) abort "{{{1
+  let l:opts = extend(#{
+        \ target_page: '',
+        \ target_lnum: 0,
+        \}, a:0 > 0 ? a:1 : {})
+
+  " target_page could be given by user input with something like this:
+  " let l:opts.target_page = input('> ', '', 'customlist,wiki#complete#url')
+
+  let l:source = wiki#page#refile#collect_source(l:opts)
+  if empty(l:source)
+    return wiki#log#error('No source section recognized!')
+  endif
+
+  try
+    let l:target = wiki#page#refile#collect_target(l:opts, l:source)
+  catch /wiki.vim: target page not found/
+    return wiki#log#error('Target page was not found!')
+  catch /wiki.vim: anchor not recognized/
+    return wiki#log#error('Target anchor not recognized!')
+  endtry
+
+  call wiki#log#info(
+        \ printf('Moving section "%s" into "%s"',
+        \ l:source.header, wiki#paths#to_node(l:target.path)))
+
+  call wiki#page#refile#move(l:source, l:target)
+
+  call s:update_links_local(l:source, l:target)
+  call s:update_links_external(l:source, l:target)
+endfunction
+
+" }}}1
 function! wiki#page#export(line1, line2, ...) abort " {{{1
   let l:cfg = deepcopy(g:wiki_export)
   let l:cfg.fname = ''
@@ -287,14 +320,20 @@ endfunction
 " }}}1
 function! s:update_links_local(old, new) abort "{{{1
   " Arguments:
-  "   old: dict(anchor)
-  "   new: dict(anchor)
+  "   old: dict(anchor, path?)
+  "   new: dict(anchor, path?)
   let l:pos = getcurpos()
+
+  let l:anchor = !has_key(a:old, 'path') || a:old.path ==# a:new.path
+        \ ? a:new.anchor
+        \ : wiki#paths#to_wiki_url(a:new.path) . a:new.anchor
+
   keeppattern keepjumps execute printf('%%s/\V%s/%s/e%s',
         \ a:old.anchor,
-        \ a:new.anchor,
+        \ l:anchor,
         \ &gdefault ? '' : 'g')
   silent update
+
   call cursor(l:pos[1:])
 endfunction
 
