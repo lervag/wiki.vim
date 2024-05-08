@@ -409,6 +409,11 @@ journal or diary in `wiki.vim`: >vim
           \ :<c-u>call wiki#journal#open()<cr>
   augroup END
 
+link.vim ~
+https://github.com/qadzek/link.vim
+A plugin for managing long URLs. It converts inline Markdown links to
+reference-style links, to keep them out of your way.
+
 ------------------------------------------------------------------------------
 ALTERNATIVES                                          *wiki-intro-alternatives*
 
