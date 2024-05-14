@@ -151,7 +151,8 @@ function! wiki#date#strptime(format, timestring) abort " {{{1
 
   if !has_key(l:dd, 'month') | return 0 | endif
 
-  let l:date = printf('%s-%s-%s', l:dd.year, l:dd.month, get(l:dd, 'day', 1))
+  let l:date = printf(
+        \ '%s-%02d-%02d', l:dd.year, l:dd.month, get(l:dd, 'day', 1))
   return wiki#date#strptime#isodate(l:date)
 endfunction
 
