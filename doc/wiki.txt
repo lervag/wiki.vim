@@ -1258,7 +1258,7 @@ a reference of all available options.
         \}
 <
   This example maps `,wx` to |<plug>(wiki-reload)|. The other maps are kept at
-  their default (unless |g:wiki_mappings_use_default| specifies otherwise).
+  their default (unless |g:wiki_mappings_use_defaults| specifies otherwise).
   All default mappings are listed in |wiki-mappings-default|.
 
   Some mappings are defined in other modes than normal mode. In this
