@@ -1652,12 +1652,13 @@ for more information about the different modes. The lines annotated with
   `n`     <leader>wf          |<plug>(wiki-link-transform)|
   `n`     <leader>wd          |<plug>(wiki-page-delete)|
   `n`     <leader>wr          |<plug>(wiki-page-rename)|
-  `n`     <leader>wt          |<plug>(wiki-page-toc)|
-  `n`     <leader>wT          |<plug>(wiki-page-toc-local)|
+  `n`     <leader>wt          |<plug>(wiki-toc-generate)|
+  `n`     <leader>wT          |<plug>(wiki-toc-generate-local)|
   `n`     <leader>wp          |<plug>(wiki-export)|
   `x`     <leader>wp          |<plug>(wiki-export)|
   `n`     <leader>wll         |<plug>(wiki-link-show)|
   `n`     <leader>wlh         |<plug>(wiki-link-extract-header)|
+  `x`     <leader>wlh         |<plug>(wiki-link-extract-header)|
   `n`     <leader>wli         |<plug>(wiki-link-incoming-toggle)|
   `n`     <leader>wlI         |<plug>(wiki-link-incoming-hover)|
   `n`     <leader>wsl         |<plug>(wiki-tag-list)|
