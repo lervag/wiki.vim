@@ -80,7 +80,7 @@ Please also read the `Guide` section in the [documentation](doc/wiki.txt).
     - `it at` Link text
   - New page templates
 - Support for journal entries
-  - Navigating the journal back and forth with `<c-j>` and `<c-k>`
+  - Navigating the journal back and forth with `<c-p>` and `<c-n>`
   - Support for parsing journal entries in order to make weekly and monthly
     summaries. The parsed result needs manual editing for good results.
 - Utility functionality
