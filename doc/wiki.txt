@@ -299,7 +299,7 @@ and combine these summaries.
 
 I reserve my journal for work-related activities. This includes minutes of
 meetings or notes from events and courses. However, I don't use my journal to
-log mundane tasks or other temporal acitivities. Instead, I keep a log of such
+log mundane tasks or other temporal activities. Instead, I keep a log of such
 things in a related wiki page. For instance, I have a wiki page for my house
 where I keep a log of repairs and similar.
 
@@ -309,11 +309,11 @@ I put TODOs that are not for the present week.
 
 This way, my journal serves as a task tracker where I write quick comments
 about tasks when I work on them. I generally avoid adding "real" information
-content to my journal. a journal entry. Instead, I create links to my main
-wiki and put valuable content there. This way, if I work on something, then
-work on it again after a long break, the content is readily available when
-I get back to it. In some cases, I do link from my wiki to a specific journal
-entry - for instance when I refer to meeting notes.
+content to my journal. Instead, I create links to my main wiki and put
+valuable content there. This way, if I work on something, then work on it
+again after a long break, the content is readily available when I get back to
+it. In some cases, I do link from my wiki to a specific journal entry - for
+instance when I refer to meeting notes.
 
 If I'm curious about what I did at a particular date, I use calendar.vim [9]
 to find the date and open the corresponding entry (see [10, 11] for my related
