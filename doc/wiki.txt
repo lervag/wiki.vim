@@ -1246,6 +1246,12 @@ a reference of all available options.
 
   Default: `'all'`
 
+*g:wiki_mappings_prefix*
+  The common mapping prefix. If you don't like the default `<leader>w`, you
+  can change it with this option.
+
+  Default: `'<leader>w'`
+
 *g:wiki_mappings_global*
 *g:wiki_mappings_local*
 *g:wiki_mappings_local_journal*
@@ -1626,6 +1632,7 @@ description of each mapping. The default mappings can be changed with the
 following configuration options:
 
 - |g:wiki_mappings_use_defaults|
+- |g:wiki_mappings_prefix|
 - |g:wiki_mappings_global|
 - |g:wiki_mappings_local|
 - |g:wiki_mappings_local_journal|
@@ -1635,6 +1642,9 @@ which mode the mapping is valid in. See e.g. |nmap|, |imap|, |omap| or |xmap|
 for more information about the different modes. The lines annotated with
 `[GLOBAL]` specify global mappings available anywhere, and the lines annotated
 `[JOURNAL]` are only available within the journal.
+
+Note: In the below list, the default prefix of `<leader>w` is assumed. It can
+      easily be changed with |g:wiki_mappings_prefix|.
 
 Note: For those who want to adjust the mappings, it may be useful to know that
       the default maps are available in a dictionary format compatible with

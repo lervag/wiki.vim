@@ -88,6 +88,7 @@ call wiki#init#option('wiki_link_transforms', {
       \ 'url': 'wiki#link#templates#md',
       \})
 call wiki#init#option('wiki_mappings_use_defaults', 'all')
+call wiki#init#option('wiki_mappings_prefix', '<leader>w')
 call wiki#init#option('wiki_template_month_names', [
       \ 'January', 'February', 'March', 'April', 'May', 'June', 'July',
       \ 'August', 'September', 'October', 'November', 'December'
@@ -163,10 +164,10 @@ nnoremap <silent> <plug>(wiki-tags)      :WikiTags<cr>
 " Apply default mappings
 let s:mappings = index(['all', 'global'], g:wiki_mappings_use_defaults) >= 0
       \ ? {
-      \ '<plug>(wiki-index)': '<leader>ww',
-      \ '<plug>(wiki-open)': '<leader>wn',
-      \ '<plug>(wiki-journal)': '<leader>w<leader>w',
-      \ '<plug>(wiki-reload)': '<leader>wx',
+      \ '<plug>(wiki-index)': '<wiki-prefix>w',
+      \ '<plug>(wiki-open)': '<wiki-prefix>n',
+      \ '<plug>(wiki-journal)': '<wiki-prefix><wiki-prefix>',
+      \ '<plug>(wiki-reload)': '<wiki-prefix>x',
       \} : {}
 call extend(s:mappings, get(g:, 'wiki_mappings_global', {}))
 call wiki#init#apply_mappings_from_dict(s:mappings, '')
