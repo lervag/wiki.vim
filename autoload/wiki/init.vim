@@ -20,7 +20,7 @@ endfunction
 function! wiki#init#apply_mappings_from_dict(dict, arg) abort " {{{1
   for [l:rhs, l:lhs] in items(a:dict)
     if empty(l:lhs) | continue | endif
-    let l:lhs = substite(l:lhs, '<wiki-prefix>', g:wiki_mappings_prefix, 'g')
+    let l:lhs = substitute(l:lhs, '<wiki-prefix>', g:wiki_mappings_prefix, 'g')
 
     if l:rhs[0] !=# '<'
       let l:mode = l:rhs[0]
