@@ -106,12 +106,24 @@ function! wiki#journal#make_index() " {{{1
   endif
 
   " Put the index into buffer
-  for l:year in sort(keys(l:grouped_nodes))
-    let l:month_dict = l:grouped_nodes[l:year]
+  let l:years = sort(keys(l:grouped_nodes))
+  if g:wiki_journal_index.reverse
+    let l:years = reverse(l:years)
+  endif
+  for l:year in l:years
     put ='# ' . l:year
     put =''
-    for l:month in sort(keys(l:month_dict))
+
+    let l:month_dict = l:grouped_nodes[l:year]
+    let l:months = sort(keys(l:month_dict))
+    if g:wiki_journal_index.reverse
+      let l:months = reverse(l:months)
+    endif
+    for l:month in l:months
       let l:nodes = l:month_dict[l:month]
+      if g:wiki_journal_index.reverse
+        let l:nodes = reverse(l:nodes)
+      endif
       let l:mname = wiki#date#get_month_name(l:month)
       let l:mname = toupper(strcharpart(l:mname, 0, 1)) . strcharpart(l:mname, 1)
       put ='## ' . l:mname

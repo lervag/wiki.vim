@@ -980,6 +980,10 @@ a reference of all available options.
   A dictionary for configuring the behaviour of |WikiJournalIndex|. Available
   options are:
 
+    reverse ~
+      Default: |v:false|
+      Whether to print the index in reverse chronological order.
+
     link_text_parser ~
       Specify parser function for the link texts. This is a function
       (|Funcref|) or a |lambda| that takes three arguments and must return the
@@ -1036,6 +1040,7 @@ a reference of all available options.
   Default: >vim
 
     let g:wiki_journal_index = {
+          \ 'reverse': v:false,
           \ 'link_text_parser': { b, d, p -> d },
           \ 'link_url_parser': { b, d, p -> 'journal:' . d }
           \}
