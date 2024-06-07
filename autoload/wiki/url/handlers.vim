@@ -61,10 +61,18 @@ function! wiki#url#handlers#refbad(resolved, ...) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#url#handlers#vimdoc(resolved, ...) abort " {{{1
+function! wiki#url#handlers#vimdoc(resolved, edit_cmd) abort " {{{1
   try
-    execute 'help' a:resolved.stripped
-    execute winnr('#') 'hide'
+    if a:edit_cmd ==# 'edit'
+      execute 'help' a:resolved.stripped
+      execute winnr('#') 'hide'
+    elseif a:edit_cmd ==# 'tabedit'
+      execute 'tab help' a:resolved.stripped
+    elseif a:edit_cmd =~# '^vert'
+      execute 'vert help' a:resolved.stripped
+    else
+      execute 'help' a:resolved.stripped
+    endif
   catch
     call wiki#log#warn("can't find vimdoc page: " .. a:resolved.stripped)
   endtry
