@@ -87,8 +87,8 @@ function! s:template_apply(t, ctx) abort " {{{1
       let l:value = ''
     endtry
 
-    let l:pre = l:lines[:l:c1-1]
-    let l:post = l:lines[l:c2:]
+    let l:pre = strpart(l:lines, 0, l:c1)
+    let l:post = strpart(l:lines, l:c2)
     let l:lines = l:pre . l:value . l:post
 
     let [l:match, l:c1, l:c2] = matchstrpos(
