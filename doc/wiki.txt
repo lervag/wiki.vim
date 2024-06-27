@@ -1960,8 +1960,8 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
     in-browser wiki navigation, but for it to work well, it requires that:
 
       1. `-ext` is set to `html`, and
-      2. |g:wiki_link_creation| should have a `url_transform` that appends
-         the extension.
+      2. |g:wiki_link_creation| should have an entry with the key `html`,
+         which contains the option `url_extension` with the value `.html`.
 
   -output ~
     Set output directory where the exported file is stored. Relative paths are
