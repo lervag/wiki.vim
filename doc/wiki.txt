@@ -1958,10 +1958,7 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
   -link_ext_replace ~
     Set to true to replace in-wiki link extensions with html. This enables
     in-browser wiki navigation, but for it to work well, it requires that:
-
-      1. `-ext` is set to `html`, and
-      2. |g:wiki_link_creation| should have a `url_transform` that appends
-         the extension.
+    `-ext` is set to `html`.
 
   -output ~
     Set output directory where the exported file is stored. Relative paths are
