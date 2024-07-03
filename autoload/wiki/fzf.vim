@@ -37,12 +37,12 @@ function! wiki#fzf#tags() abort "{{{1
   let l:results = []
   for [l:key, l:val] in items(l:tags)
     for [l:file, l:lnum] in l:val
-      let l:results += [l:key . ': ' . l:file . ':' . l:lnum]
+      let l:results += [l:key . '### ' . l:file . '###' . l:lnum]
     endfor
   endfor
 
   let l:fzf_opts = join([
-        \ '-d": |:\d+$" ',
+        \ '-d"### |###\d+$" ',
         \ '--expect=ctrl-l --prompt "WikiTags> " ',
         \ g:wiki_fzf_tags_opts,
         \])
@@ -124,7 +124,7 @@ endfunction
 " }}}1
 function! s:accept_tag(input) abort "{{{1
   let l:key = a:input[0]
-  let [l:tag, l:file, l:lnum] = split(a:input[1], ':')
+  let [l:tag, l:file, l:lnum] = split(a:input[1], '###')
 
   if l:key =~# 'ctrl-l'
     let l:locations = copy(wiki#tags#get_all()[l:tag])
