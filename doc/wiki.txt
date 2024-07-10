@@ -1487,10 +1487,6 @@ a reference of all available options.
           \   'source_func': function('TemplateFallback')},
           \]
 <
-  Notice that in the second template, the `;` is appended to the source
-  filename. This means the template file is first searched for in the current
-  directory of the new page, then in the parent directory, and so on. If the
-  template file is not found, then the next template will be tried.
 
   Default: `[]`
 
