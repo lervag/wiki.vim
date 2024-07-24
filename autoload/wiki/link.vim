@@ -150,6 +150,16 @@ function! wiki#link#add(path, ...) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#link#remove() abort " {{{1
+  let l:link = wiki#link#get()
+  if empty(l:link) | return | endif
+
+  call l:link.replace(
+        \ empty(l:link.text) ? l:link.url_raw : l:link.text
+        \)
+endfunction
+
+" }}}1
 
 function! wiki#link#get_creator(...) abort " {{{1
   let l:ft = expand('%:e')

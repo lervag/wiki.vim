@@ -1685,6 +1685,7 @@ Note: For those who want to adjust the mappings, it may be useful to know that
   `n`     <leader>wss         |<plug>(wiki-tag-search)|
   `n`     <leader>wa          |<plug>(wiki-link-add)|
   `i`     <c-q>               |<plug>(wiki-link-add)|
+  `n`     <leader>wlr         |<plug>(wiki-link-remove)|
   `n`     <tab>               |<plug>(wiki-link-next)|
   `n`     <s-tab>             |<plug>(wiki-link-prev)|
   `n`     <cr>                |<plug>(wiki-link-follow)|
@@ -1772,6 +1773,18 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
   Show links in to or out of the current page. A count may be given to show
   a specified depth of links. Notice that a large count can take a while if
   you have a large wiki.
+
+*<plug>(wiki-link-remove)*
+*WikiLinkRemove*
+  Remove the link under the cursor. This behaves as described in the following
+  table:
+
+    Original link              Result after operation ~
+    -------------              ---------------------- ~
+    This is [a link](url)      This is a link
+    This is [[url|a link]]     This is a link
+    This is a [](url)          This is a url
+    This is a [[url]]          This is a url
 
 *<plug>(wiki-link-add)*
 *WikiLinkAdd*
