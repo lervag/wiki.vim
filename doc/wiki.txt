@@ -2032,12 +2032,15 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
       options).
 
 *<plug>(wiki-au)*
+  Text object that matches an entire link object.
+
 *<plug>(wiki-iu)*
-  Text object for link URLs.
+  Text object that matches the URL part of a link.
 
 *<plug>(wiki-at)*
 *<plug>(wiki-it)*
-  Text object for link texts.
+  Text object for link texts. For a link such as `[[url|text]]`, the `at`
+  variant will match `|text`, whereas `it` only matches `text`.
 
 *<plug>(wiki-tags)*
 *WikiTags*
