@@ -162,7 +162,7 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-graph-out)': '<wiki-prefix>go',
           \ '<plug>(wiki-link-add)': '<wiki-prefix>a',
           \ 'i_<plug>(wiki-link-add)': '<c-q>',
-          \ '<plug>(wiki-link-remove)': '<wiki-prefix>wlr',
+          \ '<plug>(wiki-link-remove)': '<wiki-prefix>lr',
           \ '<plug>(wiki-link-next)': '<tab>',
           \ '<plug>(wiki-link-prev)': '<s-tab>',
           \ '<plug>(wiki-link-show)': '<wiki-prefix>ll',
