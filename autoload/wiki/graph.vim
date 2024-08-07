@@ -66,6 +66,17 @@ function! wiki#graph#check_orphans() abort "{{{1
 endfunction
 
 "}}}1
+function! wiki#graph#get_broken_links(...) abort "{{{1
+  let l:graph = wiki#graph#builder#get()
+
+  if a:0 > 0
+    return l:graph.get_broken_links_from(a:1)
+  endif
+
+  return l:graph.get_broken_links_global()
+endfunction
+
+"}}}1
 function! wiki#graph#get_backlinks_enriched() abort "{{{1
   let l:toc = wiki#u#associate_by(wiki#toc#gather_entries(), 'anchor')
 
