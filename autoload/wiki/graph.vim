@@ -66,14 +66,23 @@ function! wiki#graph#check_orphans() abort "{{{1
 endfunction
 
 "}}}1
-function! wiki#graph#get_broken_links(...) abort "{{{1
-  let l:graph = wiki#graph#builder#get()
+function! wiki#graph#get_number_of_broken_links(file) abort "{{{1
+  let l:cache = wiki#cache#open('broken-links-numbers', {
+        \ 'local': 1,
+        \ 'default': { 'ftime': -1, 'number': 0 },
+        \})
 
-  if a:0 > 0
-    return l:graph.get_broken_links_from(a:1)
+  let l:current = l:cache.get(a:file)
+  let l:ftime = getftime(a:file)
+  if l:ftime > l:current.ftime
+    let l:current.ftime = l:ftime
+
+    let l:graph = wiki#graph#builder#get()
+    let l:current.number = len(l:graph.get_broken_links_from(a:file))
+    call l:cache.write('force')
   endif
 
-  return l:graph.get_broken_links_global()
+  return l:current.number
 endfunction
 
 "}}}1
