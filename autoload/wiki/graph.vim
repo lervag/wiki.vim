@@ -109,7 +109,7 @@ function! wiki#graph#find_backlinks() abort "{{{1
   endif
 
   let l:graph = wiki#graph#builder#get()
-  let l:links = l:graph.get_links_to(l:file)
+  let l:links = l:graph.get_links_to(l:file, #{nudge: v:true})
 
   if empty(l:links)
     call wiki#log#info('No other file links to this file')
