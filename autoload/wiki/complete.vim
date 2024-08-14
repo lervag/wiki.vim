@@ -41,6 +41,14 @@ function! wiki#complete#tag_names(lead, line, pos) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#complete#pages(lead, line, pos) abort " {{{1
+  return wiki#page#get_all(#{
+        \ prefix: substitute(a:lead, '^\/*', '', ''),
+        \ only_relative: v:true
+        \})
+endfunction
+
+" }}}1
 
 function! wiki#complete#findstart(line) abort " {{{1
   if exists('s:completer') | unlet s:completer | endif

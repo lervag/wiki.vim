@@ -146,13 +146,15 @@ call wiki#init#option('wiki_write_on_nav', 1)
 call wiki#init#option('wiki_zotero_root', '~/.local/zotero')
 
 " Initialize global commands
-command!          WikiEnable  call wiki#buffer#init()
-command!          WikiIndex   call wiki#goto_index()
-command! -nargs=? WikiOpen    call wiki#page#open(<f-args>)
-command!          WikiReload  call wiki#reload()
-command!          WikiJournal call wiki#journal#open()
-command!          WikiPages   call g:wiki_select_method.pages()
-command!          WikiTags    call g:wiki_select_method.tags()
+command! WikiEnable  call wiki#buffer#init()
+command! WikiIndex   call wiki#goto_index()
+command! WikiReload  call wiki#reload()
+command! WikiJournal call wiki#journal#open()
+command! WikiPages   call g:wiki_select_method.pages()
+command! WikiTags    call g:wiki_select_method.tags()
+command! -nargs=?
+      \ -complete=customlist,wiki#complete#pages
+      \ WikiOpen call wiki#page#open(<f-args>)
 
 " Initialize mappings
 nnoremap <silent> <plug>(wiki-index)     :WikiIndex<cr>

@@ -234,10 +234,15 @@ endfunction
 
 " }}}1
 
-function! wiki#page#get_all() abort " {{{1
+function! wiki#page#get_all(...) abort " {{{1
   " Return: List of pairs
   "   first element:  absolute path
   "   second element: relative path to wiki root
+
+  let l:options = extend(#{
+        \ prefix: '',
+        \ only_relative: v:false,
+        \}, a:0 > 0 ? a:1 : {})
 
   let l:root = wiki#get_root() .. s:slash
 
@@ -246,23 +251,28 @@ function! wiki#page#get_all() abort " {{{1
   "       very common systems, brace-expansion is incompatible with recursive
   "       `**` globbing and turns the latter into a non-recursive `*`.
   let l:pages = []
+  let l:pattern = '**/' .. l:options.prefix .. '*.'
   for l:extension in g:wiki_filetypes
-    let l:pages += globpath(l:root, '**/*.' .. l:extension, v:false, v:true)
+    let l:pages += globpath(l:root, l:pattern .. l:extension, v:false, v:true)
   endfor
 
   " Enrich the results with paths from wiki root and up
-  call map(l:pages, {_, x ->
-        \ [
-        \   x,
-        \   '/' .. fnamemodify(
-        \     substitute(x, '\V' .. escape(l:root, '\'), '', ''), ':r')
-        \ ]
-        \})
+  if l:options.only_relative
+    return map(l:pages, {_, x -> s:relpath(x, l:root) })
+  endif
 
-  return l:pages
+  return map(l:pages, {_, x -> [x, s:relpath(x, l:root)] })
 endfunction
 
 let s:slash = exists('+shellslash') && !&shellslash ? '\' : '/'
+
+function! s:relpath(path, root) abort " {{{1
+  return '/' .. fnamemodify(
+        \ substitute(a:path, '\V' .. escape(a:root, '\'), '', ''),
+        \ ':r')
+endfunction
+
+" }}}1
 
 " }}}1
 
