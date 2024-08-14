@@ -861,8 +861,6 @@ a reference of all available options.
       - `wiki#fzf#tags`      |g:wiki_fzf_tags_opts|
       - `wiki#fzf#toc`
       - `wiki#fzf#links`     |g:wiki_fzf_links_opts|
-        - Note: I don't know how to return to insert mode with fzf, so the
-          insert mode mapping does not work optimally here. Sorry.
     - Lua backend that uses |vim.ui.select| (neovim only!)
       - `require("wiki.ui_select").pages`
       - `require("wiki.ui_select").tags`

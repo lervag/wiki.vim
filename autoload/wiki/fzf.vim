@@ -87,6 +87,7 @@ function! wiki#fzf#links(...) abort "{{{1
     call wiki#log#warn('fzf must be installed for this to work')
     return
   endif
+  let l:mode = a:0 > 0 ? a:1 : ''
 
   let l:fzf_opts = join([
         \ '-d"#####" --with-nth=-1 --print-query --prompt "WikiLinkAdd> "',
@@ -96,7 +97,7 @@ function! wiki#fzf#links(...) abort "{{{1
   call fzf#run(fzf#wrap({
         \ 'source': map(
         \   wiki#page#get_all(),
-        \   {_, x -> x[0] . '#####' . x[1] }),
+        \   {_, x -> x[0] .. '#####' .. l:mode .. '#####' .. x[1] }),
         \ 'sink*': funcref('s:accept_link'),
         \ 'options': l:fzf_opts
         \}))
@@ -157,8 +158,13 @@ function! s:accept_link(lines) abort "{{{1
   let l:path = len(a:lines) == 2
         \ ? split(a:lines[1], '#####')[0]
         \ : a:lines[0]
+  let l:mode = split(a:lines[1], '#####')[1]
 
-  call wiki#link#add(l:path, { 'transform_relative': v:true })
+  call wiki#link#add(l:path, l:mode, { 'transform_relative': v:true })
+
+  if l:mode=='insert'
+    call feedkeys('a')
+  endif
 endfunction
 
 " }}}1

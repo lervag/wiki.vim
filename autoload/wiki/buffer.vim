@@ -99,7 +99,8 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-graph-out)            :WikiGraphOut<cr>
   nnoremap <silent><buffer> <plug>(wiki-journal-index)        :WikiJournalIndex<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-add)             :WikiLinkAdd<cr>
-  inoremap <silent><buffer> <plug>(wiki-link-add)             <cmd>call g:wiki_select_method.links(v:true)<cr>
+  inoremap <silent><buffer> <plug>(wiki-link-add)             <cmd>call g:wiki_select_method.links('insert')<cr>
+  xnoremap <silent><buffer> <plug>(wiki-link-add)             <cmd>call g:wiki_select_method.links('visual')<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-remove)          :WikiLinkRemove<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-next)            :WikiLinkNext<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-show)            :WikiLinkShow<cr>
@@ -162,6 +163,7 @@ function! s:init_buffer_mappings() abort " {{{1
           \ '<plug>(wiki-graph-out)': '<wiki-prefix>go',
           \ '<plug>(wiki-link-add)': '<wiki-prefix>a',
           \ 'i_<plug>(wiki-link-add)': '<c-q>',
+          \ 'x_<plug>(wiki-link-add)': '<wiki-prefix>a',
           \ '<plug>(wiki-link-remove)': '<wiki-prefix>lr',
           \ '<plug>(wiki-link-next)': '<tab>',
           \ '<plug>(wiki-link-prev)': '<s-tab>',

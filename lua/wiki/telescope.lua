@@ -125,9 +125,15 @@ function M.toc(opts)
 end
 
 ---Select a wiki page and insert a link to it
----@param insert_mode boolean True if function is called from insert mode
+---@param mode? "visual" | "insert"
 ---@param opts table User options for telescope
-function M.links(insert_mode, opts)
+function M.links(mode, opts)
+  local text = ""
+  if mode == "visual" then
+    vim.cmd [[normal! "wd]]
+    text = vim.fn.trim(vim.fn.getreg "w")
+  end
+
   builtin.find_files(vim.tbl_deep_extend("force", {
     prompt_title = "Add wiki link",
     cwd = vim.fn["wiki#get_root"](),
@@ -151,18 +157,18 @@ function M.links(insert_mode, opts)
           path = action_state.get_current_line()
         end
 
-        local col_cursor = vim.fn.col "."
-        local col_end = vim.fn.col "$"
-        local cursor_at_end = col_cursor + 1 >= col_end
+        -- For some reason, Telescope moves the cursor
+        if mode ~= "insert" then
+          vim.cmd [[normal! h]]
+        end
 
-        vim.fn["wiki#link#add"](path, { transform_relative = true })
+        vim.fn["wiki#link#add"](path, "", {
+          transform_relative = true,
+          text = text,
+        })
 
-        if insert_mode then
-          if cursor_at_end then
-            vim.cmd "startinsert!"
-          else
-            vim.cmd "startinsert"
-          end
+        if mode == "insert" then
+          vim.fn.feedkeys "a"
         end
       end)
       return true

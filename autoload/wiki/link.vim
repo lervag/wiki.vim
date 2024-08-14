@@ -111,11 +111,22 @@ endfunction
 
 "}}}1
 
-function! wiki#link#add(path, ...) abort " {{{1
-  let l:options = extend({
-        \ 'position': getcurpos()[1:2],
-        \ 'text': '',
-        \}, a:0 > 0 ? a:1 : {})
+function! wiki#link#add(path, mode, ...) abort " {{{1
+  if a:mode == 'visual'
+    let l:at_last_col = getpos("'>")[2] >= col('$') - 1
+    normal! gv"wd
+    let l:defaults = #{
+          \ position: getcurpos()[1:2],
+          \ text: trim(getreg('w'))
+          \}
+  else
+    let l:defaults = #{
+          \ position: getcurpos()[1:2],
+          \ text: ''
+          \}
+  endif
+
+  let l:options = extend(l:defaults, a:0 > 0 ? a:1 : {})
 
   if wiki#paths#is_abs(a:path)
     let l:cwd = expand('%:p:h')
@@ -132,7 +143,9 @@ function! wiki#link#add(path, ...) abort " {{{1
   let l:link_string = wiki#link#template(l:url, l:options.text)
 
   let l:line = getline(l:options.position[0])
-  if l:options.position[1] + 1 == col('$')
+  if a:mode ==# 'insert' && l:options.position[1] == col('$') - 1
+    call setline(l:options.position[0], l:line . l:link_string)
+  elseif a:mode ==# 'visual' && l:at_last_col
     call setline(l:options.position[0], l:line . l:link_string)
   else
     call setline(l:options.position[0],
