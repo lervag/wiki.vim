@@ -1719,9 +1719,10 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
 *<plug>(wiki-open)*
 *WikiOpen*
 `:[range]WikiOpen [page]
-  Open (or create) a page. If the `page` argument is not provided, then ask
-  for user input to specify the page name. When not already inside a wiki, the
-  wiki root is given by |g:wiki_root|.
+  Open (or create) a page. The command supports completion of the page
+  argument. If the `page` argument is not provided, then ask for user input to
+  specify the page name. When not already inside a wiki, the wiki root is
+  given by |g:wiki_root|.
 
   The settings from |g:wiki_link_creation| are applied based on the current
   'filetype'. If the filetype is not specified or if it is not listed in
