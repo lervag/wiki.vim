@@ -1681,7 +1681,7 @@ Note: For those who want to adjust the mappings, it may be useful to know that
   `n`     <leader>wsr         |<plug>(wiki-tag-reload)|
   `n`     <leader>wsn         |<plug>(wiki-tag-rename)|
   `n`     <leader>wss         |<plug>(wiki-tag-search)|
-  `n`     <leader>wa          |<plug>(wiki-link-add)|
+  `nx`    <leader>wa          |<plug>(wiki-link-add)|
   `i`     <c-q>               |<plug>(wiki-link-add)|
   `n`     <leader>wlr         |<plug>(wiki-link-remove)|
   `n`     <tab>               |<plug>(wiki-link-next)|
