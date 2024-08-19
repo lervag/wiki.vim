@@ -12,7 +12,7 @@ function! wiki#fzf#pages() abort "{{{1
 
   let l:fzf_opts = join([
         \ '-d"#####" --with-nth=-1 --print-query --prompt "WikiPages> "',
-        \ '--expect=' . get(g:, 'wiki_fzf_pages_force_create_key', 'alt-enter'),
+        \ '--expect=' . get(g:, 'wiki_fzf_force_create_key', 'alt-enter'),
         \ g:wiki_fzf_pages_opts,
         \])
 
@@ -91,6 +91,7 @@ function! wiki#fzf#links(...) abort "{{{1
 
   let l:fzf_opts = join([
         \ '-d"#####" --with-nth=-1 --print-query --prompt "WikiLinkAdd> "',
+        \ '--expect=' . get(g:, 'wiki_fzf_force_create_key', 'alt-enter'),
         \ g:wiki_fzf_links_opts,
         \])
 
@@ -109,7 +110,7 @@ function! s:accept_page(lines) abort "{{{1
   " a:lines is a list with two or three elements. Two if there were no matches,
   " and three if there is one or more matching names. The first element is the
   " search query; the second is either an empty string or the alternative key
-  " specified by g:wiki_fzf_pages_force_create_key (e.g. 'alt-enter') if this
+  " specified by g:wiki_fzf_force_create_key (e.g. 'alt-enter') if this
   " was pressed; the third element contains the selected item.
   if len(a:lines) < 2 | return | endif
 
@@ -152,25 +153,31 @@ endfunction
 
 "}}}1
 function! s:accept_link_visual(lines) abort "{{{1
-  " a:lines is a list with one or two elements. Two if there was a match, else
-  " one. The first element is the search query; the second element contains the
-  " selected item.
+  " a:lines is a list with two or three elements. Two if there were no matches,
+  " and three if there is one or more matching names. The first element is the
+  " search query; the second is either an empty string or the alternative key
+  " specified by g:wiki_fzf_force_create_key (e.g. 'alt-enter') if this
+  " was pressed; the third element contains the selected item.
   let l:path = s:get_path(a:lines)
   call wiki#link#add(l:path, 'visual')
 endfunction
 
 " }}}1
 function! s:get_path(lines) abort "{{{1
-  return len(a:lines) == 2
-        \ ? split(a:lines[2], '#####')[0]
-        \ : a:lines[0]
+  if len(a:lines) == 2 || !empty(a:lines[1])
+    return a:lines[0]
+  else
+    return split(a:lines[2], '#####')[0]
+  endif
 endfunction
 
 " }}}1
 function! s:accept_link_insert(lines) abort "{{{1
-  " a:lines is a list with one or two elements. Two if there was a match, else
-  " one. The first element is the search query; the second element contains the
-  " selected item.
+  " a:lines is a list with two or three elements. Two if there were no matches,
+  " and three if there is one or more matching names. The first element is the
+  " search query; the second is either an empty string or the alternative key
+  " specified by g:wiki_fzf_force_create_key (e.g. 'alt-enter') if this
+  " was pressed; the third element contains the selected item.
   let l:path = s:get_path(a:lines)
   call wiki#link#add(l:path, 'insert')
   call feedkeys('a')
@@ -178,9 +185,11 @@ endfunction
 
 " }}}1
 function! s:accept_link_normal(lines) abort "{{{1
-  " a:lines is a list with one or two elements. Two if there was a match, else
-  " one. The first element is the search query; the second element contains the
-  " selected item.
+  " a:lines is a list with two or three elements. Two if there were no matches,
+  " and three if there is one or more matching names. The first element is the
+  " search query; the second is either an empty string or the alternative key
+  " specified by g:wiki_fzf_force_create_key (e.g. 'alt-enter') if this
+  " was pressed; the third element contains the selected item.
   let l:path = s:get_path(a:lines)
   call wiki#link#add(l:path, '')
 endfunction
