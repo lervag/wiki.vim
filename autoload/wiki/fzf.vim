@@ -87,7 +87,7 @@ function! wiki#fzf#links(...) abort "{{{1
     call wiki#log#warn('fzf must be installed for this to work')
     return
   endif
-  let l:mode = a:0 > 0 ? a:1 : ''
+  let l:mode = a:0 > 0 ? a:1 : 'normal'
 
   let l:fzf_opts = join([
         \ '-d"#####" --with-nth=-1 --print-query --prompt "WikiLinkAdd> "',
@@ -97,8 +97,8 @@ function! wiki#fzf#links(...) abort "{{{1
   call fzf#run(fzf#wrap({
         \ 'source': map(
         \   wiki#page#get_all(),
-        \   {_, x -> x[0] .. '#####' .. l:mode .. '#####' .. substitute(x[1], '^/', '', '') }),
-        \ 'sink*': funcref('s:accept_link'),
+        \   {_, x -> x[0] .. '#####' .. substitute(x[1], '^/', '', '') }),
+        \ 'sink*': funcref('s:accept_link_'..l:mode),
         \ 'options': l:fzf_opts
         \}))
 endfunction
@@ -151,20 +151,38 @@ function! s:accept_toc_entry(line) abort "{{{1
 endfunction
 
 "}}}1
-function! s:accept_link(lines) abort "{{{1
+function! s:accept_link_visual(lines) abort "{{{1
   " a:lines is a list with one or two elements. Two if there was a match, else
   " one. The first element is the search query; the second element contains the
   " selected item.
-  let l:path = len(a:lines) == 2
-        \ ? split(a:lines[1], '#####')[0]
+  let l:path = s:get_path(a:lines)
+  call wiki#link#add(l:path, 'visual')
+endfunction
+
+" }}}1
+function! s:get_path(lines) abort "{{{1
+  return len(a:lines) == 2
+        \ ? split(a:lines[2], '#####')[0]
         \ : a:lines[0]
-  let l:mode = split(a:lines[1], '#####')[1]
+endfunction
 
-  call wiki#link#add(l:path, l:mode, { 'transform_relative': v:true })
+" }}}1
+function! s:accept_link_insert(lines) abort "{{{1
+  " a:lines is a list with one or two elements. Two if there was a match, else
+  " one. The first element is the search query; the second element contains the
+  " selected item.
+  let l:path = s:get_path(a:lines)
+  call wiki#link#add(l:path, 'insert')
+  call feedkeys('a')
+endfunction
 
-  if l:mode=='insert'
-    call feedkeys('a')
-  endif
+" }}}1
+function! s:accept_link_normal(lines) abort "{{{1
+  " a:lines is a list with one or two elements. Two if there was a match, else
+  " one. The first element is the search query; the second element contains the
+  " selected item.
+  let l:path = s:get_path(a:lines)
+  call wiki#link#add(l:path, '')
 endfunction
 
 " }}}1
