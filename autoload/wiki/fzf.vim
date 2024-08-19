@@ -19,7 +19,7 @@ function! wiki#fzf#pages() abort "{{{1
   call fzf#run(fzf#wrap({
         \ 'source': map(
         \   wiki#page#get_all(),
-        \   {_, x -> x[0] . '#####' . x[1] }),
+        \   {_, x -> x[0] . '#####' . substitute(x[1], '^/', '', '') }),
         \ 'sink*': funcref('s:accept_page'),
         \ 'options': l:fzf_opts
         \}))
@@ -97,7 +97,7 @@ function! wiki#fzf#links(...) abort "{{{1
   call fzf#run(fzf#wrap({
         \ 'source': map(
         \   wiki#page#get_all(),
-        \   {_, x -> x[0] .. '#####' .. l:mode .. '#####' .. x[1] }),
+        \   {_, x -> x[0] .. '#####' .. l:mode .. '#####' .. substitute(x[1], '^/', '', '') }),
         \ 'sink*': funcref('s:accept_link'),
         \ 'options': l:fzf_opts
         \}))
