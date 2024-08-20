@@ -99,7 +99,7 @@ function! wiki#fzf#links(...) abort "{{{1
         \ 'source': map(
         \   wiki#page#get_all(),
         \   {_, x -> x[0] .. '#####' .. substitute(x[1], '^/', '', '') }),
-        \ 'sink*': funcref('s:accept_link_'..l:mode),
+        \ 'sink*': funcref('s:accept_link_' .. l:mode),
         \ 'options': l:fzf_opts
         \}))
 endfunction
@@ -152,6 +152,7 @@ function! s:accept_toc_entry(line) abort "{{{1
 endfunction
 
 "}}}1
+
 function! s:accept_link_visual(lines) abort "{{{1
   " a:lines is a list with two or three elements. Two if there were no matches,
   " and three if there is one or more matching names. The first element is the
@@ -160,15 +161,6 @@ function! s:accept_link_visual(lines) abort "{{{1
   " was pressed; the third element contains the selected item.
   let l:path = s:get_path(a:lines)
   call wiki#link#add(l:path, 'visual')
-endfunction
-
-" }}}1
-function! s:get_path(lines) abort "{{{1
-  if len(a:lines) == 2 || !empty(a:lines[1])
-    return a:lines[0]
-  else
-    return split(a:lines[2], '#####')[0]
-  endif
 endfunction
 
 " }}}1
@@ -192,6 +184,16 @@ function! s:accept_link_normal(lines) abort "{{{1
   " was pressed; the third element contains the selected item.
   let l:path = s:get_path(a:lines)
   call wiki#link#add(l:path, '')
+endfunction
+
+" }}}1
+
+function! s:get_path(lines) abort "{{{1
+  if len(a:lines) == 2 || !empty(a:lines[1])
+    return a:lines[0]
+  else
+    return split(a:lines[2], '#####')[0]
+  endif
 endfunction
 
 " }}}1
