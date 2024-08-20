@@ -791,7 +791,7 @@ a reference of all available options.
 
   Default: `['md']`
 
-*g:wiki_fzf_pages_force_create_key*
+*g:wiki_fzf_force_create_key*
   Key combination that, when pressed while searching with |WikiPages|, will
   create a new page with the name of the query. The value must be a string
   recognized by fzf's `--expect` argument; see fzf's manual page for a list of
@@ -857,10 +857,11 @@ a reference of all available options.
 
     - fzf (https://github.com/junegunn/fzf.vim):
       - `wiki#fzf#pages`     |g:wiki_fzf_pages_opts|
-                           |g:wiki_fzf_pages_force_create_key|
+                           |g:wiki_fzf_force_create_key|
       - `wiki#fzf#tags`      |g:wiki_fzf_tags_opts|
       - `wiki#fzf#toc`
       - `wiki#fzf#links`     |g:wiki_fzf_links_opts|
+                           |g:wiki_fzf_force_create_key|
     - Lua backend that uses |vim.ui.select| (neovim only!)
       - `require("wiki.ui_select").pages`
       - `require("wiki.ui_select").tags`
@@ -1789,7 +1790,19 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
 *WikiLinkAdd*
   List the wiki files in the current wiki. Select from the list to add a link
   to that target page. This uses the UI select method defined by
-  |g:wiki_select_method|. The mapping also works from insert mode.
+  |g:wiki_select_method|. The mapping also works from insert and visual mode.
+
+    fzf specific behaviour ~
+      If |g:wiki_select_method| is `'fzf'`, then it is possible to create
+      a new page by pressing |g:wiki_fzf_force_create_key| (alt-enter,
+      by default). That is, a link whose name is equal to the fzf query will
+      be created.
+
+      For convenience, if the input query does not have any results, simply
+      pressing enter will also create a page. E.g., if you searched for "My
+      Fzf Page", and this term does not exist, then it will instead create a
+      new link "My Fzf Page.wiki" (or similar, depending on the value of other
+      options).
 
 *<plug>(wiki-link-next)*
 *WikiLinkNext*
@@ -2032,7 +2045,7 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
 
     fzf specific behaviour ~
       If |g:wiki_select_method| is `'fzf'`, then it is possible to create
-      a new page by pressing |g:wiki_fzf_pages_force_create_key| (alt-enter,
+      a new page by pressing |g:wiki_fzf_force_create_key| (alt-enter,
       by default). That is, a page whose name is equal to the fzf query will
       be created if it doesn't already exist. If the page exists, the existing
       page will be opened.
