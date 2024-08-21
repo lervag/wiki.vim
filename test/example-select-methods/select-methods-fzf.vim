@@ -13,7 +13,6 @@ syntax enable
 
 nnoremap q :qall!<cr>
 
-let mapleader=" "
 let g:wiki_cache_persistent = 0
 let g:wiki_filetypes = ['wiki']
 let g:wiki_root = '../wiki-basic'
