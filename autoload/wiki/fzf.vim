@@ -89,13 +89,6 @@ function! wiki#fzf#links(...) abort "{{{1
   endif
   let l:mode = a:0 > 0 ? a:1 : 'normal'
 
-  " This is a minor hack to make things work on Vim. It's a little bit hard to
-  " say why it is necessary. See also:
-  " https://github.com/lervag/wiki.vim/issues/369
-  if l:mode ==# 'visual' && !has('nvim')
-    normal! 
-  endif
-
   let l:fzf_opts = join([
         \ '-d"#####" --with-nth=-1 --print-query --prompt "WikiLinkAdd> "',
         \ '--expect=' . get(g:, 'wiki_fzf_force_create_key', 'alt-enter'),

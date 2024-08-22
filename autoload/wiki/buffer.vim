@@ -100,7 +100,7 @@ function! s:init_buffer_mappings() abort " {{{1
   nnoremap <silent><buffer> <plug>(wiki-journal-index)        :WikiJournalIndex<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-add)             :WikiLinkAdd<cr>
   inoremap <silent><buffer> <plug>(wiki-link-add)             <cmd>call g:wiki_select_method.links('insert')<cr>
-  xnoremap <silent><buffer> <plug>(wiki-link-add)             <cmd>call g:wiki_select_method.links('visual')<cr>
+  xnoremap <silent><buffer> <plug>(wiki-link-add)             :call g:wiki_select_method.links('visual')<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-remove)          :WikiLinkRemove<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-next)            :WikiLinkNext<cr>
   nnoremap <silent><buffer> <plug>(wiki-link-show)            :WikiLinkShow<cr>
