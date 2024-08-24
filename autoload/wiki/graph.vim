@@ -67,6 +67,10 @@ endfunction
 
 "}}}1
 function! wiki#graph#get_number_of_broken_links(file) abort "{{{1
+  " This is a convenience function for getting the number of broken links for
+  " a given file. It uses a cache to ensure high performance even if the
+  " function is called often, e.g. from statusline functions.
+
   let l:cache = wiki#cache#open('broken-links-numbers', {
         \ 'local': 1,
         \ 'default': { 'ftime': -1, 'number': 0 },
@@ -74,7 +78,7 @@ function! wiki#graph#get_number_of_broken_links(file) abort "{{{1
 
   let l:current = l:cache.get(a:file)
   let l:ftime = getftime(a:file)
-  if l:ftime > l:current.ftime
+  if l:ftime > l:current.ftime || localtime() > l:current.ftime + 15
     let l:current.ftime = l:ftime
 
     let l:graph = wiki#graph#builder#get()
