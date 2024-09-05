@@ -16,11 +16,6 @@ function! wiki#u#command(cmd) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#u#escape(string) abort "{{{1
-  return escape(a:string, '~.*[]\^$')
-endfunction
-
-"}}}1
 function! wiki#u#eval_filename(input) abort " {{{1
   " Input:    Something that could indicate a target filename, e.g. a path,
   "           a wiki link or url object, or a wiki schemed url.
@@ -73,24 +68,6 @@ function! wiki#u#extend_recursive(dict1, dict2, ...) abort " {{{1
   endfor
 
   return a:dict1
-endfunction
-
-" }}}1
-function! wiki#u#get_os() abort " {{{1
-  if wiki#u#is_win()
-    return 'win'
-  elseif has('unix')
-    if has('mac') || has('ios') || wiki#jobs#cached('uname')[0] =~# 'Darwin'
-      return 'mac'
-    else
-      return 'linux'
-    endif
-  endif
-endfunction
-
-" }}}1
-function! wiki#u#is_win() abort " {{{1
-  return has('win32') || has('win32unix')
 endfunction
 
 " }}}1

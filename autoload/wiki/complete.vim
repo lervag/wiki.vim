@@ -112,7 +112,10 @@ function! s:completer_wikilink.complete_anchor(regex) dict abort " {{{2
   let l:length = strlen(l:base)
 
   let l:anchors = wiki#toc#gather_anchors(l:url)
-  call s:filter_candidates(l:anchors, '^' . wiki#u#escape(l:base) . '[^#]*$')
+  call s:filter_candidates(
+        \ l:anchors,
+        \ '^' . escape(l:base, '~.*[]\^$') . '[^#]*$'
+        \)
   call map(l:anchors, 'strpart(v:val, l:length)')
   if !empty(a:regex)
     call s:filter_candidates(l:anchors, a:regex)

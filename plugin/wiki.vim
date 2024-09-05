@@ -10,7 +10,7 @@ let g:wiki_loaded = 1
 " Initialize options
 call wiki#init#option('wiki_cache_persistent', 1)
 call wiki#init#option('wiki_cache_root',
-      \ wiki#u#is_win()
+      \ has('win32') || has('win32unix')
       \ ? fnamemodify(tempname(), ':h')
       \ : (empty($XDG_CACHE_HOME)
       \    ? $HOME . '/.cache'
@@ -134,11 +134,13 @@ call wiki#init#option('wiki_ui_method', {
       \ 'input': has('nvim') ? 'nvim' : 'legacy',
       \ 'select': has('nvim') ? 'nvim' : 'legacy',
       \})
+
+let s:default_viewer =
+      \ has('mac') || has('ios') || wiki#jobs#cached('uname')[0] =~# 'Darwin'
+      \ ? 'open'
+      \ : 'xdg-open'
 call wiki#init#option('wiki_viewer', {
-      \ '_' : get({
-      \   'linux' : 'xdg-open',
-      \   'mac' : 'open',
-      \ }, wiki#u#get_os(), ''),
+      \ '_' : s:default_viewer,
       \ 'md' : ':edit',
       \ 'wiki' : ':edit',
       \})
