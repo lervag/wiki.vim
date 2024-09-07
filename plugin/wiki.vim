@@ -135,10 +135,13 @@ call wiki#init#option('wiki_ui_method', {
       \ 'select': has('nvim') ? 'nvim' : 'legacy',
       \})
 
-let s:default_viewer =
-      \ has('mac') || has('ios') || wiki#jobs#cached('uname')[0] =~# 'Darwin'
-      \ ? 'open'
-      \ : 'xdg-open'
+if has('win32') || has('win32unix')
+  let s:default_viewer = 'start'
+elseif has('mac') || has('ios') || wiki#jobs#cached('uname')[0] =~# 'Darwin'
+  let s:default_viewer = 'open'
+else
+  let s:default_viewer = 'xdg-open'
+endif
 call wiki#init#option('wiki_viewer', {
       \ '_' : s:default_viewer,
       \ 'md' : ':edit',
