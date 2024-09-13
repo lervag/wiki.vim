@@ -126,32 +126,14 @@ function! wiki#url#utils#go_to_anchor_wiki(anchor, do_edit) abort " {{{1
   call cursor(1, 1)
 
 
-  "for l:part in split(a:anchor, '#', 0)
-  "  let l:notag = l:part
-  "  let l:part = substitute(l:part, '[- ]', '[- ]', 'g')
-  "  let l:header = '^\c#\{1,6}\s*' . l:part . '\s*$'
-  "  let l:headerid = '^#\{1,6}\s*\w.*\s{#' . l:notag . '}\s*$'
-  "  let l:bold = wiki#rx#surrounded(l:part, '*')
-  "
-  "  if !(search(l:header, 'Wc') || search(l:bold, 'Wc') || search(l:headerid, 'Wc'))
-  "    call setpos('.', l:old_pos)
-  "    break
-  "  endif
-  "  let l:old_pos = getcurpos('.')
-  "endfor
-
-  "" Potential fix for issues
   for l:part in split(a:anchor, '#', 0)
-    let l:notag = l:part
+    let l:nospaces = substitute(l:part, ' ', '-', 'g')
     let l:part = substitute(l:part, '[- ]', '[- ]', 'g')
     let l:header = '^\c#\{1,6}\s*' . l:part . '\s*$'
-    let l:headerid = '^#\{1,6}\s*\w.*\s{#' . l:notag . '}\s*$'
+    let l:headerid = '^\C#\{1,6}\s*\w.*\s{#' . l:nospaces . '}\s*$'
     let l:bold = wiki#rx#surrounded(l:part, '*')
 
-    if !(search(l:headerid, 'Wc'))
-      call setpos('.', l:old_pos)
-      break
-    elif !(search(l:header, 'Wc') || search(l:bold, 'Wc'))
+    if !(search(l:header, 'Wc') || search(l:bold, 'Wc') || search(l:headerid, 'Wc'))
       call setpos('.', l:old_pos)
       break
     endif
