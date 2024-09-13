@@ -8,9 +8,9 @@ This is a wiki.
 2. Here is a link to get to the next heading of the document: [link](#Heading-ID-examples)
 3. Default heading IDs are case insensitive [case sensitive](#who types like this)
 4. Here is a link that uses a custom id as an anchor: [link](#heading-1)
-    1. A custom ID shouldn't contain spaces: [link](#no spaces allowed) 
+    1. A custom ID shouldn't contain spaces: [link](#no spaces allowed)
     2. You only add one number sign to denote the custom-id: [link](##one-number-sign)
-    3.  Custom IDs ones are not: [case sensitive](#case-sensitive)
+    3. Custom IDs ones are not: [case sensitive](#case-sensitive)
 
 
 ### WhO tYpEs LiKe ThIs
