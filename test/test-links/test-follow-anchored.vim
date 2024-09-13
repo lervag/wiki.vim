@@ -12,4 +12,8 @@ normal! 17G
 call wiki#link#follow()
 call assert_equal(21, line('.'))
 
+normal! 16G
+call wiki#link#follow()
+call assert_equal(21, line('.'))
+
 call wiki#test#finished()
