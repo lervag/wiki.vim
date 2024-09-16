@@ -10,7 +10,7 @@ a list of available features. For more details, please read the
 [full documentation](doc/wiki.txt).
 
 Note: `wiki.vim` is _not_ a filetype plugin. It is designed to be used _with_
-      filetype plugins, e.g. dedicated Markdown plugins. Users are adviced to
+      filetype plugins, e.g. dedicated Markdown plugins. Users are advised to
       read `:help wiki-intro-plugins` for a list of plugins that work well with
       `wiki.vim`.
 
