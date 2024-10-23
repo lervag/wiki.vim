@@ -378,6 +378,7 @@ options:
 - https://github.com/preservim/vim-markdown
 - https://github.com/SidOfc/mkdx/
 - https://github.com/vim-pandoc/vim-pandoc-syntax
+- https://github.com/MeanderingProgrammer/render-markdown.nvim
 
 wiki-ft.vim ~
 https://github.com/lervag/wiki-ft.vim
