@@ -39,5 +39,8 @@ call assert_equal(
 call assert_equal(
       \ '[[Bar]]',
       \ readfile('wiki-tmp/sub/index.wiki')[4])
+call assert_equal(
+      \ '[[../Bar]]',
+      \ readfile('wiki-tmp/sub/subsub/index.wiki')[4])
 
 call wiki#test#finished()

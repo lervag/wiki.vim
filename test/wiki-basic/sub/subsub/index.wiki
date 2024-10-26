@@ -1,3 +1,6 @@
 # sub sub wiki
 
 Hello world
+
+[[../Foo]]
+

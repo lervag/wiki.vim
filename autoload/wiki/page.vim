@@ -405,7 +405,7 @@ function! s:get_replacement_patterns(path_old, path_new) abort " {{{1
   " Create pattern to match relevant old link urls
   let l:replacement_patterns = []
   for [l:url_old, l:url_new] in l:url_pairs
-    let l:re_url_old = '(\.\/|\/)?\zs' .. escape(l:url_old, '.')
+    let l:re_url_old = '%(\.\.\/)*(\.\/|\/)?\zs' .. escape(l:url_old, '.')
     let l:pattern = '\v' .. join([
           \ '\[\[' .. l:re_url_old .. '\ze%(#.*)?%(\|.*)?\]\]',
           \ '\[\[' .. l:re_url_old .. '\ze%(#.*)?\]\[.*\]\]',
