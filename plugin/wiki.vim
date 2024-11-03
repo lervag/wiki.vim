@@ -154,8 +154,8 @@ call wiki#init#option('wiki_zotero_root', '~/.local/zotero')
 command! WikiEnable  call wiki#buffer#init()
 command! -bang WikiIndex   call s:bang_wrapper("wiki#goto_index", <q-bang>)
 command! -bang WikiJournal call s:bang_wrapper("wiki#journal#open", <q-bang>)
-command! -bang WikiPages   call s:bang_wrapper("g:wiki_select_method.pages", <q-bang>)
-command! -bang WikiTags    call s:bang_wrapper("g:wiki_select_method.tags", <q-bang>)
+command! -bang WikiPages   call s:bang_wrapper(g:wiki_select_method.pages, <q-bang>)
+command! -bang WikiTags    call s:bang_wrapper(g:wiki_select_method.tags, <q-bang>)
 command! -nargs=?
       \ -complete=customlist,wiki#complete#pages
       \ WikiOpen call wiki#page#open(<f-args>)
