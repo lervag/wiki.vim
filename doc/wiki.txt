@@ -1657,8 +1657,10 @@ Note: For those who want to adjust the mappings, it may be useful to know that
   MODE  LHS                 RHS ~
   ====  ===                 ===
   `n`     <leader>ww          |<plug>(wiki-index)|                 [GLOBAL]
-  `n`     <leader>wn          |<plug>(wiki-open)|                  [GLOBAL]
   `n`     <leader>w<leader>w  |<plug>(wiki-journal)|               [GLOBAL]
+  `n`                         |<plug>(wiki-pages)|                 [GLOBAL]
+  `n`                         |<plug>(wiki-tags)|                  [GLOBAL]
+  `n`     <leader>wn          |<plug>(wiki-open)|                  [GLOBAL]
   `n`     <leader>wx          |<plug>(wiki-reload)|                [GLOBAL]
   `n`     <leader>wgb         |<plug>(wiki-graph-find-backlinks)|
   `n`     <leader>wgr         |<plug>(wiki-graph-related)|
@@ -1714,9 +1716,54 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
   possible.
 
 *<plug>(wiki-index)*
-*WikiIndex*
-  Go to wiki index. When not inside a wiki page, the index is specified by the
-  options |g:wiki_root| and |g:wiki_index_name|.
+*WikiIndex*[!]
+  Go to the wiki index for the main wiki specified by |g:wiki_root| and
+  |g:wiki_index_name.
+
+  `:WikiIndex!` (with the bang) will first look the index of the current local
+  wiki. This is useful for users that maintains multiple wikis. The command
+  falls back to the main wiki.
+
+*<plug>(wiki-journal)*
+*WikiJournal*[!]
+  Go to the current journal entry in the main wiki. For the default journal
+  frequency, this means today's entry. See also |g:wiki_journal| and the
+  `frequency` description.
+
+  `:WikiJournal!` (with the bang) will first look for a journal in the current
+  local wiki. It falls back to the main wiki journal if no local wiki is
+  found.
+
+*<plug>(wiki-pages)*
+*WikiPages*[!]
+  List wiki files in the main wiki. Select from list to open target page. This
+  uses the UI select method defined by |g:wiki_select_method|.
+
+    fzf specific behaviour ~
+      If |g:wiki_select_method| is `'fzf'`, then it is possible to create
+      a new page by pressing |g:wiki_fzf_force_create_key| (alt-enter,
+      by default). That is, a page whose name is equal to the fzf query will
+      be created if it doesn't already exist. If the page exists, the existing
+      page will be opened.
+
+      For convenience, if the input query does not have any results, simply
+      pressing enter will also create a page. E.g., if you searched for "My
+      Fzf Page", and this term does not exist, then it will instead open a new
+      page "My Fzf Page.wiki" (or similar, depending on the value of other
+      options).
+
+  `:WikiPages!` (with the bang) will first look for a local wiki and list
+  files for that if it is found. It falls back to the main wiki if no local
+  wiki was detected.
+
+*<plug>(wiki-tags)*
+*WikiTags*[!]
+  List tags from the main wiki. Allows to search for and navigate to a tag.
+  This uses the UI select method defined by |g:wiki_select_method|.
+
+  `:WikiTags!` (with the bang) will first look for a local wiki and list tags
+  for that if it is found. It falls back to the main wiki if no local wiki was
+  detected.
 
 *<plug>(wiki-open)*
 *WikiOpen*
@@ -1729,12 +1776,6 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
   The settings from |g:wiki_link_creation| are applied based on the current
   'filetype'. If the filetype is not specified or if it is not listed in
   |g:wiki_filetypes|, then the first filetype in this list is assumed.
-
-*<plug>(wiki-journal)*
-*WikiJournal*
-  Go to the current journal entry. For the default journal frequency, this
-  means today's entry. See also |g:wiki_journal| and the `frequency`
-  description.
 
 *<plug>(wiki-reload)*
 *WikiReload*
@@ -2038,25 +2079,6 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
   supplied, the command asks for input. This command uses the `make` function
   of |g:wiki_tag_parsers|.
 
-*<plug>(wiki-pages)*
-*WikiPages*
-  List wiki files in current wiki or in the main wiki defined by
-  |g:wiki_root|. Select from list to open target page. This uses the UI select
-  method defined by |g:wiki_select_method|.
-
-    fzf specific behaviour ~
-      If |g:wiki_select_method| is `'fzf'`, then it is possible to create
-      a new page by pressing |g:wiki_fzf_force_create_key| (alt-enter,
-      by default). That is, a page whose name is equal to the fzf query will
-      be created if it doesn't already exist. If the page exists, the existing
-      page will be opened.
-
-      For convenience, if the input query does not have any results, simply
-      pressing enter will also create a page. E.g., if you searched for "My
-      Fzf Page", and this term does not exist, then it will instead open a new
-      page "My Fzf Page.wiki" (or similar, depending on the value of other
-      options).
-
 *<plug>(wiki-au)*
   Text object that matches an entire link object.
 
@@ -2067,11 +2089,6 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
 *<plug>(wiki-it)*
   Text object for link texts. For a link such as `[[url|text]]`, the `at`
   variant will match `|text`, whereas `it` only matches `text`.
-
-*<plug>(wiki-tags)*
-*WikiTags*
-  List tags from the current wiki. Allows to search for and navigate to
-  a tag. This uses the UI select method defined by |g:wiki_select_method|.
 
 *<plug>(wiki-toc)*
 *WikiToc*

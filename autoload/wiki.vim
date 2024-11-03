@@ -4,7 +4,11 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#get_root() abort " {{{1
+function! wiki#get_root() abort
+  if get(g:, '__wiki_force_global', v:false)
+    return wiki#get_root_global()
+  endif
+
   " If the root has been specified already, then simply return it
   if exists('b:wiki.root') | return b:wiki.root | endif
 
@@ -14,8 +18,7 @@ function! wiki#get_root() abort " {{{1
         \ : wiki#get_root_global()
 endfunction
 
-" }}}1
-function! wiki#get_root_local() abort " {{{1
+function! wiki#get_root_local() abort
   " Search directory tree for an 'index.EXT' file
   for l:ext in g:wiki_filetypes
     let l:index = printf('%s.%s', g:wiki_index_name, l:ext)
@@ -30,8 +33,7 @@ function! wiki#get_root_local() abort " {{{1
   return ''
 endfunction
 
-" }}}1
-function! wiki#get_root_global() abort " {{{1
+function! wiki#get_root_global() abort
   if empty(g:wiki_root) | return '' | endif
 
   let l:root = s:is_function(g:wiki_root)
@@ -53,14 +55,11 @@ function! wiki#get_root_global() abort " {{{1
   endif
 endfunction
 
-" }}}1
 
-function! wiki#goto_index() abort " {{{1
+function! wiki#goto_index() abort
   call wiki#url#follow('/' . g:wiki_index_name)
 endfunction
 
-" }}}1
-" {{{1 function! wiki#reload()
 let s:file = expand('<sfile>')
 if get(s:, 'reload_guard', 1)
   function! wiki#reload() abort
@@ -100,9 +99,7 @@ if get(s:, 'reload_guard', 1)
   endfunction
 endif
 
-" }}}1
-
-function! s:is_function(string) abort " {{{1
+function! s:is_function(string) abort
   try
     let l:is_function = exists('*' . a:string)
   catch /E129:/
@@ -111,5 +108,3 @@ function! s:is_function(string) abort " {{{1
 
   return l:is_function
 endfunction
-
-" }}}1

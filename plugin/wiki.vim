@@ -152,22 +152,22 @@ call wiki#init#option('wiki_zotero_root', '~/.local/zotero')
 
 " Initialize global commands
 command! WikiEnable  call wiki#buffer#init()
-command! WikiIndex   call wiki#goto_index()
-command! WikiReload  call wiki#reload()
-command! WikiJournal call wiki#journal#open()
-command! WikiPages   call g:wiki_select_method.pages()
-command! WikiTags    call g:wiki_select_method.tags()
+command! -bang WikiIndex   call s:bang_wrapper("wiki#goto_index", <q-bang>)
+command! -bang WikiJournal call s:bang_wrapper("wiki#journal#open", <q-bang>)
+command! -bang WikiPages   call s:bang_wrapper("g:wiki_select_method.pages", <q-bang>)
+command! -bang WikiTags    call s:bang_wrapper("g:wiki_select_method.tags", <q-bang>)
 command! -nargs=?
       \ -complete=customlist,wiki#complete#pages
       \ WikiOpen call wiki#page#open(<f-args>)
+command! WikiReload  call wiki#reload()
 
 " Initialize mappings
 nnoremap <silent> <plug>(wiki-index)     :WikiIndex<cr>
-nnoremap <silent> <plug>(wiki-open)      :WikiOpen<cr>
 nnoremap <silent> <plug>(wiki-journal)   :WikiJournal<cr>
-nnoremap <silent> <plug>(wiki-reload)    :WikiReload<cr>
 nnoremap <silent> <plug>(wiki-pages)     :WikiPages<cr>
 nnoremap <silent> <plug>(wiki-tags)      :WikiTags<cr>
+nnoremap <silent> <plug>(wiki-open)      :WikiOpen<cr>
+nnoremap <silent> <plug>(wiki-reload)    :WikiReload<cr>
 
 " Apply default mappings
 let s:mappings = index(['all', 'global'], g:wiki_mappings_use_defaults) >= 0
@@ -193,4 +193,19 @@ function! s:autoload() abort
         \ || wiki#get_root_local() ==# wiki#get_root_global()
     WikiEnable
   endif
+endfunction
+
+" A wrapper function used to capture the bang for global commands.
+"
+" The bang is captured by g:__wiki_force_global which is used by wiki#root. If
+" there is no bang, then wiki#root will always return the global wiki specified
+" by g:wiki_root. When there is a bang, then wiki#root will first look for
+" a local wiki root.
+function! s:bang_wrapper(function_name, bang) abort
+  let g:__wiki_force_global = a:bang ==# ''
+  try
+    call call(a:function_name, [])
+  finally
+    unlet! g:__wiki_force_global
+  endtry
 endfunction
