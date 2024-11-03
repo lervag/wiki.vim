@@ -1718,7 +1718,7 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
 *<plug>(wiki-index)*
 *WikiIndex*[!]
   Go to the wiki index for the main wiki specified by |g:wiki_root| and
-  |g:wiki_index_name.
+  |g:wiki_index_name|.
 
   `:WikiIndex!` (with the bang) will first look the index of the current local
   wiki. This is useful for users that maintains multiple wikis. The command
