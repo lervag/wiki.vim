@@ -2144,42 +2144,19 @@ DEFAULT TAG PARSER                                          *wiki-tags-default*
 The default tag parser adds support for tags within colons, i.e. `:tag-name:`.
 Multiple tags may be specified both with `:tag1: :tag2:` and with the short
 form `:tag1:tag2:`. The tag name must consist of purely non-space characters.
+The full implementation is given in `autoload/wiki/tags.vim` and should be
+used as a template for those who want to make a custom parser.
 
-The full implementation is given in `autoload/wiki/tags.vim`, repeated here
-for convenience: >vim
-
-  let g:wiki#tags#default_parser = {
-        \ 're_match': '\v%(^|\s):\zs[^: ]+\ze:',
-        \ 're_findstart': '\v%(^|\s):\zs[^: ]+$'
-        \}
-
-  function! g:wiki#tags#default_parser.match(line) dict abort
-    return a:line =~# self.re_match
-  endfunction
-
-  function! g:wiki#tags#default_parser.parse(line) dict abort
-    let l:tags = []
-    let l:tag = matchstr(a:line, self.re_match, 0)
-
-    while !empty(l:tag)
-      call add(l:tags, l:tag)
-      let l:tag = matchstr(a:line, self.re_match, 0, len(l:tags) + 1)
-    endwhile
-
-    return l:tags
-  endfunction
-
-  function! g:wiki#tags#default_parser.make(taglist, curline='') dict abort
-    return empty(a:taglist) ? '' : join(map(a:taglist, '":" . v:val . ":"'))
-  endfunction
-
-One may customize the default parser by adjusting `re_match`, `re_findstart`,
-and `make`. E.g., to instead recognize hashed tags like `#tag1` and
-`#my-other-tag`, one could add the following in one's vimrc: >vim
+For simple customizations, one may customize the default parser by adjusting
+`re_match`, `re_findstart`, `re_parse`, and `make`. E.g., to instead recognize
+hashed tags like `#tag1` and `#my-other-tag`, one could add the following in
+one's vimrc:
+>vim
 
   let s:tag_parser = deepcopy(g:wiki#tags#default_parser)
   let s:tag_parser.re_match = '\v%(^|\s)#\zs[^# ]+'
   let s:tag_parser.re_findstart = '\v%(^|\s)#\zs[^# ]+'
+  let s:tag_parser.re_parse = '\v#\zs[^# ]+'
   let s:tag_parser.make = {t, l -> empty(t) ? '' : join(map(t, '"#" . v:val'))}
 
   let g:wiki_tag_parsers = [s:tag_parser]
