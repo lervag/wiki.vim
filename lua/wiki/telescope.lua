@@ -69,9 +69,10 @@ function M.tags(opts)
         results = items,
         entry_maker = function(entry)
           return {
-            value = entry[2],
             display = entry[1],
             ordinal = entry[1],
+            value = entry[2],
+            path = entry[2],
             lnum = entry[3],
           }
         end,
