@@ -343,9 +343,10 @@ function! s:toc_create_markdown(local) abort
   call append(l:start - 1, l:title)
   let l:i = 0
   for l:e in l:entries
+    let l:url = g:wiki_link_creation['md'].url_transform(l:e.anchor)
     call append(l:start + l:i,
           \ repeat(' ', shiftwidth()*(l:e.level - l:level))
-          \ . '* ' . wiki#link#template(l:e.anchor, l:e.header))
+          \ . '* ' . wiki#link#template(l:url, l:e.header))
     let l:i += 1
   endfor
   let l:length = len(l:entries)

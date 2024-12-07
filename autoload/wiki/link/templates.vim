@@ -38,11 +38,7 @@ function! wiki#link#templates#adoc_xref_inline(url, text, ...) abort
 endfunction
 
 function! wiki#link#templates#md(url, text, ...) abort
-  return printf(
-        \ '[%s](%s)',
-        \ empty(a:text) ? a:url : a:text,
-        \ wiki#url#utils#url_encode_specific(a:url, '()')
-        \)
+  return printf('[%s](%s)', empty(a:text) ? a:url : a:text, a:url)
 endfunction
 
 function! wiki#link#templates#org(url, text, ...) abort
