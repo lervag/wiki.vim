@@ -4,7 +4,7 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#toc#create(local) abort " {{{1
+function! wiki#toc#create(local) abort
   let l:filetype = s:get_filetype()
 
   try
@@ -14,9 +14,8 @@ function! wiki#toc#create(local) abort " {{{1
   endtry
 endfunction
 
-" }}}1
 
-function! wiki#toc#get_page_title(...) abort " {{{1
+function! wiki#toc#get_page_title(...) abort
   let l:section = wiki#toc#gather_entries(#{
         \ url: a:0 > 0 ? a:1 : '',
         \ first_only: v:true,
@@ -24,7 +23,7 @@ function! wiki#toc#get_page_title(...) abort " {{{1
   return get(l:section, 'header', '')
 endfunction
 
-function! wiki#toc#get_section(...) abort " {{{1
+function! wiki#toc#get_section(...) abort
   let l:opts = extend(#{
         \ path: expand('%:p'),
         \ at_lnum: line('.'),
@@ -32,9 +31,8 @@ function! wiki#toc#get_section(...) abort " {{{1
   return wiki#toc#gather_entries(l:opts)
 endfunction
 
-" }}}1
 
-function! wiki#toc#gather_entries(...) abort " {{{1
+function! wiki#toc#gather_entries(...) abort
   " Returns:
   "   List[Entry]
   "
@@ -101,8 +99,7 @@ function! wiki#toc#gather_entries(...) abort " {{{1
   return l:toc
 endfunction
 
-" }}}1
-function! wiki#toc#gather_entries_from_lines(lines, filetype) abort " {{{1
+function! wiki#toc#gather_entries_from_lines(lines, filetype) abort
   let l:hd = get(s:header_spec, a:filetype, {})
   if empty(l:hd)
     call wiki#log#error("No TOC support for filetype: " . a:filetype . "!")
@@ -190,9 +187,8 @@ let s:header_spec = {
       \ },
       \}
 
-" }}}1
 
-function! wiki#toc#gather_anchors(...) abort " {{{1
+function! wiki#toc#gather_anchors(...) abort
   let l:cache = wiki#cache#open('anchors', {
         \ 'local': 1,
         \ 'default': { 'ftime': -1 },
@@ -213,9 +209,8 @@ function! wiki#toc#gather_anchors(...) abort " {{{1
   return copy(l:current.anchors)
 endfunction
 
-" }}}1
 
-function! s:toc_create_asciidoc(...) abort " {{{1
+function! s:toc_create_asciidoc(...) abort
   let l:entries = wiki#toc#gather_entries()
   if empty(l:entries) | return | endif
 
@@ -258,8 +253,7 @@ function! s:toc_create_asciidoc(...) abort " {{{1
   endif
 endfunction
 
-" }}}1
-function! s:toc_create_org(...) abort " {{{1
+function! s:toc_create_org(...) abort
   let l:entries = wiki#toc#gather_entries()
   if empty(l:entries) | return | endif
 
@@ -279,8 +273,7 @@ function! s:toc_create_org(...) abort " {{{1
   endif
 endfunction
 
-" }}}1
-function! s:toc_create_markdown(local) abort " {{{1
+function! s:toc_create_markdown(local) abort
   let l:entries = wiki#toc#gather_entries()
   if empty(l:entries) | return | endif
 
@@ -368,9 +361,8 @@ function! s:toc_create_markdown(local) abort " {{{1
   call winrestview(l:winsave)
 endfunction
 
-" }}}1
 
-function! s:get_filetype(...) abort " {{{1
+function! s:get_filetype(...) abort
   let l:ext = a:0 > 0 ? fnamemodify(a:1, ':e') : expand('%:e')
   if empty(l:ext)
     let l:ext = g:wiki_filetypes[0]
@@ -379,8 +371,7 @@ function! s:get_filetype(...) abort " {{{1
   return get(g:wiki_toc_filetypes, l:ext, g:wiki_toc_filetypes._)
 endfunction
 
-" }}}1
-function! s:get_local_toc(entries, lnum_current) abort " {{{1
+function! s:get_local_toc(entries, lnum_current) abort
     " Get ToC for the section for lnum_current
     "
     " Input: List of entries and a current line number
@@ -411,5 +402,3 @@ function! s:get_local_toc(entries, lnum_current) abort " {{{1
           \    }
           \   ]
 endfunction
-
-" }}}1

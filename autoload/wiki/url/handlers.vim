@@ -4,7 +4,7 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#url#handlers#adoc(resolved, edit_cmd) abort " {{{1
+function! wiki#url#handlers#adoc(resolved, edit_cmd) abort
   let l:do_edit = resolve(a:resolved.path) !=# resolve(expand('%:p'))
 
   call wiki#url#utils#go_to_file(
@@ -17,8 +17,7 @@ function! wiki#url#handlers#adoc(resolved, edit_cmd) abort " {{{1
   endif
 endfunction
 
-" }}}1
-function! wiki#url#handlers#doi(resolved, ...) abort " {{{1
+function! wiki#url#handlers#doi(resolved, ...) abort
   let a:resolved.url = 'http://dx.doi.org/' .. a:resolved.stripped
   let a:resolved.scheme = 'http'
   let a:resolved.stripped = strpart(a:resolved.url, 5)
@@ -26,8 +25,7 @@ function! wiki#url#handlers#doi(resolved, ...) abort " {{{1
   return wiki#url#handlers#generic(a:resolved)
 endfunction
 
-" }}}1
-function! wiki#url#handlers#file(resolved, ...) abort " {{{1
+function! wiki#url#handlers#file(resolved, ...) abort
   let l:cmd = get(g:wiki_viewer, a:resolved.ext, g:wiki_viewer._)
   if l:cmd ==# ':edit'
     silent execute 'edit' fnameescape(a:resolved.path)
@@ -37,8 +35,7 @@ function! wiki#url#handlers#file(resolved, ...) abort " {{{1
   endif
 endfunction
 
-" }}}1
-function! wiki#url#handlers#generic(resolved, ...) abort " {{{1
+function! wiki#url#handlers#generic(resolved, ...) abort
   try
     call netrw#BrowseX(a:resolved.url, 0)
     return
@@ -49,19 +46,16 @@ function! wiki#url#handlers#generic(resolved, ...) abort " {{{1
         \ g:wiki_viewer._ .. ' ' .. wiki#u#shellescape(a:resolved.url) .. '&')
 endfunction
 
-" }}}1
-function! wiki#url#handlers#man(resolved, ...) abort " {{{1
+function! wiki#url#handlers#man(resolved, ...) abort
   execute 'edit' fnameescape(a:resolved.path)
 endfunction
 
-" }}}1
-function! wiki#url#handlers#refbad(resolved, ...) abort " {{{1
+function! wiki#url#handlers#refbad(resolved, ...) abort
   normal! m'
   call cursor(a:resolved.lnum, 1)
 endfunction
 
-" }}}1
-function! wiki#url#handlers#vimdoc(resolved, edit_cmd) abort " {{{1
+function! wiki#url#handlers#vimdoc(resolved, edit_cmd) abort
   try
     if a:edit_cmd ==# 'edit'
       execute 'help' a:resolved.stripped
@@ -78,8 +72,7 @@ function! wiki#url#handlers#vimdoc(resolved, edit_cmd) abort " {{{1
   endtry
 endfunction
 
-" }}}1
-function! wiki#url#handlers#wiki(resolved, edit_cmd) abort " {{{1
+function! wiki#url#handlers#wiki(resolved, edit_cmd) abort
   let l:do_edit = resolve(a:resolved.path) !=# resolve(expand('%:p'))
 
   call wiki#url#utils#go_to_file(
@@ -92,8 +85,7 @@ function! wiki#url#handlers#wiki(resolved, edit_cmd) abort " {{{1
   endif
 endfunction
 
-" }}}1
-function! wiki#url#handlers#zot(resolved, ...) abort " {{{1
+function! wiki#url#handlers#zot(resolved, ...) abort
   let l:files = wiki#zotero#search(a:resolved.stripped)
 
   if len(l:files) > 0
@@ -121,8 +113,7 @@ function! wiki#url#handlers#zot(resolved, ...) abort " {{{1
         \ g:wiki_viewer['_'], a:resolved.stripped))
 endfunction
 
-" }}}1
-function! wiki#url#handlers#bdsk(resolved, ...) abort " {{{1
+function! wiki#url#handlers#bdsk(resolved, ...) abort
   let l:encoded_url = stridx(a:resolved.stripped, "%") < 0
         \ ? wiki#url#utils#url_encode(a:resolved.stripped)
         \ : a:resolved.stripped
@@ -133,10 +124,8 @@ function! wiki#url#handlers#bdsk(resolved, ...) abort " {{{1
   return wiki#url#handlers#generic(a:resolved)
 endfunction
 
-" }}}1
 
-
-function! s:menu_open_pdf(val) abort " {{{1
+function! s:menu_open_pdf(val) abort
   let l:filename = fnamemodify(a:val, ':t')
 
   let l:strlen = strchars(l:filename)
@@ -149,5 +138,3 @@ function! s:menu_open_pdf(val) abort " {{{1
 
   return 'Open PDF: ' .. l:filename
 endfunction
-
-" }}}1

@@ -4,7 +4,7 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#url#resolvers#adoc(url) abort " {{{1
+function! wiki#url#resolvers#adoc(url) abort
   let l:url = deepcopy(a:url)
 
   let l:parts = split(l:url.stripped, '#', 1)
@@ -22,8 +22,7 @@ function! wiki#url#resolvers#adoc(url) abort " {{{1
   return l:url
 endfunction
 
-" }}}1
-function! wiki#url#resolvers#file(url) abort " {{{1
+function! wiki#url#resolvers#file(url) abort
   let l:url = deepcopy(a:url)
 
   let l:url.ext = fnamemodify(l:url.stripped, ':e')
@@ -39,8 +38,7 @@ function! wiki#url#resolvers#file(url) abort " {{{1
   return l:url
 endfunction
 
-" }}}1
-function! wiki#url#resolvers#journal(url) abort " {{{1
+function! wiki#url#resolvers#journal(url) abort
   let l:matches = matchlist(a:url.stripped, '\v([^#]*)%(#(.*))?')
   let l:date = get(l:matches, 1, 'N/A')
   let l:anchor = get(l:matches, 3, '')
@@ -74,8 +72,7 @@ function! wiki#url#resolvers#journal(url) abort " {{{1
   return l:url
 endfunction
 
-" }}}1
-function! wiki#url#resolvers#man(url) abort " {{{1
+function! wiki#url#resolvers#man(url) abort
   let l:url = deepcopy(a:url)
 
   let l:url.path = 'man://' . matchstr(l:url.url, 'man:\(\/\/\)\?\zs[^ (]*')
@@ -88,8 +85,7 @@ function! wiki#url#resolvers#man(url) abort " {{{1
   return l:url
 endfunction
 
-" }}}1
-function! wiki#url#resolvers#reference(url) abort " {{{1
+function! wiki#url#resolvers#reference(url) abort
   let l:id = a:url.stripped
   let l:lnum_target = searchpos('^\s*\[' . l:id . '\]: ', 'nW')[0]
   if l:lnum_target == 0
@@ -124,8 +120,7 @@ function! wiki#url#resolvers#reference(url) abort " {{{1
         \})
 endfunction
 
-" }}}1
-function! wiki#url#resolvers#wiki(url) abort " {{{1
+function! wiki#url#resolvers#wiki(url) abort
   let l:url = deepcopy(a:url)
 
   let l:url.anchor = wiki#url#utils#extract_anchor(l:url.stripped)
@@ -135,5 +130,3 @@ function! wiki#url#resolvers#wiki(url) abort " {{{1
 
   return l:url
 endfunction
-
-" }}}1

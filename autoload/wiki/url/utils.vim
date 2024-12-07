@@ -4,7 +4,7 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#url#utils#add_extension(filename) abort " {{{1
+function! wiki#url#utils#add_extension(filename) abort
   " Input: Filename with possibly missing file extension
   " Output: Filename with resolved extension
 
@@ -26,8 +26,7 @@ function! wiki#url#utils#add_extension(filename) abort " {{{1
   return a:filename . '.' . l:extensions[0]
 endfunction
 
-" }}}1
-function! wiki#url#utils#extract_anchor(stripped) abort " {{{1
+function! wiki#url#utils#extract_anchor(stripped) abort
   let l:parts = split(a:stripped, '#', 1)
 
   return len(l:parts) > 1
@@ -35,8 +34,7 @@ function! wiki#url#utils#extract_anchor(stripped) abort " {{{1
         \ : ''
 endfunction
 
-" }}}1
-function! wiki#url#utils#resolve_path(filename, origin) abort " {{{1
+function! wiki#url#utils#resolve_path(filename, origin) abort
   let l:filename = a:filename
   if l:filename =~# '/$'
     let l:filename .= get(get(b:, 'wiki', {}), 'index_name', '')
@@ -55,9 +53,8 @@ function! wiki#url#utils#resolve_path(filename, origin) abort " {{{1
   return wiki#url#utils#add_extension(l:path)
 endfunction
 
-" }}}1
 
-function! wiki#url#utils#go_to_file(path, edit_cmd, url_stripped, do_edit) abort " {{{1
+function! wiki#url#utils#go_to_file(path, edit_cmd, url_stripped, do_edit) abort
   if !a:do_edit | return | endif
 
   " Check if dir exists
@@ -79,8 +76,7 @@ function! wiki#url#utils#go_to_file(path, edit_cmd, url_stripped, do_edit) abort
   end
 endfunction
 
-" }}}1
-function! wiki#url#utils#go_to_anchor_adoc(anchor, do_edit) abort " {{{1
+function! wiki#url#utils#go_to_anchor_adoc(anchor, do_edit) abort
   if empty(a:anchor) | return | endif
 
   " Manually add position to jumplist (necessary if we're in same file)
@@ -113,8 +109,7 @@ function! wiki#url#utils#go_to_anchor_adoc(anchor, do_edit) abort " {{{1
   endfor
 endfunction
 
-" }}}1
-function! wiki#url#utils#go_to_anchor_wiki(anchor, do_edit) abort " {{{1
+function! wiki#url#utils#go_to_anchor_wiki(anchor, do_edit) abort
   if empty(a:anchor) | return | endif
 
   " Manually add position to jumplist (necessary if we're in same file)
@@ -144,8 +139,7 @@ function! wiki#url#utils#go_to_anchor_wiki(anchor, do_edit) abort " {{{1
   endfor
 endfunction
 
-" }}}1
-function! wiki#url#utils#focus(do_edit) abort " {{{1
+function! wiki#url#utils#focus(do_edit) abort
   if !&foldenable | return | endif
 
   if a:do_edit
@@ -155,9 +149,8 @@ function! wiki#url#utils#focus(do_edit) abort " {{{1
   endif
 endfunction
 
-" }}}1
 
-function! wiki#url#utils#url_encode(str) abort " {{{1
+function! wiki#url#utils#url_encode(str) abort
   " This code is based on Tip Pope's vim-unimpaired:
   " https://github.com/tpope/vim-unimpaired
   return substitute(
@@ -168,8 +161,7 @@ function! wiki#url#utils#url_encode(str) abort " {{{1
         \)
 endfunction
 
-" }}}1
-function! wiki#url#utils#url_decode(str) abort " {{{1
+function! wiki#url#utils#url_decode(str) abort
   " This code is based on Tip Pope's vim-unimpaired:
   " https://github.com/tpope/vim-unimpaired
   let l:str =
@@ -181,5 +173,3 @@ function! wiki#url#utils#url_decode(str) abort " {{{1
   let l:str = substitute(l:str, '%\(\x\x\)', '\=nr2char("0x".submatch(1))', 'g')
   return iconv(str, 'utf-8', 'latin1')
 endfunction
-
-" }}}1

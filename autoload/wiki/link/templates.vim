@@ -4,7 +4,7 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#link#templates#adoc_xref_bracket(url, text, ...) abort " {{{1
+function! wiki#link#templates#adoc_xref_bracket(url, text, ...) abort
   let l:parts = split(a:url, '#')
   let l:anchors = len(l:parts) > 1
         \ ? join(l:parts[1:], '#')
@@ -20,8 +20,7 @@ function! wiki#link#templates#adoc_xref_bracket(url, text, ...) abort " {{{1
   return printf('<<%s,%s>>', l:url, empty(a:text) ? a:url : a:text)
 endfunction
 
-" }}}1
-function! wiki#link#templates#adoc_xref_inline(url, text, ...) abort " {{{1
+function! wiki#link#templates#adoc_xref_inline(url, text, ...) abort
   let l:parts = split(a:url, '#')
   let l:anchors = len(l:parts) > 1
         \ ? join(l:parts[1:], '#')
@@ -38,33 +37,28 @@ function! wiki#link#templates#adoc_xref_inline(url, text, ...) abort " {{{1
         \ l:url, empty(a:text) ? a:url : a:text)
 endfunction
 
-" }}}1
-function! wiki#link#templates#md(url, text, ...) abort " {{{1
+function! wiki#link#templates#md(url, text, ...) abort
   return printf('[%s](%s)', empty(a:text) ? a:url : a:text, a:url)
 endfunction
 
-" }}}1
-function! wiki#link#templates#org(url, text, ...) abort " {{{1
+function! wiki#link#templates#org(url, text, ...) abort
   return empty(a:text) || a:text ==# a:url || a:text ==# a:url[1:]
         \ ? '[[' . a:url . ']]'
         \ : '[[' . a:url . '][' . a:text . ']]'
 endfunction
 
-" }}}1
-function! wiki#link#templates#wiki(url, text, ...) abort " {{{1
+function! wiki#link#templates#wiki(url, text, ...) abort
   return empty(a:text) || a:text ==# a:url || a:text ==# a:url[1:]
         \ ? '[[' . a:url . ']]'
         \ : '[[' . a:url . '|' . a:text . ']]'
 endfunction
 
-" }}}1
-function! wiki#link#templates#ref_target(url, id, ...) abort " {{{1
+function! wiki#link#templates#ref_target(url, id, ...) abort
   let l:id = empty(a:id) ? wiki#ui#input(#{info: 'Input id: '}) : a:id
   return '[' . l:id . ']: ' . a:url
 endfunction
 
-" }}}1
-function! wiki#link#templates#word(text, ...) abort " {{{1
+function! wiki#link#templates#word(text, ...) abort
   " This template returns a wiki template for the provided word(s). It does
   " a smart search for likely candidates and if there is no unique match, it
   " asks for target link.
@@ -131,5 +125,3 @@ function! wiki#link#templates#word(text, ...) abort " {{{1
         \   ? wiki#link#template(l:url, a:text)
         \   : wiki#link#template(l:prefix . l:choice, ''))
 endfunction
-
-" }}}1
