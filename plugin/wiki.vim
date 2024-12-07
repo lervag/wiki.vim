@@ -50,6 +50,8 @@ call wiki#init#option('wiki_link_creation', {
       \ 'md': {
       \   'link_type': 'md',
       \   'url_extension': '.md',
+      \   'url_transform': { x ->
+      \     wiki#url#utils#url_encode_specific(x, '()') },
       \ },
       \ 'org': {
       \   'link_type': 'org',
@@ -66,7 +68,7 @@ call wiki#init#option('wiki_link_creation', {
       \})
 call wiki#init#option('wiki_link_default_schemes', {
       \ 'wiki': { 'wiki': 'wiki', 'adoc': 'adoc' },
-      \ 'md': 'wiki',
+      \ 'md': 'md',
       \ 'md_fig': 'file',
       \ 'org': 'wiki',
       \ 'adoc_xref_inline': 'adoc',

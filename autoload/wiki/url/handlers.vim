@@ -85,6 +85,10 @@ function! wiki#url#handlers#wiki(resolved, edit_cmd) abort
   endif
 endfunction
 
+function! wiki#url#handlers#md(resolved, edit_cmd) abort
+  return wiki#url#handlers#wiki(a:resolved, a:edit_cmd)
+endfunction
+
 function! wiki#url#handlers#zot(resolved, ...) abort
   let l:files = wiki#zotero#search(a:resolved.stripped)
 

@@ -553,6 +553,10 @@ wiki ~
     the following is equivalent to the latter:
 
     [[index#section 1]]
+
+md ~
+  This is basically the same as the `wiki` scheme, except it will apply URL
+  decoding while resolving the URLs.
 <
 journal ~
   Links to journal pages. The address should be a date format at a specified
@@ -647,6 +651,8 @@ Markdown links ~
 Markdown links look like this: >
 
   [Description](URL)
+
+Markdown links will use the `md` scheme by default.
 
 Markdown image links ~
                                                              *wiki-link-md_fig*
@@ -1086,8 +1092,6 @@ a reference of all available options.
 
         let g:wiki_link_creation = {
               \ 'md': {
-              \   'link_type': 'md',
-              \   'url_extension': '.md',
               \   'url_transform': { x ->
               \     substitute(tolower(x), '\s\+', '-', 'g') },
               \ },
@@ -1099,6 +1103,8 @@ a reference of all available options.
           \ 'md': {
           \   'link_type': 'md',
           \   'url_extension': '.md',
+          \   'url_transform': { x ->
+          \     wiki#url#utils#url_encode_specific(x, '()') },
           \ },
           \ 'org': {
           \   'link_type': 'org',
@@ -1131,7 +1137,7 @@ a reference of all available options.
 
     let g:wiki_link_default_schemes = {
           \ 'wiki': { 'wiki': 'wiki', 'adoc': 'adoc' },
-          \ 'md': 'wiki',
+          \ 'md': 'md',
           \ 'md_fig': 'file',
           \ 'org': 'wiki',
           \ 'adoc_xref_inline': 'adoc',

@@ -130,3 +130,16 @@ function! wiki#url#resolvers#wiki(url) abort
 
   return l:url
 endfunction
+
+function! wiki#url#resolvers#md(url) abort
+  let l:url = deepcopy(a:url)
+
+  let l:anchor = wiki#url#utils#extract_anchor(l:url.stripped)
+  let l:url.anchor = wiki#url#utils#url_decode(l:anchor)
+
+  let l:path = split(l:url.stripped, '#', 1)[0]
+  let l:path = wiki#url#utils#url_decode(l:path)
+  let l:url.path = wiki#url#utils#resolve_path(l:path, l:url.origin)
+
+  return l:url
+endfunction

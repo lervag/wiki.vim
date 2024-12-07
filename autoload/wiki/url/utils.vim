@@ -173,3 +173,12 @@ function! wiki#url#utils#url_decode(str) abort
   let l:str = substitute(l:str, '%\(\x\x\)', '\=nr2char("0x".submatch(1))', 'g')
   return iconv(str, 'utf-8', 'latin1')
 endfunction
+
+function! wiki#url#utils#url_encode_specific(str, chars) abort
+  return substitute(
+        \ iconv(a:str, 'latin1', 'utf-8'),
+        \ '[' .. a:chars .. ']',
+        \ '\="%"..printf("%02X", char2nr(submatch(0)))',
+        \ 'g'
+        \)
+endfunction

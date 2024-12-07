@@ -9,7 +9,7 @@ call assert_equal('wiki', s:link.scheme)
 
 let s:link = wiki#link#get_at_pos(3, 26)
 call assert_equal('md', s:link.type)
-call assert_equal('wiki', s:link.scheme)
+call assert_equal('md', s:link.scheme)
 
 let s:link = wiki#link#get_at_pos(3, 55)
 call assert_equal('org', s:link.type)
@@ -50,7 +50,7 @@ call assert_equal('file', s:link.scheme)
 
 let s:link = wiki#link#get_at_pos(39, 5)
 call assert_equal('md', s:link.type)
-call assert_equal('wiki', s:link.scheme)
+call assert_equal('md', s:link.scheme)
 
 " Avoid checking links inside code snippets
 syntax enable
@@ -59,6 +59,6 @@ let s:link = wiki#link#get_at_pos(41, 19)
 call assert_equal({}, s:link)
 let s:link = wiki#link#get_at_pos(41, 35)
 call assert_equal('md', s:link.type)
-call assert_equal('wiki', s:link.scheme)
+call assert_equal('md', s:link.scheme)
 
 call wiki#test#finished()
