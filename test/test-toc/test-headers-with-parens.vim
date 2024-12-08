@@ -6,11 +6,11 @@ runtime plugin/wiki.vim
 set shiftwidth=2
 set expandtab
 
-silent edit aux/headers-with-parens-input.md
+silent edit wiki/headers-with-parens-input.md
 
 WikiTocGenerate
 call assert_equal(
-      \ readfile('aux/headers-with-parens-reference.md'),
+      \ readfile('wiki/headers-with-parens-reference.md'),
       \ getline(1, '$'))
 
 call wiki#test#finished()
