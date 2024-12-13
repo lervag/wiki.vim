@@ -13,6 +13,7 @@ function! wiki#fzf#pages() abort "{{{1
   let l:fzf_opts = join([
         \ '-d"#####" --with-nth=-1 --print-query --prompt "WikiPages> "',
         \ '--expect=' . get(g:, 'wiki_fzf_force_create_key', 'alt-enter'),
+        \ '--expect=ctrl-v,ctrl-t,ctrl-x',
         \ g:wiki_fzf_pages_opts,
         \])
 
@@ -114,12 +115,18 @@ function! s:accept_page(lines) abort "{{{1
   " was pressed; the third element contains the selected item.
   if len(a:lines) < 2 | return | endif
 
-  if len(a:lines) == 2 || !empty(a:lines[1])
+  if len(a:lines) == 2
+        \ || a:lines[1] == get(g:, 'wiki_fzf_force_create_key', 'alt-enter')
     call wiki#page#open(a:lines[0])
     sleep 1
   else
+    let l:edit_cmd = get({
+          \ 'ctrl-t': 'tabedit',
+          \ 'ctrl-x': 'split',
+          \ 'ctrl-v': 'vsplit',
+          \}, a:lines[1], 'edit')
     let l:file = split(a:lines[2], '#####')[0]
-    execute 'edit ' . l:file
+    execute l:edit_cmd .. ' ' .. l:file
   endif
 endfunction
 
