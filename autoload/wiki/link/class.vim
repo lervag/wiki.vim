@@ -15,6 +15,9 @@ function! wiki#link#class#new(link_definition, match) abort " {{{1
   call s:parse_from_content(l:link, a:link_definition, 'url')
   let l:link.url_raw = l:link.url
 
+  " Remove enclosing angled brackets
+  let l:link.url = substitute(l:link.url, '^<\(.*\)>$', '\1', '')
+
   " Add scheme to URL if it is missing
   if has_key(a:link_definition, '__scheme')
     let l:link.scheme = type(a:link_definition.__scheme) == v:t_func
