@@ -154,7 +154,7 @@ function! wiki#url#utils#url_encode(str) abort
   " This code is based on Tip Pope's vim-unimpaired:
   " https://github.com/tpope/vim-unimpaired
   return substitute(
-        \ iconv(a:str, 'latin1', 'utf-8'),
+        \ a:str,
         \ '[^A-Za-z0-9_.~-]',
         \ '\="%".printf("%02X",char2nr(submatch(0)))',
         \ 'g'
@@ -170,13 +170,12 @@ function! wiki#url#utils#url_decode(str) abort
         \     substitute(a:str, '%0[Aa]\n$', '%0A', ''),
         \     '%0[Aa]', '\n', 'g'),
         \   '+', ' ', 'g')
-  let l:str = substitute(l:str, '%\(\x\x\)', '\=nr2char("0x".submatch(1))', 'g')
-  return iconv(str, 'utf-8', 'latin1')
+  return substitute(l:str, '%\(\x\x\)', '\=nr2char("0x".submatch(1))', 'g')
 endfunction
 
 function! wiki#url#utils#url_encode_specific(str, chars) abort
   return substitute(
-        \ iconv(a:str, 'latin1', 'utf-8'),
+        \ a:str,
         \ '[' .. a:chars .. ']',
         \ '\="%"..printf("%02X", char2nr(submatch(0)))',
         \ 'g'
