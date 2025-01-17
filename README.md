@@ -1,7 +1,7 @@
 # Introduction
 
-This is a [Vim](http://www.vim.org/) and [neovim](https://neovim.io/) plugin for writing and maintaining
-a personal wiki. The plugin was initially based on
+This is a [Vim](http://www.vim.org/) and [neovim](https://neovim.io/) plugin
+for writing and maintaining a personal wiki. The plugin was initially based on
 [vimwiki](https://github.com/vimwiki/vimwiki), but it is written mostly from
 scratch and is based on a more "do one thing and do it well" philosophy.
 
@@ -9,12 +9,16 @@ This README file contains basic information on how to get started, as well as
 a list of available features. For more details, please read the
 [full documentation](doc/wiki.txt).
 
-Note: `wiki.vim` is _not_ a filetype plugin. It is designed to be used _with_
-      filetype plugins, e.g. dedicated Markdown plugins. Users are advised to
-      read `:help wiki-intro-plugins` for a list of plugins that work well with
-      `wiki.vim`.
+> [!NOTE]
+>
+> `wiki.vim` is _not_ a filetype plugin. It is designed to be used _with_
+> filetype plugins, e.g. dedicated Markdown plugins. Users are advised to read
+> `:help wiki-intro-plugins` for a list of plugins that work well with
+> `wiki.vim`.
 
-Note: `wiki.vim` requires Vim 9.1 or Neovim 0.9.5.
+> [!WARNING]
+>
+> `wiki.vim` requires Vim 9.1 or Neovim 0.10!
 
 ## Table of contents
 
@@ -27,17 +31,44 @@ Note: `wiki.vim` requires Vim 9.1 or Neovim 0.9.5.
 
 ## Installation
 
-If you use [vim-plug](https://github.com/junegunn/vim-plug), then add the
-following line to your `vimrc` file:
+There are a lot of methods for installing plugins.
+The following explains the most common and popular approaches.
+
+### lazy.nvim
+
+To install wiki.vim, add a plugin spec similar to this:
+
+```lua
+{
+  "lervag/wiki.vim",
+  -- tag = "v0.10", -- uncomment to pin to a specific release
+  init = function()
+    -- wiki.vim configuration goes here, e.g.
+  end
+}
+```
+
+wiki.vim is mostly implemented in Vimscript and is configured with the
+classical vimscript variable convention like `g:vimtex_OPTION_NAME`. Nowadays,
+Neovim is often configured with Lua, thus some users may be interested in
+reading `:help lua-vimscript`.
+
+### vim-plug
+
+If you use [vim-plug](https://github.com/junegunn/vim-plug), then add *one* of
+the following lines to your configuration. The first will use the latest
+versions from the `master` branch, whereas the second will pin to a release
+tag.
 
 ```vim
 Plug 'lervag/wiki.vim'
+Plug 'lervag/wiki.vim', { 'tag': 'v0.10' }
 ```
 
-Or use some other plugin manager:
-- [vundle](https://github.com/gmarik/vundle)
-- [neobundle](https://github.com/Shougo/neobundle.vim)
-- [pathogen](https://github.com/tpope/vim-pathogen)
+### Other
+
+There are many other plugin managers out there.
+They are typically well documented, and it should be straightforward to extrapolate the above snippets.
 
 ## Usage
 
@@ -98,8 +129,7 @@ have existed. So my thanks go to the smart people that developed and maintains
 
 Feel free to consider any of the many available alternatives. There are likely many more, but these are the ones I'm aware of:
 
-* [Vimwiki](https://github.com/vimwiki/vimwiki)
-* [neorg](https://github.com/nvim-neorg/neorg)
-* [tdo.nvim](https://github.com/2KAbhishek/tdo.nvim)
-* [notes.nvim](https://github.com/dhananjaylatkar/notes.nvim)
-
+- [Vimwiki](https://github.com/vimwiki/vimwiki)
+- [neorg](https://github.com/nvim-neorg/neorg)
+- [tdo.nvim](https://github.com/2KAbhishek/tdo.nvim)
+- [notes.nvim](https://github.com/dhananjaylatkar/notes.nvim)
