@@ -344,9 +344,10 @@ function! wiki#link#set_text_from_header(range, line1, line2) abort "{{{1
 
   for l:link in filter(
         \ l:links,
-        \ { _, x -> index(['wiki', 'journal'], x.scheme) >= 0 }
+        \ { _, x -> index(['wiki', 'journal', 'md'], x.scheme) >= 0 }
         \)
     let l:title = wiki#toc#get_page_title(l:link)
+
     if empty(l:title) | return | endif
 
     try
