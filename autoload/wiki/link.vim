@@ -122,7 +122,7 @@ function! wiki#link#add(path, mode, ...) abort " {{{1
   else
     let l:defaults = #{
           \ position: getcurpos()[1:2],
-          \ text: ''
+          \ text: wiki#toc#get_page_title(a:path)
           \}
   endif
 
