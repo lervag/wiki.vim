@@ -52,6 +52,7 @@ call wiki#init#option('wiki_link_creation', {
       \   'url_extension': '.md',
       \   'url_transform': { x ->
       \     wiki#url#utils#url_encode_specific(x, '()') },
+      \   'link_text': { url -> wiki#toc#get_page_title(url) },
       \ },
       \ 'org': {
       \   'link_type': 'org',

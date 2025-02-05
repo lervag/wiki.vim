@@ -112,6 +112,8 @@ endfunction
 "}}}1
 
 function! wiki#link#add(path, mode, ...) abort " {{{1
+  let l:creator = wiki#link#get_creator()
+
   if a:mode == 'visual'
     let l:at_last_col = getpos("'>")[2] >= col('$') - 1
     normal! gv"wd
@@ -122,7 +124,9 @@ function! wiki#link#add(path, mode, ...) abort " {{{1
   else
     let l:defaults = #{
           \ position: getcurpos()[1:2],
-          \ text: wiki#toc#get_page_title(a:path)
+          \ text: has_key(l:creator, 'link_text')
+          \   ? l:creator.link_text(a:path)
+          \   : a:path
           \}
   endif
 
@@ -134,7 +138,6 @@ function! wiki#link#add(path, mode, ...) abort " {{{1
           \ ? wiki#paths#to_wiki_url(a:path, l:cwd)
           \ : '/' .. wiki#paths#to_wiki_url(a:path)
   else
-    let l:creator = wiki#link#get_creator()
     let l:url = has_key(l:creator, 'url_transform')
           \ ? l:creator.url_transform(a:path)
           \ : a:path
@@ -179,7 +182,9 @@ function! wiki#link#get_creator(...) abort " {{{1
   if empty(l:ft) || index(g:wiki_filetypes, l:ft) < 0
     let l:ft = g:wiki_filetypes[0]
   endif
-  let l:c = get(g:wiki_link_creation, l:ft, g:wiki_link_creation._)
+  let l:c = extend(
+        \ get(g:wiki_link_creation, l:ft, {}),
+        \ g:wiki_link_creation._, 'keep')
 
   return a:0 > 0 ? l:c[a:1] : l:c
 endfunction

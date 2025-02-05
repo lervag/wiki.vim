@@ -1097,6 +1097,13 @@ a reference of all available options.
               \ },
               \}
 <
+    link_text ~
+      A |Funcref| for a function used by |WikiLinkAdd| to determine the link
+      text of the added link. This can also be an |anonymous-function|. If it
+      is undefined, the default link text is empty.
+        The function requires a single string argument, which is the path to
+      the link target. It should return a string - the desired link text.
+<
   Default: >vim
 
     let g:wiki_link_creation = {
@@ -1105,6 +1112,7 @@ a reference of all available options.
           \   'url_extension': '.md',
           \   'url_transform': { x ->
           \     wiki#url#utils#url_encode_specific(x, '()') },
+          \   'link_text': { url -> wiki#toc#get_page_title(url) },
           \ },
           \ 'org': {
           \   'link_type': 'org',
@@ -1839,6 +1847,8 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
   List the wiki files in the current wiki. Select from the list to add a link
   to that target page. This uses the UI select method defined by
   |g:wiki_select_method|. The mapping also works from insert and visual mode.
+  In visual mode, the selected text becomes the link text. Otherwise, the link
+  text is determined by the `link_text` key of |g:wiki_link_creation|.
 
     fzf specific behaviour ~
       If |g:wiki_select_method| is `'fzf'`, then it is possible to create
