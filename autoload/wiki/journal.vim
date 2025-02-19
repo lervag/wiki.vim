@@ -243,7 +243,9 @@ function! wiki#journal#get_current_node() abort " {{{1
     return ''
   endif
 
-  return s:path_to_node(expand('%:p'))
+  return wiki#paths#relative(
+        \ expand('%:p:r'),
+        \ wiki#journal#get_root())
 endfunction
 
 " }}}1
@@ -259,17 +261,34 @@ endfunction
 
 " }}}1
 function! wiki#journal#get_all_nodes(frq, ...) abort " {{{1
-  let l:root = wiki#journal#get_root()
-  let l:rx = wiki#date#format_to_regex(g:wiki_journal.date_format[a:frq])
+  let l:cache = wiki#cache#open('journal-nodes', #{
+        \ persistent: 0,
+        \ default: #{
+        \   time: -1,
+        \   nodes: []
+        \ }
+        \})
 
-  let l:nodes = filter(map(
-        \   glob(wiki#paths#s(l:root . '/**'), 1, 1),
-        \   { _, x -> s:path_to_node(x) }),
-        \ { _, x -> x =~# l:rx })
+  let l:current = l:cache.get(a:frq)
+  let l:time = localtime()
+  if l:time > l:current.time - 5
+    let l:current.time = l:time
+
+    let l:root = wiki#journal#get_root()
+    let l:rx = wiki#date#format_to_regex(g:wiki_journal.date_format[a:frq])
+
+    call wiki#paths#pushd(l:root)
+    let l:current.nodes = filter(
+          \ map(
+          \   glob('./**', 1, 1),
+          \   { _, x -> fnamemodify(x, ':.:r') }),
+          \ { _, x -> x =~# l:rx })
+    call wiki#paths#popd()
+  endif
 
   return a:0 > 0
-        \ ? uniq(sort(a:1 + l:nodes))
-        \ : l:nodes
+        \ ? uniq(sort(a:1 + l:current.nodes))
+        \ : l:current.nodes
 endfunction
 
 " }}}1
@@ -299,10 +318,5 @@ function! s:follow_node(node) abort " {{{1
 endfunction
 
 " }}}1
-function! s:path_to_node(path) abort " {{{1
-  return wiki#paths#relative(
-        \ fnamemodify(a:path, ':r'),
-        \ wiki#journal#get_root())
-endfunction
 
-" }}}1
+" vim: fdm=marker

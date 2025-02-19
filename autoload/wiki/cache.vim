@@ -312,3 +312,5 @@ endfunction
 
 
 let s:_version = 'cache_v2'
+
+" vim: fdm=marker
