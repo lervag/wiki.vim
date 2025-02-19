@@ -85,7 +85,7 @@ let s:completer_wikilink = {
       \}
 
 function! s:completer_wikilink.findstart(line) dict abort " {{{2
-  let l:cnum = match(a:line, '\[\[\zs[^\\[\]]\{-}$')
+  let l:cnum = match(a:line, '\[\[\zs[^\\[\]|]\{-}$')
   if l:cnum < 0 | return -1 | endif
 
   let l:base = a:line[l:cnum:]
@@ -256,3 +256,5 @@ endfunction
 let s:completers = map(
       \ filter(items(s:), 'v:val[0] =~# ''^completer_'''),
       \ 'v:val[1]')
+
+" vim: fdm=marker
