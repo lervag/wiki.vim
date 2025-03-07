@@ -53,8 +53,8 @@ CONTENTS                                                        *wiki-contents*
     Template file format                     |wiki-templates-format|
     Journal summaries                        |wiki-templates-journal-summaries|
   Advanced configuration guide               |wiki-advanced-configuration|
-    Example 1: New scheme                    |wiki-advanced-config-1
-    Example 2: Adjust the wiki scheme        |wiki-advanced-config-2
+    Example 1: New scheme                    |wiki-advanced-config-1|
+    Example 2: Adjust the wiki scheme        |wiki-advanced-config-2|
 
 ==============================================================================
 INTRODUCTION                                                       *wiki-intro*
@@ -1373,7 +1373,7 @@ a reference of all available options.
 *g:wiki_toc_depth*
   The number of sections to parse for the TOC.
 
-  Default: `6
+  Default: `6`
 
 *g:wiki_tag_list*
   A dictionary that specifies the default options for |WikiTagList|.
@@ -1781,7 +1781,7 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
 
 *<plug>(wiki-open)*
 *WikiOpen*
-`:[range]WikiOpen [page]
+`:[range]WikiOpen [page]`
   Open (or create) a page. The command supports completion of the page
   argument. If the `page` argument is not provided, then ask for user input to
   specify the page name. When not already inside a wiki, the wiki root is
@@ -2015,7 +2015,7 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
 
 *<plug>(wiki-export)*
 *WikiExport*
-`:[range]WikiExport [options] [fname]
+`:[range]WikiExport [options] [fname]`
   Export the current wiki file with `pandoc` (https://pandoc.org/). The main argument `fname`
   specifies the target filename and format (implied by the file extension),
   e.g. `test.pdf` or `test.html`. If `fname` is not specified, then the
@@ -2501,6 +2501,6 @@ selection functions yourself. The following is a setup using `fzf-lua`: >lua
     tags = fzf_tags,
     toc = fzf_toc,
   }
+<
 
-==============================================================================
  vim:tw=78:ts=8:ft=help:norl:fdm=marker:cole=2:
