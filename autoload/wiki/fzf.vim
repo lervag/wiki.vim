@@ -196,7 +196,9 @@ endfunction
 " }}}1
 
 function! s:get_path(lines) abort "{{{1
-  if len(a:lines) == 2 || !empty(a:lines[1])
+  if len(a:lines) < 2
+    return "wiki.vim unexpected input:" .. join(a:lines, ', ')
+  elseif len(a:lines) == 2 || !empty(a:lines[1])
     return a:lines[0]
   else
     return split(a:lines[2], '#####')[0]
