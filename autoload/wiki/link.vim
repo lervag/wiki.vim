@@ -398,9 +398,14 @@ function! wiki#link#transform_operator(type) abort " {{{1
   let l:diff = strlen(@@) - strlen(l:word)
   let @@ = l:save
 
+  " Hack: To support multibyte characters at end of the region we move the
+  " selection one character to the right, then afterwards we subtract 1 byte.
+  silent execute "normal! `[v`]l\<esc>"
+
   let l:lnum = line('.')
   let l:c1 = getpos("'<")[2]
-  let l:c2 = getpos("'>")[2] - l:diff
+  let l:c2 = getpos("'>")[2] - 1 - l:diff
+  unsilent echo getpos("'>")[2] getcharpos("'>")[2]
   let l:link = wiki#link#class#new(g:wiki#link#definitions#word, {
         \ 'content': l:word,
         \ 'origin': expand('%:p'),
