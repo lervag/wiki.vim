@@ -384,14 +384,11 @@ function! wiki#link#transform_visual() abort " {{{1
     return
   endif
 
-  let l:lnum = l:pos1[1]
-  let l:c1 = l:pos1[2]
-  let l:c2 = wiki#u#cnum_to_byte(l:pos2[2])
   let l:link = wiki#link#class#new(g:wiki#link#definitions#word, {
         \ 'content': trim(getreg('w')),
         \ 'origin': expand('%:p'),
-        \ 'pos_start': [l:lnum, l:c1],
-        \ 'pos_end': [l:lnum, l:c2],
+        \ 'pos_start': l:pos1[1:2],
+        \ 'pos_end': [l:pos2[1], wiki#u#cnum_to_byte(l:pos2[2])],
         \})
 
   call l:link.transform()
@@ -419,14 +416,11 @@ function! wiki#link#transform_operator(type) abort " {{{1
     return
   endif
 
-  let l:lnum = line('.')
-  let l:c1 = l:pos1[2]
-  let l:c2 = l:pos2[2] - 1 - l:diff
   let l:link = wiki#link#class#new(g:wiki#link#definitions#word, {
         \ 'content': l:word,
         \ 'origin': expand('%:p'),
-        \ 'pos_start': [l:lnum, l:c1],
-        \ 'pos_end': [l:lnum, l:c2],
+        \ 'pos_start': l:pos1[1:2],
+        \ 'pos_end': [l:pos2[1], l:pos2[2] - 1 - l:diff],
         \})
 
   call l:link.transform()

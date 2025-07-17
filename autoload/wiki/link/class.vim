@@ -128,7 +128,7 @@ endfunction
 
 " }}}1
 function! s:link.resolve() dict abort " {{{1
-  if self.type ==# 'word' | return | endif
+  if self.type ==# 'word' | return '' | endif
 
   return wiki#url#resolve(self.url, self.origin)
 endfunction
