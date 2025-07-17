@@ -377,9 +377,16 @@ endfunction
 function! wiki#link#transform_visual() abort " {{{1
   normal! gv"wy
 
-  let l:lnum = line('.')
-  let l:c1 = getpos("'<")[2]
-  let l:c2 = wiki#u#cnum_to_byte(getpos("'>")[2])
+  let l:pos1 = getpos("'<")
+  let l:pos2 = getpos("'>")
+  if l:pos1[1] != l:pos2[1]
+    call wiki#log#warn('Cannot create a link from a multi-line selection!')
+    return
+  endif
+
+  let l:lnum = l:pos1[1]
+  let l:c1 = l:pos1[2]
+  let l:c2 = wiki#u#cnum_to_byte(l:pos2[2])
   let l:link = wiki#link#class#new(g:wiki#link#definitions#word, {
         \ 'content': trim(getreg('w')),
         \ 'origin': expand('%:p'),
@@ -392,6 +399,8 @@ endfunction
 
 " }}}1
 function! wiki#link#transform_operator(type) abort " {{{1
+  let l:saved_position = getcurpos()
+
   let l:save = @@
   silent execute 'normal! `[v`]y'
   let l:word = substitute(@@, '\s\+$', '', '')
@@ -402,10 +411,17 @@ function! wiki#link#transform_operator(type) abort " {{{1
   " selection one character to the right, then afterwards we subtract 1 byte.
   silent execute "normal! `[v`]l\<esc>"
 
+  let l:pos1 = getpos("'<")
+  let l:pos2 = getpos("'>")
+  if l:pos1[1] != l:pos2[1]
+    call cursor(l:saved_position[1:])
+    call wiki#log#warn('Cannot create a link from a multi-line region!')
+    return
+  endif
+
   let l:lnum = line('.')
-  let l:c1 = getpos("'<")[2]
-  let l:c2 = getpos("'>")[2] - 1 - l:diff
-  unsilent echo getpos("'>")[2] getcharpos("'>")[2]
+  let l:c1 = l:pos1[2]
+  let l:c2 = l:pos2[2] - 1 - l:diff
   let l:link = wiki#link#class#new(g:wiki#link#definitions#word, {
         \ 'content': l:word,
         \ 'origin': expand('%:p'),
