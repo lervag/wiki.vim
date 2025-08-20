@@ -41,7 +41,7 @@ endfunction
 function! wiki#url#resolvers#journal(url) abort
   let l:matches = matchlist(a:url.stripped, '\v([^#]*)%(#(.*))?')
   let l:date = get(l:matches, 1, 'N/A')
-  let l:anchor = get(l:matches, 3, '')
+  let l:anchor = get(l:matches, 2, '')
 
   let [l:node, l:frq] = wiki#journal#date_to_node(l:date)
   if empty(l:node)
