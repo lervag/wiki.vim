@@ -37,7 +37,7 @@ endfunction
 
 function! wiki#url#handlers#generic(resolved, ...) abort
   try
-    call netrw#BrowseX(a:resolved.url, 0)
+    call netrw#BrowseX(a:resolved.url)
     return
   catch
   endtry
