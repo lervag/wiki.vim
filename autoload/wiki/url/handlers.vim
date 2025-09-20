@@ -37,13 +37,15 @@ endfunction
 
 function! wiki#url#handlers#generic(resolved, ...) abort
   try
-    call netrw#BrowseX(a:resolved.url)
-    return
+    if get(g:, 'loaded_netrwPlugin', '') >= 'v182'
+      call netrw#BrowseX(a:resolved.url)
+    else
+      call netrw#BrowseX(a:resolved.url, 0)
+    endif
   catch
+    call wiki#jobs#run(
+          \ g:wiki_viewer._ .. ' ' .. wiki#u#shellescape(a:resolved.url) .. '&')
   endtry
-
-  call wiki#jobs#run(
-        \ g:wiki_viewer._ .. ' ' .. wiki#u#shellescape(a:resolved.url) .. '&')
 endfunction
 
 function! wiki#url#handlers#man(resolved, ...) abort
