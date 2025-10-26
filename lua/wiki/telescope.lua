@@ -163,10 +163,7 @@ function M.links(mode, opts)
           vim.cmd [[normal! h]]
         end
 
-        vim.fn["wiki#link#add"](path, "", {
-          transform_relative = true,
-          text = text,
-        })
+        vim.fn["wiki#link#add"](path, "", { text = text })
 
         if mode == "insert" then
           vim.fn.feedkeys "a"
