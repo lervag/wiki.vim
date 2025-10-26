@@ -844,7 +844,7 @@ a reference of all available options.
   A dictionary of functions that allows the user to choose the preferred
   behaviour for |WikiPage|, |WikiTags|, |WikiToc| and |WikiLinkAdd|. This
   gives the user a lot of flexibility to specify how these commands will work.
-  See |wiki-advanced-config-3| for an example configuration.
+  See |wiki-advanced-config-3| for more info on customizing it.
 
   The following table shows the option keys and the related commands:
 
@@ -879,6 +879,11 @@ a reference of all available options.
       - `require("wiki.telescope").tags`
       - `require("wiki.telescope").toc`
       - `require("wiki.telescope").links`
+    - fzf-lua (https://github.com/ibhagwan/fzf-lua)
+      - `require("wiki.fzf_lua").pages`
+      - `require("wiki.fzf_lua").tags`
+      - `require("wiki.fzf_lua").toc`
+      - `require("wiki.fzf_lua").links`
 
   Default (neovim): >lua
 
@@ -2427,80 +2432,10 @@ to be unencoded, then you could do something like this: >vim
 
 Example 3: Customize the `wiki` select method ~
                                                        *wiki-advanced-config-3*
-`wiki.vim` allows to customize the select method used for |WikiPage|, |WikiTags|
-and |WikiToc|. Built-in choices include Telescope, |vim.ui.select| and
-fzf.vim. But you can use watever fuzzy finder you want by creating the
-selection functions yourself. The following is a setup using `fzf-lua`: >lua
-
-  local fzf = require "fzf-lua"
-  local fzf_data = require "fzf-lua".config.__resume_data
-
-  local function fzf_pages()
-    fzf.files({
-      prompt = "Wiki files>",
-      cwd = vim.g.wiki_root,
-      actions = {
-        ['default'] = function(selected)
-          local note = selected[1]
-          if not note then
-            if fzf_data.last_query then
-              note = fzf_data.last_query
-            end
-          end
-          vim.fn["wiki#page#open"](note)
-        end,
-      }
-    })
-  end
-
-  local function fzf_tags()
-    local tags_with_locations = vim.fn["wiki#tags#get_all"]()
-    local root = vim.fn["wiki#get_root"]()
-    local items = {}
-    for tag, locations in pairs(tags_with_locations) do
-      for _, loc in pairs(locations) do
-        local path = vim.fn["wiki#paths#relative"](loc[1], root)
-        local str = string.format("%s:%d:%s", tag, loc[2], path)
-        table.insert(items, str)
-      end
-    end
-    fzf.fzf_exec(items, {
-      actions = {
-        ['default'] = function(selected)
-          local note = vim.split(selected[1], ':')[3]
-          if note then
-            vim.fn["wiki#page#open"](note)
-          end
-        end
-      }
-    })
-  end
-
-  local function fzf_toc()
-    local toc = vim.fn["wiki#toc#gather_entries"]()
-    local items = {}
-    for _, hd in pairs(toc) do
-      local indent = vim.fn["repeat"](".", hd.level - 1)
-      local line = indent .. hd.header
-      table.insert(items, string.format("%d:%s", hd.lnum, line))
-    end
-    fzf.fzf_exec(items, {
-      actions = {
-        ['default'] = function(selected)
-          local ln = vim.split(selected[1], ':')[1]
-          if ln then
-            vim.fn.execute(ln)
-          end
-        end
-      }
-    })
-  end
-
-  vim.g.wiki_select_method = {
-    pages = fzf_pages,
-    tags = fzf_tags,
-    toc = fzf_toc,
-  }
-<
+`wiki.vim` allows to customize the select method used for |WikiPage|,
+|WikiTags| and |WikiToc|. Built-in choices include Telescope, |vim.ui.select|,
+fzf.vim, and fzf-lua (see |g:wiki_select_method|). But you can use watever
+fuzzy finder you want by creating the selection functions yourself. See e.g.
+`lua/wiki/fzf_lua.lua` for an example of how to do this.
 
  vim:tw=78:ts=8:ft=help:norl:fdm=marker:cole=2:
