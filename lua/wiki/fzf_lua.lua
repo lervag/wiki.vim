@@ -84,7 +84,7 @@ M.links = function(mode)
             note = fzf_data.last_query
           end
         end
-        note = vim.g.wiki_root .. note
+        note = vim.fs.joinpath(vim.g.wiki_root, note)
         vim.fn["wiki#link#add"](note, "", { text = text })
       end,
     },
