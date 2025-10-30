@@ -66,7 +66,7 @@ end
 
 ---Select a wiki page and insert a link to it
 ---@param mode? "visual" | "insert"
-M.link = function(mode)
+M.links = function(mode)
   local text = ""
   if mode == "visual" then
     vim.cmd [[normal! "wd]]
