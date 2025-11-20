@@ -35,7 +35,7 @@ let wiki#rx#italic = wiki#rx#surrounded(
       \ '[^_`[:space:]]\%([^_`]*[^_`[:space:]]\)\?', '_')
 let wiki#rx#date = '\d\d\d\d-\d\d-\d\d'
 let wiki#rx#url =
-      \ '\%(\<\l\+:\%(\/\/\)\?[^ \t()\[\]|]\+'
+      \ '\%(\<\l\+:\%(\/\/\)\?[^ \t()\[\]|]\+[^ \t()\[\]|.,?!:;''"]'
       \ . '\|'
       \ . '<\zs\l\+:\%(\/\/\)\?[^>]\+\ze>\)'
 let wiki#rx#reftext = '[^\\\[\]]\{-}'
