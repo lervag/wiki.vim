@@ -132,15 +132,17 @@ function! wiki#link#add(path, mode, ...) abort " {{{1
 
   let l:options = extend(l:defaults, a:0 > 0 ? a:1 : {})
 
-  if wiki#paths#is_abs(a:path)
+  let l:url = a:path
+  if has_key(l:creator, 'url_transform')
+    let l:transformed = l:creator.url_transform(a:path)
+    if !empty(l:transformed)
+      let l:url = l:transformed
+    endif
+  elseif wiki#paths#is_abs(a:path)
     let l:cwd = expand('%:p:h')
     let l:url = stridx(a:path, l:cwd) == 0
           \ ? wiki#paths#to_wiki_url(a:path, l:cwd)
           \ : '/' .. wiki#paths#to_wiki_url(a:path)
-  else
-    let l:url = has_key(l:creator, 'url_transform')
-          \ ? l:creator.url_transform(a:path)
-          \ : a:path
   endif
 
   let l:link_string = wiki#link#template(l:url, l:options.text)
