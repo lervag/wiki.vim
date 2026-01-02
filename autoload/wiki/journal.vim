@@ -150,7 +150,9 @@ function! wiki#journal#get_root(...) abort " {{{1
   endif
 
   let l:root_wiki = a:0 > 0 ? a:1 : wiki#get_root()
-  return wiki#paths#s(
+  return empty(g:wiki_journal.name)
+        \ ? l:root_wiki
+        \ : wiki#paths#s(
         \     printf('%s/%s', l:root_wiki, g:wiki_journal.name))
 endfunction
 
