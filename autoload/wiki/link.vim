@@ -112,6 +112,14 @@ endfunction
 "}}}1
 
 function! wiki#link#add(path, mode, ...) abort " {{{1
+  if !wiki#paths#is_abs(a:path)
+    call wiki#log#warn(
+          \ "The path argument for wiki#link#add should be an absolute path!",
+          \ "Got instead: " .. a:path
+          \)
+    return
+  endif
+
   let l:creator = wiki#link#get_creator()
 
   if a:mode == 'visual'
@@ -133,12 +141,12 @@ function! wiki#link#add(path, mode, ...) abort " {{{1
   let l:options = extend(l:defaults, a:0 > 0 ? a:1 : {})
 
   let l:url = a:path
-  if has_key(l:creator, 'url_transform')
-    let l:transformed = l:creator.url_transform(a:path)
+  if has_key(l:creator, 'path_transform')
+    let l:transformed = l:creator.path_transform(a:path)
     if !empty(l:transformed)
       let l:url = l:transformed
     endif
-  elseif wiki#paths#is_abs(a:path)
+  else
     let l:cwd = expand('%:p:h')
     let l:url = stridx(a:path, l:cwd) == 0
           \ ? wiki#paths#to_wiki_url(a:path, l:cwd)

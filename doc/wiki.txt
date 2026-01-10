@@ -1057,10 +1057,10 @@ a reference of all available options.
           \}
 
 *g:wiki_link_creation*
-  A dictionary to configure how links are created from text for a given
-  filetype. The keys are filetype extensions (|wiki-filetype-specification|).
-  The corresponding value is a dictionary of options. If there is no key for
-  the current filetype, then the fallback key `"_"` is used.
+  A dictionary to configure how links are created for a given filetype. The
+  keys are filetype extensions (|wiki-filetype-specification|). The
+  corresponding value is a dictionary of options. If there is no key for the
+  current filetype, then the fallback key `"_"` is used.
 
   The valid options are:
 
@@ -1085,7 +1085,7 @@ a reference of all available options.
       A string that, if not empty, will be appended to the target url.
 
     url_transform ~
-      A |Funcref| for a function used to transform the text to the desired
+      A |Funcref| for a function used to transform operated text to the desired
       URL. This can also be an |anonymous-function|. If it is undefined, the
       the original text will be taken as the URL.
         The function requires a single string argument and should return the
@@ -1102,6 +1102,28 @@ a reference of all available options.
               \ },
               \}
 <
+    path_transform ~
+      A |Funcref| for a function used to transform an absolute path to the
+      desired URL. This can also be an |anonymous-function| and has the same
+      signature as `url_transform`.
+        The function takes a single string argument that represents the input
+      path to the file for which we are creating a link. It should return the
+      target URL without any file extension.
+        This can be useful for people who use custom resolvers, e.g. to change
+      from using rooted urls like `[description](/Folder/file)` to using
+      relative urls like `[description](../file)`, e.g.: >vim
+
+        let g:wiki_link_creation = {
+              \ 'md': {
+              \   'path_transform': { x ->
+              \     fnamemodify(
+              \       wiki#paths#relative(x, expand('%:p')),
+              \       ':h'
+              \     )
+              \   },
+              \ },
+              \}
+
     link_text ~
       A |Funcref| for a function used by |WikiLinkAdd| to determine the link
       text of the added link. This can also be an |anonymous-function|. If it
