@@ -135,7 +135,7 @@ function! wiki#link#add(path, mode, ...) abort " {{{1
           \ position: getcurpos()[1:2],
           \ text: has_key(l:creator, 'link_text')
           \   ? l:creator.link_text(l:path)
-          \   : l:path
+          \   : ''
           \}
   endif
 
