@@ -8,7 +8,9 @@ function! wiki#url#follow(url_string, ...) abort " {{{1
   let l:url = wiki#url#resolve(a:url_string)
   if empty(l:url) | return | endif
 
-  if g:wiki_write_on_nav | silent! update | endif
+  if g:wiki_write_on_nav && filereadable(expand('%:p'))
+    silent! update
+  endif
   let l:edit_cmd = a:0 > 0 ? a:1 : 'edit'
 
   if has_key(g:wiki_link_schemes, l:url.scheme)

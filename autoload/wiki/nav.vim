@@ -42,7 +42,7 @@ endfunction
 " }}}1
 function! wiki#nav#return() abort "{{{1
   if empty(s:position_stack) | return | endif
-  if g:wiki_write_on_nav | update | endif
+  if g:wiki_write_on_nav && filereadable(expand('%:p')) | update | endif
 
   let l:previous = remove(s:position_stack, -1)
   silent execute ':edit' fnameescape(l:previous.file)
