@@ -57,7 +57,7 @@ let g:wiki#link#definitions#org = {
 let g:wiki#link#definitions#ref_target = {
       \ 'type': 'ref_target',
       \ 'rx': wiki#rx#link_ref_target,
-      \ 'rx_url': '\[' . wiki#rx#reflabel . '\]:\s\+\zs' . wiki#rx#url,
+      \ 'rx_url': '\[' . wiki#rx#reflabel . '\]:\s\+\zs.*',
       \ 'rx_text': '^\s*\[\zs' . wiki#rx#reflabel . '\ze\]',
       \ '__transformer': function('wiki#link#templates#ref_target'),
       \}
