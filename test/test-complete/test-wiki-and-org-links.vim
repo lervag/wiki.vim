@@ -4,10 +4,10 @@ runtime plugin/wiki.vim
 silent edit ../wiki-basic/index.wiki
 
 let s:candidates = wiki#test#completion('[[', 'li')
-call assert_equal(4, len(s:candidates))
+call assert_equal(5, len(s:candidates))
 
 let s:candidates = wiki#test#completion('[[/', 'in')
-call assert_equal(7, len(s:candidates))
+call assert_equal(8, len(s:candidates))
 call assert_equal('/', s:candidates[0].word[0])
 
 let s:candidates = wiki#test#completion('[[', 'new')
