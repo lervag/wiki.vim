@@ -55,6 +55,9 @@ call assert_equal('md', s:link.scheme)
 " Avoid checking links inside code snippets
 syntax enable
 setf markdown
+if has('nvim')
+  lua vim.treesitter.stop()
+endif
 let s:link = wiki#link#get_at_pos(41, 19)
 call assert_equal({}, s:link)
 let s:link = wiki#link#get_at_pos(41, 35)
