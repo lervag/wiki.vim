@@ -130,7 +130,7 @@ endfunction
 function! s:link.resolve() dict abort " {{{1
   if self.type ==# 'word' | return '' | endif
 
-  return wiki#url#resolve(self.url, self.origin)
+  return wiki#url#resolve(self.url, #{ origin: self.origin })
 endfunction
 
 " }}}1

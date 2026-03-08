@@ -27,18 +27,23 @@ endfunction
 
 " }}}1
 function! wiki#url#resolve(url_string, ...) abort " {{{1
+  let l:opts = extend(#{
+        \ origin: expand('%:p'),
+        \ scheme: 'wiki',
+        \}, a:0 > 0 ? a:1 : {})
+
   let l:parts = matchlist(a:url_string, '\v%((\w+):)?(.*)')
 
   let l:url = {
         \ 'url': a:url_string,
         \ 'scheme': tolower(l:parts[1]),
         \ 'stripped': l:parts[2],
-        \ 'origin': a:0 > 0 ? a:1 : expand('%:p'),
+        \ 'origin': l:opts.origin,
         \}
 
   " The wiki scheme is default if no other scheme is applied
   if empty(l:url.scheme)
-    let l:url.scheme = 'wiki'
+    let l:url.scheme = l:opts.scheme
     let l:url.url = l:url.scheme . ':' . l:url.url
   endif
 
