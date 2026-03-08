@@ -62,12 +62,38 @@ let g:wiki#link#definitions#ref_target = {
       \ '__transformer': function('wiki#link#templates#ref_target'),
       \}
 
+let g:wiki#link#definitions#reference_fig = {
+      \ 'type': 'reference_fig',
+      \ 'rx': wiki#rx#link_reference_fig,
+      \ 'rx_url': '\[\zs' . wiki#rx#reflabel . '\ze\]',
+      \ '__scheme': 'reference_fig',
+      \ '__transformer': { _u, _t, l -> wiki#link#templates#md_fig(l.url, l.id) },
+      \}
+
+let g:wiki#link#definitions#ref_fig_collapsed = extend(
+      \ deepcopy(wiki#link#definitions#reference_fig), {
+      \ 'rx': g:wiki#rx#link_ref_fig_collapsed,
+      \ 'rx_url': '\[\zs' . g:wiki#rx#reflabel . '\ze\]\[\]',
+      \ 'rx_text': '\[\zs' . g:wiki#rx#reflabel . '\ze\]\[\]',
+      \})
+
+let g:wiki#link#definitions#ref_fig_full = extend(
+      \ deepcopy(wiki#link#definitions#reference_fig), {
+      \ 'rx': g:wiki#rx#link_ref_fig_full,
+      \ 'rx_url':
+      \   '\['    . g:wiki#rx#reftext   . '\]'
+      \ . '\[\zs' . g:wiki#rx#reflabel . '\ze\]',
+      \ 'rx_text':
+      \   '\[\zs' . g:wiki#rx#reftext   . '\ze\]'
+      \ . '\['    . g:wiki#rx#reflabel . '\]',
+      \})
+
 let g:wiki#link#definitions#reference = {
       \ 'type': 'reference',
       \ 'rx': wiki#rx#link_reference,
       \ 'rx_url': '\[\zs' . wiki#rx#reflabel . '\ze\]',
       \ '__scheme': 'reference',
-      \ '__transformer': { _u, _t, l -> wiki#link#template#md(l.url, l.id) },
+      \ '__transformer': { _u, _t, l -> wiki#link#templates#md(l.url, l.id) },
       \}
 
 let g:wiki#link#definitions#ref_collapsed = extend(
@@ -123,16 +149,19 @@ let g:wiki#link#definitions#word = {
 " they differ: [[url|description]] vs [[url][description]], respectively.
 let g:wiki#link#definitions#all = [
       \ g:wiki#link#definitions#wiki,
-      \ g:wiki#link#definitions#adoc_xref_bracket,
-      \ g:wiki#link#definitions#adoc_xref_inline,
-      \ g:wiki#link#definitions#adoc_link,
       \ g:wiki#link#definitions#md_fig,
       \ g:wiki#link#definitions#md,
       \ g:wiki#link#definitions#org,
       \ g:wiki#link#definitions#ref_target,
+      \ g:wiki#link#definitions#reference_fig,
+      \ g:wiki#link#definitions#ref_fig_collapsed,
+      \ g:wiki#link#definitions#ref_fig_full,
       \ g:wiki#link#definitions#reference,
       \ g:wiki#link#definitions#ref_collapsed,
       \ g:wiki#link#definitions#ref_full,
+      \ g:wiki#link#definitions#adoc_xref_bracket,
+      \ g:wiki#link#definitions#adoc_xref_inline,
+      \ g:wiki#link#definitions#adoc_link,
       \ g:wiki#link#definitions#cite,
       \ g:wiki#link#definitions#url,
       \ g:wiki#link#definitions#date,

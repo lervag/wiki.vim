@@ -1,0 +1,22 @@
+# Sample text with reference-style image links
+
+A reference-style image link: ![picture][0].
+
+Another one: ![alt text][1].
+
+And with file protocol: ![another][2].
+
+Another: ![another][alt text].
+
+Collapsed form: ![alt text][].
+
+Shortcut form: ![0].
+
+With non-existent reference: ![missing][3].
+
+Reference definitions:
+[0]: ./balloons.jpg
+[1]: /home/user/cloud/wiki/balloons.jpg
+[2]: file:///home/user/cloud/wiki/balloons.jpg
+
+[alt text]: ./image.png

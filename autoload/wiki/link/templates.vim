@@ -41,6 +41,10 @@ function! wiki#link#templates#md(url, text, ...) abort
   return printf('[%s](%s)', empty(a:text) ? a:url : a:text, a:url)
 endfunction
 
+function! wiki#link#templates#md_fig(url, text, ...) abort
+  return printf('![%s](%s)', empty(a:text) ? a:url : a:text, a:url)
+endfunction
+
 function! wiki#link#templates#org(url, text, ...) abort
   return empty(a:text) || a:text ==# a:url || a:text ==# a:url[1:]
         \ ? '[[' . a:url . ']]'

@@ -53,6 +53,9 @@ let wiki#rx#link_ref_full =
       \ . '\[' . wiki#rx#reftext   . '\]'
       \ . '\[' . wiki#rx#reflabel . '\]'
       \ . '[\]\[]\@!'
+let wiki#rx#link_reference_fig = '!' . wiki#rx#link_reference
+let wiki#rx#link_ref_fig_collapsed = '!' . wiki#rx#link_ref_collapsed
+let wiki#rx#link_ref_fig_full = '!' . wiki#rx#link_ref_full
 let wiki#rx#link_ref_target =
       \ '^\s*\[' . wiki#rx#reflabel . '\]:\s\+.*'
 let wiki#rx#link_cite = '\%(\s\|^\|\[\)\zs@[-_.+:a-zA-Z0-9]\+[-_a-zA-Z0-9]'
