@@ -16,3 +16,4 @@ $(tests):
 test-defaults.vim: WIKI=../wiki-basic
 test-custom-yaml.vim: WIKI=../wiki-markdown
 test-orgmode.vim: WIKI=../wiki-orgmode
+test-hashes.vim: WIKI=../wiki-basic
