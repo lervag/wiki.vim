@@ -4,9 +4,17 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! wiki#u#cnum_to_byte(cnum) abort " {{{1
+function! wiki#u#cmp_pos(a, b) abort " {{{1
+  " Compare two [lnum, col] positions. Returns a negative number, zero, or
+  " a positive number when a:a is before, at, or after a:b, respectively.
+  return a:a[0] != a:b[0] ? a:a[0] - a:b[0] : a:a[1] - a:b[1]
+endfunction
+
+" }}}1
+function! wiki#u#cnum_to_byte(cnum, ...) abort " {{{1
   if a:cnum <= 0 | return a:cnum | endif
-  let l:bytes = len(strcharpart(getline('.')[a:cnum-1:], 0, 1))
+  let l:line = a:0 > 0 ? getline(a:1) : getline('.')
+  let l:bytes = len(strcharpart(l:line[a:cnum-1:], 0, 1))
   return a:cnum + l:bytes - 1
 endfunction
 
@@ -140,6 +148,27 @@ function! wiki#u#shellescape(string) abort " {{{1
   endif
 
   return shellescape(a:string)
+endfunction
+
+" }}}1
+function! wiki#u#text_between(start, end) abort " {{{1
+  " Return the buffer text from a:start to a:end (both [lnum, byte_col]),
+  " inclusive of the character at a:end.
+  if a:start[0] == a:end[0]
+    return strpart(getline(a:start[0]), a:start[1] - 1, a:end[1] - a:start[1] + 1)
+  endif
+
+  let l:lines = getline(a:start[0], a:end[0])
+  let l:lines[0] = strpart(l:lines[0], a:start[1] - 1)
+  let l:lines[-1] = strpart(l:lines[-1], 0, a:end[1])
+  return join(l:lines, "\n")
+endfunction
+
+" }}}1
+function! wiki#u#unwrap(text) abort " {{{1
+  " Collapse hard line breaks (a newline plus any following indentation) into
+  " a single space, so that hard-wrapped text reads as if it were on one line.
+  return substitute(a:text, '\n\s*', ' ', 'g')
 endfunction
 
 " }}}1

@@ -88,11 +88,14 @@ endfunction
 
 let s:link = {}
 function! s:link.replace(text) dict abort " {{{1
-  let l:line = getline(self.pos_start[0])
-  call setline(self.pos_start[0],
-        \   strpart(l:line, 0, self.pos_start[1]-1)
-        \ . a:text
-        \ . strpart(l:line, self.pos_end[1]))
+  let l:head = strpart(getline(self.pos_start[0]), 0, self.pos_start[1]-1)
+  let l:tail = strpart(getline(self.pos_end[0]), self.pos_end[1])
+  call setline(self.pos_start[0], l:head . a:text . l:tail)
+
+  " A link spanning several lines is collapsed onto its first line.
+  if self.pos_end[0] > self.pos_start[0]
+    call deletebufline('%', self.pos_start[0]+1, self.pos_end[0])
+  endif
 endfunction
 
 " }}}1

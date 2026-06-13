@@ -18,27 +18,42 @@ function! wiki#link#get() abort " {{{1
 endfunction
 
 function! s:match_at_cursor(regex) abort " {{{2
-  let l:lnum = line('.')
+  " Find the match of a:regex that contains the cursor. This also handles
+  " regexes that span line boundaries (i.e. when the regex uses \_ in the
+  " relevant character classes).
+  let l:save = getcurpos()
+  let l:cursor = l:save[1:2]
 
-  " Seach backwards for current regex
-  let l:c1 = searchpos(a:regex, 'ncb', l:lnum)[1]
-  if l:c1 == 0 | return {} | endif
+  " A hard-wrapped link does not cross a blank line, so bound the backwards
+  " search to the start of the current paragraph.
+  let l:stopline = search('^\s*$', 'nbW') + 1
 
-  " Ensure that the cursor is positioned on top of the match
-  let l:c1e = searchpos(a:regex, 'ncbe', l:lnum)[1]
-  if l:c1e >= l:c1 && l:c1e < col('.') | return {} | endif
+  " Find the start of the match at or before the cursor, then its end. The end
+  " must be searched from the start (not the cursor): when the cursor is on
+  " a continuation line the match starts before it, so a forward search from
+  " the cursor would not find it.
+  let l:start = searchpos(a:regex, 'ncbW', l:stopline)
+  if l:start[0] == 0 | return {} | endif
 
-  " Find the end of the match
-  let l:c2 = searchpos(a:regex, 'nce', l:lnum)[1]
-  if l:c2 == 0 | return {} | endif
+  call cursor(l:start)
+  let l:end = searchpos(a:regex, 'nceW')
+  call setpos('.', l:save)
+  if l:end[0] == 0 | return {} | endif
 
-  let l:c2 = wiki#u#cnum_to_byte(l:c2)
+  " The cursor must lie within the match.
+  if wiki#u#cmp_pos(l:cursor, l:start) < 0 || wiki#u#cmp_pos(l:cursor, l:end) > 0
+    return {}
+  endif
+
+  " searchpos with 'e' returns the first byte of the last matched character;
+  " extend it to that character's last byte (matters for multibyte endings).
+  let l:end[1] = wiki#u#cnum_to_byte(l:end[1], l:end[0])
 
   return {
-        \ 'content': strpart(getline('.'), l:c1-1, l:c2-l:c1+1),
+        \ 'content': wiki#u#unwrap(wiki#u#text_between(l:start, l:end)),
         \ 'origin': expand('%:p'),
-        \ 'pos_end': [l:lnum, l:c2],
-        \ 'pos_start': [l:lnum, l:c1],
+        \ 'pos_end': l:end,
+        \ 'pos_start': l:start,
         \}
 endfunction
 
@@ -116,10 +131,9 @@ function! wiki#link#get_all_from_lines(lines, file, ...) abort "{{{1
     let l:pos_end = s:byte_to_pos(l:byte - 1, l:offsets, l:start_lnum, l:from)
     let l:from = l:pos_end[0] - l:start_lnum
 
-    " Collapse hard line breaks (and any following indentation) into a single
-    " space so the remaining, line-oriented parsing can treat the link as if it
-    " were on a single line.
-    let l:content = substitute(l:raw, '\n\s*', ' ', 'g')
+    " Collapse hard line breaks so the remaining, line-oriented parsing can treat
+    " the link as if it were on a single line.
+    let l:content = wiki#u#unwrap(l:raw)
 
     for l:link_definition in g:wiki#link#definitions#all_real
       if l:content =~# l:link_definition.rx

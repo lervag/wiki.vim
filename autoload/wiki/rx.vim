@@ -50,9 +50,14 @@ let wiki#rx#link_adoc_link = '\<link:\%(\[[^]]\+\]\|[^[]\+\)\[[^]]*\]'
 let wiki#rx#link_adoc_xref_bracket = '<<[^>]\+>>'
 let wiki#rx#link_adoc_xref_inline = '\<xref:\%(\[[^]]\+\]\|[^[]\+\)\[[^]]*\]'
 
-let wiki#rx#link_md = '\[[^[\]]\{-}\]([^\\]\{-})'
+" The bracketed link patterns (md, md_fig, org and wiki below) use \_[^...] in
+" their text/body classes so that the cursor-based wiki#link#get() can match
+" links that are hard-wrapped across lines. In a joined-string match (used by
+" wiki#rx#link_ml / wiki#link#get_all_from_lines) [^...] already spans newlines,
+" so the \_ only changes buffer searches (searchpos), which is what we want.
+let wiki#rx#link_md = '\[\_[^[\]]\{-}\]([^\\]\{-})'
 let wiki#rx#link_md_fig = '!' . wiki#rx#link_md
-let wiki#rx#link_org = '\[\[\/\?[^\\\]]\{-}\]\%(\[[^\\\]]\{-}\]\)\?\]'
+let wiki#rx#link_org = '\[\[\/\?\_[^\\\]]\{-}\]\%(\[\_[^\\\]]\{-}\]\)\?\]'
 let wiki#rx#link_reference = '[\]\[]\@<!\[' . wiki#rx#reflabel . '\][\]\[]\@!'
 let wiki#rx#link_ref_collapsed = '[\]\[]\@<!\[' . wiki#rx#reflabel . '\]\[\][\]\[]\@!'
 let wiki#rx#link_ref_full =
@@ -67,7 +72,7 @@ let wiki#rx#link_ref_fig_full = '!' . wiki#rx#link_ref_full
 let wiki#rx#link_ref_target = '^\s*\[' . wiki#rx#reflabel . '\]:\s\+.*'
 let wiki#rx#link_cite = '\%(\s\|^\|\[\)\zs@[-_.+:a-zA-Z0-9]\+[-_a-zA-Z0-9]'
 let wiki#rx#link_cite_url = '\%(\s\|^\|\[\)@\zs[-_.+:a-zA-Z0-9]\+[-_a-zA-Z0-9]'
-let wiki#rx#link_wiki = '\[\[\/\?[^\\\]]\{-}\%(|[^\\\]]\{-}\)\?\]\]'
+let wiki#rx#link_wiki = '\[\[\/\?\_[^\\\]]\{-}\%(|\_[^\\\]]\{-}\)\?\]\]'
 let wiki#rx#link = join([
       \ wiki#rx#link_wiki,
       \ wiki#rx#link_adoc_link,
