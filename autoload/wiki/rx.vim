@@ -81,3 +81,41 @@ let wiki#rx#link = join([
       \ wiki#rx#url,
       \ wiki#rx#link_cite,
       \], '\|')
+
+" Multi-line link regexes used by wiki#link#get_all_from_lines(). That function
+" uses `matchstr` on a joined buffer. This changes the regex engine's behaviour
+" compared to doing a "regular" buffer search with `searchpairpos` or similar:
+"
+" - negated collections ([^x]) and "." match newlines as ordinary characters
+" - the ^/$ anchors only match at the very start/end of the joined string (not
+"   at embedded newlines).
+"
+" Therefore the scalar (non-bracketed) patterns below explicitly exclude \n,
+" line anchors are expressed via \n alternatives, and only the bracketed link
+" bodies are allowed to span newlines. Thus, hard-wrapped [text](url), [[wiki]]
+" and [[org]] links are detected while everything else keeps its single-line
+" behaviour.
+let wiki#rx#url_ml =
+      \ '\%(\<\l\+:\%(\/\/\)\?[^ \t\n()\[\]|]\+[^ \t\n()\[\]|.,?!:;''"]'
+      \ . '\|'
+      \ . '<\zs\l\+:\%(\/\/\)\?[^>\n]\+\ze>\)'
+let wiki#rx#link_adoc_link_ml = '\<link:\%(\[[^]\n]\+\]\|[^[\n]\+\)\[[^]\n]*\]'
+let wiki#rx#link_adoc_xref_bracket_ml = '<<[^>\n]\+>>'
+let wiki#rx#link_adoc_xref_inline_ml = '\<xref:\%(\[[^]\n]\+\]\|[^[\n]\+\)\[[^]\n]*\]'
+let wiki#rx#link_md_ml = '\[[^[\]]\{-}\]([^\\\n]\{-})'
+let wiki#rx#link_ref_target_ml =
+      \ '\%(^\|\n\)\zs\s*\[' . wiki#rx#reflabel . '\]:\s\+[^\n]*'
+let wiki#rx#link_cite_ml = '\%(\s\|\n\|^\|\[\)\zs@[-_.+:a-zA-Z0-9]\+[-_a-zA-Z0-9]'
+let wiki#rx#link_ml = join([
+      \ wiki#rx#link_wiki,
+      \ wiki#rx#link_adoc_link_ml,
+      \ wiki#rx#link_adoc_xref_bracket_ml,
+      \ wiki#rx#link_adoc_xref_inline_ml,
+      \ '!\?' . wiki#rx#link_md_ml,
+      \ wiki#rx#link_org,
+      \ wiki#rx#link_ref_target_ml,
+      \ wiki#rx#link_reference,
+      \ wiki#rx#link_ref_full,
+      \ wiki#rx#url_ml,
+      \ wiki#rx#link_cite_ml,
+      \], '\|')

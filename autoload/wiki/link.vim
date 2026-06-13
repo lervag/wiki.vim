@@ -72,41 +72,87 @@ endfunction
 
 "}}}1
 function! wiki#link#get_all_from_lines(lines, file, ...) abort "{{{1
-  let l:links = []
+  " l:start_lnum is the line number associated with the first line in a:lines.
+  " It is used to label match positions with their real line number.
+  let l:start_lnum = a:0 > 0 ? a:1 : 1
 
+  " Identify lines inside fenced code blocks. Links that start on such a line
+  " are skipped.
+  let l:skip = {}
   let l:in_code = v:false
-  let l:skip = v:false
-
-  let l:lnum = a:0 > 0 ? (a:1 - 1) : 0
+  let l:lnum = l:start_lnum - 1
   for l:line in a:lines
     let l:lnum += 1
-
-    let [l:in_code, l:skip] = wiki#u#is_code_by_string(l:line, l:in_code)
-    if l:skip | continue | endif
-
-    let l:c2 = 0
-    while v:true
-      let l:c1 = match(l:line, g:wiki#rx#link, l:c2) + 1
-      if l:c1 == 0 | break | endif
-
-      let l:content = matchstr(l:line, g:wiki#rx#link, l:c2)
-      let l:c2 = l:c1 + strlen(l:content)
-
-      for l:link_definition in g:wiki#link#definitions#all_real
-        if l:content =~# l:link_definition.rx
-          call add(l:links, wiki#link#class#new(l:link_definition, {
-                \ 'content': l:content,
-                \ 'origin': a:file,
-                \ 'pos_start': [l:lnum, l:c1],
-                \ 'pos_end': [l:lnum, l:c2],
-                \}))
-          break
-        endif
-      endfor
-    endwhile
+    let [l:in_code, l:do_skip] = wiki#u#is_code_by_string(l:line, l:in_code)
+    if l:do_skip | let l:skip[l:lnum] = v:true | endif
   endfor
 
+  " Join the lines into a single string so that links may be detected even when
+  " they span line boundaries (e.g. due to hard wrapping). l:offsets[i] holds
+  " the byte offset of line (l:start_lnum + i) within the joined string, which
+  " lets us map match positions back to [lnum, col].
+  let l:text = join(a:lines, "\n")
+  let l:offsets = []
+  let l:offset = 0
+  for l:line in a:lines
+    call add(l:offsets, l:offset)
+    let l:offset += strlen(l:line) + 1
+  endfor
+
+  let l:links = []
+  let l:byte = 0
+  let l:from = 0
+  while v:true
+    let l:c1 = match(l:text, g:wiki#rx#link_ml, l:byte)
+    if l:c1 < 0 | break | endif
+
+    let l:raw = matchstr(l:text, g:wiki#rx#link_ml, l:byte)
+    let l:byte = l:c1 + strlen(l:raw)
+
+    let l:pos_start = s:byte_to_pos(l:c1, l:offsets, l:start_lnum, l:from)
+    let l:from = l:pos_start[0] - l:start_lnum
+    if get(l:skip, l:pos_start[0], v:false) | continue | endif
+
+    let l:pos_end = s:byte_to_pos(l:byte - 1, l:offsets, l:start_lnum, l:from)
+    let l:from = l:pos_end[0] - l:start_lnum
+
+    " Collapse hard line breaks (and any following indentation) into a single
+    " space so the remaining, line-oriented parsing can treat the link as if it
+    " were on a single line.
+    let l:content = substitute(l:raw, '\n\s*', ' ', 'g')
+
+    for l:link_definition in g:wiki#link#definitions#all_real
+      if l:content =~# l:link_definition.rx
+        call add(l:links, wiki#link#class#new(l:link_definition, {
+              \ 'content': l:content,
+              \ 'origin': a:file,
+              \ 'pos_start': l:pos_start,
+              \ 'pos_end': l:pos_end,
+              \}))
+        break
+      endif
+    endfor
+  endwhile
+
   return l:links
+endfunction
+
+"}}}1
+
+function! s:byte_to_pos(byte, offsets, start_lnum, from) abort " {{{1
+  " Find the largest index i with offsets[i] <= byte, scanning forward from the
+  " lower bound a:from. a:offsets is strictly increasing and a:offsets[0] == 0,
+  " so for any byte >= offsets[a:from] such an i exists. The resulting line is
+  " start_lnum + i and the (1-based, byte) column is the offset of byte within
+  " that line plus one. Callers pass the previous result's index as a:from,
+  " which is valid because the looked-up byte positions never decrease.
+
+  let l:i = a:from
+  while l:i + 1 < len(a:offsets) && a:offsets[l:i + 1] <= a:byte
+    let l:i += 1
+  endwhile
+
+  return [a:start_lnum + l:i, a:byte - a:offsets[l:i] + 1]
 endfunction
 
 "}}}1
