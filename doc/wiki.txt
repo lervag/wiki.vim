@@ -2382,13 +2382,14 @@ Related commands:
 ==============================================================================
 ADVANCED CONFIGURATION GUIDE                      *wiki-advanced-configuration*
 
-`wiki.vim` provides options that allow users to customize how link URLs are
-resolved and handled. The following are some examples of how to use these
-options.
+`wiki.vim` provides several options that allow users to customize its
+behavior, such as how link URLs are resolved and handled, how pages are
+selected, and how templates are matched against new pages. The following are
+some examples of how to use these options.
 
-Notice that it is possibly to build upon the built-in functions. These
-functions are not documented, but most of the useful functions should be
-relatively self documented. They are found here:
+Several of the examples build upon the built-in functions. These functions are
+not documented, but most of the useful ones should be relatively self
+documented. The link-related functions are found here:
 
 - `autoload/wiki/url/resolvers.vim`
 - `autoload/wiki/url/handlers.vim`
