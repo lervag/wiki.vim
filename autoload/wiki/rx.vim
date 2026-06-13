@@ -23,26 +23,33 @@ let wiki#rx#list_define = '::\%(\s\|$\)'
 let wiki#rx#comment = '^\s*%%.*$'
 let wiki#rx#todo = '\C\<\%(TODO\|STARTED\|FIXME\)\>:\?'
 let wiki#rx#done = '\C\<\%(OK\|DONE\|FIXED\)\>:\?'
+
 let wiki#rx#header_md_atx = '^#\{1,6}\s*[^#].*'
 let wiki#rx#header_md_atx_items = '^\(#\{1,6}\)\s*\([^#].*\)\s*$'
 let wiki#rx#header_org = '^\*\{1,6}\s*[^\*].*'
 let wiki#rx#header_org_items = '^\(\*\{1,6}\)\s*\([^\*].*\)\s*$'
 let wiki#rx#header_adoc = '^=\{1,6}\s*[^=].*'
 let wiki#rx#header_adoc_items = '^\(=\{1,6}\)\s*\([^=].*\)\s*$'
+
 let wiki#rx#bold = wiki#rx#surrounded(
       \ '[^*`[:space:]]\%([^*`]*[^*`[:space:]]\)\?', '*')
 let wiki#rx#italic = wiki#rx#surrounded(
       \ '[^_`[:space:]]\%([^_`]*[^_`[:space:]]\)\?', '_')
+
 let wiki#rx#date = '\d\d\d\d-\d\d-\d\d'
+
 let wiki#rx#url =
       \ '\%(\<\l\+:\%(\/\/\)\?[^ \t()\[\]|]\+[^ \t()\[\]|.,?!:;''"]'
       \ . '\|'
       \ . '<\zs\l\+:\%(\/\/\)\?[^>]\+\ze>\)'
+
 let wiki#rx#reftext = '[^\\\[\]]\{-}'
 let wiki#rx#reflabel = '\%(\d\+\|\a[-_. [:alnum:]]\+\|\^\w\+\)'
+
 let wiki#rx#link_adoc_link = '\<link:\%(\[[^]]\+\]\|[^[]\+\)\[[^]]*\]'
 let wiki#rx#link_adoc_xref_bracket = '<<[^>]\+>>'
 let wiki#rx#link_adoc_xref_inline = '\<xref:\%(\[[^]]\+\]\|[^[]\+\)\[[^]]*\]'
+
 let wiki#rx#link_md = '\[[^[\]]\{-}\]([^\\]\{-})'
 let wiki#rx#link_md_fig = '!' . wiki#rx#link_md
 let wiki#rx#link_org = '\[\[\/\?[^\\\]]\{-}\]\%(\[[^\\\]]\{-}\]\)\?\]'
@@ -56,8 +63,8 @@ let wiki#rx#link_ref_full =
 let wiki#rx#link_reference_fig = '!' . wiki#rx#link_reference
 let wiki#rx#link_ref_fig_collapsed = '!' . wiki#rx#link_ref_collapsed
 let wiki#rx#link_ref_fig_full = '!' . wiki#rx#link_ref_full
-let wiki#rx#link_ref_target =
-      \ '^\s*\[' . wiki#rx#reflabel . '\]:\s\+.*'
+
+let wiki#rx#link_ref_target = '^\s*\[' . wiki#rx#reflabel . '\]:\s\+.*'
 let wiki#rx#link_cite = '\%(\s\|^\|\[\)\zs@[-_.+:a-zA-Z0-9]\+[-_a-zA-Z0-9]'
 let wiki#rx#link_cite_url = '\%(\s\|^\|\[\)@\zs[-_.+:a-zA-Z0-9]\+[-_a-zA-Z0-9]'
 let wiki#rx#link_wiki = '\[\[\/\?[^\\\]]\{-}\%(|[^\\\]]\{-}\)\?\]\]'
