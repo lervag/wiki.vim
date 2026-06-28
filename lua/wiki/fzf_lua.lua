@@ -1,24 +1,29 @@
 local fzf = require "fzf-lua"
-local fzf_data = require "fzf-lua".config.__resume_data
+local fzf_path = require "fzf-lua.path"
+local fzf_data = require("fzf-lua").config.__resume_data
 
 local M = {}
 
 M.pages = function()
-  fzf.files({
+  fzf.files {
     prompt = "Wiki files>",
     cwd = vim.g.wiki_root,
     actions = {
-      ['default'] = function(selected)
-        local note = selected[1]
-        if not note then
-          if fzf_data.last_query then
-            note = fzf_data.last_query
-          end
+      ["default"] = function(selected)
+        local note
+        if selected[1] then
+          -- selected[1] may be prefixed with a file/git icon, so strip it to
+          -- get the path.
+          note = fzf_path.entry_to_file(selected[1], {}).path
+        elseif fzf_data.last_query then
+          note = fzf_data.last_query
         end
-        vim.fn["wiki#page#open"](note)
+        if note then
+          vim.fn["wiki#page#open"](note)
+        end
       end,
-    }
-  })
+    },
+  }
 end
 
 M.tags = function()
@@ -34,13 +39,13 @@ M.tags = function()
   end
   fzf.fzf_exec(items, {
     actions = {
-      ['default'] = function(selected)
-        local note = vim.split(selected[1], ':')[3]
+      ["default"] = function(selected)
+        local note = vim.split(selected[1], ":")[3]
         if note then
           vim.fn["wiki#page#open"](note)
         end
-      end
-    }
+      end,
+    },
   })
 end
 
@@ -54,13 +59,13 @@ M.toc = function()
   end
   fzf.fzf_exec(items, {
     actions = {
-      ['default'] = function(selected)
-        local ln = vim.split(selected[1], ':')[1]
+      ["default"] = function(selected)
+        local ln = vim.split(selected[1], ":")[1]
         if ln then
           vim.fn.execute(ln)
         end
-      end
-    }
+      end,
+    },
   })
 end
 
@@ -73,22 +78,26 @@ M.links = function(mode)
     text = vim.fn.trim(vim.fn.getreg "w")
   end
 
-  fzf.files({
+  fzf.files {
     prompt = "Add wiki link>",
     cwd = vim.g.wiki_root,
     actions = {
       ["default"] = function(selected)
-        local note = selected[1]
-        if not note then
-          if fzf_data.last_query then
-            note = fzf_data.last_query
-          end
+        local note
+        if selected[1] then
+          -- selected[1] may be prefixed with a file/git icon, so strip it to
+          -- get the path.
+          note =
+            fzf_path.entry_to_file(selected[1], { cwd = vim.g.wiki_root }).path
+        elseif fzf_data.last_query then
+          note = vim.fs.joinpath(vim.g.wiki_root, fzf_data.last_query)
         end
-        note = vim.fs.joinpath(vim.g.wiki_root, note)
-        vim.fn["wiki#link#add"](note, "", { text = text })
+        if note then
+          vim.fn["wiki#link#add"](note, "", { text = text })
+        end
       end,
     },
-  })
+  }
 end
 
 return M
