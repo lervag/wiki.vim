@@ -2363,7 +2363,10 @@ An example of a journal entry that will be parsed properly: >
   Everything from this section header and on will be ignored.
 
 Note: There is no guarantee that this feature will work well if the journal
-       entries are structured in other ways!
+      entries are structured in other ways! However, the summary is generated
+      through the template system, so it can be customized or replaced with
+      |g:wiki_templates|. See |wiki-advanced-config-5| for an example of how
+      to prefill the weekly summary with a custom template.
 
 The summary file-name format is defined by |g:wiki_journal|`.date_format.weekly`
 and |g:wiki_journal|`.date_format.monthly`.
@@ -2492,5 +2495,83 @@ you might use a custom matcher function instead: >lua
       source_filename = "~/wiki/templates/daily.md"
     },
   }
+
+Example 5: Prefill the weekly summary with a custom template ~
+                                                       *wiki-advanced-config-5*
+The weekly summary generated for |WikiJournalToWeek| is created through the
+built-in |wiki-templates-journal-summaries| logic. And that logic is probably
+quite opinionated. But you can supply your own template for the weekly summary
+nodes by using |g:wiki_templates|.
+
+To keep the auto-generated summary and add your own scaffolding below it, let
+the template call the built-in parser and then append extra lines: >lua
+
+  vim.g.wiki_templates = {
+    {
+      -- Matches weekly journal nodes like "2024_w05".
+      -- The default weekly format is %Y_w%V; adjust the regex if you
+      -- changed g:wiki_journal.date_format.weekly.
+      match_re = [[\d\d\d\d_w\d\d]],
+      source_func = function(ctx)
+        -- ctx.name is the node name, e.g. "2024_w05"
+        local year, week = ctx.name:match "(%d%d%d%d)_w(%d%d)"
+
+        -- Reuse the built-in day-entry parser to prefill the summary
+        vim.fn["wiki#template#weekly_summary"](year, week)
+
+        -- Append your own scaffolding below the generated summary
+        vim.fn.append(vim.fn.line "$", {
+          "",
+          "## Goals for next week",
+          "",
+          "* ",
+        })
+      end,
+    },
+  }
+
+If you want a fully custom template and prefer to include the daily entries
+verbatim at the bottom, you can read the entries yourself instead of reusing
+`wiki#template#weekly_summary`: >lua
+
+  vim.g.wiki_templates = {
+    {
+      match_re = [[\d\d\d\d_w\d\d]],
+      source_func = function(ctx)
+        local year, week = ctx.name:match "(%d%d%d%d)_w(%d%d)"
+
+        -- A custom template
+        local lines = {
+          "# Summary, " .. year .. " week " .. week,
+          "",
+          "## Highlights",
+          "",
+          "## Goals for next week",
+          "",
+          "## Journal entries",
+        }
+
+        -- Append the full content of each existing daily entry of the week.
+        -- wiki#url#resolve maps the ISO date to the journal file path, so it
+        -- respects g:wiki_journal.date_format and the journal root.
+        for _, date in ipairs(vim.fn["wiki#date#get_week_dates"](week, year)) do
+          local url = vim.fn["wiki#url#resolve"]("journal:" .. date)
+          if vim.fn.filereadable(url.path) == 1 then
+            table.insert(lines, "")
+            table.insert(lines, "### " .. date)
+            table.insert(lines, "")
+            vim.list_extend(lines, vim.fn.readfile(url.path))
+          end
+        end
+
+        vim.fn.append(0, lines)
+      end,
+    },
+  }
+
+Note that `match_re` is a Vim regular expression tested against the node name
+(`ctx.name`), whereas the Lua `string.match` patterns above are used to parse
+the year and week from that name. The same approach works for the monthly
+summary by matching `\d\d\d\d_m\d\d` and iterating over the days of the month.
 
  vim:tw=78:ts=8:ft=help:norl:fdm=marker:cole=2:
