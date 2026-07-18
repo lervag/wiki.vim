@@ -156,12 +156,7 @@ function! s:summary.parse_url(url_string) abort dict " {{{1
   if !filereadable(l:url.path) | return '' | endif
 
   let l:order = 1
-  let l:entry = {
-        \ 'title' : '',
-        \ 'lines' : [],
-        \ 'order' : l:order,
-        \ 'ignore' : 0,
-        \}
+  let l:entry = s:new_entry(l:order)
 
   let l:lnum = 0
   for l:line in readfile(l:url.path)
@@ -176,23 +171,11 @@ function! s:summary.parse_url(url_string) abort dict " {{{1
     " Empty lines separate entries
     if l:line =~# '^\s*$'
       if !empty(l:entry.lines)
+        call self.push(l:entry)
         let l:order += 1
-
-        if has_key(self.entries, l:entry.title)
-          let self.entries[l:entry.title].lines += l:entry.lines[1:]
-          let self.entries[l:entry.title].order = max([l:entry.order,
-                \ self.entries[l:entry.title].order])
-        else
-          let self.entries[l:entry.title] = l:entry
-        endif
       endif
 
-      let l:entry = {
-            \ 'title' : '',
-            \ 'lines' : [],
-            \ 'order' : l:order,
-            \ 'ignore' : 0,
-            \}
+      let l:entry = s:new_entry(l:order)
       continue
     endif
 
@@ -219,7 +202,23 @@ function! s:summary.parse_url(url_string) abort dict " {{{1
     call add(l:entry.lines, l:line)
   endfor
 
+  " Flush the final entry
+  call self.push(l:entry)
+
   return a:url_string
+endfunction
+
+" }}}1
+function! s:summary.push(entry) abort dict " {{{1
+  if empty(a:entry.lines) | return | endif
+
+  if has_key(self.entries, a:entry.title)
+    let self.entries[a:entry.title].lines += a:entry.lines[1:]
+    let self.entries[a:entry.title].order = max([a:entry.order,
+          \ self.entries[a:entry.title].order])
+  else
+    let self.entries[a:entry.title] = a:entry
+  endif
 endfunction
 
 " }}}1
@@ -240,6 +239,17 @@ function! s:summary.get_entries() abort dict " {{{1
   endwhile
 
   return l:lines
+endfunction
+
+" }}}1
+
+function! s:new_entry(order) abort " {{{1
+  return {
+        \ 'title' : '',
+        \ 'lines' : [],
+        \ 'order' : a:order,
+        \ 'ignore' : 0,
+        \}
 endfunction
 
 " }}}1
