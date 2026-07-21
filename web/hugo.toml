@@ -1,0 +1,20 @@
+# Minimal Hugo config for the wiki.vim docs site landing page.
+# baseURL is intentionally generic; CI overrides it with `hugo --baseURL ...`.
+# Internal links in the template are relative, so the site works both at
+# https://lervag.github.io/wiki.vim/ and at a custom domain root (wiki-vim.org).
+baseURL = "https://lervag.github.io/wiki.vim/"
+languageCode = "en-GB"
+title = "wiki.vim"
+# Only the home page is needed; drop taxonomy/term/RSS noise (keep sitemap).
+disableKinds = ["taxonomy", "term", "rss"]
+
+relativeURLs = true
+
+[markup.goldmark.renderer]
+  # README.md contains raw HTML (doctoc comments, anchors) — let it through.
+  unsafe = true
+
+[markup.highlight]
+  # Emit CSS classes (.chroma) instead of inline styles, so README code blocks
+  # use the same Pygments stylesheet (pygments.css) as the /docs page.
+  noClasses = false

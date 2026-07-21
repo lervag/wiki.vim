@@ -49,7 +49,7 @@ To install wiki.vim, add a plugin spec similar to this:
 ```
 
 wiki.vim is mostly implemented in Vimscript and is configured with the
-classical vimscript variable convention like `g:vimtex_OPTION_NAME`. Nowadays,
+classical vimscript variable convention like `g:wiki_OPTION_NAME`. Nowadays,
 Neovim is often configured with Lua, thus some users may be interested in
 reading `:help lua-vimscript`.
 
