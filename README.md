@@ -1,4 +1,4 @@
-# Introduction
+# wiki.vim
 
 This is a [Vim](http://www.vim.org/) and [neovim](https://neovim.io/) plugin
 for writing and maintaining a personal wiki. The plugin was initially based on
