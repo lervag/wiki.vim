@@ -1761,7 +1761,7 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
   possible.
 
 *<plug>(wiki-index)*
-*WikiIndex*[!]
+*WikiIndex*  *WikiIndex!*
   Go to the wiki index for the main wiki specified by |g:wiki_root| and
   |g:wiki_index_name|.
 
@@ -1770,7 +1770,7 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
   falls back to the main wiki.
 
 *<plug>(wiki-journal)*
-*WikiJournal*[!]
+*WikiJournal*  *WikiJournal!*
   Go to the current journal entry in the main wiki. For the default journal
   frequency, this means today's entry. See also |g:wiki_journal| and the
   `frequency` description.
@@ -1780,7 +1780,7 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
   found.
 
 *<plug>(wiki-pages)*
-*WikiPages*[!]
+*WikiPages*  *WikiPages!*
   List wiki files in the main wiki. Select from list to open target page. This
   uses the UI select method defined by |g:wiki_select_method|.
 
@@ -1802,7 +1802,7 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
   wiki was detected.
 
 *<plug>(wiki-tags)*
-*WikiTags*[!]
+*WikiTags*  *WikiTags!*
   List tags from the main wiki. Allows to search for and navigate to a tag.
   This uses the UI select method defined by |g:wiki_select_method|.
 
