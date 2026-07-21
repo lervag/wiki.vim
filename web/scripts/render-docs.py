@@ -344,45 +344,84 @@ def suppress_bad_justify(body: str) -> str:
     )
 
 
-def tablify_mappings(body: str) -> str:
-    """Turn the fixed-width "LHS / RHS / MODE" default-mappings listing into a
-    real HTML <table>. The listing is a `.help-column_heading` header (optionally
-    fenced by `---` rules) followed by rows of `LHS  <plug>(map)  MODE`."""
-    heading = re.compile(
-        r'(?:<div class="help-column_heading">-+</div>)?'
-        r'<div class="help-column_heading">LHS\s+RHS\s+MODE</div>'
-        r'(?:<div class="help-column_heading">-+</div>)?'
-    )
-    m = heading.search(body)
-    if not m:
-        return body
+def _split_columns(row: str, col_starts: list[int]) -> list[str]:
+    """Split one HTML row into cell HTML at the given visible-column boundaries.
+    Walks the row tracking the *visible* column (tags contribute no width; an
+    HTML entity counts as one), so inline <code>/<a> markup is kept intact and
+    empty cells (a column that is only spaces) are preserved."""
+    cells = [""] * len(col_starts)
 
-    row = re.compile(
-        r"[^\S\n]*(.*?)\s*"  # LHS (before the plug map; may be empty)
-        r"(<a\b[^>]*>&lt;plug&gt;\([^)]*\)</a>|&lt;plug&gt;\([^)]*\))"  # RHS plug map
-        r"\s*(<code>[^<]*</code>)?[^\S\n]*(?:\n|$)"  # optional MODE
-    )
-    rows, pos = [], m.end()
-    while (rm := row.match(body, pos)) is not None:
-        rows.append((rm.group(1).strip(), rm.group(2), rm.group(3) or ""))
-        pos = rm.end()
-    if not rows:
-        return body
+    def col_of(p: int) -> int:
+        c = 0
+        for k, cs in enumerate(col_starts):
+            if p >= cs:
+                c = k
+        return c
 
-    # Consume the closing "---" rule that follows the rows.
-    tail = re.match(r'\s*<div class="help-column_heading">-+</div>', body[pos:])
-    if tail:
-        pos += tail.end()
+    p = i = 0
+    n = len(row)
+    while i < n:
+        ch = row[i]
+        if ch == "<":  # a tag: copy verbatim, no visible width
+            j = row.find(">", i)
+            j = n if j < 0 else j + 1
+            cells[col_of(p)] += row[i:j]
+            i = j
+        elif ch == "&":  # an entity: copy verbatim, one visible column
+            j = row.find(";", i)
+            j = i + 1 if j < 0 else j + 1
+            cells[col_of(p)] += row[i:j]
+            p += 1
+            i = j
+        else:
+            cells[col_of(p)] += ch
+            p += 1
+            i += 1
+    return [c.strip() for c in cells]
 
-    trs = "".join(
-        f"<tr><td>{lhs}</td><td>{rhs}</td><td>{mode}</td></tr>"
-        for lhs, rhs, mode in rows
-    )
-    table = (
-        '<table class="maps"><thead><tr><th>LHS</th><th>RHS</th><th>MODE</th>'
-        f"</tr></thead><tbody>{trs}</tbody></table>"
-    )
-    return body[: m.start()] + table + body[pos:]
+
+# A fixed-width column table: a `.help-column_heading` header, an `=` underline
+# with 2+ groups (that is what distinguishes a table from an underlined heading),
+# then space-aligned rows up to the wrapping paragraph's close.
+_COL_TABLE_RE = re.compile(
+    r'<div class="old-help-para[^"]*">'
+    r'<div class="help-column_heading">(?P<hdr>[^<]*)</div>'
+    r"(?P<rest>[ \t]*=+(?:[ \t]+=+)+[ \t]*\n(?:(?!</div>)[\s\S])*)"
+    r"</div>"
+)
+
+
+def tablify_columns(body: str) -> str:
+    """Turn the help file's fixed-width column tables (a `~` column heading over
+    an `=====` underline, e.g. Program/Feature or Key/Description/Example) into
+    real HTML <table>s. Column boundaries come from the underline's `=`-run start
+    positions, which gen_help_html preserves as visible columns."""
+
+    def build(m: re.Match) -> str:
+        headers = re.split(r" {2,}", m.group("hdr").strip())
+        underline, _, rows_txt = m.group("rest").partition("\n")
+        col_starts = [mm.start() for mm in re.finditer(r"=+", underline)]
+        # Bail out (leave the block untouched) if the header columns and the
+        # underline groups disagree — safer than emitting a mangled table.
+        if len(headers) != len(col_starts):
+            return m.group(0)
+        rows = [
+            _split_columns(line, col_starts)
+            for line in rows_txt.split("\n")
+            if line.strip()
+        ]
+        if not rows:
+            return m.group(0)
+        thead = "".join(f"<th>{h}</th>" for h in headers)
+        trs = "".join(
+            "<tr>" + "".join(f"<td>{c}</td>" for c in r) + "</tr>" for r in rows
+        )
+        return (
+            f'<table class="doc-table"><thead><tr>{thead}</tr></thead>'
+            f"<tbody>{trs}</tbody></table>"
+        )
+
+    return _COL_TABLE_RE.sub(build, body)
 
 
 def pygments_css() -> str:
@@ -452,7 +491,7 @@ def main() -> None:
     body, n = linkify_and_highlight(body, load_tagmap())
     body = reflow_prose(body)
     body = suppress_bad_justify(body)
-    body = tablify_mappings(body)
+    body = tablify_columns(body)
 
     outdir.mkdir(parents=True, exist_ok=True)
     for asset in ("shared.css", "docs.css", "arrow-left.svg"):

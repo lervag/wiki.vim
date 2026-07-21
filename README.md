@@ -7,7 +7,8 @@ scratch and is based on a more "do one thing and do it well" philosophy.
 
 This README file contains basic information on how to get started, as well as
 a list of available features. For more details, please read the
-[full documentation](doc/wiki.txt).
+[full documentation](https://wiki-vim.org/docs) (`:help wiki.vim` if the plugin
+is installed).
 
 > [!NOTE]
 >
