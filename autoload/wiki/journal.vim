@@ -76,23 +76,6 @@ endfunction
 
 " }}}1
 function! wiki#journal#make_index() " {{{1
-  let l:nodes = wiki#journal#get_all_nodes(g:wiki_journal.frequency)
-
-  let l:grouped_nodes = {}
-  for l:node in l:nodes
-    let l:date = wiki#date#parse_format(l:node, g:wiki_journal.date_format.daily)
-    if has_key(grouped_nodes, l:date.year)
-      let year_dict = grouped_nodes[l:date.year]
-      if has_key(year_dict, l:date.month)
-        call add(year_dict[l:date.month], l:node)
-      else
-        let year_dict[l:date.month] = [l:node]
-      endif
-    else
-      let grouped_nodes[l:date.year] = {l:date.month:[l:node]}
-    endif
-  endfor
-
   let l:LinkUrlParser = g:wiki_journal_index.link_url_parser
   if type(l:LinkUrlParser) != v:t_func
     return wiki#log#error(
@@ -105,41 +88,63 @@ function! wiki#journal#make_index() " {{{1
           \ 'g:wiki_journal_index.link_text_parser must be a function/lambda!')
   endif
 
-  " Put the index into buffer
-  let l:years = sort(keys(l:grouped_nodes))
+  " Note: The nodes are gathered with the date format of the current
+  "       frequency, so the frequency is known and each node only needs to be
+  "       parsed once. The timestamp provides both the group (year and month)
+  "       and the date string that is passed to the link parsers.
+  let l:frq = g:wiki_journal.frequency
+  let l:format = g:wiki_journal.date_format[l:frq]
+
+  let l:grouped_links = {}
+  for l:node in wiki#journal#get_all_nodes(l:frq)
+    let l:timestamp = wiki#date#strptime(l:format, l:node)
+    if l:timestamp <= 0 | continue | endif
+
+    let l:date = strftime(s:date_format[l:frq], l:timestamp)
+    let l:path = s:node_to_path(l:node)
+    let l:link = wiki#link#template(
+          \ l:LinkUrlParser(l:node, l:date, l:path),
+          \ l:LinkTextParser(l:node, l:date, l:path))
+
+    let l:year = strftime('%Y', l:timestamp)
+    let l:month = strftime('%m', l:timestamp)
+    if !has_key(l:grouped_links, l:year)
+      let l:grouped_links[l:year] = {}
+    endif
+    if !has_key(l:grouped_links[l:year], l:month)
+      let l:grouped_links[l:year][l:month] = []
+    endif
+    call add(l:grouped_links[l:year][l:month], l:link)
+  endfor
+
+  " Build the index, then put it into the buffer in one go
+  let l:lines = []
+  let l:years = sort(keys(l:grouped_links))
   if g:wiki_journal_index.reverse
     let l:years = reverse(l:years)
   endif
   for l:year in l:years
-    put ='# ' . l:year
-    put =''
+    call extend(l:lines, ['# ' . l:year, ''])
 
-    let l:month_dict = l:grouped_nodes[l:year]
-    let l:months = sort(keys(l:month_dict))
+    let l:months = sort(keys(l:grouped_links[l:year]))
     if g:wiki_journal_index.reverse
       let l:months = reverse(l:months)
     endif
     for l:month in l:months
-      let l:nodes = l:month_dict[l:month]
-      if g:wiki_journal_index.reverse
-        let l:nodes = reverse(l:nodes)
-      endif
       let l:mname = wiki#date#get_month_name(l:month)
       let l:mname = toupper(strcharpart(l:mname, 0, 1)) . strcharpart(l:mname, 1)
-      put ='## ' . l:mname
-      put =''
-      for l:node in l:nodes
-        let l:path = s:node_to_path(l:node)
-        let l:date = wiki#journal#node_to_date(l:node)[0]
+      call extend(l:lines, ['## ' . l:mname, ''])
 
-        let l:url = LinkUrlParser(l:node, l:date, l:path)
-        let l:text = LinkTextParser(l:node, l:date, l:path)
-
-        put =wiki#link#template(l:url, l:text)
-      endfor
-      put =''
+      let l:links = l:grouped_links[l:year][l:month]
+      call extend(l:lines, g:wiki_journal_index.reverse
+            \ ? reverse(copy(l:links))
+            \ : l:links)
+      call add(l:lines, '')
     endfor
   endfor
+
+  call append(line('.'), l:lines)
+  call cursor(line('.') + len(l:lines), 1)
 endfunction
 
 " }}}1
