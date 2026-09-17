@@ -271,13 +271,13 @@ function! wiki#journal#get_all_nodes(frq, ...) abort " {{{1
         \ }
         \})
 
-  let l:current = l:cache.get(a:frq)
-  let l:time = localtime()
-  if l:time > l:current.time - 5
-    let l:current.time = l:time
+  let l:root = wiki#journal#get_root()
+  let l:rx = wiki#date#format_to_regex(g:wiki_journal.date_format[a:frq])
 
-    let l:root = wiki#journal#get_root()
-    let l:rx = wiki#date#format_to_regex(g:wiki_journal.date_format[a:frq])
+  let l:current = l:cache.get(printf('%s|%s|%s', l:root, a:frq, l:rx))
+  let l:time = localtime()
+  if l:time > l:current.time + 5
+    let l:current.time = l:time
 
     call wiki#paths#pushd(l:root)
     let l:current.nodes = filter(
