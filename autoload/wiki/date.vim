@@ -101,30 +101,17 @@ endfunction
 
 " }}}1
 function! wiki#date#parse_format(date, format) abort " {{{1
-  let l:keys = {
-        \ 'y' : ['year', 2],
-        \ 'Y' : ['year', 4],
-        \ 'm' : ['month', 2],
-        \ 'd' : ['day', 2],
-        \ 'V' : ['week_iso', 2],
-        \ 'U' : ['week', 2],
-        \}
-  let l:rx = '%[' . join(keys(l:keys), '') . ']'
+  let [l:regex, l:names] = s:compile_format(a:format)
+
+  let l:matches = matchlist(a:date, l:regex)
+  if empty(l:matches) | return {} | endif
 
   let l:result = {}
-  let l:date = copy(a:date)
-  let l:format = copy(a:format)
-  while v:true
-    let [l:match, l:pos, l:end] = matchstrpos(l:format, l:rx)
-    if l:pos < 0 | break | endif
+  for l:i in range(len(l:names))
+    let l:result[l:names[l:i]] = l:matches[l:i + 1]
+  endfor
 
-    let [l:name, l:len] = l:keys[l:match[1]]
-    let l:result[l:name] = strpart(l:date, l:pos, l:len)
-    let l:date = strpart(l:date, l:pos + l:len)
-    let l:format = strpart(l:format, l:end)
-  endwhile
-
-  if len(l:result.year) == 2
+  if len(get(l:result, 'year', '')) == 2
     let l:result.year = '20' . l:result.year
   endif
 
@@ -165,5 +152,50 @@ function! s:date_offset(date, offset_days) abort " {{{1
   let l:timestamp += 86400*a:offset_days
   return strftime('%Y-%m-%d', l:timestamp)
 endfunction
+
+" }}}1
+function! s:compile_format(format) abort " {{{1
+  " Translate a date format into a regex with one capture group per field,
+  " e.g. '%Y-%m-%d' becomes '^\(\d\d\d\d\).\{1}\(\d\d\).\{1}\(\d\d\)'. The
+  " names of the captured fields are returned along with the regex.
+  "
+  " Note: The text between the fields is matched by length and not by content.
+  "       This is because a date string is not always parsed with the format it
+  "       was created with; see e.g. wiki#journal#date_to_node, which parses a
+  "       node with the canonical format of the detected frequency.
+  "
+  " The result is cached, as the same few formats are parsed over and over.
+  if has_key(s:formats, a:format) | return s:formats[a:format] | endif
+
+  let l:regex = '^'
+  let l:names = []
+  let l:format = a:format
+  while v:true
+    let [l:match, l:pos, l:end] = matchstrpos(l:format, s:rx_field)
+    if l:pos < 0 | break | endif
+
+    let [l:name, l:length] = s:fields[l:match[1]]
+    if l:pos > 0
+      let l:regex .= '.\{' . strchars(strpart(l:format, 0, l:pos)) . '}'
+    endif
+    let l:regex .= '\(' . repeat('\d', l:length) . '\)'
+    call add(l:names, l:name)
+    let l:format = strpart(l:format, l:end)
+  endwhile
+
+  let s:formats[a:format] = [l:regex, l:names]
+  return s:formats[a:format]
+endfunction
+
+let s:fields = {
+      \ 'y' : ['year', 2],
+      \ 'Y' : ['year', 4],
+      \ 'm' : ['month', 2],
+      \ 'd' : ['day', 2],
+      \ 'V' : ['week_iso', 2],
+      \ 'U' : ['week', 2],
+      \}
+let s:rx_field = '%[' . join(keys(s:fields), '') . ']'
+let s:formats = {}
 
 " }}}1
