@@ -28,18 +28,6 @@ function! wiki#cache#open(name, ...) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#cache#close(name) abort " {{{1
-  " Note: This will close BOTH local and global cache!
-
-  for [l:name, l:cache] in s:cache_get_both(a:name)
-    if !empty(l:cache) && has_key(s:caches, l:name)
-      call l:cache.write()
-      unlet s:caches[l:name]
-    endif
-  endfor
-endfunction
-
-" }}}1
 function! wiki#cache#clear(name) abort " {{{1
   if empty(a:name) | return | endif
 
@@ -57,13 +45,6 @@ function! wiki#cache#clear(name) abort " {{{1
     elseif l:persistent
       call delete(wiki#cache#path(l:name . '.json'))
     endif
-  endfor
-endfunction
-
-" }}}1
-function! wiki#cache#write_all() abort " {{{1
-  for l:cache in values(s:caches)
-    call l:cache.write()
   endfor
 endfunction
 
