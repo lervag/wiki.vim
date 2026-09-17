@@ -107,6 +107,9 @@ function! s:cache.init(path, opts) dict abort " {{{1
   let new.default = a:opts.default
   let new.__validated = 0
   let new.__validation_value = deepcopy(a:opts.validate)
+  if type(new.__validation_value) == v:t_dict
+    let new.__validation_value._version = s:_version
+  endif
 
   if a:opts.persistent
     return extend(new, s:cache_persistent)
@@ -122,11 +125,8 @@ let s:cache_persistent = {
       \ 'modified': v:false,
       \}
 function! s:cache_persistent.validate() dict abort " {{{1
+  if self.__validated | return | endif
   let self.__validated = 1
-
-  if type(self.__validation_value) == v:t_dict
-    let self.__validation_value._version = s:_version
-  endif
 
   if empty(self.data)
     let self.data.__validate = deepcopy(self.__validation_value)
@@ -138,7 +138,6 @@ function! s:cache_persistent.validate() dict abort " {{{1
         \ || self.data.__validate != self.__validation_value
     call self.clear()
     let self.data.__validate = deepcopy(self.__validation_value)
-    call self.write()
   endif
 endfunction
 
@@ -184,7 +183,9 @@ endfunction
 
 " }}}1
 function! s:cache_persistent.read() dict abort " {{{1
-  if getftime(self.path) <= self.ftime | return | endif
+  if getftime(self.path) <= self.ftime
+    return self.validate()
+  endif
 
   let self.ftime = getftime(self.path)
 
@@ -216,10 +217,7 @@ function! s:cache_persistent.read() dict abort " {{{1
   endif
 
   call extend(self.data, l:data, 'keep')
-
-  if !self.__validated
-    call self.validate()
-  endif
+  call self.validate()
 endfunction
 
 " }}}1
