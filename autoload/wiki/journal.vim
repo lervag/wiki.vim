@@ -266,7 +266,8 @@ function! wiki#journal#get_all_nodes(frq, ...) abort " {{{1
   let l:cache = wiki#cache#open('journal-nodes', #{
         \ persistent: 0,
         \ default: #{
-        \   time: -1,
+        \   dirs: [],
+        \   stamps: [],
         \   nodes: []
         \ }
         \})
@@ -275,17 +276,41 @@ function! wiki#journal#get_all_nodes(frq, ...) abort " {{{1
   let l:rx = wiki#date#format_to_regex(g:wiki_journal.date_format[a:frq])
 
   let l:current = l:cache.get(printf('%s|%s|%s', l:root, a:frq, l:rx))
-  let l:time = localtime()
-  if l:time > l:current.time + 5
-    let l:current.time = l:time
+
+  " The node list only changes when a file is added, removed or renamed, and
+  " each such change updates the mtime of the containing directory. We can
+  " therefore validate the cache by checking the mtime of the known
+  " directories. This scales with the number of directories, not with the
+  " number of journal entries. Note that a new directory always updates the
+  " mtime of its parent, so new subtrees are detected as well.
+  let l:valid = !empty(l:current.dirs)
+  for l:i in range(len(l:current.dirs))
+    if getftime(l:current.dirs[l:i]) != l:current.stamps[l:i]
+      let l:valid = v:false
+      break
+    endif
+  endfor
+
+  if !l:valid
+    let l:time = localtime()
 
     call wiki#paths#pushd(l:root)
+    let l:current.dirs = map(
+          \ ['.'] + glob('./**/', 1, 1),
+          \ { _, x -> fnamemodify(x, ':p') })
+    let l:current.stamps = map(copy(l:current.dirs), { _, x -> getftime(x) })
     let l:current.nodes = filter(
           \ map(
           \   glob('./**', 1, 1),
           \   { _, x -> fnamemodify(x, ':.:r') }),
           \ { _, x -> x =~# l:rx })
     call wiki#paths#popd()
+
+    " Note: getftime has a resolution of one second, so a directory that was
+    "       touched within the current second may be touched again without any
+    "       observable change to its mtime. Such stamps are marked as invalid
+    "       to force a revalidation on the next lookup.
+    call map(l:current.stamps, { _, x -> x >= l:time ? -1 : x })
   endif
 
   return a:0 > 0
