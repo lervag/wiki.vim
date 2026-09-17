@@ -299,11 +299,11 @@ function! wiki#journal#get_all_nodes(frq, ...) abort " {{{1
           \ ['.'] + glob('./**/', 1, 1),
           \ { _, x -> fnamemodify(x, ':p') })
     let l:current.stamps = map(copy(l:current.dirs), { _, x -> getftime(x) })
-    let l:current.nodes = filter(
+    let l:current.nodes = sort(filter(
           \ map(
           \   glob('./**', 1, 1),
           \   { _, x -> fnamemodify(x, ':.:r') }),
-          \ { _, x -> x =~# l:rx })
+          \ { _, x -> x =~# l:rx }))
     call wiki#paths#popd()
 
     " Note: getftime has a resolution of one second, so a directory that was
@@ -313,9 +313,18 @@ function! wiki#journal#get_all_nodes(frq, ...) abort " {{{1
     call map(l:current.stamps, { _, x -> x >= l:time ? -1 : x })
   endif
 
-  return a:0 > 0
-        \ ? uniq(sort(a:1 + l:current.nodes))
-        \ : l:current.nodes
+  " The cached node list is sorted, so we only need to merge and sort again if
+  " some of the specified nodes are missing from it. They rarely are, since the
+  " typical case is navigation from a node that is already in the list.
+  if a:0 > 0
+    for l:node in a:1
+      if index(l:current.nodes, l:node) < 0
+        return uniq(sort(a:1 + l:current.nodes))
+      endif
+    endfor
+  endif
+
+  return copy(l:current.nodes)
 endfunction
 
 " }}}1
