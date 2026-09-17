@@ -206,17 +206,31 @@ function! s:cache_persistent.read() dict abort " {{{1
   if getftime(self.path) <= self.ftime | return | endif
 
   let self.ftime = getftime(self.path)
-  let l:contents = join(readfile(self.path))
-  if empty(l:contents) | return | endif
 
-  let l:data = json_decode(l:contents)
+  " Note: A cache file may be unreadable or corrupted, e.g. if Vim was killed
+  " while writing it. There is nothing to recover in that case, so we discard
+  " the cache and let it be rebuilt.
+  try
+    let l:contents = join(readfile(self.path))
+    if empty(l:contents) | return | endif
+
+    let l:data = json_decode(l:contents)
+  catch
+    call wiki#log#warn(
+          \ 'Could not read cache file (discarding it):',
+          \ self.path
+          \)
+    call self.clear()
+    return
+  endtry
 
   if type(l:data) != v:t_dict
     call wiki#log#warn(
-          \ 'Inconsistent cache data while reading:',
+          \ 'Inconsistent cache data while reading (discarding it):',
           \ self.path,
           \ 'Decoded data type: ' . type(l:data)
           \)
+    call self.clear()
     return
   endif
 
