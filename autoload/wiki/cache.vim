@@ -14,26 +14,6 @@ function! wiki#cache#path(name) abort " {{{1
 endfunction
 
 " }}}1
-function! wiki#cache#wrap(Func, name, ...) abort " {{{1
-  if !has('lambda')
-    throw 'error: wiki#cache#wrap requires +lambda'
-  endif
-
-  let l:opts = a:0 > 0 ? a:1 : {}
-  let l:cache = wiki#cache#open(a:name, l:opts)
-
-  function! CachedFunc(key) closure
-    if l:cache.has(a:key)
-      return l:cache.get(a:key)
-    else
-      return l:cache.set(a:key, a:Func(a:key))
-    endif
-  endfunction
-
-  return function('CachedFunc')
-endfunction
-
-" }}}1
 
 function! wiki#cache#open(name, ...) abort " {{{1
   let l:opts = extend({
@@ -70,18 +50,19 @@ function! wiki#cache#clear(name) abort " {{{1
   let l:persistent = get(g:, 'wiki_cache_persistent', 1)
   for [l:name, l:cache] in s:cache_get_both(a:name)
     if !empty(l:cache)
+      " Note: Clear in place! Other objects (e.g. the graph builder) hold
+      " long-lived references to the cache object, so removing it here would
+      " leave them with a stale copy that still writes to the same file.
       call l:cache.clear()
-      unlet s:caches[l:name]
     elseif l:persistent
-      let l:path = wiki#cache#path(l:name . '.json')
-      call delete(l:path)
+      call delete(wiki#cache#path(l:name . '.json'))
     endif
   endfor
 endfunction
 
 " }}}1
 function! wiki#cache#write_all() abort " {{{1
-  for l:cache in values(get(s:, 'caches', {}))
+  for l:cache in values(s:caches)
     call l:cache.write()
   endfor
 endfunction
@@ -91,7 +72,6 @@ endfunction
 function! s:cache_open(name, project_local, opts) abort " {{{1
   let l:name = a:project_local ? s:local_name(a:name) : a:name
 
-  let s:caches = get(s:, 'caches', {})
   if !has_key(s:caches, l:name)
     let l:path = wiki#cache#path(l:name . '.json')
     let s:caches[l:name] = s:cache.init(l:path, a:opts)
@@ -105,7 +85,6 @@ function! s:cache_get(name, ...) abort " {{{1
   let l:project_local = a:0 > 0 ? a:1 : v:false
   let l:name = l:project_local ? s:local_name(a:name) : a:name
 
-  let s:caches = get(s:, 'caches', {})
   return [l:name, get(s:caches, l:name, {})]
 endfunction
 
@@ -119,12 +98,14 @@ endfunction
 
 " }}}1
 function! s:cache_clear_all() abort " {{{1
-  " Delete cache state map
-  unlet! s:caches
+  " Clear open caches in place (see note in wiki#cache#clear)
+  for l:cache in values(s:caches)
+    call l:cache.clear()
+  endfor
 
   if !get(g:, 'wiki_cache_persistent', 1) | return | endif
 
-  " Delete cache files
+  " Delete cache files for caches that are not currently open
   for l:file in globpath(g:wiki_cache_root, '*.json', 0, 1)
     call delete(l:file)
   endfor
@@ -132,6 +113,7 @@ endfunction
 
 " }}}1
 
+let s:caches = {}
 let s:cache = {}
 
 function! s:cache.init(path, opts) dict abort " {{{1
