@@ -35,7 +35,7 @@ function! wiki#cache#clear(name) abort " {{{1
     return s:cache_clear_all()
   endif
 
-  let l:persistent = get(g:, 'wiki_cache_persistent', 1)
+  let l:persistent = get(g:, 'wiki_cache_persistent', v:true)
   for [l:name, l:cache] in s:cache_get_both(a:name)
     if !empty(l:cache)
       " Note: Clear in place! Other objects (e.g. the graph builder) hold
@@ -84,7 +84,7 @@ function! s:cache_clear_all() abort " {{{1
     call l:cache.clear()
   endfor
 
-  if !get(g:, 'wiki_cache_persistent', 1) | return | endif
+  if !get(g:, 'wiki_cache_persistent', v:true) | return | endif
 
   " Delete cache files for caches that are not currently open
   for l:file in globpath(g:wiki_cache_root, '*.json', 0, 1)
@@ -98,24 +98,24 @@ let s:caches = {}
 let s:cache = {}
 
 function! s:cache.init(path, opts) dict abort " {{{1
-  let new = deepcopy(self)
-  unlet new.init
+  let l:new = deepcopy(self)
+  unlet l:new.init
 
-  let new.data = {}
-  let new.path = a:path
-  let new.ftime = -1
-  let new.default = a:opts.default
-  let new.__validated = 0
-  let new.__validation_value = deepcopy(a:opts.validate)
-  if type(new.__validation_value) == v:t_dict
-    let new.__validation_value._version = s:_version
+  let l:new.data = {}
+  let l:new.path = a:path
+  let l:new.ftime = -1
+  let l:new.default = a:opts.default
+  let l:new.__validated = 0
+  let l:new.__validation_value = deepcopy(a:opts.validate)
+  if type(l:new.__validation_value) == v:t_dict
+    let l:new.__validation_value._version = s:_version
   endif
 
   if a:opts.persistent
-    return extend(new, s:cache_persistent)
+    return extend(l:new, s:cache_persistent)
   endif
 
-  return extend(new, s:cache_volatile)
+  return extend(l:new, s:cache_volatile)
 endfunction
 
 " }}}1
@@ -149,7 +149,7 @@ function! s:cache_persistent.get(key) dict abort " {{{1
     let self.data[a:key] = deepcopy(self.default)
   endif
 
-  return get(self.data, a:key)
+  return self.data[a:key]
 endfunction
 
 " }}}1
@@ -238,7 +238,7 @@ function! s:cache_volatile.get(key) dict abort " {{{1
     let self.data[a:key] = deepcopy(self.default)
   endif
 
-  return get(self.data, a:key)
+  return self.data[a:key]
 endfunction
 
 " }}}1
@@ -286,6 +286,6 @@ endfunction
 " }}}1
 
 
-let s:_version = 'cache_v2'
+let s:_version = 'cache_v3'
 
 " vim: fdm=marker
