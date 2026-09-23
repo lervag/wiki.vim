@@ -1835,6 +1835,13 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
   Open a scratch buffer that shows how a page relates to other pages by links
   into (on the left) and out of (on the right).
 
+  The following mappings are available in the scratch buffer:
+
+    o     Open the page under the cursor.
+    <cr>  Open the page under the cursor and show the related pages of that
+          page. With the cursor on the current page in the middle, this
+          closes the scratch buffer.
+
 *<plug>(wiki-graph-check-links)*
 *WikiGraphCheckLinks*
   Check the current wiki page for broken links. If any broken links are found,
@@ -1857,9 +1864,17 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
 *<plug>(wiki-graph-out)*
 *WikiGraphIn*
 *WikiGraphOut*
-  Show links in to or out of the current page. A count may be given to show
-  a specified depth of links. Notice that a large count can take a while if
-  you have a large wiki.
+  Open a scratch buffer that shows the links in to or out of the current page
+  as a tree. A count may be given to show a specified depth of links, where
+  a count of 0 means unlimited depth. Notice that a large count can take
+  a while if you have a large wiki.
+
+  Each file is only expanded once, so that it is listed below the closest page
+  that links to it. A link back to one of the parent pages is shown as a leaf
+  marked with "↺".
+
+  In the scratch buffer, both `o` and `<cr>` will open the page on the current
+  line.
 
 *<plug>(wiki-link-remove)*
 *WikiLinkRemove*

@@ -132,60 +132,79 @@ endfunction
 function! s:graph.get_tree_to(file, depth) abort dict " {{{1
   call self.refresh_cache()
 
-  let l:tree = {}
-  let l:stack = [[a:file, []]]
-  let l:visited = []
-
-  while !empty(l:stack)
-    let [l:file, l:path] = remove(l:stack, 0)
-    if index(l:visited, l:file) >= 0 | continue | endif
-    let l:visited += [l:file]
-
-    let l:current_path = l:path + [wiki#paths#to_node(l:file)]
-    if a:depth > 0 && len(l:current_path) > a:depth + 1
-      continue
-    endif
-
-    let l:stack += uniq(map(
-          \ deepcopy(get(self.cache_links_in.data, l:file, [])),
-          \ { _, x -> [x.filename_from, l:current_path] }
-          \))
-
-    if !has_key(l:tree, l:file)
-      let l:tree[l:file] = join(l:current_path, ' ← ')
-    endif
-  endwhile
-
-  return l:tree
+  return self._build_tree(a:file, a:depth, 'in')
 endfunction
 
 " }}}1
 function! s:graph.get_tree_from(file, depth) abort dict " {{{1
-  let l:tree = {}
-  let l:stack = [[a:file, []]]
-  let l:visited = []
+  return self._build_tree(a:file, a:depth, 'out')
+endfunction
 
-  while !empty(l:stack)
-    let [l:file, l:path] = remove(l:stack, 0)
-    if index(l:visited, l:file) >= 0 | continue | endif
-    let l:visited += [l:file]
+" }}}1
 
-    let l:current_path = l:path + [wiki#paths#to_node(l:file)]
-    if a:depth > 0 && len(l:current_path) > a:depth + 1
-      continue
-    endif
+function! s:graph._build_tree(file, depth, direction) abort dict " {{{1
+  " Build a tree of the files that are reachable from a:file by following
+  " links in the specified direction ('in' or 'out'). The tree is a nested
+  " structure of nodes:
+  "
+  "   {
+  "     'file': absolute path,
+  "     'node': node name (see wiki#paths#to_node),
+  "     'cycle': v:true if the node links back to one of its ancestors,
+  "     'children': list of nodes,
+  "   }
+  "
+  " Each file is only expanded once, i.e. the tree is a spanning tree where
+  " every file is attached to the closest parent. Links back to an ancestor
+  " are kept as leaf nodes marked with "cycle", whereas other links to
+  " already visited files are dropped.
 
-    let l:stack += uniq(map(
-          \ self.get_links_from(l:file),
-          \ { _, x -> [x.filename_to, l:current_path] }
-          \))
+  let l:root = s:tree_node(a:file)
+  let l:visited = { a:file : 1 }
+  let l:queue = [[l:root, [a:file]]]
 
-    if !has_key(l:tree, l:file)
-      let l:tree[l:file] = join(l:current_path, ' → ')
-    endif
+  while !empty(l:queue)
+    let [l:current, l:ancestors] = remove(l:queue, 0)
+    if a:depth > 0 && len(l:ancestors) > a:depth | continue | endif
+
+    for l:file in self._get_adjacent_files(l:current.file, a:direction)
+      if has_key(l:visited, l:file)
+        if index(l:ancestors, l:file) >= 0
+          call add(l:current.children, s:tree_node(l:file, v:true))
+        endif
+        continue
+      endif
+      let l:visited[l:file] = 1
+
+      let l:child = s:tree_node(l:file)
+      call add(l:current.children, l:child)
+      call add(l:queue, [l:child, l:ancestors + [l:file]])
+    endfor
   endwhile
 
-  return l:tree
+  return l:root
+endfunction
+
+" }}}1
+function! s:graph._get_adjacent_files(file, direction) abort dict " {{{1
+  let l:files = a:direction ==# 'in'
+        \ ? map(copy(get(self.cache_links_in.data, a:file, [])),
+        \       { _, x -> x.filename_from })
+        \ : map(self.get_links_from(a:file),
+        \       { _, x -> x.filename_to })
+
+  return wiki#u#uniq_unsorted(sort(l:files, 'i'))
+endfunction
+
+" }}}1
+
+function! s:tree_node(file, ...) abort " {{{1
+  return {
+        \ 'file': a:file,
+        \ 'node': wiki#paths#to_node(a:file),
+        \ 'cycle': a:0 > 0 ? a:1 : v:false,
+        \ 'children': [],
+        \}
 endfunction
 
 " }}}1

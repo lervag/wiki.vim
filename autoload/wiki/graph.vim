@@ -217,84 +217,44 @@ function! wiki#graph#show_related() abort "{{{1
   " Create scratch buffer with lines as content
   let l:scratch = {
         \ 'name': 'WikiGraphRelated',
+        \ 'header': 'Links into and out of '
+        \   . wiki#paths#to_node(expand('%:p')),
+        \ 'cmd': 'WikiGraphRelated',
         \ 'lines': l:lines,
         \ 'width_in': l:width_in,
         \ 'width_out': l:width_out
         \}
 
-  function! l:scratch.post_init() abort dict
-    nnoremap <silent><buffer> o    :call b:scratch.action(0)<cr>
-    nnoremap <silent><buffer> <cr> :call b:scratch.action(1)<cr>
-  endfunction
-
-  function! l:scratch.action(continue_in_graph) abort dict
+  " The nodes are laid out in two columns, so we pick the target based on the
+  " cursor column. The middle column is the current page, which we use to
+  " close the buffer.
+  function! l:scratch.get_target() abort dict
     let l:col = col('.')
     let l:line = getline('.')
 
     if l:col < self.width_in
-      let l:name = strcharpart(l:line, 0, self.width_in)
+      let l:node = strcharpart(l:line, 0, self.width_in)
     elseif l:col > self.width_out
-      let l:name = strcharpart(l:line, self.width_out)
+      let l:node = strcharpart(l:line, self.width_out)
     else
-      return self.close()
+      call self.close()
+      return ''
     endif
 
-    let l:url = trim(l:name)
-    if !empty(l:url)
-      call wiki#url#follow(l:url)
-      if a:continue_in_graph
-        WikiGraphRelated
-      endif
-    endif
+    return trim(l:node)
   endfunction
 
-  function! l:scratch.print_content() abort dict
-    for l:line in self.lines
-      call append('$', l:line)
-    endfor
-  endfunction
-
-  function! l:scratch.syntax() abort dict
-    syntax match ScratchContent "."
-    syntax match ScratchSeparator "[─┤┐┘├┼└┌]"
-
-    highlight link ScratchContent Include
-    highlight link ScratchSeparator Title
-  endfunction
-
-  call wiki#scratch#new(l:scratch)
+  call s:output_to_scratch(l:scratch)
 endfunction
 
 "}}}1
 function! wiki#graph#in(...) abort "{{{1
-  let l:graph = wiki#graph#builder#get()
-
-  call wiki#log#info('Building tree, please wait ...')
-  sleep 10m
-
-  let l:depth = a:0 > 0 ? a:1 : -1
-  let l:tree = l:graph.get_tree_to(expand('%:p'), l:depth)
-
-  redraw
-  call wiki#log#info('Building tree, please wait ... done!')
-
-  call s:output_to_scratch('WikiGraphIn', sort(values(l:tree)))
+  call s:show_tree('in', a:0 > 0 ? a:1 : -1)
 endfunction
 
 "}}}1
 function! wiki#graph#out(...) abort " {{{1
-  let l:graph = wiki#graph#builder#get()
-
-  call wiki#log#info('Building tree, please wait ...')
-  sleep 10m
-
-  let l:depth = a:0 > 0 ? a:1 : -1
-  let l:tree = l:graph.get_tree_from(expand('%:p'), l:depth)
-
-  redraw
-  call wiki#log#info('Building tree, please wait ... done!')
-
-  call s:output_to_scratch('WikiGraphOut', sort(values(l:tree)))
+  call s:show_tree('out', a:0 > 0 ? a:1 : -1)
 endfunction
 
 " }}}1
@@ -309,24 +269,143 @@ endfunction
 " }}}1
 
 
-function! s:output_to_scratch(name, lines) abort " {{{1
+function! s:show_tree(direction, depth) abort " {{{1
+  let l:file = expand('%:p')
+  let l:graph = wiki#graph#builder#get()
+
+  call wiki#log#info('Building tree, please wait ...')
+  sleep 10m
+
+  let l:tree = a:direction ==# 'in'
+        \ ? l:graph.get_tree_to(l:file, a:depth)
+        \ : l:graph.get_tree_from(l:file, a:depth)
+
+  redraw
+  call wiki#log#info('Building tree, please wait ... done!')
+
+  " Each rendered line is paired with the file it refers to
+  let l:rendered = s:tree_to_lines(l:tree)
   let l:scratch = {
-        \ 'name': a:name,
-        \ 'lines': a:lines,
+        \ 'name': a:direction ==# 'in' ? 'WikiGraphIn' : 'WikiGraphOut',
+        \ 'header': printf('Links %s %s (%s)',
+        \   a:direction ==# 'in' ? 'into' : 'from',
+        \   l:tree.node,
+        \   a:depth > 0 ? 'depth ' . a:depth : 'full depth'),
+        \ 'lines': map(copy(l:rendered), { _, x -> x[0] }),
+        \ 'targets': map(copy(l:rendered),
+        \                { _, x -> wiki#paths#to_wiki_url(x[1]) }),
         \}
 
-  function! l:scratch.print_content() abort dict
-    for l:line in self.lines
-      call append('$', l:line)
-    endfor
+  " There is one node per line, so we simply look up the target by line number
+  function! l:scratch.get_target() abort dict
+    return get(self.targets, line('.') - s:header_size - 1, '')
   endfunction
 
-  function! l:scratch.syntax() abort dict
-    syntax match ScratchSeparator /\//
-    highlight link ScratchSeparator Title
-  endfunction
+  call s:output_to_scratch(l:scratch)
+endfunction
+
+" }}}1
+function! s:output_to_scratch(opts) abort " {{{1
+  " Open a scratch buffer for one of the graph views. The options must define
+  " the buffer "name", a "header" line and the "lines" to display, as well as
+  " a "get_target" dict function that returns the link target under the
+  " cursor (relative to the wiki root, or empty if there is none). The
+  " optional "cmd" is a command that reopens the view; if it is defined, then
+  " <cr> will reopen the view at the followed page.
+
+  let l:scratch = extend(copy(s:scratch_base), a:opts)
+  let l:scratch.lines = [l:scratch.header, ''] + l:scratch.lines
 
   call wiki#scratch#new(l:scratch)
+endfunction
+
+" }}}1
+
+" The number of lines that are prepended to the content of the graph views
+let s:header_size = 2
+
+let s:scratch_base = {}
+
+function! s:scratch_base.post_init() abort dict " {{{1
+  nnoremap <silent><buffer> o    :call b:scratch.action(0)<cr>
+  nnoremap <silent><buffer> <cr> :call b:scratch.action(1)<cr>
+endfunction
+
+" }}}1
+function! s:scratch_base.action(continue_in_graph) abort dict " {{{1
+  if line('.') <= s:header_size | return | endif
+
+  let l:target = self.get_target()
+  if empty(l:target) | return | endif
+
+  " Save the command before following, since following wipes this buffer
+  let l:cmd = get(self, 'cmd', '')
+
+  " The targets are relative to the wiki root, so we must prefix with "/" to
+  " avoid that they are resolved relative to the current directory.
+  call wiki#url#follow(
+        \ wiki#paths#is_abs(l:target) ? l:target : '/' . l:target)
+
+  if a:continue_in_graph && !empty(l:cmd)
+    execute l:cmd
+  endif
+endfunction
+
+" }}}1
+function! s:scratch_base.print_content() abort dict " {{{1
+  for l:line in self.lines
+    call append('$', l:line)
+  endfor
+endfunction
+
+" }}}1
+function! s:scratch_base.syntax() abort dict " {{{1
+  syntax match ScratchContent "."
+  syntax match ScratchSeparator "[─│┌┐└┘├┤┼]"
+  syntax match ScratchCycle "↺"
+  execute 'syntax match ScratchHeader "\%<' . (s:header_size + 1) . 'l.*"'
+
+  highlight link ScratchContent Include
+  highlight link ScratchSeparator Title
+  highlight link ScratchCycle WarningMsg
+  highlight link ScratchHeader Comment
+endfunction
+
+" }}}1
+
+function! s:tree_to_lines(tree) abort " {{{1
+  " Render a tree (see s:graph._build_tree) as a list of [line, file] pairs
+
+  let l:lines = [[a:tree.node, a:tree.file]]
+
+  let l:stack = s:tree_child_items(a:tree, '')
+  while !empty(l:stack)
+    let l:item = remove(l:stack, 0)
+    call add(l:lines, [l:item.line, l:item.node.file])
+    call extend(l:stack, s:tree_child_items(l:item.node, l:item.prefix), 0)
+  endwhile
+
+  return l:lines
+endfunction
+
+" }}}1
+function! s:tree_child_items(node, prefix) abort " {{{1
+  let l:items = []
+
+  let l:last = len(a:node.children) - 1
+  for l:i in range(l:last + 1)
+    let l:child = a:node.children[l:i]
+    call add(l:items, {
+          \ 'node': l:child,
+          \ 'line': a:prefix
+          \   . (l:i == l:last ? '└─ ' : '├─ ')
+          \   . l:child.node
+          \   . (l:child.cycle ? ' ↺' : ''),
+          \ 'prefix': a:prefix . (l:i == l:last ? '   ' : '│  '),
+          \})
+  endfor
+
+  return l:items
 endfunction
 
 " }}}1
