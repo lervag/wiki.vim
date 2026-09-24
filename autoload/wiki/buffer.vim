@@ -47,6 +47,9 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiGraphCheckOrphans  call wiki#graph#check_orphans()
   command! -buffer -count=1 WikiGraphIn   call wiki#graph#in(<count>)
   command! -buffer -count=1 WikiGraphOut  call wiki#graph#out(<count>)
+  command! -buffer -nargs=*
+        \ -complete=customlist,wiki#complete#graph_export
+        \ WikiGraphExport                 call wiki#graph#export(<f-args>)
   command! -buffer WikiJournalIndex       call wiki#journal#make_index()
   command! -buffer WikiLinkAdd            call g:wiki_select_method.links()
   command! -buffer WikiLinkRemove         call wiki#link#remove()

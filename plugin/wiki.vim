@@ -26,6 +26,17 @@ call wiki#init#option('wiki_export', {
       \ 'output' : fnamemodify(tempname(), ':h'),
       \})
 call wiki#init#option('wiki_filetypes', ['md'])
+call wiki#init#option('wiki_graph_export', {
+      \ 'format' : 'dot',
+      \ 'output' : fnamemodify(tempname(), ':h'),
+      \ 'color_distance' : v:false,
+      \ 'view' : v:false,
+      \ 'edit' : v:false,
+      \ 'renderer' : {
+      \   'dot' : 'dot -Tsvg -o {output} {input}',
+      \   'mermaid' : 'mmdc -i {input} -o {output}',
+      \ },
+      \})
 call wiki#init#option('wiki_fzf_pages_opts', '')
 call wiki#init#option('wiki_fzf_tags_opts', '')
 call wiki#init#option('wiki_fzf_links_opts', '')

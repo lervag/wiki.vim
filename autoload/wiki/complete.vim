@@ -41,6 +41,44 @@ function! wiki#complete#tag_names(lead, line, pos) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#complete#graph_export(lead, line, pos) abort " {{{1
+  " Complete the value of the options that take one
+  for [l:option, l:values] in items(s:graph_export_values)
+    if stridx(a:lead, l:option) != 0 | continue | endif
+
+    let l:value = strpart(a:lead, strlen(l:option))
+    let l:candidates = type(l:values) == v:t_list
+          \ ? copy(l:values)
+          \ : getcompletion(l:value, l:values)
+
+    return map(
+          \ filter(l:candidates, { _, x -> stridx(x, l:value) == 0 }),
+          \ { _, x -> l:option . x })
+  endfor
+
+  return filter(copy(s:graph_export_options),
+        \ { _, x -> stridx(x, a:lead) == 0 })
+endfunction
+
+let s:graph_export_options = [
+      \ '--format=',
+      \ '--output=',
+      \ '--depth=',
+      \ '--from',
+      \ '--to',
+      \ '--both',
+      \ '--no-journal',
+      \ '--color-distance',
+      \ '--open',
+      \ '--edit',
+      \]
+
+let s:graph_export_values = {
+      \ '--format=': ['dot', 'mermaid'],
+      \ '--output=': 'file',
+      \}
+
+" }}}1
 function! wiki#complete#pages(lead, line, pos) abort " {{{1
   return wiki#page#get_all(#{
         \ prefix: substitute(a:lead, '^\/*', '', ''),

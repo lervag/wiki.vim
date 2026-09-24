@@ -142,6 +142,50 @@ endfunction
 
 " }}}1
 
+function! s:graph.get_neighbourhood(file, depth, direction, ...) abort dict " {{{1
+  " Return the files that are reachable from a:file within a:depth steps when
+  " following links in the given direction ('in', 'out' or 'both'). A depth of
+  " zero or less means unlimited depth.
+  "
+  " The optional argument is a Funcref that decides whether a file should be
+  " included. Notice that excluded files also block the paths through them.
+  "
+  " Return: A dictionary of absolute path -> number of steps from a:file.
+  "         Since this is a breadth first search, the number of steps is the
+  "         length of the shortest path.
+
+  let l:Filter = a:0 > 0 ? a:1 : { _ -> v:true }
+
+  let l:directions = a:direction ==# 'both' ? ['in', 'out'] : [a:direction]
+  if index(l:directions, 'in') >= 0
+    call self.refresh_cache()
+  endif
+
+  let l:distances = { a:file : 0 }
+  let l:queue = [a:file]
+
+  while !empty(l:queue)
+    let l:file = remove(l:queue, 0)
+    let l:level = l:distances[l:file]
+    if a:depth > 0 && l:level >= a:depth | continue | endif
+
+    for l:direction in l:directions
+      for l:adjacent in self._get_adjacent_files(l:file, l:direction)
+        if has_key(l:distances, l:adjacent) || !l:Filter(l:adjacent)
+          continue
+        endif
+
+        let l:distances[l:adjacent] = l:level + 1
+        call add(l:queue, l:adjacent)
+      endfor
+    endfor
+  endwhile
+
+  return l:distances
+endfunction
+
+" }}}1
+
 function! s:graph._build_tree(file, depth, direction) abort dict " {{{1
   " Build a tree of the files that are reachable from a:file by following
   " links in the specified direction ('in' or 'out'). The tree is a nested

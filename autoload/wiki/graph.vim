@@ -258,7 +258,11 @@ function! wiki#graph#out(...) abort " {{{1
 endfunction
 
 " }}}1
+function! wiki#graph#export(...) abort " {{{1
+  call wiki#graph#exporter#run(a:000)
+endfunction
 
+" }}}1
 function! wiki#graph#mark_refreshed(file) abort " {{{1
   if !empty(a:file)
     let l:graph = wiki#graph#builder#get()

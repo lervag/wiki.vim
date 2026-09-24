@@ -111,6 +111,7 @@ features:
   =======     =======
   `fzf`         A backend for UI selection (|g:wiki_select_method|)
   `pandoc`      |WikiExport|
+  `graphviz`    Rendering of |WikiGraphExport| output in the `dot` format
 
 ------------------------------------------------------------------------------
 USAGE                                                        *wiki-intro-usage*
@@ -160,6 +161,7 @@ FEATURES                                                  *wiki-intro-features*
     - Creating a table of contents (|WikiTocGenerate|)
     - Transforming links (from text to link or between link types)
     - Viewing wiki link graphs
+    - Exporting the wiki graph for visualization (|WikiGraphExport|)
     - Displaying incoming links (see |WikiLinkIncomingToggle|)
   - Completion of wiki links and link anchors
   - Text objects
@@ -791,6 +793,31 @@ a reference of all available options.
           \ 'output': fnamemodify(tempname(), ':h'),
           \}
 
+*g:wiki_graph_export*
+  A dictionary that specifies the default configuration for
+  |WikiGraphExport|. See the specifications for the options for more
+  information.
+
+  The `renderer` key maps each format to the command that is used to render
+  the exported graph when the `--open` option is given. The `{input}` and
+  `{output}` placeholders are replaced by the exported file and the rendered
+  `svg` file, respectively. Use an empty string to disable the renderer for
+  a given format; |WikiGraphExport| will then open the exported file itself.
+
+  Default: >vim
+
+    let g:wiki_graph_export = {
+          \ 'format' : 'dot',
+          \ 'output' : fnamemodify(tempname(), ':h'),
+          \ 'color_distance' : v:false,
+          \ 'view' : v:false,
+          \ 'edit' : v:false,
+          \ 'renderer' : {
+          \   'dot' : 'dot -Tsvg -o {output} {input}',
+          \   'mermaid' : 'mmdc -i {input} -o {output}',
+          \ },
+          \}
+<
 *g:wiki_filetypes*
   List of filetypes for which `wiki.vim` should be enabled. As explained in
   |wiki-filetype-spec|, the filetypes are specified by the file extension.
@@ -1875,6 +1902,76 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
 
   In the scratch buffer, both `o` and `<cr>` will open the page on the current
   line.
+
+*WikiGraphExport*
+`:WikiGraphExport [options]`
+
+  Export the wiki graph to a file for visualization with external tools. The
+  default configuration is specified with |g:wiki_graph_export|.
+
+  Broken links are included in the graph and are marked with a dashed, red
+  style.
+
+  All the links between a pair of pages are combined into a single edge. If
+  there is more than one link, then the edge is labelled with the number of
+  links. If the two pages link to each other, then the edge is drawn with an
+  arrow in both directions.
+
+  When a subgraph is exported, i.e. with one of the `--from`, `--to`, `--both`
+  or `--depth` options below, then the current page is the origin of the graph
+  and is highlighted.
+
+  The available options are:
+
+  `--format=dot|mermaid`
+      The output format. `dot` is the graphviz format, which may be rendered
+      with e.g. `dot` or `sfdp`; `mermaid` is convenient for embedding the
+      graph in a Markdown document.
+
+      Default: `dot`
+
+  `--output=path`
+      Write the graph to the specified path. A relative path is interpreted
+      relative to the wiki root. If the path is a directory, then the file is
+      named `wiki-graph` with an extension that matches the format.
+
+      Default: `wiki-graph.dot` in the `output` dir of |g:wiki_graph_export|.
+
+  `--from`, `--to`, `--both`
+      Only export the part of the graph that is reachable from the current
+      page by following links out of it, into it, or in both directions.
+      Without one of these options, the entire wiki is exported.
+
+  `--depth=N`
+      Only include pages within `N` steps of the current page. This implies
+      `--both` unless one of the direction options is given. A depth of `0`
+      means unlimited depth.
+
+  `--no-journal`
+      Exclude the journal entries.
+
+  `--color-distance`
+      Color each page according to the number of steps from the current page.
+      The colors fade out with increasing distance, and pages that are further
+      away than the number of available colors all use the last one.
+
+      This requires an origin to measure the distance from, so it must be
+      combined with one of the options above that export a subgraph.
+
+  `--open`
+      Render the exported graph and open the result. See
+      |g:wiki_graph_export| for how to configure the renderers. If no
+      renderer is available, then the exported file itself is opened.
+
+  `--edit`
+      Open the exported file in Vim. This may be combined with `--open`, in
+      which case the graph is also rendered and opened in a viewer.
+
+  Example: Export the pages within two steps of the current page and open the
+  rendered graph: >vim
+
+    :WikiGraphExport --depth=2 --open
+<
 
 *<plug>(wiki-link-remove)*
 *WikiLinkRemove*
