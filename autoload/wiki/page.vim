@@ -349,6 +349,9 @@ function! s:update_links_local(old, new) abort "{{{1
         \ ? a:new.anchor
         \ : wiki#paths#to_wiki_url(a:new.path) . a:new.anchor
 
+  " Join with the preceding change (e.g. the moved or renamed section), so
+  " that the entire operation can be undone at once
+  silent! undojoin
   keeppattern keepjumps execute printf('%%s/%s/%s/e%s',
         \ s:get_anchor_pattern(a:old.anchor),
         \ escape(l:anchor, '\/&~'),
@@ -385,6 +388,8 @@ function! s:update_links_external(old, new) abort "{{{1
     execute 'buffer' l:bufnr
     silent update
   endfor
+  execute 'buffer' l:current_bufnr
+  let l:current_path = expand('%:p')
 
   " Update links
   let l:graph = wiki#graph#builder#get()
@@ -399,38 +404,55 @@ function! s:update_links_external(old, new) abort "{{{1
   let l:replacement_patterns = !empty(l:new.path)
         \ ? s:get_replacement_patterns(l:old.path, l:new.path)
         \ : []
+  let l:written_files = []
   for [l:file, l:file_links] in items(l:files_with_links)
-    let l:lines = readfile(l:file)
+    let l:is_current = l:file ==# l:current_path
+    let l:lines = l:is_current ? getline(1, '$') : readfile(l:file)
 
     " Note: The substitutions are global, so each line must be visited only
     "       once, even if it contains several of the relevant links.
     for l:lnum in uniq(sort(map(copy(l:file_links), 'v:val.lnum'), 'N'))
+      let l:line = l:lines[l:lnum - 1]
+
       " Update file
       for [l:pattern, l:replace] in l:replacement_patterns
-        let l:lines[l:lnum - 1] = substitute(
-              \ l:lines[l:lnum - 1],
-              \ l:pattern, l:replace, 'g')
+        let l:line = substitute(l:line, l:pattern, l:replace, 'g')
       endfor
 
       " Update anchor
       if !empty(l:old.anchor)
-        let l:lines[l:lnum - 1] = substitute(
-              \ l:lines[l:lnum - 1],
+        let l:line = substitute(l:line,
               \ s:get_anchor_pattern(l:old.anchor),
               \ escape(l:new.anchor, '\&~'),
               \ 'g')
       endif
+
+      " Update the current buffer directly and join with the preceding change,
+      " so that the entire operation can be undone at once
+      if l:is_current && l:line !=# l:lines[l:lnum - 1]
+        silent! undojoin
+        call setline(l:lnum, l:line)
+      endif
+
+      let l:lines[l:lnum - 1] = l:line
     endfor
 
-    call writefile(l:lines, l:file, 's')
+    if l:is_current
+      silent update
+    else
+      call writefile(l:lines, l:file, 's')
+      call add(l:written_files, l:file)
+    endif
   endfor
 
   call l:graph.mark_tainted(l:old.path)
 
-  " Refresh other wiki buffers
+  " Refresh other wiki buffers whose files were updated
   for l:bufnr in l:wiki_bufnrs
-    execute 'buffer' l:bufnr
-    silent edit
+    if index(l:written_files, fnamemodify(bufname(l:bufnr), ':p')) >= 0
+      execute 'buffer' l:bufnr
+      silent edit
+    endif
   endfor
 
   " Restore the original buffer
