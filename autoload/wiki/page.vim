@@ -338,13 +338,22 @@ function! s:update_links_local(old, new) abort "{{{1
         \ ? a:new.anchor
         \ : wiki#paths#to_wiki_url(a:new.path) . a:new.anchor
 
-  keeppattern keepjumps execute printf('%%s/\V%s/%s/e%s',
-        \ a:old.anchor,
-        \ l:anchor,
+  keeppattern keepjumps execute printf('%%s/%s/%s/e%s',
+        \ s:get_anchor_pattern(a:old.anchor),
+        \ escape(l:anchor, '\/&~'),
         \ &gdefault ? '' : 'g')
   silent update
 
   call cursor(l:pos[1:])
+endfunction
+
+" }}}1
+function! s:get_anchor_pattern(anchor) abort "{{{1
+  " Create a pattern that matches a:anchor as a whole anchor, i.e. where it is
+  " either followed by a subanchor or by the end of the link. Without this,
+  " e.g. "#Foo" would also match within "#Foobar".
+
+  return escape(a:anchor, '.*[]^$~\/') .. '\([]#|),]\|$\)\@='
 endfunction
 
 " }}}1
@@ -370,7 +379,9 @@ function! s:update_links_external(old, new) abort "{{{1
   let l:graph = wiki#graph#builder#get()
   let l:links = l:graph.get_links_to(l:old.path, {'nudge': v:true})
   if !empty(l:old.anchor)
-    call filter(l:links, { _, x -> x.anchor =~# '^' .. l:old.anchor })
+    call filter(l:links, { _, x ->
+          \ x.anchor ==# l:old.anchor
+          \ || stridx(x.anchor, l:old.anchor .. '#') == 0 })
   endif
   let l:files_with_links = wiki#u#group_by(l:links, 'filename_from')
 
@@ -380,19 +391,23 @@ function! s:update_links_external(old, new) abort "{{{1
   for [l:file, l:file_links] in items(l:files_with_links)
     let l:lines = readfile(l:file)
 
-    for l:link in l:file_links
+    " Note: The substitutions are global, so each line must be visited only
+    "       once, even if it contains several of the relevant links.
+    for l:lnum in uniq(sort(map(copy(l:file_links), 'v:val.lnum'), 'N'))
       " Update file
       for [l:pattern, l:replace] in l:replacement_patterns
-        let l:lines[l:link.lnum - 1] = substitute(
-              \ l:lines[l:link.lnum - 1],
+        let l:lines[l:lnum - 1] = substitute(
+              \ l:lines[l:lnum - 1],
               \ l:pattern, l:replace, 'g')
       endfor
 
       " Update anchor
       if !empty(l:old.anchor)
-        let l:lines[l:link.lnum - 1] = substitute(
-              \ l:lines[l:link.lnum - 1],
-              \ l:old.anchor, l:new.anchor, 'g')
+        let l:lines[l:lnum - 1] = substitute(
+              \ l:lines[l:lnum - 1],
+              \ s:get_anchor_pattern(l:old.anchor),
+              \ escape(l:new.anchor, '\&~'),
+              \ 'g')
       endif
     endfor
 
