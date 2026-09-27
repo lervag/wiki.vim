@@ -66,7 +66,8 @@ function! s:init_buffer_commands() abort " {{{1
   command! -buffer WikiLinkIncomingToggle call wiki#link#incoming_display_toggle()
   command! -buffer WikiLinkIncomingHover  call wiki#link#incoming_hover()
   command! -buffer WikiPageDelete         call wiki#page#delete()
-  command! -buffer WikiPageRefile         call wiki#page#refile()
+  command! -buffer -nargs=* -complete=customlist,wiki#complete#refile
+        \ WikiPageRefile call wiki#page#refile(<f-args>)
   command! -buffer WikiPageRename         call wiki#page#rename()
   command! -buffer WikiPageRenameSection  call wiki#page#rename_section()
   command! -buffer WikiToc                call g:wiki_select_method.toc()

@@ -164,25 +164,36 @@ endfunction
 
 " }}}1
 function! wiki#page#refile(...) abort "{{{1
-  let l:opts = extend(#{
-        \ target_page: '',
-        \ target_lnum: 0,
-        \}, a:0 > 0 ? a:1 : {})
-
-  " target_page could be given by user input with something like this:
-  " let l:opts.target_page = input('> ', '', 'customlist,wiki#complete#url')
-
-  let l:source = wiki#page#refile#collect_source(l:opts)
-  if empty(l:source)
-    return wiki#log#error('No source section recognized!')
-  endif
+  " Move the section under the cursor to another location.
+  "
+  " Input: Either an option dictionary (see wiki#page#refile#default_opts())
+  "        or a list of command line arguments (see wiki-mappings-reference).
+  "
+  " If no target is specified, then the user is asked for a target page and
+  " a target section within that page.
 
   try
+    let l:opts = a:0 > 0 && type(a:1) == v:t_dict
+          \ ? extend(wiki#page#refile#default_opts(), a:1)
+          \ : wiki#page#refile#parse_args(a:000)
+    call wiki#page#refile#validate_opts(l:opts)
+
+    let l:source = wiki#page#refile#collect_source()
+    if empty(l:source)
+      throw 'wiki.vim: No source section recognized!'
+    endif
+
+    if empty(l:opts.target_page)
+          \ && empty(l:opts.target_anchor)
+          \ && l:opts.target_lnum < 0
+      let l:opts = wiki#page#refile#ask_for_target(l:opts, l:source)
+      if empty(l:opts) | return | endif
+    endif
+
     let l:target = wiki#page#refile#collect_target(l:opts, l:source)
-  catch /wiki.vim: target page not found/
-    return wiki#log#error('Target page was not found!')
-  catch /wiki.vim: anchor not recognized/
-    return wiki#log#error('Target anchor not recognized!')
+    call wiki#page#refile#check_levels(l:source, l:target)
+  catch /^wiki\.vim: /
+    return wiki#log#error(matchstr(v:exception, '^wiki\.vim: \zs.*'))
   endtry
 
   call wiki#log#info(

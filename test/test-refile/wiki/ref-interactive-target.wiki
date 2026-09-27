@@ -6,8 +6,10 @@
 
 # Second
 
-## Baz
+## Section 1
 
-## Foo bar Baz
+### Foo bar Baz
+
+## Baz
 
 ## Foobar

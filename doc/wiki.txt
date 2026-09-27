@@ -1767,6 +1767,7 @@ Note: For those who want to adjust the mappings, it may be useful to know that
   `n`     <leader>wgo         |<plug>(wiki-graph-out)|
   `n`     <leader>wf          |<plug>(wiki-link-transform)|
   `n`     <leader>wd          |<plug>(wiki-page-delete)|
+  `n`     <leader>wq          |<plug>(wiki-page-refile)|
   `n`     <leader>wr          |<plug>(wiki-page-rename)|
   `n`     <f2>                |<plug>(wiki-page-rename-section)|
   `n`                         |<plug>(wiki-toc)|
@@ -2139,6 +2140,43 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
 *<plug>(wiki-page-delete)*
 *WikiPageDelete*
   Delete wiki page.
+
+*<plug>(wiki-page-refile)*
+*WikiPageRefile*
+`:WikiPageRefile [options]`
+  Move the section under the cursor, including its subsections, to another
+  location. All links to the moved section and its subsections are updated.
+
+  Without options, the command asks for a target page and then for a target
+  section within that page. The section is moved into the selected section,
+  i.e. as if `-relation inside` was given.
+
+  Available options are:
+
+  -page PAGE ~
+    Move the section to `PAGE`. Default is the current page.
+
+  -anchor ANCHOR ~
+    Move the section relative to the section given by `ANCHOR`, e.g.
+    `#Foo#Bar`. Without this option, the section is appended at the end of the
+    target page as a level 1 section.
+
+  -relation REL ~
+    Specify the placement relative to `-anchor`. `REL` may be one of:
+
+      - `inside`  As the first subsection of the target section, below
+                any text of the target section itself (default)
+      - `before`  As a sibling immediately above the target section
+      - `after`   As a sibling immediately below the target section
+
+    The header levels of the moved section and its subsections are adjusted
+    to match the new position. This option requires `-anchor`.
+
+  -lnum N ~
+    Move the section below line `N` of the target page. The header levels are
+    kept, except that the section is promoted to fit the depth of the section
+    that contains line `N`. This option can not be combined with `-anchor` or
+    `-relation`.
 
 *<plug>(wiki-page-rename)*
 *WikiPageRename*

@@ -2,12 +2,14 @@
 
 ## Foo
 
+## Section 1
+
+### Foo bar Baz
+
 ## Bar
 
 # Second
 
 ## Baz
-
-## Foo bar Baz
 
 ## Foobar

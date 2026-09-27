@@ -4,8 +4,10 @@ Intro text here.
 
 This is a wiki.
 
-[[target-1#Section 1]]
-[[target-1#Section 1#Foo bar Baz]]
+[[#Section 1]]
+[[target-2#Second#Foo bar Baz]]
 
 This-is-a-wiki.
+
+# Section 1
 

@@ -1,6 +1,7 @@
 set nocompatible
 let &runtimepath =
       \ simplify(fnamemodify(expand('<sfile>'), ':h') . '/..')
+      \ . ',' . simplify(fnamemodify(expand('<sfile>'), ':h') . '/stub')
       \ . ',' . &runtimepath
 set noswapfile
 set nomore
