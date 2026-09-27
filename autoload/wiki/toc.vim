@@ -188,6 +188,14 @@ let s:header_spec = {
       \}
 
 
+function! wiki#toc#get_header_char(...) abort
+  " Returns: The character used to denote header levels, e.g. '#'
+
+  let l:filetype = a:0 > 0 ? s:get_filetype(a:1) : s:get_filetype()
+  return get(get(s:header_spec, l:filetype, {}), 'anchor_char', '#')
+endfunction
+
+
 function! wiki#toc#gather_anchors(...) abort
   let l:cache = wiki#cache#open('anchors', {
         \ 'local': 1,

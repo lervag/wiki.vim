@@ -1,0 +1,17 @@
+# Notes
+
+## Snippet
+
+```sh
+# not a header
+echo foo
+```
+
+### Detail
+
+# Other
+
+## Sub
+
+Text.
+

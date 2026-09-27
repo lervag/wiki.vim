@@ -9,3 +9,9 @@
 ## Subsection A
 
 ## Subsection B
+
+# Section 20
+
+Link: [[#Section 2]] and [[#Section 20]] and [[#Section 2 extra]]
+
+# Section 2 extra
