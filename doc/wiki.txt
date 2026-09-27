@@ -1744,6 +1744,7 @@ Note: For those who want to adjust the mappings, it may be useful to know that
   `n`     <leader>wf          |<plug>(wiki-link-transform)|
   `n`     <leader>wd          |<plug>(wiki-page-delete)|
   `n`     <leader>wr          |<plug>(wiki-page-rename)|
+  `n`     <f2>                |<plug>(wiki-page-rename-section)|
   `n`     <leader>wt          |<plug>(wiki-toc-generate)|
   `n`     <leader>wT          |<plug>(wiki-toc-generate-local)|
   `n`     <leader>wp          |<plug>(wiki-export)|
@@ -2116,6 +2117,12 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
 *<plug>(wiki-page-rename)*
 *WikiPageRename*
   Rename wiki page (will update all links to the page).
+
+*<plug>(wiki-page-rename-section)*
+*WikiPageRenameSection*
+  Rename the section under the cursor (will update all anchor links to the
+  section and to its subsections, both in the current page and in other wiki
+  pages). The new name is specified interactively.
 
 *<plug>(wiki-toc-generate)*
 *WikiTocGenerate*
