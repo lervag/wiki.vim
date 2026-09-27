@@ -97,7 +97,7 @@ the corresponding 'filetype' is `markdown`.
 ------------------------------------------------------------------------------
 REQUIREMENTS                                          *wiki-intro-requirements*
 
-`wiki.vim` requires Vim 9.1 or Neovim 0.9.5.
+`wiki.vim` requires Vim 9.1 or Neovim 0.10.
 
 This plugin is mainly developed on and for Linux. Some or most of the features
 should still work on Windows and OSX, but currently there are no guarantees.
@@ -201,7 +201,7 @@ Executive summary ~
 - Speed is key - make sure you have a fast workflow:
   - Use a keyboard shortcut in your desktop/window manager to open Vim/neovim
     with the wiki index (e.g. <alt-n>).
-  - Use something like |:WikiPages| and `ripgrep` (with e.g.
+  - Use something like |WikiPages| and `ripgrep` (with e.g.
     `ctrlsf.vim` [2]) for searching.
 - Write short pages and use links between related pages.
 - Don't obsess about the wiki structure.
@@ -228,7 +228,7 @@ previously also used Dropbox.
 
 Needless to say, it is important to be able to find relevant notes fast.
 I have a global Vim mapping `<leader>ow` to open a page search interface.
-I previously used |:WikiPages|, which works very well! Today, though, I use
+I previously used |WikiPages|, which works very well! Today, though, I use
 Telescope [4] with a personal function to list wiki files [5]. It usually
 takes no more than a couple of seconds from the moment I think of something
 until I have opened the relevant note. A key here is to use simple names for
@@ -259,7 +259,7 @@ names.
 I don't worry about having many pages. I don't worry about almost empty pages.
 I don't worry about keeping my pages in a hierarchy. I've found it can be
 useful to split information into separate pages, as it makes it easier to link
-things. I sometimes find the graph features useful, e.g. |wiki-graph-in|, but
+things. I sometimes find the graph features useful, e.g. |WikiGraphIn|, but
 I don't use them much.
 
 However, sometimes I write down stuff that I don't know where to put. This is
@@ -291,7 +291,7 @@ data and relevant tools as a "third party".
 
 Daily journal ~
 
-I keep a daily journal. I use |:WikiJournal| to open today's page. For each
+I keep a daily journal. I use |WikiJournal| to open today's page. For each
 day, I tend to write a short memo on what I did that day. I've found it
 convenient to format this as lists for each main topic/project/activity. This
 makes it easier to write weekly and monthly summaries.
@@ -562,6 +562,12 @@ md ~
   This is basically the same as the `wiki` scheme, except it will apply URL
   decoding while resolving the URLs.
 <
+adoc ~
+  Links to AsciiDoc pages. The address is relative to the directory of the
+  current page and the anchor is matched as an AsciiDoc anchor. An address
+  without an anchor and without the `.adoc` extension is interpreted as an
+  anchor in the current page.
+
 journal ~
   Links to journal pages. The address should be a date format at a specified
   level/frequency:
@@ -584,7 +590,7 @@ journal ~
   Note: This scheme works well as long as there is only a single page per
         date. If you want to use multiple entries per date you should avoid
         this scheme and you should probably consider to change the
-        `use_journal_scheme` option (see |g:wiki_journal_index|).
+        `link_url_parser` option (see |g:wiki_journal_index|).
 
 file ~
   Links to a local file. |g:wiki_viewer| is used by the default handler to
@@ -614,11 +620,24 @@ zot ~
   `zot:citekey` (or the shorthand `@citekey`) will allow to open the PDFs in
   your JabRef bibliography directly.
 
+bdsk ~
+  Links to a BibDesk citekey, e.g. `bdsk:citekey`. The URL is URL encoded and
+  opened as `x-bdsk://citekey` with the `generic` handler.
+
+man ~
+  Links to a manual page, e.g. `man:ls`. A section may be specified by
+  appending it with a dash, e.g. `man:printf-3`. The page is opened in a
+  `man://` buffer.
+
+vimdoc ~
+  Links to a Vim help tag, e.g. `vimdoc:wiki-link-schemes`. The tag is opened
+  with |:help|.
+
 generic ~
-  If the scheme is not otherwise recognized, then the URL is opened with the
-  system handler. This is defined by the `_` key of |g:wiki_viewer| on Linux.
-  Currently, only Linux is supported here.  This will work quite well on
-  standard Linux distributions, e.g. for following `http` and `https` URLs.
+  If the scheme is not otherwise recognized, then the URL is opened with
+  |netrw| (`netrw#BrowseX`). If that fails, the URL is opened with the viewer
+  given by the `_` key of |g:wiki_viewer|. This works quite well e.g. for
+  following `http` and `https` URLs.
 
 ------------------------------------------------------------------------------
 SUPPORTED LINK TYPES                                          *wiki-link-types*
@@ -758,7 +777,8 @@ a reference of all available options.
 
   Default value: OS dependent
 
-    `Linux and MacOS`: `'~/.cache/wiki.vim/'`
+    `Linux and MacOS`: `'$XDG_CACHE_HOME/wiki.vim'`, or `'~/.cache/wiki.vim'`
+                     if `$XDG_CACHE_HOME` is not set
     `Windows`:         Standard temporary folder (based on |tempname()|)
 
 *g:wiki_cache_persistent*
@@ -820,7 +840,8 @@ a reference of all available options.
 <
 *g:wiki_filetypes*
   List of filetypes for which `wiki.vim` should be enabled. As explained in
-  |wiki-filetype-spec|, the filetypes are specified by the file extension.
+  |wiki-filetype-specification|, the filetypes are specified by the file
+  extension.
 
   The first element of the list is considered the default filetype where that
   is relevant.
@@ -871,7 +892,7 @@ a reference of all available options.
 
 *g:wiki_select_method*
   A dictionary of functions that allows the user to choose the preferred
-  behaviour for |WikiPage|, |WikiTags|, |WikiToc| and |WikiLinkAdd|. This
+  behaviour for |WikiPages|, |WikiTags|, |WikiToc| and |WikiLinkAdd|. This
   gives the user a lot of flexibility to specify how these commands will work.
   See |wiki-advanced-config-3| for more info on customizing it.
 
@@ -1652,6 +1673,9 @@ a reference of all available options.
     " MacOS
     let g:wiki_viewer._ = 'open'
 
+    " Windows
+    let g:wiki_viewer._ = 'start'
+
 *g:wiki_write_on_nav*
   Option to specify whether or not to save the current file automatically
   before navigating (forward or backward) between wiki links.
@@ -1745,6 +1769,7 @@ Note: For those who want to adjust the mappings, it may be useful to know that
   `n`     <leader>wd          |<plug>(wiki-page-delete)|
   `n`     <leader>wr          |<plug>(wiki-page-rename)|
   `n`     <f2>                |<plug>(wiki-page-rename-section)|
+  `n`                         |<plug>(wiki-toc)|
   `n`     <leader>wt          |<plug>(wiki-toc-generate)|
   `n`     <leader>wT          |<plug>(wiki-toc-generate-local)|
   `n`     <leader>wp          |<plug>(wiki-export)|
@@ -1774,6 +1799,7 @@ Note: For those who want to adjust the mappings, it may be useful to know that
   `ox`    iu                  |<plug>(wiki-iu)|
   `ox`    at                  |<plug>(wiki-at)|
   `ox`    it                  |<plug>(wiki-it)|
+  `n`                         |<plug>(wiki-journal-index)|
   `n`     <c-p>               |<plug>(wiki-journal-prev)|          [JOURNAL]
   `n`     <c-n>               |<plug>(wiki-journal-next)|          [JOURNAL]
   `n`     <leader><c-n>       |<plug>(wiki-journal-copy-tonext)|   [JOURNAL]
@@ -1813,11 +1839,11 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
   uses the UI select method defined by |g:wiki_select_method|.
 
     fzf specific behaviour ~
-      If |g:wiki_select_method| is `'fzf'`, then it is possible to create
-      a new page by pressing |g:wiki_fzf_force_create_key| (alt-enter,
-      by default). That is, a page whose name is equal to the fzf query will
-      be created if it doesn't already exist. If the page exists, the existing
-      page will be opened.
+      If |g:wiki_select_method| uses the `wiki#fzf#*` functions, then it is
+      possible to create a new page by pressing
+      |g:wiki_fzf_force_create_key| (alt-enter, by default). That is, a page
+      whose name is equal to the fzf query will be created if it doesn't
+      already exist. If the page exists, the existing page will be opened.
 
       For convenience, if the input query does not have any results, simply
       pressing enter will also create a page. E.g., if you searched for "My
@@ -1995,10 +2021,10 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
   text is determined by the `link_text` key of |g:wiki_link_creation|.
 
     fzf specific behaviour ~
-      If |g:wiki_select_method| is `'fzf'`, then it is possible to create
-      a new page by pressing |g:wiki_fzf_force_create_key| (alt-enter,
-      by default). That is, a link whose name is equal to the fzf query will
-      be created.
+      If |g:wiki_select_method| uses the `wiki#fzf#*` functions, then it is
+      possible to create a new page by pressing
+      |g:wiki_fzf_force_create_key| (alt-enter, by default). That is, a link
+      whose name is equal to the fzf query will be created.
 
       For convenience, if the input query does not have any results, simply
       pressing enter will also create a page. E.g., if you searched for "My
@@ -2034,15 +2060,15 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
 *<plug>(wiki-link-follow-split)*
 *<plug>(wiki-link-follow-vsplit)*
 *WikiLinkFollowSplit*
-  Similar to |WikiLinkfollow|, except wiki links are followed in a |split|.
+  Similar to |WikiLinkFollow|, except wiki links are followed in a |split|.
   The `vsplit` mapping uses a vertical split. Modifiers such as |:vertical|
   are allowed for the command, e.g. >vim
 
-    :vert topleft WikiLinkfollowSplit
+    :vert topleft WikiLinkFollowSplit
 
 *<plug>(wiki-link-follow-tab)*
 *WikiLinkFollowTab*
-  Similar to |WikiLinkfollow|, except wiki links are followed in a |tabedit|.
+  Similar to |WikiLinkFollow|, except wiki links are followed in a |tabedit|.
 
 *<plug>(wiki-link-return)*
 *WikiLinkReturn*
@@ -2169,8 +2195,7 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
   Export the current wiki file with `pandoc` (https://pandoc.org/). The main argument `fname`
   specifies the target filename and format (implied by the file extension),
   e.g. `test.pdf` or `test.html`. If `fname` is not specified, then the
-  `-path` option is used to determine the output location. In this case, the
-  `-view` option is activated regardless of the basic configuration.
+  `-output` and `-ext` options are used to determine the output location.
 
   Available options are given below. The default values are specified in the
   dictionary |g:wiki_export|.
@@ -2184,7 +2209,7 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
   -ext EXT ~
     Specify extension to use if `fname` is not provided.
 
-  -link_ext_replace ~
+  -link-ext-replace ~
     Set to true to replace in-wiki link extensions with html. This enables
     in-browser wiki navigation, but for it to work well, it requires that:
     `-ext` is set to `html`.
@@ -2260,6 +2285,13 @@ MAPPINGS AND COMMANDS REFERENCE                       *wiki-mappings-reference*
 *WikiToc*
   Open a table of contents for the current wiki page with the UI select method
   specified by |g:wiki_select_method|.
+
+*WikiClearCache*
+`:WikiClearCache {name}`
+  Clear the specified cache. The available caches are `anchors`, `capture`,
+  `broken-links-numbers`, `journal-nodes`, `links-in`, `links-out`, `tags` and
+  `toc`. Use the name `ALL` to clear all of them. See also
+  |g:wiki_cache_persistent| and |g:wiki_cache_root|.
 
 ==============================================================================
 COMPLETION                                                    *wiki-completion*
@@ -2584,7 +2616,7 @@ to be unencoded, then you could do something like this: >vim
 
 Example 3: Customize the `wiki` select method ~
                                                        *wiki-advanced-config-3*
-`wiki.vim` allows to customize the select method used for |WikiPage|,
+`wiki.vim` allows to customize the select method used for |WikiPages|,
 |WikiTags| and |WikiToc|. Built-in choices include Telescope, |vim.ui.select|,
 fzf.vim, and fzf-lua (see |g:wiki_select_method|). But you can use whatever
 fuzzy finder you want by creating the selection functions yourself. See e.g.

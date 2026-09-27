@@ -172,7 +172,7 @@ function! wiki#page#export(line1, line2, ...) abort " {{{1
     let l:arg = remove(l:args, 0)
     if l:arg ==# '-args'
       let l:cfg.args = remove(l:args, 0)
-    elseif l:arg =~# '\v^-f(rom_format)?$'
+    elseif l:arg =~# '\v^-f(rom[-_]format)?$'
       let l:cfg.from_format = remove(l:args, 0)
     elseif l:arg ==# '-ext'
       let l:cfg.ext = remove(l:args, 0)
