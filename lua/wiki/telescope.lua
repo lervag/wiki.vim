@@ -163,7 +163,12 @@ function M.links(mode, opts)
           vim.cmd [[normal! h]]
         end
 
-        vim.fn["wiki#link#add"](path, "", { text = text })
+        -- use default value of text if none selected
+        if text == "" then
+          vim.fn["wiki#link#add"](path, "")
+        else
+          vim.fn["wiki#link#add"](path, "", {text = text})
+        end
 
         if mode == "insert" then
           vim.fn.feedkeys "a"
