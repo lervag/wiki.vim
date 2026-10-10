@@ -93,7 +93,12 @@ M.links = function(mode)
           note = vim.fs.joinpath(vim.g.wiki_root, fzf_data.last_query)
         end
         if note then
-          vim.fn["wiki#link#add"](note, "", { text = text })
+          -- use default value of text if none selected
+          if text == "" then
+            vim.fn["wiki#link#add"](note, "")
+          else
+            vim.fn["wiki#link#add"](note, "", { text = text })
+          end
         end
       end,
     },
